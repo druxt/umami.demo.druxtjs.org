@@ -21,7 +21,7 @@ tasks:
 
 
 environments:
-  9.x:
+  main:
     routes:
       - nginx:
         - demo-api.druxtjs.org
