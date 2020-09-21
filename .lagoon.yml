@@ -1,0 +1,10 @@
+docker-compose-yaml: docker-compose.yml
+
+project: demo-druxtjs-org
+
+
+environments:
+  main:
+    routes:
+      - node:
+        - demo.druxtjs.org
