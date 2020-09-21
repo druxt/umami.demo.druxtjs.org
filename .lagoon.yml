@@ -1,44 +1,30 @@
 docker-compose-yaml: docker-compose.yml
 
-project: drupal9-example-simple
+project: demo-api-druxtjs-org
 
 tasks:
-#   pre-rollout:
-#     - run:
-#         name: drush sql-dump
-#         command: mkdir -p /app/web/sites/default/files/private/ && drush sql-dump --ordered-dump --gzip --result-file=/app/web/sites/default/files/private/pre-deploy-dump.sql.gz || true
-#         service: cli
-
   post-rollout:
     - run:
-        name: drush cim
-        command: drush -y cim
-        service: cli
-    - run:
-        name: drush updb
-        command: drush -y updb
-        service: cli
-    - run:
-        name: drush cr
-        command: drush -y cr
+        name: drush si
+        command: drush -y si demo_umami
         service: cli
 
+    - run:
+        name: drush en
+        command: drush -y en druxt jsonapi_views
+        service: cli
+
+    - run:
+        name: drush rap
+        command: drush rap anonymous 'access druxt resources'
+        service: cli
 
 
 environments:
   9.x:
     routes:
       - nginx:
-        - drupal9.amazee.io:
-            annotations:
-              nginx.ingress.kubernetes.io/server-snippet: |
-                add_header X-BlackLivesMatter ⬛️⬛️⬛️⬛️⬛️⬛️;
-                add_header X-BlackLivesMatter ⬛️⬛️⬛️⬛️⬛️⬛️;
-                add_header X-BlackLivesMatter ⬛️⬛️⬛️⬛️⬛️⬛️;
-                add_header X-BlackLivesMatter ⬛️⬛️⬛️⬛️⬛️⬛️;
-                add_header X-BlackLivesMatter ⬛️⬛️⬛️⬛️⬛️⬛️;
-                add_header X-BlackLivesMatter ⬛️⬛️⬛️⬛️⬛️⬛️;
-                add_header X-Drupal "#Drupal9 on Lagoon #CelebrateDrupal";
+        - demo-api.druxtjs.org
     cronjobs:
       - name: drush cron
         schedule: "*/15 * * * *"
