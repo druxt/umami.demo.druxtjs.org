@@ -29,6 +29,7 @@ export default {
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
+    '@nuxtjs/proxy',
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
     'druxt'
@@ -36,7 +37,12 @@ export default {
 
   // Druxt Configuration
   druxt: {
-    baseUrl: 'https://nginx-demo-api-druxtjs-org-develop.au.amazee.io/'
+    baseUrl: process.env.BASE_URL
+  },
+
+  // Proxy Configuration
+  proxy: {
+    '/sites/default/files': process.env.BASE_URL
   },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
