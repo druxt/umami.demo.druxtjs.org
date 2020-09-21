@@ -1,14 +1,8 @@
 {
-    "name": "amazeeio/drupal-project",
-    "description": "Project template for Drupal 8 projects with composer hosted on amazee.io",
+    "name": "druxt/demo-api-druxtjs-org",
+    "description": "Drupal 9 JSON:API backend for Demonstration purposes.",
     "type": "project",
     "license": "GPL-2.0+",
-    "authors": [
-        {
-            "name": "Michael Schmid michael@amazee.io",
-            "role": "CTO"
-        }
-    ],
     "repositories": [
         {
             "type": "composer",
