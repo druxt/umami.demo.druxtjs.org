@@ -40,6 +40,10 @@ export default {
   // Druxt Configuration
   druxt: {
     baseUrl: process.env.BASE_URL,
+    breadcrumb: {
+      component: 'b-breadcrumb',
+      home: false,
+    },
     menu: {
       jsonApiMenuItems: true,
     }
