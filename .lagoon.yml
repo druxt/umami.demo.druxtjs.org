@@ -4,12 +4,7 @@ project: demo-druxtjs-org
 
 
 environments:
-  9.x:
+  main:
     routes:
       - node:
         - demo.druxtjs.org
-    cronjobs:
-      - name: drush cron
-        schedule: "*/15 * * * *"
-        command: drush cron
-        service: cli
