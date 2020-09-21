@@ -31,7 +31,13 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
+    'druxt'
   ],
+
+  // Druxt Configuration
+  druxt: {
+    baseUrl: 'https://nginx-demo-api-druxtjs-org-develop.au.amazee.io/'
+  },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {},
