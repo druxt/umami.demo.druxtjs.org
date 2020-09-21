@@ -1,3 +1,5 @@
+import components from './components'
+
 export default {
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
@@ -17,7 +19,7 @@ export default {
   plugins: [],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
-  components: true,
+  components,
 
   // Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
   buildModules: [
@@ -37,7 +39,10 @@ export default {
 
   // Druxt Configuration
   druxt: {
-    baseUrl: process.env.BASE_URL
+    baseUrl: process.env.BASE_URL,
+    menu: {
+      jsonApiMenuItems: true,
+    }
   },
 
   // Proxy Configuration
