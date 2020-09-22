@@ -25,6 +25,7 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/eslint
     '@nuxtjs/eslint-module',
+    ['@nuxtjs/google-analytics', { id: 'UA-172677199-2' }],
     // https://go.nuxtjs.dev/stylelint
     '@nuxtjs/stylelint-module',
   ],
