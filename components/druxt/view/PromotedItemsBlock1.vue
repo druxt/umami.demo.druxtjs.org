@@ -3,6 +3,9 @@
     <b-container class="mb-3 mt-3 mb-md-5 mt-md-5">
       <b-row>
         <slot name="results" v-bind="{ wrapper }" />
+        <b-col>
+          <slot name="attachments_after" />
+        </b-col>
       </b-row>
     </b-container>
   </b-row>
