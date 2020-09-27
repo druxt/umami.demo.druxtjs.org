@@ -54,10 +54,6 @@
                 "web-root": "web/"
             }
         },
-        "patches": {
-            "drupal/jsonapi_views": {
-                "https://www.drupal.org/project/jsonapi_views/issues/3172648": "https://www.drupal.org/files/issues/2020-09-26/view_displays-3172648-4.patch"
-            }
-        }
+        "patches": {}
     }
 }

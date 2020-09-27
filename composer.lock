@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b15284f493f155f7a5c2e17f7c5b5583",
+    "content-hash": "bd5e03b9c388f20d0c386738e6546177",
     "packages": [
         {
             "name": "amazeeio/drupal_integrations",
@@ -1982,7 +1982,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/jsonapi_views.git",
-                "reference": "12d120d386f418e229e7cb53fb8c94eade308367"
+                "reference": "a69147f2fdb5a050f3fdeaeb3891577f913bc077"
             },
             "require": {
                 "drupal/core": "^8.8 || ^9",
@@ -1995,14 +1995,11 @@
                 },
                 "drupal": {
                     "version": "8.x-1.x-dev",
-                    "datestamp": "1601092638",
+                    "datestamp": "1601098597",
                     "security-coverage": {
                         "status": "not-covered",
                         "message": "Dev releases are not covered by Drupal security advisories."
                     }
-                },
-                "patches_applied": {
-                    "https://www.drupal.org/project/jsonapi_views/issues/3172648": "https://www.drupal.org/files/issues/2020-09-26/view_displays-3172648-4.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
@@ -2028,7 +2025,7 @@
             "support": {
                 "source": "https://git.drupalcode.org/project/jsonapi_views"
             },
-            "time": "2020-09-26T05:36:12+00:00"
+            "time": "2020-09-26T23:29:51+00:00"
         },
         {
             "name": "drupal/lagoon_logs",
