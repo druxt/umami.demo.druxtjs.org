@@ -53,6 +53,7 @@
             "locations": {
                 "web-root": "web/"
             }
-        }
+        },
+        "patches": {}
     }
 }

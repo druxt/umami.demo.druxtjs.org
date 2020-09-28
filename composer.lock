@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e3b130bae65a9c615180327993be325e",
+    "content-hash": "bd5e03b9c388f20d0c386738e6546177",
     "packages": [
         {
             "name": "amazeeio/drupal_integrations",
@@ -1982,11 +1982,11 @@
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/jsonapi_views.git",
-                "reference": "3bb6e7d968285bcbc91f68f3daecdf1fdfcce7ad"
+                "reference": "a69147f2fdb5a050f3fdeaeb3891577f913bc077"
             },
             "require": {
                 "drupal/core": "^8.8 || ^9",
-                "drupal/jsonapi_resources": "*"
+                "drupal/jsonapi_resources": "^1.0"
             },
             "type": "drupal-module",
             "extra": {
@@ -1995,7 +1995,7 @@
                 },
                 "drupal": {
                     "version": "8.x-1.x-dev",
-                    "datestamp": "1597129485",
+                    "datestamp": "1601098597",
                     "security-coverage": {
                         "status": "not-covered",
                         "message": "Dev releases are not covered by Drupal security advisories."
@@ -2004,7 +2004,7 @@
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
             "license": [
-                "GPL-2.0+"
+                "GPL-2.0-or-later"
             ],
             "authors": [
                 {
@@ -2025,7 +2025,7 @@
             "support": {
                 "source": "https://git.drupalcode.org/project/jsonapi_views"
             },
-            "time": "2020-08-18T02:57:25+00:00"
+            "time": "2020-09-26T23:29:51+00:00"
         },
         {
             "name": "drupal/lagoon_logs",
@@ -7395,6 +7395,7 @@
             "keywords": [
                 "tokenizer"
             ],
+            "abandoned": true,
             "time": "2019-09-17T06:23:10+00:00"
         },
         {
@@ -8591,5 +8592,6 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }
