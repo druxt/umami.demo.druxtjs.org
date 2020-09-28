@@ -2,7 +2,11 @@
   <b-row>
     <b-container class="mb-3 mt-3 mb-md-5 mt-md-5">
       <b-row>
-        <slot name="results" v-bind="{ wrapper }" />
+        <slot name="results" :wrapper="column" />
+
+        <component :is="column.component" v-bind="column.props">
+          <slot name="attachments_after" />
+        </component>
       </b-row>
     </b-container>
   </b-row>
@@ -15,18 +19,14 @@ export default {
   mixins: [DruxtViewsViewMixin],
 
   data: () => ({
-    hover: false,
-  }),
-
-  computed: {
-    wrapper: () => ({
+    column: {
       component: 'b-col',
       props: {
         class: 'mb-3',
         cols: 12,
-        md: 6,
+        lg: 6,
       },
-    }),
-  },
+    },
+  }),
 }
 </script>

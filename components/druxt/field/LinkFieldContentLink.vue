@@ -26,7 +26,7 @@ export default {
         // Use <nuxt-link> for relative links.
         else {
           links[key].component = 'b-button'
-          links[key].props.to = link.uri
+          links[key].props.to = link.uri.replace(/^internal:/, '')
         }
       }
 
