@@ -24,9 +24,9 @@ export default {
       props: {
         class: 'mb-3',
         cols: 12,
-        lg: 6
-      }
-    }
+        lg: 6,
+      },
+    },
   }),
 }
 </script>

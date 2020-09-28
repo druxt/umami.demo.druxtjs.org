@@ -7,8 +7,8 @@
         props: {
           class: 'mb-3 mb-sm-0',
           cols: 12,
-          sm: 6
-        }
+          sm: 6,
+        },
       }"
     />
   </b-row>
