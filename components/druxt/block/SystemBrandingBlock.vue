@@ -12,7 +12,7 @@ export default {
 
   computed: {
     src() {
-      return 'https://dev-druxt.pantheonsite.io/core/profiles/demo_umami/themes/umami/logo.svg'
+      return '/core/profiles/demo_umami/themes/umami/logo.svg'
     },
   },
 }
