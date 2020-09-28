@@ -52,6 +52,7 @@ export default {
 
   // Proxy Configuration
   proxy: {
+    '/core/profiles/demo_umami/themes/umami/logo.svg': process.env.BASE_URL,
     '/sites/default/files': process.env.BASE_URL
   },
 
