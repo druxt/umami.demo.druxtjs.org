@@ -35,7 +35,7 @@ export default {
     '@nuxtjs/proxy',
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
-    'druxt'
+    'druxt-site'
   ],
 
   // Druxt Configuration
