@@ -32,7 +32,6 @@ export default {
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
-    '@nuxtjs/proxy',
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
     'druxt-site'
