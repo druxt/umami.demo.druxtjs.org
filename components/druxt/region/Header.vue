@@ -7,22 +7,7 @@
 
     <b-collapse id="nav-collapse" class="ml-auto" is-nav>
       <!-- Main menu -->
-      <slot name="umami_main_menu" :options="menuOptions" />
+      <slot name="umami_main_menu" :wrapper="false" />
     </b-collapse>
   </b-container>
 </template>
-
-<script>
-export default {
-  data: () => ({
-    menuOptions: {
-      wrapper: {
-        component: 'div',
-        props: {
-          class: 'ml-auto',
-        },
-      },
-    },
-  }),
-}
-</script>
