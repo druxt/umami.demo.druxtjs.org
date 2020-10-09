@@ -51,6 +51,7 @@ export default {
       'FormPlugin',
       'FormGroupPlugin',
       'FormInputPlugin',
+      'FormTextareaPlugin',
       'LayoutPlugin',
       'ListGroupPlugin',
       'ModalPlugin',
