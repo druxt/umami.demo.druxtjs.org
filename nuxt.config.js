@@ -32,11 +32,32 @@ export default {
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
-    '@nuxtjs/proxy',
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
     'druxt-site'
   ],
+
+  bootstrapVue: {
+    components: [
+      'BBadge',
+      'BButton',
+      'BCollapse',
+      'BImg',
+      'BLink',
+    ],
+    componentPlugins: [
+      'BreadcrumbPlugin',
+      'CardPlugin',
+      'FormPlugin',
+      'FormGroupPlugin',
+      'FormInputPlugin',
+      'FormTextareaPlugin',
+      'LayoutPlugin',
+      'ListGroupPlugin',
+      'ModalPlugin',
+      'NavbarPlugin'
+    ],
+  },
 
   // Druxt Configuration
   druxt: {
