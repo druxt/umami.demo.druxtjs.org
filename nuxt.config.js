@@ -37,6 +37,28 @@ export default {
     'druxt-site'
   ],
 
+  bootstrapVue: {
+    components: [
+      'BBadge',
+      'BButton',
+      'BCollapse',
+      'BImg',
+      'BLink',
+    ],
+    componentPlugins: [
+      'BreadcrumbPlugin',
+      'CardPlugin',
+      'FormPlugin',
+      'FormGroupPlugin',
+      'FormInputPlugin',
+      'FormTextareaPlugin',
+      'LayoutPlugin',
+      'ListGroupPlugin',
+      'ModalPlugin',
+      'NavbarPlugin'
+    ],
+  },
+
   // Druxt Configuration
   druxt: {
     baseUrl: process.env.BASE_URL,
