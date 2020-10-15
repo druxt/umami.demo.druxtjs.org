@@ -60,8 +60,6 @@
 
 <script>
 export default {
-  name: 'Druxt',
-
   computed: {
     containerClass: () => ['mb-3', 'mt-3', 'mb-md-5', 'mt-md-5'],
 

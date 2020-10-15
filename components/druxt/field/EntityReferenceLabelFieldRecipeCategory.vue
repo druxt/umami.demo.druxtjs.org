@@ -1,7 +1,7 @@
 <template>
   <component
     :is="wrapper.component"
-    v-if="entities && typeof entities[0] !== 'undefined'"
+    v-if="!$fetchState.pending"
   >
     <!-- Label: Above -->
     <div v-if="$slots['label-above']">

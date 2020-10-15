@@ -1,6 +1,6 @@
 <template>
   <b-row
-    v-if="img && fields.field_content_link"
+    v-if="!$fetchState.pending"
     :style="style"
     class="pb-3 pt-3 pb-md-5 pt-md-5"
   >

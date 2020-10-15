@@ -26,8 +26,10 @@
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.16.0",
     "core-js": "^3.6.5",
+    "druxt": "^0.3.2",
     "druxt-site": "^0.1.1",
-    "nuxt": "^2.14.6"
+    "nuxt": "^2.14.6",
+    "vue-live": "^1.14.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
