@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@nuxtjs/google-analytics": "^2.4.0",
-    "bootstrap": "^4.5.2",
+    "bootstrap": "^4.5.3",
     "bootstrap-vue": "^2.16.0",
     "core-js": "^3.6.5",
     "druxt": "^0.3.2",
