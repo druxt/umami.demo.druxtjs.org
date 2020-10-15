@@ -34,28 +34,25 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
-    'druxt-site'
+    'druxt',
+    'druxt-site',
   ],
 
   bootstrapVue: {
-    components: [
-      'BBadge',
-      'BButton',
-      'BCollapse',
-      'BImg',
-      'BLink',
-    ],
+    components: ['BBadge', 'BButton', 'BCollapse', 'BImg', 'BLink'],
     componentPlugins: [
       'BreadcrumbPlugin',
       'CardPlugin',
       'FormPlugin',
       'FormGroupPlugin',
       'FormInputPlugin',
+      'FormSelectPlugin',
       'FormTextareaPlugin',
       'LayoutPlugin',
       'ListGroupPlugin',
       'ModalPlugin',
-      'NavbarPlugin'
+      'NavbarPlugin',
+      'SpinnerPlugin',
     ],
   },
 
@@ -68,15 +65,19 @@ export default {
     },
     menu: {
       jsonApiMenuItems: true,
-    }
+    },
   },
 
   // Proxy Configuration
   proxy: {
     '/core/profiles/demo_umami/themes/umami/logo.svg': process.env.BASE_URL,
-    '/sites/default/files': process.env.BASE_URL
+    '/sites/default/files': process.env.BASE_URL,
   },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
-  build: {},
+  build: {
+    extend(config) {
+      config.resolve.alias.vue$ = 'vue/dist/vue.esm.js'
+    },
+  },
 }
