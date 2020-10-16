@@ -34,7 +34,6 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
-    'druxt',
     'druxt-site',
   ],
 
@@ -62,9 +61,6 @@ export default {
     breadcrumb: {
       component: 'b-breadcrumb',
       home: false,
-    },
-    menu: {
-      jsonApiMenuItems: true,
     },
   },
 
