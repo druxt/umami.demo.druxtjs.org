@@ -28,7 +28,7 @@
     "core-js": "^3.6.5",
     "druxt": "^0.3.2",
     "druxt-site": "^0.1.1",
-    "nuxt": "^2.14.6",
+    "nuxt": "^2.14.7",
     "vue-live": "^1.14.2"
   },
   "devDependencies": {
