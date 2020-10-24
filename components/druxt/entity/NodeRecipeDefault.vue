@@ -46,7 +46,7 @@
 
           <!-- Difficulty. -->
           <b-col cols="6" class="my-auto text-center">
-            <slot name="field_difficulty" :context="{ icon: true }" />
+            <slot name="field_difficulty" :icon="true" />
           </b-col>
         </b-row>
       </b-col>

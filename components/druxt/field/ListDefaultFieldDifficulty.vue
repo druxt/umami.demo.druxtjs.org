@@ -1,5 +1,5 @@
 <template>
-  <component :is="wrapper.component" v-if="context.icon" v-bind="wrapper.props">
+  <component :is="wrapper.component" v-if="icon" v-bind="wrapper.props">
     <b-icon-puzzle font-scale="2" />
 
     <p class="mt-2">
@@ -21,6 +21,13 @@ export default {
   components: { BIconPuzzle },
 
   mixins: [DruxtFieldMixin],
+
+  props: {
+    icon: {
+      type: Boolean,
+      default: false,
+    }
+  },
 
   computed: {
     variant() {

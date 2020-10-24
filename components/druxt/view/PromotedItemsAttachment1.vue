@@ -3,9 +3,9 @@
     <slot
       name="results"
       :wrapper="{
+        class: ['mb-3', 'mb-sm-0'],
         component: 'b-col',
-        props: {
-          class: 'mb-3 mb-sm-0',
+        propsData: {
           cols: 12,
           sm: 6,
         },
@@ -13,11 +13,3 @@
     />
   </b-row>
 </template>
-
-<script>
-import { DruxtViewsViewMixin } from 'druxt-views'
-
-export default {
-  mixins: [DruxtViewsViewMixin],
-}
-</script>
