@@ -7,7 +7,7 @@
 
     <b-collapse id="nav-collapse" class="ml-auto" is-nav>
       <!-- Main menu -->
-      <slot name="umami_main_menu" :wrapper="false" />
+      <DruxtBlockSystemMenuBlockMain />
     </b-collapse>
   </b-container>
 </template>

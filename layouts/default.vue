@@ -1,9 +1,21 @@
 <template>
   <b-container fluid>
     <!-- Header -->
-    <b-navbar class="bg-white p-3" toggleable="lg" sticky>
+    <!-- <b-navbar class="bg-white p-3" toggleable="lg" sticky>
       <Druxt module="block-region" name="header" v-bind="defaults" />
-    </b-navbar>
+    </b-navbar> -->
+    <DruxtBlockRegion
+      name="header"
+      :wrapper="{
+        class: ['bg-white', 'p-3'],
+        component: 'b-navbar',
+        propsData: {
+          sticky: true,
+          toggleable: 'lg',
+        }
+      }"
+      v-bind="defaults"
+    />
 
     <!-- Banner: Top -->
     <Druxt module="block-region" name="banner_top" v-bind="defaults" />
@@ -14,18 +26,18 @@
         <!-- Breadcrumb -->
         <b-row v-if="!isHomePath">
           <b-col>
-            <Druxt module="block-region" name="breadcrumbs" v-bind="defaults" />
+            <DruxtBlockRegion name="breadcrumbs" v-bind="defaults" />
           </b-col>
         </b-row>
 
         <!-- Page title -->
         <b-row v-if="!isHomePath">
           <b-col class="mb-3 mb-md-5">
-            <Druxt module="block-region" name="page_title" v-bind="defaults" />
+            <DruxtBlockRegion name="page_title" v-bind="defaults" />
           </b-col>
         </b-row>
 
-        <Druxt module="block-region" name="content" v-bind="defaults" />
+        <DruxtBlockRegion name="content" v-bind="defaults" />
       </b-container>
     </b-row>
 
@@ -34,7 +46,7 @@
       <b-container
         :class="containerClass.concat(['text-center', 'text-md-left'])"
       >
-        <Druxt module="block-region" name="content_bottom" v-bind="defaults" />
+        <DruxtBlockRegion name="content_bottom" v-bind="defaults" />
       </b-container>
     </b-row>
 
@@ -43,7 +55,7 @@
       <b-container
         :class="containerClass.concat(['text-center', 'text-md-left'])"
       >
-        <Druxt module="block-region" name="footer" v-bind="defaults" />
+        <DruxtBlockRegion name="footer" v-bind="defaults" />
       </b-container>
     </b-row>
 
@@ -52,7 +64,7 @@
       <b-container
         :class="containerClass.concat(['text-center', 'text-md-left'])"
       >
-        <Druxt module="block-region" name="bottom" v-bind="defaults" />
+        <DruxtBlockRegion name="bottom" v-bind="defaults" />
       </b-container>
     </b-row>
   </b-container>
@@ -62,10 +74,7 @@
 export default {
   data: () => ({
     defaults: {
-      theme: 'umami',
-      wrapper: {
-        component: false
-      }
+      theme: 'umami'
     }
   }),
 
