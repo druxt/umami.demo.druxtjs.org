@@ -11,10 +11,10 @@
     <b-row>
       <slot
         name="results"
-        :result="{
+        :wrapper="{
           component: 'b-col',
+          class: 'mb-3',
           propsData: {
-            class: 'mb-3',
             cols: 12,
             sm: 6,
           },
