@@ -28,7 +28,7 @@
     "core-js": "^3.6.5",
     "druxt-site": "^0.2.1",
     "nuxt": "^2.14.7",
-    "vue-live": "^1.14.3"
+    "vue-live": "^1.15.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
