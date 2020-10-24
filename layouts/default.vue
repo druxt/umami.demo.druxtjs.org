@@ -1,12 +1,24 @@
 <template>
   <b-container fluid>
     <!-- Header -->
-    <b-navbar class="bg-white p-3" toggleable="lg" sticky>
-      <druxt-block-region name="header" :theme="theme" />
-    </b-navbar>
+    <!-- <b-navbar class="bg-white p-3" toggleable="lg" sticky>
+      <Druxt module="block-region" name="header" v-bind="defaults" />
+    </b-navbar> -->
+    <DruxtBlockRegion
+      name="header"
+      :wrapper="{
+        class: ['bg-white', 'p-3'],
+        component: 'b-navbar',
+        propsData: {
+          sticky: true,
+          toggleable: 'lg',
+        }
+      }"
+      v-bind="defaults"
+    />
 
     <!-- Banner: Top -->
-    <druxt-block-region name="banner_top" :theme="theme" />
+    <Druxt module="block-region" name="banner_top" v-bind="defaults" />
 
     <!-- Content -->
     <b-row class="bg-light">
@@ -14,18 +26,18 @@
         <!-- Breadcrumb -->
         <b-row v-if="!isHomePath">
           <b-col>
-            <druxt-block-region name="breadcrumbs" :theme="theme" />
+            <DruxtBlockRegion name="breadcrumbs" v-bind="defaults" />
           </b-col>
         </b-row>
 
         <!-- Page title -->
         <b-row v-if="!isHomePath">
           <b-col class="mb-3 mb-md-5">
-            <druxt-block-region name="page_title" :theme="theme" />
+            <DruxtBlockRegion name="page_title" v-bind="defaults" />
           </b-col>
         </b-row>
 
-        <druxt-block-region :theme="theme" />
+        <DruxtBlockRegion name="content" v-bind="defaults" />
       </b-container>
     </b-row>
 
@@ -34,7 +46,7 @@
       <b-container
         :class="containerClass.concat(['text-center', 'text-md-left'])"
       >
-        <druxt-block-region name="content_bottom" :theme="theme" />
+        <DruxtBlockRegion name="content_bottom" v-bind="defaults" />
       </b-container>
     </b-row>
 
@@ -43,7 +55,7 @@
       <b-container
         :class="containerClass.concat(['text-center', 'text-md-left'])"
       >
-        <druxt-block-region name="footer" :theme="theme" />
+        <DruxtBlockRegion name="footer" v-bind="defaults" />
       </b-container>
     </b-row>
 
@@ -52,7 +64,7 @@
       <b-container
         :class="containerClass.concat(['text-center', 'text-md-left'])"
       >
-        <druxt-block-region name="bottom" :theme="theme" />
+        <DruxtBlockRegion name="bottom" v-bind="defaults" />
       </b-container>
     </b-row>
   </b-container>
@@ -60,14 +72,18 @@
 
 <script>
 export default {
+  data: () => ({
+    defaults: {
+      theme: 'umami'
+    }
+  }),
+
   computed: {
     containerClass: () => ['mb-3', 'mt-3', 'mb-md-5', 'mt-md-5'],
 
     isHomePath() {
       return !!this.$store.state.druxtRouter.route.isHomePath
     },
-
-    theme: () => 'umami',
   },
 }
 </script>

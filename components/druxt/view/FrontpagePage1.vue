@@ -9,26 +9,17 @@
 
     <!-- Results. -->
     <b-row>
-      <slot name="results" v-bind="{ wrapper }" />
+      <slot
+        name="results"
+        :wrapper="{
+          component: 'b-col',
+          class: 'mb-3',
+          propsData: {
+            cols: 12,
+            sm: 6,
+          },
+        }"
+      />
     </b-row>
   </div>
 </template>
-
-<script>
-import { DruxtViewsViewMixin } from 'druxt-views'
-
-export default {
-  mixins: [DruxtViewsViewMixin],
-
-  computed: {
-    wrapper: () => ({
-      component: 'b-col',
-      props: {
-        class: 'mb-3',
-        cols: 12,
-        sm: 6,
-      },
-    }),
-  },
-}
-</script>

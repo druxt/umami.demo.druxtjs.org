@@ -4,8 +4,15 @@
       <b-row>
         <slot name="results" :wrapper="column" />
 
-        <component :is="column.component" v-bind="column.props">
-          <slot name="attachments_after" />
+        <component
+          :is="column.component"
+          :class="column.class"
+          v-bind="column.propsData"
+        >
+          <slot
+            name="attachments_after"
+            :wrapper="{ component: 'span' }"
+          />
         </component>
       </b-row>
     </b-container>
@@ -21,8 +28,8 @@ export default {
   data: () => ({
     column: {
       component: 'b-col',
-      props: {
-        class: 'mb-3',
+      class: 'mb-3',
+      propsData: {
         cols: 12,
         lg: 6,
       },
