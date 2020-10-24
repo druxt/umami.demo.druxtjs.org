@@ -26,7 +26,7 @@
     "bootstrap": "^4.5.3",
     "bootstrap-vue": "^2.16.0",
     "core-js": "^3.6.5",
-    "druxt-site": "^0.2.0",
+    "druxt-site": "^0.2.1",
     "nuxt": "^2.14.7",
     "vue-live": "^1.14.3"
   },
