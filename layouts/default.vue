@@ -1,9 +1,6 @@
 <template>
   <b-container fluid>
     <!-- Header -->
-    <!-- <b-navbar class="bg-white p-3" toggleable="lg" sticky>
-      <Druxt module="block-region" name="header" v-bind="defaults" />
-    </b-navbar> -->
     <DruxtBlockRegion
       name="header"
       :wrapper="{
