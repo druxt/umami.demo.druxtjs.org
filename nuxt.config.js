@@ -47,6 +47,7 @@ export default {
       'FormInputPlugin',
       'FormSelectPlugin',
       'FormTextareaPlugin',
+      'JumbotronPlugin',
       'LayoutPlugin',
       'ListGroupPlugin',
       'ModalPlugin',
