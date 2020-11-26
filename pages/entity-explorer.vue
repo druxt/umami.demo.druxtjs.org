@@ -61,6 +61,19 @@ export default {
 
   components: { VueLiveEditor, VueLivePreview },
 
+  data: () => ({
+    display: { selected: 'default', options: undefined },
+    resource: { selected: undefined, options: undefined },
+    resourceType: {
+      selected: 'node--recipe',
+      options: [
+        { value: 'node--article', text: 'Articles' },
+        { value: 'node--recipe', text: 'Recipes' },
+        { value: 'node--page', text: 'Pages' },
+      ],
+    },
+  }),
+
   async fetch() {
     // Load resources.
     this.resource.options = await this.getResources({
@@ -86,19 +99,6 @@ export default {
         .addFields('entity_view_display--entity_view_display', ['mode']),
     }).then((displays) => displays.map((display) => display.attributes.mode))
   },
-
-  data: () => ({
-    display: { selected: 'default', options: undefined },
-    resource: { selected: undefined, options: undefined },
-    resourceType: {
-      selected: 'node--recipe',
-      options: [
-        { value: 'node--article', text: 'Articles' },
-        { value: 'node--recipe', text: 'Recipes' },
-        { value: 'node--page', text: 'Pages' },
-      ],
-    },
-  }),
 
   computed: {
     code() {
