@@ -34,6 +34,12 @@ import { mapActions } from 'vuex'
 export default {
   mixins: [DruxtEntityMixin],
 
+  data: () => ({
+    image: false,
+    img: false,
+    media: false,
+  }),
+
   async fetch() {
     if (!this.fields.field_media_image) {
       return
@@ -45,12 +51,6 @@ export default {
     )
     this.img = this.image.attributes.uri.url
   },
-
-  data: () => ({
-    image: false,
-    img: false,
-    media: false,
-  }),
 
   computed: {
     style() {

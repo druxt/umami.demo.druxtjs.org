@@ -59,6 +59,8 @@ import 'vue-prism-editor/dist/prismeditor.min.css'
 export default {
   name: 'EntityExplorer',
 
+  components: { VueLiveEditor, VueLivePreview },
+
   data: () => ({
     display: { selected: 'default', options: undefined },
     resource: { selected: undefined, options: undefined },
@@ -71,8 +73,6 @@ export default {
       ],
     },
   }),
-
-  components: { VueLiveEditor, VueLivePreview },
 
   async fetch() {
     // Load resources.

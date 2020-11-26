@@ -9,7 +9,7 @@
         propsData: {
           sticky: true,
           toggleable: 'lg',
-        }
+        },
       }"
       v-bind="defaults"
     />
@@ -71,8 +71,8 @@
 export default {
   data: () => ({
     defaults: {
-      theme: 'umami'
-    }
+      theme: 'umami',
+    },
   }),
 
   computed: {
