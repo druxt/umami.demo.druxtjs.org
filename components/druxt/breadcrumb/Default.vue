@@ -10,8 +10,8 @@ export default {
 
   computed: {
     items() {
-      return this.crumbs.filter(item => item.to !== '/')
-    }
-  }
+      return this.crumbs.filter((item) => item.to !== '/')
+    },
+  },
 }
 </script>

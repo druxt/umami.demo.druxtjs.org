@@ -26,7 +26,7 @@ export default {
     icon: {
       type: Boolean,
       default: false,
-    }
+    },
   },
 
   computed: {

@@ -9,10 +9,7 @@
           :class="column.class"
           v-bind="column.propsData"
         >
-          <slot
-            name="attachments_after"
-            :wrapper="{ component: 'span' }"
-          />
+          <slot name="attachments_after" :wrapper="{ component: 'span' }" />
         </component>
       </b-row>
     </b-container>

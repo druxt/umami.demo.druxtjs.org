@@ -59,19 +59,6 @@ import 'vue-prism-editor/dist/prismeditor.min.css'
 export default {
   name: 'EntityExplorer',
 
-  data: () => ({
-    display: { selected: 'default', options: undefined },
-    resource: { selected: undefined, options: undefined },
-    resourceType: {
-      selected: 'node--recipe',
-      options: [
-        { value: 'node--article', text: 'Articles' },
-        { value: 'node--recipe', text: 'Recipes' },
-        { value: 'node--page', text: 'Pages' },
-      ],
-    },
-  }),
-
   components: { VueLiveEditor, VueLivePreview },
 
   async fetch() {
@@ -99,6 +86,19 @@ export default {
         .addFields('entity_view_display--entity_view_display', ['mode']),
     }).then((displays) => displays.map((display) => display.attributes.mode))
   },
+
+  data: () => ({
+    display: { selected: 'default', options: undefined },
+    resource: { selected: undefined, options: undefined },
+    resourceType: {
+      selected: 'node--recipe',
+      options: [
+        { value: 'node--article', text: 'Articles' },
+        { value: 'node--recipe', text: 'Recipes' },
+        { value: 'node--page', text: 'Pages' },
+      ],
+    },
+  }),
 
   computed: {
     code() {
