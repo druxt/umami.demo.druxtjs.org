@@ -29,7 +29,7 @@
     "druxt-breadcrumb": "^0.7.0",
     "druxt-menu": "^0.6.1",
     "druxt-site": "^0.2.2",
-    "nuxt": "^2.14.7",
+    "nuxt": "^2.14.8",
     "vue-live": "^1.16.0"
   },
   "devDependencies": {
