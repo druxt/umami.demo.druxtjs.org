@@ -32,7 +32,7 @@
     "druxt-router": "^0.17.0",
     "druxt-site": "^0.2.2",
     "druxt-views": "^0.6.0",
-    "nuxt": "^2.14.7",
+    "nuxt": "^2.14.9",
     "vue-live": "^1.16.0"
   },
   "devDependencies": {
