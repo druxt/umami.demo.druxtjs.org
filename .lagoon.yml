@@ -19,6 +19,10 @@ tasks:
         command: drush rap anonymous 'access druxt resources'
         service: cli
 
+    - run:
+        name: drush config:set
+        command: drush config:set jsonapi.settings read_only 0 -y
+        service: cli
 
 environments:
   main:
