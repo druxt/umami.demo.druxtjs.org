@@ -28,12 +28,27 @@ export default {
     ['@nuxtjs/google-analytics', { id: 'UA-172677199-2' }],
     // https://go.nuxtjs.dev/stylelint
     '@nuxtjs/stylelint-module',
+    // Custom Search API Lunr module.
+    ['~/modules/search-api-lunr', {
+      server: 'druxt',
+      index: 'default'
+    }]
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
+    // NuxtJS Lunr.
+    ['@nuxtjs/lunr-module', {
+      fields: [
+        'title',
+        'body',
+        'field_ingredients',
+        'field_recipe_instruction',
+      ]
+    }],
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
+    // DruxtJS Site.
     'druxt-site',
   ],
 
@@ -47,10 +62,12 @@ export default {
       'FormInputPlugin',
       'FormSelectPlugin',
       'FormTextareaPlugin',
+      'InputGroupPlugin',
       'LayoutPlugin',
       'ListGroupPlugin',
       'ModalPlugin',
       'NavbarPlugin',
+      'SidebarPlugin',
       'SpinnerPlugin',
     ],
   },

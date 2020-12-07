@@ -64,6 +64,18 @@
         <DruxtBlockRegion name="bottom" v-bind="defaults" />
       </b-container>
     </b-row>
+
+    <!-- Sidebar search -->
+    <b-sidebar
+      id="search"
+      title="Search"
+      backdrop
+      shadow
+      no-close-on-route-change
+      right
+    >
+      <DruxtSearchbar />
+    </b-sidebar>
   </b-container>
 </template>
 
