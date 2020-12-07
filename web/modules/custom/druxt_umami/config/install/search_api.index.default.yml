@@ -56,12 +56,28 @@ field_settings:
     dependencies:
       module:
         - node
+  type:
+    label: 'Content type'
+    datasource_id: 'entity:node'
+    property_path: type
+    type: string
+    dependencies:
+      module:
+        - node
   url:
     label: URI
     property_path: search_api_url
     type: search_api_lunr_url
     configuration:
       absolute: false
+  uuid:
+    label: UUID
+    datasource_id: 'entity:node'
+    property_path: uuid
+    type: string
+    dependencies:
+      module:
+        - node
 datasource_settings:
   'entity:node':
     bundles:
