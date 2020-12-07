@@ -1,36 +1,42 @@
 <template>
-  <b-form v-if="!$fetchState.pending" @submit="onSubmit" @reset="onReset">
-    <h2>{{ entity.attributes.label }}</h2>
-    {{ jsonapi }}
-    {{ response }}
-    <b-form-group
-      v-for="(schema, key) of fields"
-      :key="key"
-      :label="label(schema.id)"
-      :label-for="schema.id"
-      :state="state[schema.id]"
-    >
-      <b-input
-        v-if="schema.type === 'string_textfield'"
-        :id="schema.id"
-        v-model="model[schema.id]"
-        :required="schema.required"
-        :state="state[schema.id]"
-      />
+  <div v-if="!$fetchState.pending">
+    <b-form v-if="!result" @submit="onSubmit" @reset="onReset">
+      <h2>{{ entity.attributes.label }}</h2>
+      <b-form-group
+        v-for="(schema, key) of fields"
+        :key="key"
+        :label="label(schema.id)"
+        :label-for="schema.id"
+        :state="state[schema.id] && !state[schema.id]"
+      >
+        <b-input
+          v-if="schema.type === 'string_textfield'"
+          :id="schema.id"
+          v-model="model[schema.id]"
+          :required="schema.required"
+          :state="state[schema.id] && !state[schema.id]"
+        />
 
-      <b-textarea
-        v-if="schema.type === 'string_textarea'"
-        :id="schema.id"
-        v-model="model[schema.id]"
-        :required="schema.required"
-        :rows="schema.settings.display.rows"
-        :state="state[schema.id]"
-      />
-    </b-form-group>
+        <b-textarea
+          v-if="schema.type === 'string_textarea'"
+          :id="schema.id"
+          v-model="model[schema.id]"
+          :required="schema.required"
+          :rows="schema.settings.display.rows"
+          :state="state[schema.id] && !state[schema.id]"
+        />
 
-    <b-button type="submit" variant="primary">Submit</b-button>
-    <b-button type="reset" variant="danger">Reset</b-button>
-  </b-form>
+        <b-form-invalid-feedback :state="state[schema.id] && !state[schema.id]">
+          {{ state[schema.id] }}
+        </b-form-invalid-feedback>
+      </b-form-group>
+
+      <b-button type="submit" variant="primary">Submit</b-button>
+      <b-button type="reset" variant="danger">Reset</b-button>
+    </b-form>
+
+    <div v-else>{{ entity.attributes.message }}</div>
+  </div>
 </template>
 
 <script>
@@ -45,9 +51,10 @@ export default {
   mixins: [DruxtComponentMixin, DruxtRouterEntityMixin, DruxtSchemaMixin],
 
   data: () => ({
+    error: null,
     model: {},
     jsonapi: '',
-    response: null,
+    result: null,
   }),
 
   async fetch() {
@@ -84,13 +91,13 @@ export default {
 
     state() {
       const state = {}
-      if (!this.response) {
+      if (!this.error) {
         return state
       }
 
-      ;(this.response.data.errors || []).map((e) => {
+      ;(this.error.data.errors || []).map((e) => {
         const attr = e.source.pointer.split('/')[3]
-        state[attr] = false
+        state[attr] = e.detail.split(': ')[1]
         return e
       })
       return state
@@ -104,6 +111,10 @@ export default {
 
     async onSubmit(e) {
       e.preventDefault()
+
+      // Reset states.
+      this.error = null
+      this.result = null
 
       // Setup JSON:API Serializer
       const serializer = new Serializer(this.schema.resourceType, {
@@ -124,9 +135,9 @@ export default {
             },
           }
         )
-        console.log(result)
-      } catch ({ response }) {
-        this.response = response
+        this.result = result
+      } catch (error) {
+        this.error = error.response
       }
     },
 
