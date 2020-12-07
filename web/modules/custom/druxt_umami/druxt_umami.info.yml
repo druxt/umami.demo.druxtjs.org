@@ -1,0 +1,10 @@
+name: DruxtJS Umami
+description: Enhancements, tweaks and configuration for the Druxt Umami demo.
+
+type: module
+core_version_requirement: ^8.8 || ^9
+
+dependencies:
+  - drupal:druxt
+  - drupal:jsonapi_views
+  - drupal:search_api_lunr
