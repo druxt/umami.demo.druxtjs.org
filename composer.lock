@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bd5e03b9c388f20d0c386738e6546177",
+    "content-hash": "640af2c36e5008a51443f12bb7070929",
     "packages": [
         {
             "name": "amazeeio/drupal_integrations",
@@ -1348,6 +1348,7 @@
                 "reflection",
                 "static"
             ],
+            "abandoned": "roave/better-reflection",
             "time": "2020-03-27T11:06:43+00:00"
         },
         {
@@ -1819,50 +1820,28 @@
         },
         {
             "name": "drupal/druxt",
-            "version": "0.4.1",
+            "version": "dev-feature/11-contact_path_translator",
             "source": {
                 "type": "git",
-                "url": "https://git.drupalcode.org/project/druxt.git",
-                "reference": "0.4.1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/druxt-04.1.zip",
-                "reference": "0.4.1",
-                "shasum": "c80628c604922dba4f80591593888d0a1d43b91c"
+                "url": "https://github.com/druxt/druxt_drupal",
+                "reference": "c69b8009f451f523af92a2bc539195fb3ab3f96a"
             },
             "require": {
-                "drupal/core": "^8.8 || ^9",
                 "drupal/decoupled_router": "^2.0",
                 "drupal/jsonapi_menu_items": "^1.0.0"
             },
             "type": "drupal-module",
-            "extra": {
-                "drupal": {
-                    "version": "0.4.1",
-                    "datestamp": "1602805505",
-                    "security-coverage": {
-                        "status": "covered",
-                        "message": "Covered by Drupal's security advisory policy"
-                    }
-                }
-            },
-            "notification-url": "https://packages.drupal.org/8/downloads",
             "license": [
                 "GPL-2.0-or-later"
             ],
             "authors": [
                 {
                     "name": "Stuart Clark",
-                    "homepage": "https://www.drupal.org/user/103796",
                     "email": "stuart@realityloop.com"
                 }
             ],
             "description": "A bridge between frameworks, Drupal in the back, NuxtJS in the front.",
-            "homepage": "https://www.drupal.org/project/druxt",
-            "support": {
-                "source": "https://git.drupalcode.org/project/druxt"
-            }
+            "time": "2020-09-24T07:16:56+00:00"
         },
         {
             "name": "drupal/jsonapi_menu_items",
@@ -2082,6 +2061,127 @@
             "homepage": "https://www.drupal.org/project/lagoon_logs",
             "support": {
                 "source": "https://git.drupalcode.org/project/lagoon_logs"
+            }
+        },
+        {
+            "name": "drupal/search_api",
+            "version": "1.18.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/search_api.git",
+                "reference": "8.x-1.18"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/search_api-8.x-1.18.zip",
+                "reference": "8.x-1.18",
+                "shasum": "6cf1d6820ba55891e204bac40b6031ed15db482a"
+            },
+            "require": {
+                "drupal/core": "^8.8 || ^9"
+            },
+            "conflict": {
+                "drupal/search_api_solr": "2.* || 3.0 || 3.1"
+            },
+            "require-dev": {
+                "drupal/language_fallback_fix": "@dev",
+                "drupal/search_api_autocomplete": "@dev",
+                "drupal/search_api_db": "*"
+            },
+            "suggest": {
+                "drupal/facets": "Adds the ability to create faceted searches.",
+                "drupal/search_api_autocomplete": "Allows adding autocomplete suggestions to search fields.",
+                "drupal/search_api_solr": "Adds support for using Apache Solr as a backend."
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-1.18",
+                    "datestamp": "1605204423",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                },
+                "drush": {
+                    "services": {
+                        "drush.services.yml": "^9"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Thomas Seidl",
+                    "homepage": "https://www.drupal.org/u/drunken-monkey"
+                },
+                {
+                    "name": "Nick Veenhof",
+                    "homepage": "https://www.drupal.org/u/nick_vh"
+                },
+                {
+                    "name": "See other contributors",
+                    "homepage": "https://www.drupal.org/node/790418/committers"
+                }
+            ],
+            "description": "Provides a generic framework for modules offering search capabilities.",
+            "homepage": "https://www.drupal.org/project/search_api",
+            "support": {
+                "source": "https://git.drupalcode.org/project/search_api",
+                "issues": "https://www.drupal.org/project/issues/search_api",
+                "irc": "irc://irc.freenode.org/drupal-search-api"
+            }
+        },
+        {
+            "name": "drupal/search_api_lunr",
+            "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/search_api_lunr.git",
+                "reference": "2.0.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/search_api_lunr-2.0.1.zip",
+                "reference": "2.0.1",
+                "shasum": "6c7baf9ed8d228912fcda27dfe1b78be32a30fa1"
+            },
+            "require": {
+                "drupal/core": "^8 || ^9",
+                "drupal/search_api": "*"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "2.0.1",
+                    "datestamp": "1605233151",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Sam152",
+                    "homepage": "https://www.drupal.org/user/1485048"
+                },
+                {
+                    "name": "fenstrat",
+                    "homepage": "https://www.drupal.org/user/362649"
+                }
+            ],
+            "description": "A search API back-end for the Lunr search engine.",
+            "homepage": "https://www.drupal.org/project/search_api_lunr",
+            "support": {
+                "source": "https://git.drupalcode.org/project/search_api_lunr"
             }
         },
         {
@@ -5805,20 +5905,20 @@
         },
         {
             "name": "zaporylie/composer-drupal-optimizations",
-            "version": "1.1.2",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zaporylie/composer-drupal-optimizations.git",
-                "reference": "0d6ebd8bc03679d312f99a1e4e950685dbf0ff18"
+                "reference": "a7f409a765164fd13ac0bd00e19109165c51b369"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zaporylie/composer-drupal-optimizations/zipball/0d6ebd8bc03679d312f99a1e4e950685dbf0ff18",
-                "reference": "0d6ebd8bc03679d312f99a1e4e950685dbf0ff18",
+                "url": "https://api.github.com/repos/zaporylie/composer-drupal-optimizations/zipball/a7f409a765164fd13ac0bd00e19109165c51b369",
+                "reference": "a7f409a765164fd13ac0bd00e19109165c51b369",
                 "shasum": ""
             },
             "require": {
-                "composer-plugin-api": "^1.1"
+                "composer-plugin-api": "^1.1 || ^2.0"
             },
             "require-dev": {
                 "composer/composer": "^1.6",
@@ -5844,7 +5944,11 @@
                 }
             ],
             "description": "Composer plugin to improve composer performance for Drupal projects",
-            "time": "2020-10-06T10:41:00+00:00"
+            "support": {
+                "issues": "https://github.com/zaporylie/composer-drupal-optimizations/issues",
+                "source": "https://github.com/zaporylie/composer-drupal-optimizations/tree/1.2.0"
+            },
+            "time": "2020-10-22T13:26:00+00:00"
         }
     ],
     "packages-dev": [
@@ -8588,10 +8692,12 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "drupal/druxt": 20,
         "drupal/jsonapi_views": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "2.0.0"
 }
