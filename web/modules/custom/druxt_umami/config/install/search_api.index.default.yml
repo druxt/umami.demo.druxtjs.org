@@ -1,0 +1,84 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - search_api_lunr
+    - node
+    - search_api
+  config:
+    - field.storage.node.body
+    - field.storage.node.field_ingredients
+    - field.storage.node.field_recipe_category
+    - field.storage.node.field_recipe_instruction
+    - search_api.server.druxt
+id: default
+name: Default
+description: ''
+read_only: false
+field_settings:
+  body:
+    label: Body
+    datasource_id: 'entity:node'
+    property_path: body
+    type: text
+    dependencies:
+      config:
+        - field.storage.node.body
+  field_ingredients:
+    label: Ingredients
+    datasource_id: 'entity:node'
+    property_path: field_ingredients
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_ingredients
+  field_recipe_category:
+    label: 'Recipe category'
+    datasource_id: 'entity:node'
+    property_path: field_recipe_category
+    type: integer
+    dependencies:
+      config:
+        - field.storage.node.field_recipe_category
+  field_recipe_instruction:
+    label: 'Recipe instruction'
+    datasource_id: 'entity:node'
+    property_path: field_recipe_instruction
+    type: text
+    dependencies:
+      config:
+        - field.storage.node.field_recipe_instruction
+  title:
+    label: Title
+    datasource_id: 'entity:node'
+    property_path: title
+    type: search_api_lunr_label
+    dependencies:
+      module:
+        - node
+  url:
+    label: URI
+    property_path: search_api_url
+    type: search_api_lunr_url
+    configuration:
+      absolute: false
+datasource_settings:
+  'entity:node':
+    bundles:
+      default: true
+      selected: {  }
+    languages:
+      default: true
+      selected: {  }
+processor_settings:
+  add_url: {  }
+  aggregated_field: {  }
+  language_with_fallback: {  }
+  rendered_item: {  }
+tracker_settings:
+  default:
+    indexing_order: fifo
+options:
+  index_directly: true
+  cron_limit: 50
+server: druxt
