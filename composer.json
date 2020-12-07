@@ -5,6 +5,10 @@
     "license": "GPL-2.0+",
     "repositories": [
         {
+            "type": "git",
+            "url": "https://github.com/druxt/druxt_drupal"
+        },
+        {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
         }
@@ -15,7 +19,7 @@
         "cweagans/composer-patches": "~1.0",
         "drupal/core-project-message": "^9.0",
         "drupal/core-recommended": "^9.0",
-        "drupal/druxt": "^0.4.0",
+        "drupal/druxt": "dev-feature/11-contact_path_translator",
         "drupal/jsonapi_views": "1.x-dev",
         "drupal/lagoon_logs": "^1.1",
         "drush/drush": "~10.0",
