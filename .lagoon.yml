@@ -11,7 +11,7 @@ tasks:
 
     - run:
         name: drush en
-        command: drush -y en druxt jsonapi_views
+        command: drush -y en druxt_umami
         service: cli
 
     - run:
@@ -22,6 +22,11 @@ tasks:
     - run:
         name: drush config:set
         command: drush config:set jsonapi.settings read_only 0 -y
+        service: cli
+
+    - run:
+        name: drush search-api:index
+        command: drush search-api:index
         service: cli
 
 environments:
