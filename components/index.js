@@ -12,6 +12,13 @@ components.push({
   global: true
 })
 
+// DruxtBlockSystem components.
+components.push({
+  path: '~/components/druxt/block/system',
+  prefix: 'druxt-block-system',
+  global: true
+})
+
 // Druxt components.
 components.push({
   path: '~/components/druxt',
