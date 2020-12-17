@@ -1,5 +1,5 @@
 // Primary Druxt component types.
-const components = ['block', 'breadcrumb', 'entity', 'field', 'menu', 'router', 'view'].map(type => ({
+const components = ['block', 'breadcrumb', 'entity', 'field', 'menu', 'router', 'site', 'view'].map(type => ({
   path: `~/components/druxt/${type}`,
   prefix: `druxt-${type}`,
   global: true
