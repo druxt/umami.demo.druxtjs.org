@@ -38,7 +38,7 @@
     "prefer-stable": true,
     "scripts": {
         "test": [
-            "phpunit"
+            "phpunit --log-junit ./web/sites/simpletest/browser_output/junit.xml"
         ]
     },
     "config":{
