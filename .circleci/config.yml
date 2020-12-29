@@ -6,28 +6,48 @@ commands:
   install_and_check:
     description: "Install Drupal and check it works"
     steps:
-      # build docker compose project and setup network
+      # Build docker compose project and setup network.
       - run:
           name: Update codebase to follow CI configuration
           command: |
             sed -i -e "/###/d" docker-compose.yml
       - run: docker network prune -f && docker network inspect amazeeio-network >/dev/null || docker network create amazeeio-network
       - run: docker-compose up -d
-      # ensure DB is up prior to install
+
+      # Ensure DB is up prior to install.
       - run:
           name: Check mariadb is responsive with dockerize
           command: docker run --rm --net circleci_default jwilder/dockerize dockerize -wait tcp://mariadb:3306 -timeout 1m
-      # install Drupal demo_umami profile
-      - run: 
+
+      # Install Drupal demo_umami profile.
+      - run:
           name: Ensure all modules are installed and test install Drupal
           command: |
             docker-compose exec cli composer install
-            docker-compose exec cli drush si -y demo_umami --site-name="Lagoon CI Umami"
-      # check that the site is installed
-      - run: 
-          name: Check page title matches site-name
-          command: docker-compose exec cli curl -Ls http://nginx:8080 | grep -i "Lagoon CI Umami"
-      # perform some informational checks
+            docker-compose exec cli drush si -y demo_umami
+
+      # Setup DruxtJS.
+      - run:
+          name: Setup all required modules for the DruxtJS demo
+          command: |
+            docker-compose exec cli drush -y en druxt_umami
+            docker-compose exec cli drush rap anonymous 'access druxt resources'
+            docker-compose exec cli drush config:set jsonapi.settings read_only 0 -y
+            docker-compose exec cli drush search-api:index
+
+      # Run tests.
+      - run:
+          name: Run tests
+          command: |
+            docker-compose exec cli mkdir -p ./web/sites/simpletest/browser_output
+            docker-compose exec cli composer test
+      - run: docker cp $(docker-compose ps -q cli):/app/web/sites/simpletest/browser_output phpunit
+      - store_test_results:
+          path: ~/project/phpunit
+      - store_artifacts:
+          path: ~/project/phpunit
+
+      # Perform some informational checks
       - run:
           name: Get environment, site and module version status
           command: |
@@ -35,15 +55,17 @@ commands:
             docker-compose exec cli drush sqlq 'SHOW VARIABLES LIKE "%version%";'
             docker-compose exec cli drush st
             docker-compose exec cli drush pml
+
   remove_all:
     description: "Remove all containers etc"
     steps:
-      - run: 
+      - run:
           name: Stops and removes circleci containers, images, networks and volumes created by docker-compose up
           command: |
             sed -i -e "/###/d" docker-compose.yml
             docker-compose -p circleci down -v --remove-orphans
             docker image rm circleci_php circleci_nginx circleci || true
+
   pull_tags:
     description: "pull images from amazeeiolagoon dockerhub"
     parameters:
@@ -62,6 +84,7 @@ commands:
             docker image tag amazeeiolagoon/nginx-drupal:<< parameters.branch >> amazeeio/nginx-drupal
             docker pull --quiet amazeeiolagoon/mariadb-drupal:<< parameters.branch >>
             docker image tag amazeeiolagoon/mariadb-drupal:<< parameters.branch >> amazeeio/mariadb-drupal
+
 executors:
   php_docker:
     docker:
@@ -88,7 +111,7 @@ jobs:
             - ./vendor
       # run tests
       - run: composer validate
-  
+
   docker-compose:
     executor: php_docker
     steps:
