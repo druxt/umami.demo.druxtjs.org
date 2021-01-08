@@ -27,7 +27,7 @@
     "bootstrap": "^4.5.3",
     "bootstrap-vue": "^2.21.1",
     "core-js": "^3.8.1",
-    "druxt-breadcrumb": "^0.7.0",
+    "druxt-breadcrumb": "^0.7.1",
     "druxt-entity": "^0.8.0",
     "druxt-menu": "^0.6.1",
     "druxt-router": "^0.17.1",
