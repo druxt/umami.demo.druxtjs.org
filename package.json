@@ -29,7 +29,7 @@
     "core-js": "^3.8.1",
     "druxt-breadcrumb": "^0.7.0",
     "druxt-entity": "^0.8.0",
-    "druxt-menu": "^0.6.1",
+    "druxt-menu": "^0.6.2",
     "druxt-router": "^0.17.1",
     "druxt-site": "^0.2.2",
     "druxt-views": "^0.6.0",
