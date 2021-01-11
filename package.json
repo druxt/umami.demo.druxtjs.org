@@ -30,7 +30,7 @@
     "druxt-breadcrumb": "^0.7.0",
     "druxt-entity": "^0.8.0",
     "druxt-menu": "^0.6.1",
-    "druxt-router": "^0.17.1",
+    "druxt-router": "^0.17.2",
     "druxt-site": "^0.2.2",
     "druxt-views": "^0.6.0",
     "jsonapi-serializer": "^3.6.6",
