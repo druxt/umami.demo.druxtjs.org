@@ -24,7 +24,7 @@
   "dependencies": {
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/lunr-module": "^0.3.2",
-    "bootstrap": "^4.5.3",
+    "bootstrap": "^4.6.0",
     "bootstrap-vue": "^2.21.1",
     "core-js": "^3.8.1",
     "druxt-breadcrumb": "^0.7.0",
