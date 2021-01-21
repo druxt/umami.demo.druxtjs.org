@@ -33,7 +33,7 @@
     "druxt-router": "^0.17.1",
     "druxt-site": "^0.2.2",
     "druxt-views": "^0.6.0",
-    "jsonapi-serializer": "^3.6.6",
+    "jsonapi-serializer": "^3.6.7",
     "nuxt": "^2.14.12",
     "vue-live": "^1.16.0",
     "vuex": "^3.6.0"
