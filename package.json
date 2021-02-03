@@ -31,7 +31,7 @@
     "druxt-entity": "^0.8.0",
     "druxt-menu": "^0.7.0",
     "druxt-router": "^0.17.1",
-    "druxt-site": "^0.2.2",
+    "druxt-site": "^0.3.0",
     "druxt-views": "^0.6.0",
     "jsonapi-serializer": "^3.6.6",
     "nuxt": "^2.14.12",
