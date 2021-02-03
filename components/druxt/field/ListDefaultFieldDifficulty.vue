@@ -1,5 +1,5 @@
 <template>
-  <component :is="wrapper.component" v-if="icon" v-bind="wrapper.props">
+  <component :is="wrapper.component" v-bind="wrapper.props" v-if="icon">
     <b-icon-puzzle font-scale="2" />
 
     <p class="mt-2">
@@ -8,7 +8,7 @@
     </p>
   </component>
 
-  <component :is="wrapper.component" v-else v-bind="wrapper.props">
+  <component :is="wrapper.component" v-bind="wrapper.props" v-else>
     <b-badge pill :variant="variant">{{ items[0] }}</b-badge>
   </component>
 </template>
