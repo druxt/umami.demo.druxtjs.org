@@ -7,7 +7,7 @@
         {{ item }}
       </b-list-group-item>
     </b-list-group>
-
+    <!-- eslint-disable-next-line vue/no-v-html -->
     <span v-else v-html="items[0].processed" />
   </component>
 </template>
