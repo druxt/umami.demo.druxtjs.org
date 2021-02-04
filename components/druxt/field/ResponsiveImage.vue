@@ -1,8 +1,8 @@
 <template>
   <component
     :is="wrapper.component"
-    v-if="!$fetchState.pending"
     v-bind="wrapper.props"
+    v-if="!$fetchState.pending"
   >
     <!-- Label: Above -->
     <div v-if="$slots['label-above']">
