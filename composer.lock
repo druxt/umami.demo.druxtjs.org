@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4271fd1add3ba458a2b6f3fc0ed6724f",
+    "content-hash": "193fbeba18fbd54dbfe476758f034faf",
     "packages": [
         {
             "name": "amazeeio/drupal_integrations",
@@ -1936,11 +1936,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/druxt/druxt_drupal",
-                "reference": "c69b8009f451f523af92a2bc539195fb3ab3f96a"
+                "reference": "9a00d1aeeeff76eb6a22650c4dcfccb2f906355f"
             },
             "require": {
                 "drupal/decoupled_router": "^2.0",
-                "drupal/jsonapi_menu_items": "^1.0.0"
+                "drupal/jsonapi_menu_items": "^1.0.0",
+                "drupal/jsonapi_views": "^1.0@beta"
             },
             "type": "drupal-module",
             "license": [
@@ -2074,11 +2075,17 @@
         },
         {
             "name": "drupal/jsonapi_views",
-            "version": "dev-1.x",
+            "version": "1.0.0-beta1",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/jsonapi_views.git",
-                "reference": "bd8880853dcc72454c80248a079d2e603381cb8f"
+                "reference": "8.x-1.0-beta1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/jsonapi_views-8.x-1.0-beta1.zip",
+                "reference": "8.x-1.0-beta1",
+                "shasum": "0610b61055d20568040525a5e41da23cfa0d5480"
             },
             "require": {
                 "drupal/core": "^8.8 || ^9",
@@ -2086,15 +2093,12 @@
             },
             "type": "drupal-module",
             "extra": {
-                "branch-alias": {
-                    "dev-1.x": "1.x-dev"
-                },
                 "drupal": {
-                    "version": "8.x-1.x-dev",
-                    "datestamp": "1601163025",
+                    "version": "8.x-1.0-beta1",
+                    "datestamp": "1612768893",
                     "security-coverage": {
                         "status": "not-covered",
-                        "message": "Dev releases are not covered by Drupal security advisories."
+                        "message": "Beta releases are not covered by Drupal security advisories."
                     }
                 }
             },
@@ -10190,8 +10194,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "drupal/druxt": 20,
-        "drupal/jsonapi_views": 20
+        "drupal/druxt": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
