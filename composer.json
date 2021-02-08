@@ -20,7 +20,6 @@
         "drupal/core-project-message": "^9.0",
         "drupal/core-recommended": "^9.0",
         "drupal/druxt": "dev-feature/11-contact_path_translator",
-        "drupal/jsonapi_views": "1.x-dev",
         "drupal/lagoon_logs": "^1.1",
         "drupal/search_api_lunr": "^2.0",
         "drush/drush": "~10.0",
