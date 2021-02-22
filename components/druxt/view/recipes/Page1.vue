@@ -7,6 +7,10 @@
       </b-col>
     </b-row>
 
+    <b-row>
+      <slot name="pager" />
+    </b-row>
+
     <!-- Results. -->
     <b-row>
       <slot
@@ -21,6 +25,10 @@
           },
         }"
       />
+    </b-row>
+
+    <b-row>
+      <slot name="pager" />
     </b-row>
   </div>
 </template>
