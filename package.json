@@ -1,6 +1,6 @@
 {
   "name": "demo.druxtjs.org",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "scripts": {
     "dev": "nuxt",
@@ -35,20 +35,20 @@
     "vuex": "^3.6.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^11.0.0",
-    "@commitlint/config-conventional": "^11.0.0",
+    "@commitlint/cli": "^12.0.0",
+    "@commitlint/config-conventional": "^12.0.0",
     "@nuxtjs/eslint-config": "^5.0.0",
     "@nuxtjs/eslint-module": "^3.0.2",
     "@nuxtjs/stylelint-module": "^4.0.0",
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.15.0",
-    "eslint-config-prettier": "^7.0.0",
+    "eslint": "^7.20.0",
+    "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-nuxt": "^2.0.0",
     "eslint-plugin-prettier": "^3.3.0",
-    "husky": "^4.3.6",
-    "lint-staged": "^10.5.3",
+    "husky": "^5.1.1",
+    "lint-staged": "^10.5.4",
     "prettier": "^2.2.1",
-    "stylelint": "^13.8.0",
+    "stylelint": "^13.11.0",
     "stylelint-config-prettier": "^8.0.2",
     "stylelint-config-standard": "^20.0.0"
   }
