@@ -47,9 +47,9 @@ export default {
 
     this.media = await this.getResource(this.fields.field_media_image.data.data)
     this.image = await this.getResource(
-      this.media.relationships.field_media_image.data
+      this.media.data.relationships.field_media_image.data
     )
-    this.img = this.image.attributes.uri.url
+    this.img = this.image.data.attributes.uri.url
   },
 
   computed: {
@@ -70,7 +70,7 @@ export default {
 
   methods: {
     ...mapActions({
-      getResource: 'druxtRouter/getEntity',
+      getResource: 'druxt/getResource',
     }),
   },
 }
