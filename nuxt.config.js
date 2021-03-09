@@ -35,7 +35,7 @@ export default {
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
-    // NuxtJS Lunr.
+    // Nuxt.js Lunr.
     ['@nuxtjs/lunr-module', {
       fields: [
         'title',
@@ -48,6 +48,7 @@ export default {
     'bootstrap-vue/nuxt',
     // DruxtJS Site.
     'druxt-site',
+    '~/modules/storybook-proxy'
   ],
 
   bootstrapVue: {
@@ -87,4 +88,6 @@ export default {
       config.resolve.alias.vue$ = 'vue/dist/vue.esm.js'
     },
   },
+
+  storybook: {}
 }

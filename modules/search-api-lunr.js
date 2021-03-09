@@ -17,7 +17,7 @@ export default async function (moduleOptions = {}) {
     // Load index file.
     const file = await axios.get(index)
 
-    // Iterate over documents and add to NuxtJS Lunr module.
+    // Iterate over documents and add to Nuxt.js Lunr module.
     Object.values(file.data).map(item => {
       // @TODO - Make document format smart or configurable.
       const document = {
