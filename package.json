@@ -33,7 +33,7 @@
     "druxt-site": "^0.4.0",
     "druxt-views": "^0.8.3",
     "jsonapi-serializer": "^3.6.6",
-    "nuxt": "^2.14.12",
+    "nuxt": "^2.15.3",
     "vue-live": "^1.16.0",
     "vuex": "^3.6.0"
   },
