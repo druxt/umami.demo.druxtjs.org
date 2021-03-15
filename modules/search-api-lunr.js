@@ -13,27 +13,27 @@ export default async function (moduleOptions = {}) {
   }
 
   // Iterate over index file list.
-  data.servers[server].indexes[index].fileList.map(async index => {
+  data.servers[server].indexes[index].fileList.map(async (index) => {
     // Load index file.
     const file = await axios.get(index)
 
     // Iterate over documents and add to Nuxt.js Lunr module.
-    Object.values(file.data).map(item => {
+    for (const item of Object.values(file.data)) {
       // @TODO - Make document format smart or configurable.
       const document = {
         id: item._id,
-        ...item
+        ...item,
       }
 
-      this.nuxt.callHook('lunr:document', ({
+      this.nuxt.callHook('lunr:document', {
         document,
         meta: {
           href: item.url,
           title: document.title,
           uuid: item.uuid,
-          type: `node--${item.type}`
-        }
-      }))
-    })
+          type: `node--${item.type}`,
+        },
+      })
+    }
   })
 }

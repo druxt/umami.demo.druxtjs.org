@@ -1,7 +1,7 @@
 import { resolve } from 'path'
 
 export default function (moduleOptions = {}) {
-  this.nuxt.hook('storybook:config', async ({ stories }) => {
+  this.nuxt.hook('storybook:config', ({ stories }) => {
     const { addTemplate, options } = this
 
     // Proxy middleware.
