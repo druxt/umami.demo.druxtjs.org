@@ -42,6 +42,12 @@ export default {
       return this.entity.attributes.path.alias
     },
   },
+
+  druxt: {
+    query: {
+      fields: ['path', 'title'],
+    },
+  },
 }
 </script>
 

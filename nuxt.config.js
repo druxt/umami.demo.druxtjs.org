@@ -27,27 +27,34 @@ export default {
     // https://go.nuxtjs.dev/stylelint
     '@nuxtjs/stylelint-module',
     // Custom Search API Lunr module.
-    ['~/modules/search-api-lunr', {
-      server: 'druxt',
-      index: 'default'
-    }]
+    [
+      '~/modules/search-api-lunr',
+      {
+        server: 'druxt',
+        index: 'default',
+      },
+    ],
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
-    // NuxtJS Lunr.
-    ['@nuxtjs/lunr-module', {
-      fields: [
-        'title',
-        'body',
-        'field_ingredients',
-        'field_recipe_instruction',
-      ]
-    }],
+    // Nuxt.js Lunr.
+    [
+      '@nuxtjs/lunr-module',
+      {
+        fields: [
+          'title',
+          'body',
+          'field_ingredients',
+          'field_recipe_instruction',
+        ],
+      },
+    ],
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
     // DruxtJS Site.
     'druxt-site',
+    '~/modules/storybook-proxy',
   ],
 
   bootstrapVue: {
@@ -73,6 +80,11 @@ export default {
   // Druxt Configuration
   druxt: {
     baseUrl: process.env.BASE_URL,
+    entity: {
+      query: {
+        schema: true,
+      },
+    },
   },
 
   // Proxy Configuration
@@ -87,4 +99,6 @@ export default {
       config.resolve.alias.vue$ = 'vue/dist/vue.esm.js'
     },
   },
+
+  storybook: {},
 }
