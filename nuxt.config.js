@@ -74,6 +74,11 @@ export default {
   // Druxt Configuration
   druxt: {
     baseUrl: process.env.BASE_URL,
+    entity: {
+      query: {
+        schema: true,
+      },
+    },
   },
 
   // Proxy Configuration
