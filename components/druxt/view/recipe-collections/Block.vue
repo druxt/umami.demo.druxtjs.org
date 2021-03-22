@@ -22,5 +22,11 @@ import { DruxtViewsViewMixin } from 'druxt-views'
 
 export default {
   mixins: [DruxtViewsViewMixin],
+
+  druxt: {
+    query: {
+      fields: ['name', 'path'],
+    },
+  },
 }
 </script>
