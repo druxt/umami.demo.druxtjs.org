@@ -85,6 +85,11 @@ export default {
         schema: true,
       },
     },
+    views: {
+      query: {
+        bundleFilter: true,
+      },
+    },
   },
 
   // Proxy Configuration
