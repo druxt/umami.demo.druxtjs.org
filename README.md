@@ -33,7 +33,20 @@ This codebase is derived from the [amazeeio/drupal-example-simple](https://githu
     docker-compose exec cli composer install
     ```
 
-4. Install and setup the demo:
+4. Generate private and public keys:
+
+    ```baseh
+    docker-compose exec cli openssl genrsa -out /app/keys/private.key 2048
+    docker-compose exec cli sh -c "openssl rsa -in /app/keys/private.key -pubout > /app/keys/public.key"
+    docker-compose exec cli sh -c "chmod 600 /app/keys/*.key"
+    ```
+
+    TL;DR
+    ```
+    docker-compose exec cli sh -c "openssl genrsa -out /app/keys/private.key 2048 && openssl rsa -in /app/keys/private.key -pubout > /app/keys/public.key && chmod 600 /app/keys/public.key"
+    ```
+
+5. Install and setup the demo:
 
     ```bash
     docker-compose exec cli drush -y si demo_umami
@@ -43,14 +56,12 @@ This codebase is derived from the [amazeeio/drupal-example-simple](https://githu
     docker-compose exec cli drush search-api:index
     ```
 
-    or
-
+    TL;DR
     ```
     docker-compose exec cli sh -c "drush -y si demo_umami && drush -y en druxt_umami && drush rap anonymous 'access druxt resources' && drush config:set jsonapi.settings read_only 0 -y && drush search-api:index"
     ```
 
-5. Visit the new site @ `http://demo-api-druxtjs-org.docker.amazee.io`
-
+Visit the new site @ `http://demo-api-druxtjs-org.docker.amazee.io`
 
 ## Local environment setup - Lando
 

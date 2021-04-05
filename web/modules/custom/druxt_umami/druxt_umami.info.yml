@@ -8,3 +8,4 @@ dependencies:
   - drupal:druxt
   - drupal:jsonapi_views
   - drupal:search_api_lunr
+  - drupal:simple_oauth

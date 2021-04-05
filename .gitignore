@@ -9,6 +9,7 @@
 /web/sites/*/files/
 
 # Ingore files that are only for the current local environment
+/keys/*.key
 web/sites/*/settings.local.php
 web/sites/*/services.local.yml
 
