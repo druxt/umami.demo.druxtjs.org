@@ -1,0 +1,52 @@
+<?php
+
+/**
+ * Install functions for the DruxtJS Umami module.
+ */
+
+use Drupal\consumers\Entity\Consumer;
+
+/**
+ * Implements hook_install().
+ */
+function druxt_umami_install() {
+  // Enable Gin theme.
+  \Drupal::service('theme_installer')->install(['gin']);
+  \Drupal::service('config.factory')
+    ->getEditable('system.theme')
+    ->set('admin', 'gin')
+    ->set('default', 'gin')
+    ->save();
+
+  // Anonymous redirect settings.
+  \Drupal::service('config.factory')
+    ->getEditable('anonymous_redirect.settings')
+    ->set('enable_redirect', TRUE)
+    ->set('redirect_url_overrides', "/en/user/*\n/jsonapi\n/jsonapi/*\n/js-search/*\n/oauth/*\n/router/*")
+    ->save();
+
+  // JSON:API settings.
+  \Drupal::service('config.factory')->getEditable('jsonapi.settings')->set('read_only', FALSE)->save();
+
+  // Simple Oauth settings.
+  \Drupal::service('config.factory')
+    ->getEditable('simple_oauth.settings')
+    ->set('public_key', '../keys/public.key')
+    ->set('private_key', '../keys/private.key')
+    ->set('use_implicit', TRUE)
+    ->save();
+
+  // Create consumer client.
+  $consumer = Consumer::create([
+    'owner_id'     => 1,
+    'uuid'         => $_ENV['OAUTH_CLIENT_ID'] ?: \Drupal::service('uuid')->generate(),
+    'label'        => 'Druxt',
+    'description'  => "DruxtJS is a bridge between frameworks, Drupal in the back, Nuxt in the front.\n\nhttps://druxtjs.org",
+    'secret'       => $_ENV['OAUTH_CLIENT_SECRET'] ?: \Drupal::service('password_generator')->generate(),
+    'confidential' => TRUE,
+    'redirect'     => $_ENV['OAUTH_CALLBACK'] ?: 'https://demo.druxtjs.org/callback',
+    'image_styles' => [],
+    'roles'        => [],
+  ]);
+  $consumer->save();
+}
