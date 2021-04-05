@@ -52,13 +52,12 @@ This codebase is derived from the [amazeeio/drupal-example-simple](https://githu
     docker-compose exec cli drush -y si demo_umami
     docker-compose exec cli drush -y en druxt_umami
     docker-compose exec cli drush rap anonymous 'access druxt resources'
-    docker-compose exec cli drush config:set jsonapi.settings read_only 0 -y
     docker-compose exec cli drush search-api:index
     ```
 
     TL;DR
     ```
-    docker-compose exec cli sh -c "drush -y si demo_umami && drush -y en druxt_umami && drush rap anonymous 'access druxt resources' && drush config:set jsonapi.settings read_only 0 -y && drush search-api:index"
+    docker-compose exec cli sh -c "drush -y si demo_umami && drush -y en druxt_umami && drush rap anonymous 'access druxt resources' && drush search-api:index"
     ```
 
 Visit the new site @ `http://demo-api-druxtjs-org.docker.amazee.io`
