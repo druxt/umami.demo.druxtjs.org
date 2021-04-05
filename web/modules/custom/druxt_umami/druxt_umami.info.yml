@@ -5,6 +5,9 @@ type: module
 core_version_requirement: ^8.8 || ^9
 
 dependencies:
+  - drupal:anonymous_redirect
   - drupal:druxt
+  - drupal:gin_login
   - drupal:jsonapi_views
   - drupal:search_api_lunr
+  - drupal:simple_oauth
