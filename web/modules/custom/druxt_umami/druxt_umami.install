@@ -44,7 +44,7 @@ function druxt_umami_install() {
     'description'  => "DruxtJS is a bridge between frameworks, Drupal in the back, Nuxt in the front.\n\nhttps://druxtjs.org",
     'secret'       => getenv('OAUTH_CLIENT_SECRET') ?: \Drupal::service('password_generator')->generate(),
     'confidential' => TRUE,
-    'redirect'     => getenv('OAUTH_CALLBACK') ?: 'https://demo.druxtjs.org/callback',
+    'redirect'     => getenv('OAUTH_CALLBACK') ?: 'http://localhost:3000/callback',
     'image_styles' => [],
     'roles'        => [],
   ]);
