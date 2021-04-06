@@ -39,12 +39,12 @@ function druxt_umami_install() {
   // Create consumer client.
   $consumer = Consumer::create([
     'owner_id'     => 1,
-    'uuid'         => $_ENV['OAUTH_CLIENT_ID'] ?: \Drupal::service('uuid')->generate(),
+    'uuid'         => getenv('OAUTH_CLIENT_ID') ?: \Drupal::service('uuid')->generate(),
     'label'        => 'Druxt',
     'description'  => "DruxtJS is a bridge between frameworks, Drupal in the back, Nuxt in the front.\n\nhttps://druxtjs.org",
-    'secret'       => $_ENV['OAUTH_CLIENT_SECRET'] ?: \Drupal::service('password_generator')->generate(),
+    'secret'       => getenv('OAUTH_CLIENT_SECRET') ?: \Drupal::service('password_generator')->generate(),
     'confidential' => TRUE,
-    'redirect'     => $_ENV['OAUTH_CALLBACK'] ?: 'https://demo.druxtjs.org/callback',
+    'redirect'     => getenv('OAUTH_CALLBACK') ?: 'https://demo.druxtjs.org/callback',
     'image_styles' => [],
     'roles'        => [],
   ]);

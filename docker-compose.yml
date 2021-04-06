@@ -11,6 +11,8 @@ x-environment:
   &default-environment
     # Route that should be used locally, if you are using pygmy, this route *must* end with .docker.amazee.io
     LAGOON_ROUTE: &default-url http://${COMPOSE_PROJECT_NAME:-drupal-example-simple}.docker.amazee.io
+    # Simple OAuth settings
+    OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
     # Uncomment if you like to have the system behave like in production
     #LAGOON_ENVIRONMENT_TYPE: production
     # Uncomment to enable xdebug and then restart via `docker-compose up -d`
