@@ -35,6 +35,7 @@
     "druxt-views": "^0.9.0",
     "jsonapi-serializer": "^3.6.6",
     "nuxt": "^2.14.12",
+    "vue-json-pretty": "^1.7.1",
     "vue-live": "^1.16.0",
     "vuex": "^3.6.0"
   },

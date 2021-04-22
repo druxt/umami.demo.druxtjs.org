@@ -47,7 +47,14 @@
       <b-input v-else-if="isTypeInput" v-model="model" v-bind="props" />
 
       <!-- Textarea -->
-      <b-textarea v-else v-model="model" v-bind="props" />
+      <b-textarea
+        v-else
+        v-model="model"
+        v-bind="{
+          rows: schema.settings.display.rows || undefined,
+          ...props,
+        }"
+      />
     </b-form-group>
   </component>
 </template>
