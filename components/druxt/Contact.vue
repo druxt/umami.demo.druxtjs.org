@@ -25,10 +25,12 @@ export default {
   methods: {
     getScopedSlots() {
       return {
-        default: () =>
+        default: () => [
+          this.$createElement('h2', [this.entity.attributes.label]),
           this.$createElement('DruxtEntityForm', {
             props: { type: this.resourceType },
           }),
+        ],
       }
     },
   },

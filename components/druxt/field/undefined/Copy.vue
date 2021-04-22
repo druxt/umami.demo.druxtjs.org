@@ -1,6 +1,7 @@
 <template>
   <b-form-group
     :id="schema.id"
+    description="Send yourself a copy"
     :invalid-feedback="stateFeedback"
     :label="label"
     :state="state"

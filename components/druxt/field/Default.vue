@@ -10,6 +10,7 @@
     </template>
 
     <!-- View display fields. -->
+    <!-- eslint-disable-next-line -->
     <p v-else-if="schema.config.schemaType === 'view'" v-html="html" />
 
     <!-- Entity reference forms. -->
@@ -84,7 +85,10 @@ export default {
     isTypeCheckbox: ({ schema }) => ['boolean_checkbox'].includes(schema.type),
     isTypeInput: ({ schema }) => ['string_textfield'].includes(schema.type),
 
-    label: ({ schema }) => schema.label.text || schema.id,
+    label: ({ schema }) =>
+      ((string) => string.charAt(0).toUpperCase() + string.slice(1))(
+        schema.label.text || schema.id
+      ),
 
     props: ({ schema, state }) => ({
       placeholder: schema.settings.display.placeholder || undefined,
