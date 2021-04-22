@@ -28,6 +28,8 @@ import DruxtFieldDefault from '~/components/druxt/field/Default.vue'
 export default {
   extends: DruxtFieldDefault,
 
-  data: ({ value }) => ({ model: value }),
+  data: ({ value }) => ({
+    model: value || { summary: '', value: '', format: '' },
+  }),
 }
 </script>

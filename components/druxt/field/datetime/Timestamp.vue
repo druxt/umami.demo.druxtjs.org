@@ -20,10 +20,9 @@ export default {
   extends: DruxtFieldDefault,
 
   data: ({ value }) => ({
-    model: {
-      date: value.split('T')[0],
-      time: value.split('T')[1].split('+')[0],
-    },
+    model: value
+      ? { date: value.split('T')[0], time: value.split('T')[1].split('+')[0] }
+      : { date: undefined, time: undefined },
   }),
 
   components: { BFormDatepicker, BFormTimepicker },
