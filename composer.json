@@ -24,6 +24,7 @@
         "drupal/gin": "^3.0@alpha",
         "drupal/gin_login": "^1.0@RC",
         "drupal/gin_toolbar": "^1.0@beta",
+        "drupal/jsonapi_hypermedia": "^1.6",
         "drupal/lagoon_logs": "^1.1",
         "drupal/search_api_lunr": "^2.0",
         "drupal/simple_oauth": "^5.0",

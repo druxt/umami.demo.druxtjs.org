@@ -35,7 +35,7 @@ This codebase is derived from the [amazeeio/drupal-example-simple](https://githu
 
 4. Generate private and public keys:
 
-    ```baseh
+    ```bash
     docker-compose exec cli openssl genrsa -out /app/keys/private.key 2048
     docker-compose exec cli sh -c "openssl rsa -in /app/keys/private.key -pubout > /app/keys/public.key"
     docker-compose exec cli sh -c "chmod 600 /app/keys/*.key"
