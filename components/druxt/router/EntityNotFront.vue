@@ -9,11 +9,10 @@ export default {
   mixins: [DruxtRouterMixin],
 
   computed: {
-    component() {
-      return this.route.props.type !== 'contact_form--contact_form'
+    component: ({ route }) =>
+      route.props.type !== 'contact_form--contact_form'
         ? 'druxt-entity'
-        : 'druxt-contact'
-    },
+        : 'druxt-contact',
   },
 }
 </script>
