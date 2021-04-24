@@ -38,6 +38,8 @@ export default {
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
+    '@nuxtjs/auth-next',
+    '@nuxtjs/axios',
     // Nuxt.js Lunr.
     [
       '@nuxtjs/lunr-module',
@@ -56,6 +58,23 @@ export default {
     'druxt-site',
     '~/modules/storybook-proxy',
   ],
+
+  auth: {
+    redirect: {
+      callback: '/callback',
+      logout: '/',
+    },
+    strategies: {
+      drupal: {
+        scheme: 'oauth2',
+        endpoints: {
+          authorization: process.env.BASE_URL + '/oauth/authorize',
+          token: process.env.BASE_URL + '/oauth/token',
+        },
+        clientId: process.env.OAUTH_CLIENT_ID,
+      }
+    },
+  },
 
   bootstrapVue: {
     components: ['BBadge', 'BButton', 'BCollapse', 'BImg', 'BLink'],
