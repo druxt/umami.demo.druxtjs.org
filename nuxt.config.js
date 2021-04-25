@@ -72,7 +72,11 @@ export default {
           token: process.env.BASE_URL + '/oauth/token',
         },
         clientId: process.env.OAUTH_CLIENT_ID,
-      }
+      },
+      github: {
+        clientId: process.env.GITHUB_CLIENT_ID,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      },
     },
   },
 
