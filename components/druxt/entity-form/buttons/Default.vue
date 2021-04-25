@@ -1,7 +1,9 @@
 <template>
   <b-button-toolbar>
-    <b-button variant="primary">Submit</b-button>
-    <b-button class="ml-2">Reset</b-button>
+    <b-button variant="primary" @click="$parent.$emit('submit')">
+      Submit
+    </b-button>
+    <b-button class="ml-2" @click="$parent.$emit('reset')">Reset</b-button>
   </b-button-toolbar>
 </template>
 

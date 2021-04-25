@@ -8,6 +8,7 @@
 
 <script>
 export default {
+  layout: 'plain',
   middleware: ['auth'],
 }
 </script>
