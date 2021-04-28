@@ -70,6 +70,7 @@ export default {
         endpoints: {
           authorization: process.env.BASE_URL + '/oauth/authorize',
           token: process.env.BASE_URL + '/oauth/token',
+          userInfo: process.env.BASE_URL + '/oauth/userinfo'
         },
         clientId: process.env.OAUTH_CLIENT_ID,
       },
