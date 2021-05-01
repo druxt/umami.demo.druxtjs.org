@@ -5,8 +5,8 @@ export default {
   extends: Default,
 
   data: () => ({
-    entityTypes: ['node--article', 'node--recipe'],
-    field: 'field_tags',
+    entityTypes: ['node--recipe'],
+    field: 'field_recipe_category',
   }),
 }
 </script>
