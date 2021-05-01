@@ -20,7 +20,7 @@
         "drupal/anonymous_redirect": "^2.2@RC",
         "drupal/core-project-message": "^9.0",
         "drupal/core-recommended": "^9.0",
-        "drupal/druxt": "dev-feature/11-contact_path_translator",
+        "drupal/druxt": "^1.0",
         "drupal/gin": "^3.0@alpha",
         "drupal/gin_login": "^1.0@RC",
         "drupal/gin_toolbar": "^1.0@beta",
