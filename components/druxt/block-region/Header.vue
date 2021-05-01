@@ -14,7 +14,7 @@
 
       <!-- Main menu -->
       <div class="ml-auto">
-        <b-navbar-nav class="justify-content-end mr-2">
+        <b-navbar-nav class="justify-content-end">
           <b-nav-item v-if="!$auth.loggedIn" to="/login">Login</b-nav-item>
           <b-nav-item v-else @click="$auth.logout()">Log out</b-nav-item>
         </b-navbar-nav>
