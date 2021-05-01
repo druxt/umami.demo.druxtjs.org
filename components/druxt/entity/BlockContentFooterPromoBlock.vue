@@ -11,7 +11,7 @@
 
       <slot
         name="field_summary"
-        :options="{ wrapper: { component: 'div', props: { class: 'mb-3' } } }"
+        :wrapper="{ class: 'mb-3', component: 'div' }"
       />
 
       <slot name="field_content_link" />
