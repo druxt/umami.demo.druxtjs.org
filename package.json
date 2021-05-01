@@ -1,6 +1,6 @@
 {
   "name": "demo.druxtjs.org",
-  "version": "0.4.1",
+  "version": "0.6.0",
   "private": true,
   "scripts": {
     "dev": "nuxt",
@@ -58,6 +58,6 @@
     "prettier": "^2.2.1",
     "stylelint": "^13.11.0",
     "stylelint-config-prettier": "^8.0.2",
-    "stylelint-config-standard": "^21.0.0"
+    "stylelint-config-standard": "^22.0.0"
   }
 }
