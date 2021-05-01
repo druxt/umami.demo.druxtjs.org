@@ -8,7 +8,7 @@
       </b-row>
 
       <b-row>
-        <b-col cols="6">
+        <b-col cols="12" sm="6" class="mb-3">
           <b-card title="Contribute">
             <p>Test Druxt content editing capabilities.</p>
             <b-button
@@ -21,7 +21,7 @@
           </b-card>
         </b-col>
 
-        <b-col cols="6">
+        <b-col cols="12" sm="6">
           <b-card title="Administer">
             <p>Edit content with live Drupal backend.</p>
             <b-button

@@ -1,7 +1,18 @@
 <template>
-  <b-row v-if="!$fetchState.pending">
-    <b-col v-for="entity of entities" :key="entity.id" cols="4">
-      <DruxtEntity :type="entity.type" :uuid="entity.id" mode="card" />
+  <b-row v-if="!$fetchState.pending" class="align-items-stretch">
+    <b-col
+      v-for="entity of entities"
+      :key="entity.id"
+      class="mb-3"
+      cols="12"
+      sm="4"
+    >
+      <DruxtEntity
+        class="h-100"
+        :type="entity.type"
+        :uuid="entity.id"
+        mode="card"
+      />
     </b-col>
   </b-row>
 </template>
