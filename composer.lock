@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "83997350f523eda6ddccce435acf96fd",
+    "content-hash": "c8ef1fd2cc73b3cb5e176a5ff792c6af",
     "packages": [
         {
             "name": "amazeeio/drupal_integrations",
@@ -2026,11 +2026,11 @@
         },
         {
             "name": "drupal/druxt",
-            "version": "dev-feature/11-contact_path_translator",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/druxt/druxt_drupal",
-                "reference": "283a4559a14ce38b33fcb66a59acf63c463fbff9"
+                "reference": "c2cf221419ff7873f15fe3e9d0420b1809f00af8"
             },
             "require": {
                 "drupal/decoupled_router": "^2.0",
@@ -2047,8 +2047,8 @@
                     "email": "stuart@realityloop.com"
                 }
             ],
-            "description": "A bridge between frameworks, Drupal in the back, NuxtJS in the front.",
-            "time": "2020-09-24T07:16:56+00:00"
+            "description": "A bridge between frameworks, Drupal in the back, Nuxt.js in the front.",
+            "time": "2021-05-01T02:56:46+00:00"
         },
         {
             "name": "drupal/gin",
@@ -11209,7 +11209,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "drupal/anonymous_redirect": 5,
-        "drupal/druxt": 20,
         "drupal/gin": 15,
         "drupal/gin_login": 5,
         "drupal/gin_toolbar": 10
