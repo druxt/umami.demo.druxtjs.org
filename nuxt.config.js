@@ -110,6 +110,11 @@ export default {
         schema: true,
       },
     },
+    menu: {
+      query: {
+        requiredOnly: true,
+      },
+    },
     views: {
       query: {
         bundleFilter: true,
