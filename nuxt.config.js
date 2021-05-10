@@ -7,7 +7,10 @@ export default {
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: '' },
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    link: [
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css' },
+    ],
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
@@ -83,6 +86,8 @@ export default {
   },
 
   bootstrapVue: {
+    bootstrapCSS: false,
+    bootstrapVueCSS: false,
     components: ['BBadge', 'BButton', 'BCollapse', 'BImg', 'BLink'],
     componentPlugins: [
       'BreadcrumbPlugin',
@@ -133,6 +138,8 @@ export default {
     extend(config) {
       config.resolve.alias.vue$ = 'vue/dist/vue.esm.js'
     },
+
+    extractCSS: true,
   },
 
   storybook: {},
