@@ -15,9 +15,9 @@
     <!-- Items -->
     <b-card-img-lazy
       v-for="entity of entities"
-      :key="entity.id"
+      :key="entity.data.id"
       :src="
-        entity.attributes.uri.value.replace(
+        entity.data.attributes.uri.value.replace(
           'public://',
           '/sites/default/files/'
         )
@@ -27,10 +27,23 @@
 </template>
 
 <script>
+import { DrupalJsonApiParams } from 'drupal-jsonapi-params'
 import { DruxtFieldResponsiveImage } from 'druxt-entity'
 
 export default {
   extends: DruxtFieldResponsiveImage,
+
+  async fetch() {
+    this.entities = await Promise.all(
+      this.items.map(({ type, uuid }) =>
+        this.getResource({
+          id: uuid,
+          type,
+          query: new DrupalJsonApiParams().addFields(type, ['uri']),
+        })
+      )
+    )
+  },
 }
 </script>
 
