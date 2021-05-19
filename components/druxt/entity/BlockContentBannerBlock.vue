@@ -28,6 +28,7 @@
 </template>
 
 <script>
+import { DrupalJsonApiParams } from 'drupal-jsonapi-params'
 import { DruxtEntityMixin } from 'druxt-entity'
 import { mapActions } from 'vuex'
 
@@ -35,21 +36,24 @@ export default {
   mixins: [DruxtEntityMixin],
 
   data: () => ({
-    image: false,
     img: false,
-    media: false,
   }),
 
   async fetch() {
-    if (!this.fields.field_media_image) {
+    if (!this.model.relationships.field_media_image) {
       return
     }
 
-    this.media = await this.getResource(this.fields.field_media_image.data.data)
-    this.image = await this.getResource(
-      this.media.data.relationships.field_media_image.data
-    )
-    this.img = this.image.data.attributes.uri.url
+    const resource = await this.getResource({
+      ...this.model.relationships.field_media_image.data,
+      query: new DrupalJsonApiParams()
+        .addInclude(['field_media_image'])
+        .addFields('media--image', [])
+        .addFields('file--file', ['uri']),
+    })
+    this.img = (
+      resource.included.find((o) => o.type === 'file--file') || {}
+    ).attributes.uri.url
   },
 
   computed: {

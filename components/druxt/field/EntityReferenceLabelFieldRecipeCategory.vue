@@ -22,9 +22,38 @@
 </template>
 
 <script>
+import { DrupalJsonApiParams } from 'drupal-jsonapi-params'
 import { DruxtFieldEntityReferenceLabel } from 'druxt-entity'
 
 export default {
   extends: DruxtFieldEntityReferenceLabel,
+
+  async fetch() {
+    for (const delta in this.items) {
+      const item = this.items[delta]
+
+      const result = await this.getResource({
+        id: item.uuid,
+        type: item.type,
+        query: new DrupalJsonApiParams().addFields(item.type, ['name', 'path']),
+      })
+      if (!this.entities) this.entities = []
+
+      this.entities[delta] = {
+        props: false,
+        text: result.data.attributes.name,
+      }
+
+      if (
+        ((this.schema.settings || {}).display || {}).link &&
+        result.data.attributes.path.alias
+      ) {
+        this.component = 'nuxt-link'
+        this.entities[delta].props = {
+          to: result.data.attributes.path.alias,
+        }
+      }
+    }
+  },
 }
 </script>

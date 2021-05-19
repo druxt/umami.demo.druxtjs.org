@@ -13,7 +13,7 @@ export default {
   computed: {
     props() {
       return {
-        src: this.entities[0].attributes.uri.url,
+        src: this.entities[0].data.attributes.uri.url,
         top: true,
       }
     },
