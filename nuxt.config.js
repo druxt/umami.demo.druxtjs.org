@@ -110,6 +110,11 @@ export default {
   // Druxt Configuration
   druxt: {
     baseUrl: process.env.BASE_URL,
+    blocks: {
+      query: {
+        fields: [],
+      },
+    },
     entity: {
       query: {
         schema: true,
