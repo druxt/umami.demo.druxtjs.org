@@ -1,6 +1,6 @@
 <template>
   <b-navbar-brand to="/">
-    <b-img v-if="settings.use_site_logo" :src="src" />
+    <b-img :src="src" />
   </b-navbar-brand>
 </template>
 
