@@ -1,6 +1,6 @@
 {
   "name": "demo.druxtjs.org",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": true,
   "scripts": {
     "dev": "nuxt",
@@ -32,6 +32,7 @@
     "css-loader": "^5.2.4",
     "druxt": "^0.6.0",
     "druxt-blocks": "^0.9.0",
+    "druxt-breadcrumb": "^0.8.0",
     "druxt-menu": "^0.10.2",
     "druxt-search": "^0.1.1",
     "druxt-site": "^0.5.2",
