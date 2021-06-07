@@ -87,7 +87,6 @@ export default {
 
   bootstrapVue: {
     bootstrapCSS: false,
-    bootstrapVueCSS: false,
     components: ['BBadge', 'BButton', 'BCollapse', 'BImg', 'BLink'],
     componentPlugins: [
       'BreadcrumbPlugin',
