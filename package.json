@@ -30,7 +30,7 @@
     "bootstrap-vue": "^2.21.1",
     "core-js": "^3.8.1",
     "css-loader": "^5.2.4",
-    "druxt": "^0.6.1",
+    "druxt": "^0.7.0",
     "druxt-blocks": "^0.9.0",
     "druxt-breadcrumb": "^0.8.0",
     "druxt-menu": "^0.10.2",
