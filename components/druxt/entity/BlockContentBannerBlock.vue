@@ -51,9 +51,11 @@ export default {
         .addFields('media--image', [])
         .addFields('file--file', ['uri']),
     })
-    this.img = (
-      resource.included.find((o) => o.type === 'file--file') || {}
-    ).attributes.uri.url
+
+    this.img =
+      this.$config.baseUrl +
+      (resource.included.find((o) => o.type === 'file--file') || {}).attributes
+        .uri.url
   },
 
   computed: {

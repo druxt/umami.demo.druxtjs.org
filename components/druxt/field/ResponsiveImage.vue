@@ -17,6 +17,7 @@
       v-for="entity of entities"
       :key="entity.data.id"
       :src="
+        $config.baseUrl +
         entity.data.attributes.uri.value.replace(
           'public://',
           '/sites/default/files/'

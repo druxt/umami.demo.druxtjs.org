@@ -41,6 +41,10 @@ export default {
     ],
   ],
 
+  publicRuntimeConfig: {
+    baseUrl: process.env.BASE_URL,
+  },
+
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
     '@nuxtjs/auth-next',
@@ -131,12 +135,6 @@ export default {
         bundleFilter: true,
       },
     },
-  },
-
-  // Proxy Configuration
-  proxy: {
-    '/core/profiles/demo_umami/themes/umami/logo.svg': process.env.BASE_URL,
-    '/sites/default/files': process.env.BASE_URL,
   },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
