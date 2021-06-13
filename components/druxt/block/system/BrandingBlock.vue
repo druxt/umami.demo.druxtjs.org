@@ -11,9 +11,8 @@ export default {
   mixins: [DruxtBlocksBlockMixin],
 
   computed: {
-    src() {
-      return '/core/profiles/demo_umami/themes/umami/logo.svg'
-    },
+    src: ({ $config }) =>
+      $config.baseUrl + '/core/profiles/demo_umami/themes/umami/logo.svg',
   },
 }
 </script>
