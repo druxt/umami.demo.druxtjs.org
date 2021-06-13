@@ -38,9 +38,8 @@ export default {
   }),
 
   computed: {
-    to() {
-      return this.entity.attributes.path.alias
-    },
+    /* @todo - Implement proper multilingual support */
+    to: ({ entity }) => `/en${entity.attributes.path.alias}`,
   },
 
   druxt: {

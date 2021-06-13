@@ -49,8 +49,9 @@ export default {
         result.data.attributes.path.alias
       ) {
         this.component = 'nuxt-link'
+        /* @todo - Implement proper multilingual support */
         this.entities[delta].props = {
-          to: result.data.attributes.path.alias,
+          to: `/en${result.data.attributes.path.alias}`,
         }
       }
     }

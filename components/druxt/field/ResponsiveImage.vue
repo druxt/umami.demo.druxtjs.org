@@ -17,6 +17,7 @@
       v-for="entity of entities"
       :key="entity.data.id"
       :src="
+        $config.baseUrl +
         entity.data.attributes.uri.value.replace(
           'public://',
           '/sites/default/files/'
@@ -43,6 +44,16 @@ export default {
         })
       )
     )
+  },
+
+  fetchKey(getCounter) {
+    const parts = [
+      'ResponsiveImage',
+      this.schema.id,
+      this.value.data.type,
+      this.value.data.id,
+    ].filter((o) => o)
+    return [...parts, getCounter(parts.join(':'))].join(':')
   },
 }
 </script>
