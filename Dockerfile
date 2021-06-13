@@ -19,4 +19,4 @@ RUN npm run generate
 ENV HOST 0.0.0.0
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["NODE_OPTIONS=-'--max-http-header-size=15000'", "npm", "start"]
