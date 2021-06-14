@@ -1,14 +1,20 @@
 <template>
-  <b-tabs v-if="$auth.loggedIn">
+  <!-- <b-tabs v-if="$auth.loggedIn"> -->
+  <b-tabs>
     <b-tab title="View" class="mt-3">
       <component :is="component" v-bind="route.props" />
     </b-tab>
-    <b-tab v-if="$auth.loggedIn" title="Edit" class="mt-3">
+    <!-- <b-tab v-if="$auth.loggedIn" title="Edit" class="mt-3"> -->
+    <b-tab
+      v-if="route.props.type !== 'contact_form--contact_form'"
+      title="Edit"
+      class="mt-3"
+    >
       <DruxtEntityForm v-bind="route.props" />
     </b-tab>
   </b-tabs>
 
-  <component :is="component" v-else v-bind="route.props" />
+  <!-- <component :is="component" v-else v-bind="route.props" /> -->
 </template>
 
 <script>
