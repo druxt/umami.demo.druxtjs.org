@@ -6,5 +6,5 @@ project: demo-druxtjs-org
 environments:
   main:
     routes:
-      - node:
+      - nginx:
         - demo.druxtjs.org
