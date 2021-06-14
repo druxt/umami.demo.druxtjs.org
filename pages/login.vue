@@ -11,26 +11,26 @@
         <b-col cols="12" sm="6" class="mb-3">
           <b-card title="Contribute">
             <p>Test Druxt content editing capabilities.</p>
-            <b-button
+            <!-- <b-button
               block
               variant="success"
               @click="$auth.loginWith('github')"
             >
               Login with Github
-            </b-button>
+            </b-button> -->
           </b-card>
         </b-col>
 
         <b-col cols="12" sm="6">
           <b-card title="Administer">
             <p>Edit content with live Drupal backend.</p>
-            <b-button
+            <!-- <b-button
               block
               variant="primary"
               @click="$auth.loginWith('drupal')"
             >
               Login with Drupal
-            </b-button>
+            </b-button> -->
           </b-card>
         </b-col>
       </b-row>
@@ -41,7 +41,7 @@
 <script>
 export default {
   layout: 'plain',
-  middleware: 'auth',
-  auth: 'guest',
+  // middleware: 'auth',
+  // auth: 'guest',
 }
 </script>

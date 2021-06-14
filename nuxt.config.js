@@ -47,7 +47,7 @@ export default {
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
-    '@nuxtjs/auth-next',
+    // '@nuxtjs/auth-next',
     '@nuxtjs/axios',
     // Nuxt.js Lunr.
     [
