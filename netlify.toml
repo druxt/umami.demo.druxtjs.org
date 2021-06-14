@@ -1,9 +1,0 @@
-[[redirects]]
-  from = "/core/profiles/demo_umami/themes/umami/logo.svg"
-  to = "https://demo-api.druxtjs.org/core/profiles/demo_umami/themes/umami/logo.svg"
-  status = 200
-
-[[redirects]]
-  from = "/sites/default/files/*"
-  to = "https://demo-api.druxtjs.org/sites/default/files/:splat"
-  status = 200
