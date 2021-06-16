@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import ResponsiveImage from './ResponsiveImage.vue'
+import ResponsiveImage from './ResponsiveImageDefault.vue'
 
 export default {
   name: 'ResponsiveImageFieldMediaImage',
