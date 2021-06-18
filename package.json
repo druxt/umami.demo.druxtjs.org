@@ -38,7 +38,7 @@
     "druxt-schema": "^0.7.7",
     "druxt-search": "^0.1.1",
     "druxt-site": "^0.5.2",
-    "druxt-views": "^0.9.3",
+    "druxt-views": "^0.10.0",
     "jsonapi-serializer": "^3.6.6",
     "nuxt": "^2.14.12",
     "vue-json-pretty": "^1.7.1",
