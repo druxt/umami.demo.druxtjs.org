@@ -21,7 +21,14 @@
         </b-button>
       </template>
     </b-tabs>
-    <b-sidebar id="edit-bar" lazy right title="Edit bar" shadow>
+    <b-sidebar
+      id="edit-bar"
+      lazy
+      right
+      shadow
+      sidebar-class="border-left border-dark"
+      title="Edit bar"
+    >
       <DruxtEntityForm v-model="model" class="m-3" v-bind="route.props" />
     </b-sidebar>
   </div>
