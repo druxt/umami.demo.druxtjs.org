@@ -1,6 +1,5 @@
 name: demo-api-druxtjs-org
 recipe: lagoon
 config:
-  flavor: drupal
   build:
     - composer install
