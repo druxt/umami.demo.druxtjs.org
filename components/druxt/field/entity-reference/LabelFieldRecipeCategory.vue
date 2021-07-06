@@ -1,12 +1,12 @@
 <template>
   <component :is="wrapper.component" v-if="!$fetchState.pending">
     <!-- Label: Above -->
-    <div v-if="$slots['label-above']">
+    <div v-if="$scopedSlots['label-above']">
       <slot name="label-above" />
     </div>
 
     <!-- Label: Inline -->
-    <slot v-if="$slots['label-inline']" name="label-inline" />
+    <slot v-if="$scopedSlots['label-inline']" name="label-inline" />
 
     <!-- Items -->
     <component
