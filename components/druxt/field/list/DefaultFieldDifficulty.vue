@@ -3,7 +3,9 @@
     <b-icon-puzzle font-scale="2" />
 
     <p class="mt-2">
-      <span v-if="$slots['label-above']">{{ schema.label.text }}<br /></span>
+      <span v-if="$scopedSlots['label-above']">
+        {{ schema.label.text }}<br />
+      </span>
       {{ items[0] }}
     </p>
   </component>
