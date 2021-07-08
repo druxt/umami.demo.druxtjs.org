@@ -18,11 +18,9 @@
 </template>
 
 <script>
-import { DruxtFieldString } from 'druxt-entity'
+import { DruxtFieldMixin } from 'druxt-entity'
 
 export default {
-  name: 'DruxtFieldStringFieldIngredients',
-
-  extends: DruxtFieldString,
+  mixins: [DruxtFieldMixin],
 }
 </script>
