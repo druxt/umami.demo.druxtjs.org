@@ -1,6 +1,6 @@
 <template>
   <component :is="wrapper.component" v-bind="wrapper.props">
-    <h3 v-if="$slots['label-above']">{{ schema.label.text }}</h3>
+    <h3 v-if="$scopedSlots['label-above']">{{ schema.label.text }}</h3>
 
     <b-list-group v-if="list">
       <b-list-group-item v-for="(item, key) of list" :key="key" button>

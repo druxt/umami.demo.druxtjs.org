@@ -116,24 +116,17 @@ export default {
   druxt: {
     baseUrl: process.env.BASE_URL,
     blocks: {
-      query: {
-        fields: [],
-      },
+      query: { fields: [] },
     },
     entity: {
-      query: {
-        schema: true,
-      },
+      components: { fields: false },
+      query: { schema: true },
     },
     menu: {
-      query: {
-        requiredOnly: true,
-      },
+      query: { requiredOnly: true },
     },
     views: {
-      query: {
-        bundleFilter: true,
-      },
+      query: { bundleFilter: true },
     },
   },
 

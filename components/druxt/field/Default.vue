@@ -1,7 +1,28 @@
 <template>
   <component :is="wrapper.component" v-bind="wrapper.props">
+    <!-- Image fields. -->
+    <template v-if="isSchemaView && isTypeImage">
+      <DruxtEntity
+        v-for="{ type, id } of relationships"
+        :key="id"
+        v-bind="{ type, uuid: id }"
+      >
+        <template #default="{ entity }">
+          <b-card-img-lazy
+            :src="
+              $config.baseUrl +
+              entity.attributes.uri.value.replace(
+                'public://',
+                '/sites/default/files/'
+              )
+            "
+          />
+        </template>
+      </DruxtEntity>
+    </template>
+
     <!-- Reference fields. -->
-    <template v-if="schema.config.schemaType === 'view' && relationship">
+    <template v-else-if="isSchemaView && relationship">
       <DruxtEntity
         v-for="{ type, id } of relationships"
         :key="id"
@@ -9,9 +30,20 @@
       />
     </template>
 
-    <!-- View display fields. -->
+    <!-- Link field. -->
+    <template v-else-if="isSchemaView && isTypeLink">
+      <b-button
+        v-for="(item, key) of items"
+        :key="key"
+        :to="item.uri.replace('internal:', '')"
+      >
+        {{ item.title }}
+      </b-button>
+    </template>
+
+    <!-- Other View display fields. -->
     <!-- eslint-disable-next-line -->
-    <p v-else-if="schema.config.schemaType === 'view'" v-html="html" />
+    <p v-else-if="isSchemaView" v-html="html" />
 
     <!-- Entity reference forms. -->
     <b-card v-else-if="relationship" class="mb-3" no-body>
@@ -61,10 +93,10 @@
 
 <script>
 import { BFormCheckbox } from 'bootstrap-vue'
-import { DruxtFieldMixin } from 'druxt-entity'
+import { DruxtEntity, DruxtFieldMixin } from 'druxt-entity'
 
 export default {
-  components: { BFormCheckbox },
+  components: { BFormCheckbox, DruxtEntity },
 
   mixins: [DruxtFieldMixin],
 
@@ -89,7 +121,12 @@ export default {
         ? model.value
         : JSON.stringify(model),
 
+    isSchemaForm: ({ schema }) => schema.config.schemaType === 'form',
+    isSchemaView: ({ schema }) => schema.config.schemaType === 'view',
+
     isTypeCheckbox: ({ schema }) => ['boolean_checkbox'].includes(schema.type),
+    isTypeLink: ({ schema }) => ['link'].includes(schema.type),
+    isTypeImage: ({ schema }) => ['responsive_image'].includes(schema.type),
     isTypeInput: ({ schema }) => ['string_textfield'].includes(schema.type),
 
     label: ({ schema }) =>
