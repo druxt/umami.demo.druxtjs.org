@@ -11,11 +11,14 @@
 
 <script>
 import { BAlert, BOverlay } from 'bootstrap-vue'
+import { DruxtEntityMixin } from 'druxt-entity'
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 
 export default {
   components: { BAlert, BOverlay, VueJsonPretty },
+
+  mixins: [DruxtEntityMixin],
 
   computed: {
     errors: ({ $parent }) => ($parent.errors || []).filter((o) => !o.source),

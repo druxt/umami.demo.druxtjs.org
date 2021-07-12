@@ -1,26 +1,24 @@
 <template>
   <b-form-group
     :id="schema.id"
+    :description="schema.description || ''"
     :invalid-feedback="stateFeedback"
-    :label="label"
+    label="Authored by"
     label-class="font-weight-bold"
     :state="state"
   >
-    Summary:
-    <b-textarea class="mb-1" v-model="model.summary" />
-
-    <wysiwyg v-model="model.processed" />
+    <b-input v-model="model.data.id" />
   </b-form-group>
 </template>
 
 <script>
-import DruxtFieldDefault from '~/components/druxt/field/Default.vue'
+import DruxtFieldDefault from '~/components/druxt/field/Default'
 
 export default {
   extends: DruxtFieldDefault,
 
   data: ({ value }) => ({
-    model: value || { summary: '', value: '', format: '' },
+    model: value,
   }),
 }
 </script>
