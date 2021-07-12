@@ -118,6 +118,9 @@
         :options="selectOptions"
       />
 
+      <!-- Wysiwyg -->
+      <wysiwyg v-else-if="isTypeWysiwyg" v-model="model.processed" />
+
       <!-- Textarea -->
       <b-textarea
         v-else
@@ -153,7 +156,8 @@ export default {
       !relationship &&
       schema.cardinality === 1 &&
       schema.config.schemaType === 'form' &&
-      typeof value === 'object'
+      typeof value === 'object' &&
+      !value.processed
         ? JSON.stringify(value)
         : value,
   }),
@@ -188,6 +192,7 @@ export default {
     isTypeInput: ({ schema }) =>
       ['string_textfield', 'number'].includes(schema.type),
     isTypeSelect: ({ schema }) => ['options_select'].includes(schema.type),
+    isTypeWysiwyg: ({ schema }) => ['text_textarea'].includes(schema.type),
 
     label: ({ schema }) =>
       ((string) => string.charAt(0).toUpperCase() + string.slice(1))(
@@ -221,12 +226,15 @@ export default {
   },
 
   watch: {
-    model(value) {
-      try {
-        this.$emit('input', JSON.parse(value))
-      } catch (e) {
-        this.$emit('input', value)
-      }
+    model: {
+      deep: true,
+      handler(value) {
+        try {
+          this.$emit('input', JSON.parse(value))
+        } catch (e) {
+          this.$emit('input', value)
+        }
+      },
     },
   },
 }
