@@ -1,11 +1,15 @@
 <template>
-  <div>
-    <slot name="umami_banner_home" v-if="route.isHomePath" />
-    <slot name="views_block__promoted_items_block_1" v-if="route.isHomePath" />
+  <div v-if="!$attrs.editbar">
+    <slot v-if="route.isHomePath" name="umami_banner_home" />
+    <slot v-if="route.isHomePath" name="views_block__promoted_items_block_1" />
     <slot
-      name="umami_banner_recipes"
       v-if="route.resolvedPath === '/en/recipes'"
+      name="umami_banner_recipes"
     />
+  </div>
+
+  <div v-else>
+    <slot />
   </div>
 </template>
 
