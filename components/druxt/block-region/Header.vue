@@ -1,5 +1,5 @@
 <template>
-  <b-container>
+  <b-container v-if="!$attrs.editbar">
     <!-- Branding -->
     <slot name="umami_branding" />
 
@@ -22,6 +22,10 @@
       </div>
     </b-collapse>
   </b-container>
+
+  <div v-else>
+    <slot />
+  </div>
 </template>
 
 <script>
