@@ -93,7 +93,8 @@
 
 <script>
 import { BFormCheckbox } from 'bootstrap-vue'
-import { DruxtEntity, DruxtFieldMixin } from 'druxt-entity'
+import { DruxtFieldMixin } from 'druxt-entity'
+import DruxtEntity from 'druxt-entity/dist/components/DruxtEntity.vue'
 
 export default {
   components: { BFormCheckbox, DruxtEntity },
