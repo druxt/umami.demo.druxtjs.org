@@ -1,0 +1,25 @@
+tasks:
+  - init: npm i
+    command: npm run dev
+
+vscode:
+  extensions:
+    - dbaeumer.vscode-eslint
+    - editorconfig.editorconfig
+    - gruntfuggly.todo-tree
+    - octref.vetur
+
+ports:
+  - port: 3000
+    visibility: public
+
+github:
+  prebuilds:
+    master: true
+    branches: true
+    pullRequests: true
+    pullRequestsFromForks: true
+    addCheck: true
+    addComment: false
+    addBadge: true
+    addLabel: true
