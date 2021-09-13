@@ -140,4 +140,6 @@ export default {
   },
 
   storybook: {},
+
+  telemetry: true,
 }
