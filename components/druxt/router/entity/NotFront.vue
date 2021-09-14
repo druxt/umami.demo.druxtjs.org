@@ -20,7 +20,7 @@
 <script>
 import Vue from 'vue'
 import { TabsPlugin } from 'bootstrap-vue'
-import { DruxtEntityForm } from 'druxt-entity'
+import DruxtEntityForm from 'druxt-entity/dist/components/DruxtEntityForm.vue'
 import { DruxtRouterMixin } from 'druxt-router'
 
 Vue.use(TabsPlugin)
