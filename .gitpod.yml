@@ -2,7 +2,15 @@ image:
   file: .gitpod/Dockerfile
 
 tasks:
-  - init: npm i
+  - name: Nuxt/Storybook
+    command: |
+      gp sync-await npm
+      npx nuxt storybook --ci
+
+  - name: Nuxt/Druxt
+    init: |
+      npm i
+      gp sync-done npm
     command: npm run dev
 
 vscode:
@@ -14,6 +22,8 @@ vscode:
 
 ports:
   - port: 3000
+    visibility: public
+  - port: 3003
     visibility: public
 
 github:
