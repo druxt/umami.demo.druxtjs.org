@@ -36,16 +36,16 @@ commands:
             docker-compose exec cli drush search-api:index
 
       # Run tests.
-      - run:
-          name: Run tests
-          command: |
-            docker-compose exec cli mkdir -p ./web/sites/simpletest/browser_output
-            docker-compose exec cli composer test
-      - run: docker cp $(docker-compose ps -q cli):/app/web/sites/simpletest/browser_output phpunit
-      - store_test_results:
-          path: ~/project/phpunit
-      - store_artifacts:
-          path: ~/project/phpunit
+      # - run:
+      #     name: Run tests
+      #     command: |
+      #       docker-compose exec cli mkdir -p ./web/sites/simpletest/browser_output
+      #       docker-compose exec cli composer test
+      # - run: docker cp $(docker-compose ps -q cli):/app/web/sites/simpletest/browser_output phpunit
+      # - store_test_results:
+      #     path: ~/project/phpunit
+      # - store_artifacts:
+      #     path: ~/project/phpunit
 
       # Perform some informational checks
       - run:
