@@ -28,7 +28,7 @@
         "drupal/jsonapi_menu_items": "1.2.1",
         "drupal/lagoon_logs": "1.1.0",
         "drupal/search_api_lunr": "2.0.1",
-        "drupal/simple_oauth": "5.0.3",
+        "drupal/simple_oauth": "5.0.4",
         "drush/drush": "10.4.3",
         "vlucas/phpdotenv": "5.3.0",
         "zaporylie/composer-drupal-optimizations": "1.2.0"
