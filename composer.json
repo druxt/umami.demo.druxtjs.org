@@ -22,7 +22,7 @@
         "drupal/core-recommended": "9.1.7",
         "drupal/druxt": "1.0.2",
         "drupal/gin": "3.0.0-alpha33",
-        "drupal/gin_login": "1.0.0-rc7",
+        "drupal/gin_login": "1.0.0-rc8",
         "drupal/gin_toolbar": "1.0.0-beta14",
         "drupal/jsonapi_hypermedia": "1.6.0",
         "drupal/jsonapi_menu_items": "1.2.1",
