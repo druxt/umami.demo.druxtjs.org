@@ -15,7 +15,7 @@
     ],
     "require": {
         "amazeeio/drupal_integrations": "0.3.6",
-        "composer/installers": "1.11.0",
+        "composer/installers": "2.0.1",
         "cweagans/composer-patches": "1.7.1",
         "drupal/anonymous_redirect": "2.2.0-rc1",
         "drupal/core-project-message": "9.1.7",
