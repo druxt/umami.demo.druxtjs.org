@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "edbe432f408ec3b66b4b1f6c9e6401ea",
+    "content-hash": "89f00982ede6198a92fec16e0adfaf2d",
     "packages": [
         {
             "name": "amazeeio/drupal_integrations",
@@ -2028,11 +2028,11 @@
         },
         {
             "name": "drupal/druxt",
-            "version": "1.0.0",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/druxt/druxt_drupal",
-                "reference": "c2cf221419ff7873f15fe3e9d0420b1809f00af8"
+                "reference": "ed69d2f9e9c3974a8108bb9f4e9e426fafb41f95"
             },
             "require": {
                 "drupal/decoupled_router": "^2.0",
@@ -2050,7 +2050,7 @@
                 }
             ],
             "description": "A bridge between frameworks, Drupal in the back, Nuxt.js in the front.",
-            "time": "2021-05-01T02:56:46+00:00"
+            "time": "2021-06-07T03:35:42+00:00"
         },
         {
             "name": "drupal/gin",
