@@ -16,5 +16,8 @@ $ npm run start
 # generate static project
 $ npm run generate
 ```
-
 For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
+
+## Local backend
+
+If you wish to test with a local backend simply update the BASE_URL value in .env with the url of your local backend before running `npm run dev`.
