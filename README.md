@@ -1,47 +1,15 @@
-# DruxtJS demo Drupal JSON:API backend.
+# DruxtJS Umami demo - Drupal JSON:API backend.
 
-This is the Drupal 9 codebase for the JSON:API backend used by the DruxtJS demonstration site.
+This is the Drupal 9 codebase for the JSON:API backend used by the DruxtJS Umami demonstration site.
 
-This codebase is derived from the [amazeeio/drupal-example-simple](https://github.com/amazeeio/drupal-example-simple/tree/9.x) template.
-
-
-## Requirements
-
-* [Lando](https://docs.lando.dev/basics/installation.html#system-requirements)
+The site uses the Drupal Umami installaton profile with the DruxtJS module pre-configured and ready to be access with the DruxtJS demo frontend:
+- https://github.com/druxt/demo.druxtjs.org
 
 
-## Local environment setup - Lando
+## Get started
 
-This repository is set up with a `.lando.yml` file, which allows you to use Lando for your local development environment.
+### Gitpod
 
-1. Checkout the project repo and navigate into the cloned directory:
+This repository is setup to be run on Gitpod:
 
-    ```bash
-    git clone https://github.com/druxt/demo-api.druxtjs.org.git [DESTINATION]
-    cd [DESTINATION]
-    ```
-
-2. Start Lando:
-
-    ```bash
-    lando start
-    ```
-
-3. Install and setup the demo:
-
-    ```bash
-    lando drush -y si demo_umami
-    lando drush -y en druxt_umami
-    lando drush rap anonymous 'access druxt resources'
-    lando drush config:set jsonapi.settings read_only 0 -y
-    lando drush search-api:index
-    ```
-
-### tl;dr
-```bash
-git clone https://github.com/druxt/demo-api.druxtjs.org.git demo-api.druxtjs.org && cd $_
-```
-
-```bash
-lando start && lando drush -y si demo_umami && lando drush -y en druxt_umami && lando drush rap anonymous 'access druxt resources' && lando drush config:set jsonapi.settings read_only 0 -y && lando drush search-api:index
-```
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#github.com/druxt/demo-api.druxtjs.org)

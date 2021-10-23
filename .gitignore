@@ -5,6 +5,9 @@
 /vendor/
 /web
 
+# Ignore environment files
+.ddev/docker-compose.host-docker-internal.yaml
+
 # Ignore Drupal's file directory
 /web/sites/*/files/
 

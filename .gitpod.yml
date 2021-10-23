@@ -1,0 +1,59 @@
+image:
+  file: .gitpod/Dockerfile
+
+tasks:
+  - init: |
+      # Installing DDev and Drupal backend.
+      .gitpod/scripts/ddev-download-images.sh
+      .gitpod/scripts/ddev-setup.sh
+      .gitpod/scripts/drupal-setup.sh
+    command: |
+      .gitpod/scripts/ddev-setup.sh
+      clear && cat .gitpod/WELCOME.md
+      ddev drush uli
+
+# VScode xdebug extension
+vscode:
+  extensions:
+    - dbaeumer.vscode-eslint
+    - editorconfig.editorconfig
+    - felixfbecker.php-debug
+
+ports:
+  # Drupal
+  - port: 8080
+    onOpen: ignore
+    visibility: public
+
+  # Currently un-notified and unsupported mailhog http port
+  - port: 8025
+    onOpen: ignore
+  # Currently un-notified and unsupported mailhog https port
+  - port: 8026
+    onOpen: ignore
+  # Currently un-notified and unsupported phpmyadmin http port
+  - port: 8036
+    onOpen: ignore
+  # Currently un-notified and unsupported phpmyadmin https port
+  - port: 8037
+    onOpen: ignore
+  # router http port that we're ignoring.
+  - port: 8888
+    onOpen: ignore
+  # router https port that we're ignoring.
+  - port: 8889
+    onOpen: ignore
+  # xdebug port
+  - port: 9000
+    onOpen: ignore
+
+github:
+  prebuilds:
+    master: true
+    branches: true
+    pullRequests: true
+    pullRequestsFromForks: true
+    addCheck: true
+    addComment: false
+    addBadge: true
+    addLabel: true
