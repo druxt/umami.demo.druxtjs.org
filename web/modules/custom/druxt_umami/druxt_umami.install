@@ -22,7 +22,7 @@ function druxt_umami_install() {
   \Drupal::service('config.factory')
     ->getEditable('anonymous_redirect.settings')
     ->set('enable_redirect', TRUE)
-    ->set('redirect_url_overrides', "/en/user/*\n/jsonapi\n/jsonapi/*\n/js-search/*\n/oauth/*\n/router/*")
+    ->set('redirect_url_overrides', "/en/user/*\n/jsonapi\n/jsonapi/*\n/js-search/*\n/oauth/*\n/router/*\n/user/*")
     ->save();
 
   // JSON:API settings.
