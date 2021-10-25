@@ -18,9 +18,9 @@
         "composer/installers": "2.0.1",
         "cweagans/composer-patches": "1.7.1",
         "drupal/anonymous_redirect": "2.2.0-rc1",
-        "drupal/core-project-message": "9.1.7",
-        "drupal/core-recommended": "9.1.7",
-        "drupal/druxt": "1.1.0",
+        "drupal/core-project-message": "9.2.7",
+        "drupal/core-recommended": "9.2.7",
+        "drupal/druxt": "1.1.1",
         "drupal/gin": "3.0.0-alpha33",
         "drupal/gin_login": "1.0.0",
         "drupal/gin_toolbar": "1.0.0-beta14",
@@ -34,8 +34,8 @@
         "zaporylie/composer-drupal-optimizations": "1.2.0"
     },
     "require-dev": {
-        "drupal/core-dev": "9.1.7",
-        "drupal/core-dev-pinned": "9.1.7",
+        "drupal/core-dev": "9.2.7",
+        "drupal/core-dev-pinned": "9.2.7",
         "weitzman/drupal-test-traits": "1.5.0"
     },
     "autoload": {
