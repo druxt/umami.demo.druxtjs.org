@@ -10,6 +10,9 @@
         <b-nav-item>
           <b-button v-b-toggle.search><BIconSearch /></b-button>
         </b-nav-item>
+        <b-nav-item>
+          <b-button v-b-toggle.starbar><BIconStarHalf /></b-button>
+        </b-nav-item>
       </b-navbar-nav>
 
       <!-- Main menu -->
@@ -25,9 +28,9 @@
 </template>
 
 <script>
-import { BIconSearch } from 'bootstrap-vue'
+import { BIconSearch, BIconStarHalf } from 'bootstrap-vue'
 
 export default {
-  components: { BIconSearch },
+  components: { BIconSearch, BIconStarHalf },
 }
 </script>

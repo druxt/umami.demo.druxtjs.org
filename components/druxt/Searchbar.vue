@@ -1,38 +1,47 @@
 <template>
-  <b-container>
-    <b-row class="mb-4">
-      <b-col>
-        <b-input-group>
-          <b-form-input
-            v-model="searchText"
-            placeholder="Enter your query here"
-            type="search"
+  <b-sidebar
+    id="search"
+    title="Search"
+    backdrop
+    shadow
+    no-close-on-route-change
+    right
+  >
+    <b-container>
+      <b-row class="mb-4">
+        <b-col>
+          <b-input-group>
+            <b-form-input
+              v-model="searchText"
+              placeholder="Enter your query here"
+              type="search"
+            />
+            <b-input-group-append>
+              <b-button><BIconSearch /></b-button>
+            </b-input-group-append>
+          </b-input-group>
+        </b-col>
+      </b-row>
+
+      <b-row v-if="resultsVisible">
+        <b-col cols="12"><h4>Results</h4></b-col>
+
+        <b-col
+          v-for="(item, key) of searchResults"
+          :key="key"
+          class="mb-3"
+          cols="12"
+        >
+          <Druxt
+            module="entity"
+            mode="card"
+            :type="searchMeta[item.ref].type"
+            :uuid="searchMeta[item.ref].uuid"
           />
-          <b-input-group-append>
-            <b-button><BIconSearch /></b-button>
-          </b-input-group-append>
-        </b-input-group>
-      </b-col>
-    </b-row>
-
-    <b-row v-if="resultsVisible">
-      <b-col cols="12"><h4>Results</h4></b-col>
-
-      <b-col
-        v-for="(item, key) of searchResults"
-        :key="key"
-        class="mb-3"
-        cols="12"
-      >
-        <Druxt
-          module="entity"
-          mode="card"
-          :type="searchMeta[item.ref].type"
-          :uuid="searchMeta[item.ref].uuid"
-        />
-      </b-col>
-    </b-row>
-  </b-container>
+        </b-col>
+      </b-row>
+    </b-container>
+  </b-sidebar>
 </template>
 
 <script>

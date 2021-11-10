@@ -7,6 +7,12 @@
     @mouseover="hover = true"
     @mouseleave="hover = false"
   >
+    <Star
+      class="position-absolute star"
+      pill
+      :type="model.type"
+      :uuid="model.id"
+    />
     <slot name="field_media_image" />
 
     <b-card-body class="h-100 d-flex flex-column">
@@ -58,5 +64,10 @@ export default {
 <style scoped>
 * {
   cursor: pointer;
+}
+
+.star {
+  top: 1rem;
+  right: 1rem;
 }
 </style>

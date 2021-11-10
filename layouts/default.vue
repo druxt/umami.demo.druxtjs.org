@@ -68,16 +68,8 @@
           </b-container>
         </b-row>
 
-        <b-sidebar
-          id="search"
-          title="Search"
-          backdrop
-          shadow
-          no-close-on-route-change
-          right
-        >
-          <DruxtSearchbar />
-        </b-sidebar>
+        <DruxtSearchbar />
+        <DruxtStarbar />
       </b-container>
     </template>
   </DruxtSite>
