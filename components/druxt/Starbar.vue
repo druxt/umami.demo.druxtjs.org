@@ -9,10 +9,7 @@
   >
     <b-container>
       <b-row>
-        <Draggable
-          v-model="model"
-          @end="onEnd"
-        >
+        <Draggable v-model="model">
           <b-col
             v-for="item of model"
             :key="item"
@@ -37,20 +34,31 @@ import Draggable from 'vuedraggable'
 export default {
   components: { Draggable },
 
-  data: ({ $store }) => ({
-    model: [...($store.state.starred.items || [])]
-  }),
-
-  methods: {
-    onEnd() {
-      this.$store.commit('starred/set', this.model)
-    }
-  },
-
-  watch: {
-    '$store.state.starred.items'() {
-      this.model = this.$store.state.starred.items
+  computed: {
+    model: {
+      get() {
+        return this.$store.state.starred.items
+      },
+      set(value) {
+        this.$store.commit('starred/set', value)
+      }
     }
   }
+
+  // data: ({ $store }) => ({
+  //   model: [...($store.state.starred.items || [])]
+  // }),
+
+  // methods: {
+  //   onEnd() {
+  //     this.$store.commit('starred/set', this.model)
+  //   }
+  // },
+
+  // watch: {
+  //   '$store.state.starred.items'() {
+  //     this.model = this.$store.state.starred.items
+  //   }
+  // }
 }
 </script>

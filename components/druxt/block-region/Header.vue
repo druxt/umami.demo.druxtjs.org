@@ -9,8 +9,6 @@
       <b-navbar-nav class="ml-auto">
         <b-nav-item>
           <b-button v-b-toggle.search><BIconSearch /></b-button>
-        </b-nav-item>
-        <b-nav-item>
           <b-button v-b-toggle.starbar><BIconStarHalf /></b-button>
         </b-nav-item>
       </b-navbar-nav>
