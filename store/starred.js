@@ -11,5 +11,9 @@ export const mutations = {
   remove(state, { type, uuid }) {
     if (!state.items.includes(`${type}:${uuid}`)) return
     state.items = state.items.filter((i) => i !== `${type}:${uuid}`)
+  },
+
+  set(state, items) {
+    state.items = items
   }
 }
