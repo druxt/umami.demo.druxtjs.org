@@ -125,6 +125,9 @@ export default {
     menu: {
       query: { requiredOnly: true },
     },
+    proxy: {
+      api: true
+    },
     views: {
       query: { bundleFilter: true },
     },
