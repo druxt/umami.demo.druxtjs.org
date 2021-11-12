@@ -1,3 +1,5 @@
+const baseUrl = process.env.BASE_URL
+
 export default {
   target: 'static',
 
@@ -42,7 +44,7 @@ export default {
   ],
 
   publicRuntimeConfig: {
-    baseUrl: process.env.BASE_URL,
+    baseUrl,
   },
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -77,9 +79,9 @@ export default {
       drupal: {
         scheme: 'oauth2',
         endpoints: {
-          authorization: process.env.BASE_URL + '/oauth/authorize',
-          token: process.env.BASE_URL + '/oauth/token',
-          userInfo: process.env.BASE_URL + '/oauth/userinfo'
+          authorization: baseUrl + '/oauth/authorize',
+          token: baseUrl + '/oauth/token',
+          userInfo: baseUrl + '/oauth/userinfo'
         },
         clientId: process.env.OAUTH_CLIENT_ID,
       },
@@ -114,7 +116,7 @@ export default {
 
   // Druxt Configuration
   druxt: {
-    baseUrl: process.env.BASE_URL,
+    baseUrl,
     blocks: {
       query: { fields: [] },
     },
@@ -125,9 +127,17 @@ export default {
     menu: {
       query: { requiredOnly: true },
     },
+    proxy: {
+      api: true
+    },
     views: {
       query: { bundleFilter: true },
     },
+  },
+
+  proxy: {
+    '/en/jsonapi': baseUrl,
+    '/es/jsonapi': baseUrl
   },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)

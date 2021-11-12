@@ -1,0 +1,16 @@
+
+[[redirects]]
+  from = "/en/jsonapi*"
+  to = "https://demo-api.druxtjs.org/jsonapi:splat"
+
+[[redirects]]
+  from = "/es/jsonapi*"
+  to = "https://demo-api.druxtjs.org/en/jsonapi:splat"
+
+[[redirects]]
+  from = "/jsonapi*"
+  to = "https://demo-api.druxtjs.org/es/jsonapi:splat"
+
+[[redirects]]
+  from = "/router/translate-path*"
+  to = "https://demo-api.druxtjs.org/router/translate-path:splat"
