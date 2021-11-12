@@ -1,4 +1,0 @@
-/en/jsonapi*             https://demo-api.druxtjs.org/jsonapi:splat                 200
-/es/jsonapi*             https://demo-api.druxtjs.org/en/jsonapi:splat              200
-/jsonapi*                https://demo-api.druxtjs.org/es/jsonapi:splat              200
-/router/translate-path*  https://demo-api.druxtjs.org/router/translate-path:splat   200
