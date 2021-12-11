@@ -10,7 +10,8 @@
     "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "lint:style": "stylelint **/*.{vue,css} --ignore-path .gitignore",
     "lint": "npm run lint:js && npm run lint:style",
-    "storybook": "npx nuxt storybook"
+    "storybook": "npx nuxt storybook",
+    "storybook:build": "npx nuxt storybook build"
   },
   "lint-staged": {
     "*.{js,vue}": "eslint",

@@ -12,6 +12,8 @@ ENV GITHUB_CLIENT_SECRET ${GITHUB_CLIENT_SECRET}
 ENV OAUTH_CLIENT_ID ${OAUTH_CLIENT_ID}
 
 RUN npm run generate
+RUN npm run storybook:build
+RUN mv storybook-static dist/storybook
 
 FROM uselagoon/nginx:latest
 
