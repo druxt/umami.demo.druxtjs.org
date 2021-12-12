@@ -13,11 +13,11 @@ ENV OAUTH_CLIENT_ID ${OAUTH_CLIENT_ID}
 
 RUN npm run generate
 RUN npm run storybook:build
-RUN mv storybook-static dist/storybook
 
 FROM uselagoon/nginx:latest
 
 COPY --from=builder /app/dist /app/
+COPY --from=builder /app/storybook-static /app/storybook
 
 COPY nginx.conf /etc/nginx/conf.d/app.conf
 
