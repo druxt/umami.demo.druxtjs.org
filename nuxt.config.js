@@ -128,7 +128,7 @@ export default {
       query: { requiredOnly: true },
     },
     proxy: {
-      api: true
+      api: process.env.API_PROXY === '1',
     },
     views: {
       query: { bundleFilter: true },
