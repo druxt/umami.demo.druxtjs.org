@@ -10,6 +10,7 @@
     "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "lint:style": "stylelint **/*.{vue,css} --ignore-path .gitignore",
     "lint": "npm run lint:js && npm run lint:style",
+    "lintfix": "prettier --write --list-different . && npm run lint:js -- --fix && npm run lint:style -- --fix",
     "start": "nuxt start",
     "storybook:build": "API_PROXY=0 npx nuxt storybook build",
     "storybook": "npx nuxt storybook"
@@ -42,24 +43,28 @@
     "vuex": "3.6.2"
   },
   "devDependencies": {
-    "@commitlint/cli": "13.2.1",
-    "@commitlint/config-conventional": "13.2.0",
-    "@nuxtjs/eslint-config": "6.0.1",
+    "@babel/eslint-parser": "^7.16.3",
+    "@commitlint/cli": "^15.0.0",
+    "@commitlint/config-conventional": "^15.0.0",
+    "@nuxtjs/eslint-config": "^8.0.0",
     "@nuxtjs/eslint-module": "3.0.2",
     "@nuxtjs/storybook": "4.2.0",
-    "@nuxtjs/stylelint-module": "4.0.0",
-    "babel-eslint": "10.1.0",
+    "@nuxtjs/stylelint-module": "^4.1.0",
+    "babel-core": "^7.0.0-bridge.0",
     "chromatic": "6.3.4",
-    "eslint": "8.0.1",
-    "eslint-config-prettier": "8.3.0",
-    "eslint-plugin-nuxt": "2.0.0",
+    "eslint": "^8.4.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-nuxt": "^3.1.0",
     "eslint-plugin-prettier": "4.0.0",
+    "eslint-plugin-vue": "^8.2.0",
     "husky": "7.0.4",
-    "lint-staged": "11.2.3",
+    "lint-staged": "^12.1.2",
     "postcss": "8.4.5",
+    "postcss-html": "^1.3.0",
     "prettier": "2.5.1",
-    "stylelint": "13.13.1",
-    "stylelint-config-prettier": "9.0.3",
-    "stylelint-config-standard": "22.0.0"
+    "stylelint": "^14.1.0",
+    "stylelint-config-prettier": "^9.0.3",
+    "stylelint-config-recommended-vue": "^1.1.0",
+    "stylelint-config-standard": "^24.0.0"
   }
 }
