@@ -6,7 +6,7 @@ This is a demonstation of how to create a DruxtSite using the Drupal 9 Umami ins
 
 View the site @ https://demo.druxtjs.org
 
-* * *
+---
 
 ## Links
 
@@ -14,7 +14,7 @@ View the site @ https://demo.druxtjs.org
 - Drupal Umami: https://www.drupal.org/docs/umami-drupal-demonstration-installation-profile
 - DruxtJS Community Discord: https://discord.druxtjs.org (#drupal-umami-parity)
 
-* * *
+---
 
 ## Contributing
 
@@ -22,7 +22,7 @@ This repostiory is setup to be used with Gitpod:
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/druxt/demo.druxtjs.org)
 
-* * *
+---
 
 ## License
 

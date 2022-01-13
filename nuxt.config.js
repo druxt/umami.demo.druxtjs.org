@@ -13,7 +13,10 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css' },
+      {
+        rel: 'stylesheet',
+        href: 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css',
+      },
     ],
   },
 
@@ -81,7 +84,7 @@ export default {
         endpoints: {
           authorization: baseUrl + '/oauth/authorize',
           token: baseUrl + '/oauth/token',
-          userInfo: baseUrl + '/oauth/userinfo'
+          userInfo: baseUrl + '/oauth/userinfo',
         },
         clientId: process.env.OAUTH_CLIENT_ID,
       },
@@ -137,7 +140,7 @@ export default {
 
   proxy: {
     '/en/jsonapi': baseUrl,
-    '/es/jsonapi': baseUrl
+    '/es/jsonapi': baseUrl,
   },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)

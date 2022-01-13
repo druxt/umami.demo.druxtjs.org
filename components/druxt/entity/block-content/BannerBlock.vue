@@ -84,6 +84,6 @@ export default {
 
 <style scoped>
 .card.bg-dark {
-  background-color: rgba(52, 58, 64, 0.6) !important;
+  background-color: rgb(52 58 64 / 60%) !important;
 }
 </style>
