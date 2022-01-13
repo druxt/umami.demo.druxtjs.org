@@ -57,7 +57,7 @@
     "husky": "7.0.4",
     "lint-staged": "11.2.3",
     "postcss": "8.4.4",
-    "prettier": "2.4.1",
+    "prettier": "2.5.1",
     "stylelint": "13.13.1",
     "stylelint-config-prettier": "9.0.3",
     "stylelint-config-standard": "22.0.0"
