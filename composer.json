@@ -26,7 +26,7 @@
         "drupal/gin_toolbar": "1.0.0-beta14",
         "drupal/jsonapi_hypermedia": "1.6.0",
         "drupal/jsonapi_menu_items": "1.2.1",
-        "drupal/lagoon_logs": "1.2.0",
+        "drupal/lagoon_logs": "2.0.0",
         "drupal/search_api_lunr": "2.0.1",
         "drupal/simple_oauth": "5.0.5",
         "drush/drush": "11.0.0",
