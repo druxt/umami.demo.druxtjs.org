@@ -17,6 +17,8 @@ import { BFormDatepicker, BFormTimepicker } from 'bootstrap-vue'
 import DruxtFieldDefault from '~/components/druxt/field/Default.vue'
 
 export default {
+  components: { BFormDatepicker, BFormTimepicker },
+
   extends: DruxtFieldDefault,
 
   data: ({ value }) => ({
@@ -24,7 +26,5 @@ export default {
       ? { date: value.split('T')[0], time: value.split('T')[1].split('+')[0] }
       : { date: undefined, time: undefined },
   }),
-
-  components: { BFormDatepicker, BFormTimepicker },
 }
 </script>

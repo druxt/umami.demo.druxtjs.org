@@ -2,9 +2,8 @@ docker-compose-yaml: docker-compose.yml
 
 project: demo-druxtjs-org
 
-
 environments:
   main:
     routes:
       - nginx:
-        - demo.druxtjs.org
+          - demo.druxtjs.org

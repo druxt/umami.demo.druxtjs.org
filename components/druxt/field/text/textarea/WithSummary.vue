@@ -7,17 +7,17 @@
   >
     <b-card>
       Summary:
-      <b-textarea class="mb-3" v-model="model.summary" />
+      <b-textarea v-model="model.summary" class="mb-3" />
 
       Value:
       <b-textarea
-        class="mb-3"
         v-model="model.value"
+        class="mb-3"
         :rows="schema.settings.display.rows"
       />
 
       Format:
-      <b-select :options="[model.format]" v-model="model.format" />
+      <b-select v-model="model.format" :options="[model.format]" />
     </b-card>
   </b-form-group>
 </template>
