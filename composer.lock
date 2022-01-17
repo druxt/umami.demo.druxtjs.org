@@ -2640,7 +2640,7 @@
             "extra": {
                 "drupal": {
                     "version": "5.0.5",
-                    "datestamp": "1632063574",
+                    "datestamp": "1641409818",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -2665,10 +2665,6 @@
                 {
                     "name": "e0ipso",
                     "homepage": "https://www.drupal.org/user/550110"
-                },
-                {
-                    "name": "mglaman",
-                    "homepage": "https://www.drupal.org/user/2416470"
                 },
                 {
                     "name": "pcambra",
