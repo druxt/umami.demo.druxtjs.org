@@ -5,5 +5,7 @@ project: demo-druxtjs-org
 environments:
   main:
     routes:
-      - nginx:
+      - app:
           - demo.druxtjs.org
+      - storybook:
+          - storybook.demo.druxtjs.org
