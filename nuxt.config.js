@@ -1,3 +1,5 @@
+import storybook from './nuxt-storybook.config'
+
 const baseUrl = process.env.BASE_URL
 
 export default {
@@ -152,14 +154,7 @@ export default {
     extractCSS: true,
   },
 
-  storybook: {
-    stories: [
-      '~/stories/**/*.stories.mdx',
-      '~/components/**/*.stories.js',
-      '~/layouts/**/*.stories.js',
-      '~/pages/**/*.stories.js',
-    ],
-  },
+  storybook,
 
   telemetry: true,
 }
