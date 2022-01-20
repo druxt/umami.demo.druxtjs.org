@@ -152,7 +152,14 @@ export default {
     extractCSS: true,
   },
 
-  storybook: {},
+  storybook: {
+    stories: [
+      '~/stories/**/*.stories.mdx',
+      '~/components/**/*.stories.js',
+      '~/layouts/**/*.stories.js',
+      '~/pages/**/*.stories.js',
+    ],
+  },
 
   telemetry: true,
 }
