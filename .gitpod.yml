@@ -2,15 +2,7 @@ image:
   file: .gitpod/Dockerfile
 
 tasks:
-  - name: Nuxt/Storybook
-    command: |
-      gp sync-await npm
-      npx nuxt storybook --ci
-
-  - name: Nuxt/Druxt
-    init: |
-      npm i
-      gp sync-done npm
+  - init: npm i
     command: npm run dev
 
 vscode:
