@@ -8,7 +8,7 @@ export default {
 const Template = (args, { argTypes }) => ({
   props: Object.keys(argTypes),
   components: { PlainLayout },
-  template: '<PlainLayout />',
+  template: '<PlainLayout><DruxtRouter path="/" /></PlainLayout>',
 })
 
 export const Plain = Template.bind({})

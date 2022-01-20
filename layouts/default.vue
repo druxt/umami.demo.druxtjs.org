@@ -34,8 +34,9 @@
               </b-col>
             </b-row>
 
+            <slot v-if="$slots.default" />
             <DruxtBlockRegion
-              v-if="regions.includes('content')"
+              v-else-if="regions.includes('content')"
               v-bind="props.content"
             />
           </b-container>

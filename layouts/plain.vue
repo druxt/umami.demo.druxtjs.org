@@ -17,7 +17,8 @@
     <!-- Content -->
     <b-row class="bg-light">
       <b-container :class="containerClass">
-        <Nuxt />
+        <slot v-if="$slots.default" />
+        <Nuxt v-else />
       </b-container>
     </b-row>
 
