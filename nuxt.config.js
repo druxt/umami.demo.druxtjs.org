@@ -1,3 +1,5 @@
+import storybook from './nuxt-storybook.config'
+
 const baseUrl = process.env.BASE_URL
 
 export default {
@@ -152,7 +154,7 @@ export default {
     extractCSS: true,
   },
 
-  storybook: {},
+  storybook,
 
   telemetry: true,
 }
