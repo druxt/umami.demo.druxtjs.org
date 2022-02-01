@@ -43,11 +43,21 @@ jobs:
       - name: Run linter 👀
         run: npm run lint
 
-      # - name: Run tests 🧪
-      #   run: npm run test
+      # - name: Cypress run
+      #   uses: cypress-io/github-action@v2
+      #   with:
+      #     build: npm run generate
+      #     start: npm start
 
-      - name: Cypress run
-        uses: cypress-io/github-action@v2
-        with:
-          build: npm run generate
-          start: npm start
+      - name: Cypress info
+        run: |
+          npx cypress verify
+          npx cypress info
+          npx cypress version
+          npx cypress version --component package
+          npx cypress version --component binary
+          npx cypress version --component electron
+          npx cypress version --component node
+
+      - name: Run tests 🧪
+        run: npm run test
