@@ -17,7 +17,7 @@
     "storybook:build": "API_PROXY=0 npx nuxt storybook build",
     "storybook": "npx nuxt storybook",
     "test:cy": "start-server-and-test serve http://localhost:3000 cy:run",
-    "test": "test:cy"
+    "test": "npm run test:cy"
   },
   "cypress-cucumber-preprocessor": {
     "nonGlobalStepDefinitions": true
