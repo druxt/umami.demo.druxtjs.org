@@ -2,7 +2,7 @@ image:
   file: .gitpod/Dockerfile
 
 tasks:
-  - init: npm i
+  - init: npm ci
     command: npm run dev
 
 vscode:
