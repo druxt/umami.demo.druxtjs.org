@@ -19,6 +19,9 @@
     "test:cy": "start-server-and-test serve http://localhost:3000 cy:run",
     "test": "test:cy"
   },
+  "cypress-cucumber-preprocessor": {
+    "nonGlobalStepDefinitions": true
+  },
   "lint-staged": {
     "*.{js,vue}": "eslint",
     "*.{css,vue}": "stylelint"

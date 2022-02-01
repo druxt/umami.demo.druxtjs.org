@@ -2,7 +2,9 @@ image:
   file: .gitpod/Dockerfile
 
 tasks:
-  - init: npm i
+  - init: |
+      npx cypress install
+      npm i
     command: npm run dev
 
 vscode:
