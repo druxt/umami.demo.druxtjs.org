@@ -61,7 +61,7 @@
     "@nuxtjs/stylelint-module": "4.1.0",
     "babel-core": "7.0.0-bridge.0",
     "chromatic": "6.4.3",
-    "cypress": "9.4.0",
+    "cypress": "9.4.1",
     "cypress-cucumber-preprocessor": "4.3.1",
     "eslint": "8.8.0",
     "eslint-config-prettier": "8.3.0",
