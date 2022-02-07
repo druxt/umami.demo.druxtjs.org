@@ -1,6 +1,10 @@
 FROM uselagoon/node-14-builder:latest as builder
 
 COPY . /app/
+
+# Install latest npm
+RUN npm install -g npm
+
 RUN npm install
 
 ARG GITHUB_CLIENT_ID

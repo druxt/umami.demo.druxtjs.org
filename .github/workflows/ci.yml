@@ -29,6 +29,11 @@ jobs:
           node-version: ${{ matrix.node }}
           check-latest: true
 
+      - name: Update npm 🏗
+        run: |
+          npm install -g npm
+          npm --version
+
       - name: Cache node_modules 📦
         uses: actions/cache@v2.1.7
         with:
