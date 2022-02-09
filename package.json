@@ -54,7 +54,7 @@
     "@commitlint/cli": "16.1.0",
     "@commitlint/config-conventional": "16.0.0",
     "@cypress/vue": "2.2.3",
-    "@cypress/webpack-dev-server": "1.8.0",
+    "@cypress/webpack-dev-server": "1.8.1",
     "@nuxtjs/eslint-config": "8.0.0",
     "@nuxtjs/eslint-module": "3.0.2",
     "@nuxtjs/storybook": "4.2.0",
