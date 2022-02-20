@@ -1,5 +1,4 @@
-image:
-  file: .gitpod/Dockerfile
+image: drupalpod/drupalpod-gitpod-base:20220218-optimized
 
 tasks:
   - init: |
@@ -44,7 +43,7 @@ ports:
   - port: 8889
     onOpen: ignore
   # xdebug port
-  - port: 9000
+  - port: 9003
     onOpen: ignore
 
 github:
