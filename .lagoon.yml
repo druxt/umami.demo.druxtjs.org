@@ -29,6 +29,11 @@ tasks:
         command: drush search-api:index
         service: cli
 
+    - run:
+        name: drush user:login
+        command: drush user:login
+        service: cli
+
 environments:
   main:
     routes:
