@@ -56,6 +56,7 @@ export default {
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
+    '@nuxtjs/auth-next',
     // Nuxt.js Lunr.
     [
       '@nuxtjs/lunr-module',
@@ -87,11 +88,9 @@ export default {
           userInfo: baseUrl + '/oauth/userinfo',
         },
         clientId: process.env.OAUTH_CLIENT_ID,
-      },
-      github: {
-        clientId: process.env.GITHUB_CLIENT_ID,
-        clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        scope: false,
+        responseType: 'code',
+        grantType: 'authorization_code',
+        codeChallengeMethod: 'S256',
       },
     },
   },

@@ -14,10 +14,10 @@
 
       <!-- Main menu -->
       <div class="ml-auto">
-        <!-- <b-navbar-nav class="justify-content-end">
-          <b-nav-item v-if="!$auth.loggedIn" to="/login">Login</b-nav-item>
+        <b-navbar-nav class="justify-content-end">
+          <b-nav-item v-if="!$auth.loggedIn" @click="$auth.loginWith('drupal')">Login</b-nav-item>
           <b-nav-item v-else @click="$auth.logout()">Log out</b-nav-item>
-        </b-navbar-nav> -->
+        </b-navbar-nav>
         <DruxtBlockSystemMenuBlockMain />
       </div>
     </b-collapse>
