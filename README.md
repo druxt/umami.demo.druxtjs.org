@@ -12,4 +12,11 @@ The site uses the Drupal Umami installaton profile with the DruxtJS module pre-c
 
 This repository is setup to be run on Gitpod:
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#github.com/druxt/demo-api.druxtjs.org)
+1. Goto https://gitpod.io/#https://github.com/druxt/demo-api.druxtjs.org  
+1a. Login with Github/Gitlab
+2. Wait
+3. Open the one-time login link
+
+#### tl;dr
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#github.com/druxt/demo-api.druxtjs.org)   
