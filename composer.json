@@ -85,6 +85,10 @@
                 "web-root": "web/"
             }
         },
-        "patches": {}
+        "patches": {
+            "drupal/decoupled_router": {
+                "https://www.drupal.org/project/decoupled_router/issues/3111456#comment-14093342": "https://www.drupal.org/files/issues/2021-05-05/3111456-34.patch"
+            }
+        }
     }
 }
