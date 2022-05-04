@@ -46,6 +46,8 @@ export default {
         index: 'default',
       },
     ],
+    // DruxtJS Site.
+    'druxt-site',
   ],
 
   publicRuntimeConfig: {
@@ -54,8 +56,6 @@ export default {
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
-    // '@nuxtjs/auth-next',
-    '@nuxtjs/axios',
     // Nuxt.js Lunr.
     [
       '@nuxtjs/lunr-module',
@@ -70,8 +70,6 @@ export default {
     ],
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
-    // DruxtJS Site.
-    'druxt-site',
     '~/modules/storybook-proxy',
   ],
 
