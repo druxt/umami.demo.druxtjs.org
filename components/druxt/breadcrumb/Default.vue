@@ -1,17 +1,11 @@
 <template>
-  <b-breadcrumb :items="items" />
+  <b-breadcrumb :items="crumbs" />
 </template>
 
 <script>
 import { DruxtBreadcrumbMixin } from 'druxt-breadcrumb'
 
 export default {
-  mixins: [DruxtBreadcrumbMixin],
-
-  computed: {
-    items() {
-      return (this.crumbs || []).filter((item) => item.to !== '/')
-    },
-  },
+  mixins: [DruxtBreadcrumbMixin]
 }
 </script>

@@ -172,11 +172,6 @@ export default {
     },
   },
 
-  proxy: {
-    '/en/jsonapi': baseUrl,
-    '/es/jsonapi': baseUrl,
-  },
-
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
     extend(config) {

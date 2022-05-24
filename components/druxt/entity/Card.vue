@@ -43,8 +43,7 @@ export default {
   }),
 
   computed: {
-    /* @todo - Implement proper multilingual support */
-    to: ({ entity }) => `/en${(entity.attributes.path || {}).alias}`,
+    to: ({ entity }) => `/${entity.attributes.path.langcode}${(entity.attributes.path || {}).alias}`,
   },
 
   druxt: {
