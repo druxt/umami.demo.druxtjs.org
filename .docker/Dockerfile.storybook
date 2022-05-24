@@ -1,4 +1,4 @@
-FROM amazeeio/node:14
+FROM amazeeio/node:18
 
 COPY . /app/
 
