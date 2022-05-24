@@ -120,20 +120,42 @@ export default {
   // Druxt Configuration
   druxt: {
     baseUrl,
+
+    // Druxt Blocks module settings.
     blocks: {
+      // Filter out all fields by default.
       query: { fields: [] },
     },
+
+    // Druxty Entity module settings.
     entity: {
+      // Disable deprecated fields.
       components: { fields: false },
+      // Enable schema filter by default.
       query: { schema: true },
     },
+
+    // Druxt Menu module settings.
     menu: {
+      // Filter DruxtMenu required fields only.
       query: { requiredOnly: true },
     },
+
+    // Druxt proxy settings.
     proxy: {
+      // Enable API proxy based on environment variable.
       api: process.env.API_PROXY === '1',
     },
+
+    // Druxt Router module settings.
+    router: {
+      // Disable middleware/redirect support.
+      // middleware: false
+    },
+
+    // Druxt Views module settings.
     views: {
+      // Filter fields based on query bundle information if available.
       query: { bundleFilter: true },
     },
   },
