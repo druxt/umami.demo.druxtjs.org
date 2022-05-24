@@ -22,14 +22,17 @@
 
         <b-row class="bg-light">
           <b-container :class="containerClass">
-            <b-row v-if="!isHomePath && regions.includes('breadcrumbs')">
-              <b-col>
+            <b-row v-show="!isHomePath">
+              <b-col v-if="regions.includes('breadcrumbs')">
                 <DruxtBlockRegion v-bind="props.breadcrumbs" />
               </b-col>
             </b-row>
 
-            <b-row v-if="!isHomePath && regions.includes('page_title')">
-              <b-col class="mb-3 mb-md-5">
+            <b-row v-show="!isHomePath">
+              <b-col
+                v-if="regions.includes('page_title')"
+                class="mb-3 mb-md-5"
+              >
                 <DruxtBlockRegion v-bind="props.page_title" />
               </b-col>
             </b-row>
