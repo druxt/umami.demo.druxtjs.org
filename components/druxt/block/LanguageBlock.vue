@@ -8,7 +8,7 @@
     <b-dropdown-item
       v-for="language of languages.filter((o) => o.attributes.drupal_internal__id !== 'und')"
       :key="language.attributes.drupal_internal__id"
-      :to="`/${language.attributes.drupal_internal__id}`"
+      @click="changeLanguage(language.attributes.drupal_internal__id)"
     >
       <CountryFlag
         class="align-bottom"
@@ -52,12 +52,36 @@ export default {
     selected: ({ $route, languages }) => ($route.meta || {}).langcode
       ? languages.find((o) => o.attributes.drupal_internal__id === $route.meta.langcode)
       : (languages.find((o) => o.attributes.drupal_internal__id === ((languages.find((o) => o.attributes.drupal_internal__id === 'und') || {}).attributes || {}).langcode) || {}),
+
+    route: ({ $store }) => $store.state.druxtRouter.route
   },
 
   methods: {
-    country: (iso) => (Object.entries({
+    async changeLanguage(langcode) {
+      switch (this.route.type) {
+        case 'entity': {
+          const { data } = await this.$store.dispatch('druxt/getResource', {
+            type: this.route.props.type,
+            id: this.route.props.uuid,
+            prefix: langcode,
+            query: new DrupalJsonApiParams().addFields(this.route.props.type, ['path'])
+          })
+          this.$router.push({ path: `/${langcode}${data.attributes.path.alias}` })
+        }
+        break
+
+        // Redirect to the correctly prefixed path.
+        default: {
+          const parts = this.route.resolvedPath.split('/')
+          parts[1] = langcode
+          this.$router.push({ path: parts.join('/') })
+        }
+      }
+    },
+
+    country: (langcode) => (Object.entries({
       en: 'gb'
-    }).filter(([k, v]) => k === iso)).map(([k, v]) => v).pop() || iso
+    }).filter(([k, v]) => k === langcode)).map(([k, v]) => v).pop() || langcode
   }
 }
 </script>
