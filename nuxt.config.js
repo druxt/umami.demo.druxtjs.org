@@ -58,8 +58,6 @@ export default {
         index: 'default',
       },
     ],
-    // DruxtJS Site.
-    'druxt-site',
   ],
 
   publicRuntimeConfig: {
@@ -68,6 +66,9 @@ export default {
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
+    // DruxtJS Site.
+    'druxt-site',
+
     // Nuxt.js Lunr.
     [
       '@nuxtjs/lunr-module',
@@ -132,6 +133,7 @@ export default {
   // Druxt Configuration
   druxt: {
     baseUrl,
+    // endpoint: '/jsonapi',
 
     // Druxt Blocks module settings.
     blocks: {
@@ -155,8 +157,8 @@ export default {
 
     // Druxt proxy settings.
     proxy: {
-      // Enable API proxy based on environment variable.
-      api: process.env.API_PROXY === '1',
+      // JSON:API Proxy (can not be used in Static builds).
+      // api: true
     },
 
     // Druxt Router module settings.
