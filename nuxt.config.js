@@ -5,6 +5,10 @@ const baseUrl = process.env.BASE_URL
 export default {
   target: 'static',
 
+  generate: {
+    routes: ['node/preview/full'],
+  },
+
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: 'demo.druxtjs.org',
