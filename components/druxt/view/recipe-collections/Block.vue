@@ -9,7 +9,7 @@
         class="font-weight-bold text-white"
         component="strong"
         nuxt
-        :to="`/en${result.attributes.path.alias}`"
+        :to="`/en${(result.attributes.path || {}).alias}`"
       >
         {{ result.attributes.name }}
       </b-link>

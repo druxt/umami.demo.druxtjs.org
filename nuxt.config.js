@@ -5,6 +5,18 @@ const baseUrl = process.env.BASE_URL
 export default {
   target: 'static',
 
+  generate: {
+    routes: [
+      '/node/preview/card',
+      '/node/preview/card_common',
+      '/node/preview/card_common_alt',
+      '/node/preview/default',
+      '/node/preview/full',
+      '/node/preview/rss',
+      '/node/preview/teaser'
+    ],
+  },
+
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: 'demo.druxtjs.org',
@@ -26,7 +38,7 @@ export default {
   css: [],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: [],
+  plugins: [{ src: '~/plugins/vuex-persistedstate.client.js' }],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
@@ -46,6 +58,8 @@ export default {
         index: 'default',
       },
     ],
+    // DruxtJS Site.
+    'druxt-site',
   ],
 
   publicRuntimeConfig: {
@@ -54,8 +68,6 @@ export default {
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
-    // '@nuxtjs/auth-next',
-    '@nuxtjs/axios',
     // Nuxt.js Lunr.
     [
       '@nuxtjs/lunr-module',
@@ -70,8 +82,6 @@ export default {
     ],
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
-    // DruxtJS Site.
-    'druxt-site',
     '~/modules/storybook-proxy',
   ],
 
@@ -122,20 +132,42 @@ export default {
   // Druxt Configuration
   druxt: {
     baseUrl,
+
+    // Druxt Blocks module settings.
     blocks: {
+      // Filter out all fields by default.
       query: { fields: [] },
     },
+
+    // Druxty Entity module settings.
     entity: {
+      // Disable deprecated fields.
       components: { fields: false },
+      // Enable schema filter by default.
       query: { schema: true },
     },
+
+    // Druxt Menu module settings.
     menu: {
+      // Filter DruxtMenu required fields only.
       query: { requiredOnly: true },
     },
+
+    // Druxt proxy settings.
     proxy: {
+      // Enable API proxy based on environment variable.
       api: process.env.API_PROXY === '1',
     },
+
+    // Druxt Router module settings.
+    router: {
+      // Disable middleware/redirect support.
+      // middleware: false
+    },
+
+    // Druxt Views module settings.
     views: {
+      // Filter fields based on query bundle information if available.
       query: { bundleFilter: true },
     },
   },

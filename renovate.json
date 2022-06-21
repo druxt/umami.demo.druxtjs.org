@@ -1,10 +1,7 @@
 {
-  "extends": ["config:base"],
+  "extends": ["@nuxtjs"],
   "labels": ["dependencies"],
-  "packageRules": [
-    {
-      "groupName": "linting",
-      "matchPackagePatterns": ["lint"]
-    }
+  "ignoreDeps": [
+    "@nuxtjs/storybook"
   ]
 }
