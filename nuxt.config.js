@@ -6,8 +6,15 @@ export default {
   target: 'static',
 
   generate: {
-    // @TODO - Add route per view mode.
-    routes: ['/node/preview/full'],
+    routes: [
+      '/node/preview/card',
+      '/node/preview/card_common',
+      '/node/preview/card_common_alt',
+      '/node/preview/default',
+      '/node/preview/full',
+      '/node/preview/rss',
+      '/node/preview/teaser'
+    ],
   },
 
   // Global page headers (https://go.nuxtjs.dev/config-head)
