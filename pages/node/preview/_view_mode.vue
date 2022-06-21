@@ -1,7 +1,11 @@
 <template>
   <div class="druxt-node-preview">
     <ClientOnly v-if="!$fetchState.pending">
-      <DruxtEntity v-model="entity" v-bind="props" />
+      <DruxtEntity v-if="entity" v-model="entity" v-bind="props" />
+      <DruxtDebug v-else summary="An error has occured while access the preview data from your Drupal backend.">
+        <a :href="url" target="_blank" v-text="url" />
+        <b-textarea v-model="model" />
+      </DruxtDebug>
     </ClientOnly>
   </div>
 </template>
@@ -11,8 +15,9 @@ export default {
   layout: 'preview',
 
   data: () => ({
-    entity: {},
+    entity: false,
     response: null,
+    model: undefined,
   }),
 
   // Only fetch on client side so that the client session is used.
@@ -50,6 +55,16 @@ export default {
      * The JSON:API Node Preview URL.
      */
     url: ({ $route }) => $route.hash.substring(1).replace(':/', '://')
+  },
+
+  watch: {
+    model() {
+      try {
+        const data = JSON.parse(this.model)
+        this.entity = (data || {}).data
+        this.response = data
+      } catch(err) {}
+    }
   }
 }
 </script>
