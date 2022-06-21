@@ -14,29 +14,30 @@
         }
     ],
     "require": {
-        "amazeeio/drupal_integrations": "0.3.6",
-        "composer/installers": "2.0.1",
+        "amazeeio/drupal_integrations": "0.3.7",
+        "composer/installers": "2.1.1",
         "cweagans/composer-patches": "1.7.2",
         "drupal/anonymous_redirect": "2.2.0-rc1",
-        "drupal/core-project-message": "9.3.12",
-        "drupal/core-recommended": "9.3.12",
+        "drupal/core-project-message": "9.3.15",
+        "drupal/core-recommended": "9.3.15",
         "drupal/druxt": "1.1.1",
-        "drupal/gin": "3.0.0-alpha37",
-        "drupal/gin_login": "1.0.0",
-        "drupal/gin_toolbar": "1.0.0-beta20",
-        "drupal/jsonapi_hypermedia": "1.6.0",
+        "drupal/gin": "3.0.0-beta3",
+        "drupal/gin_login": "1.2.0",
+        "drupal/gin_toolbar": "1.0.0-beta22@beta",
+        "drupal/jsonapi_hypermedia": "1.7.0",
         "drupal/jsonapi_menu_items": "1.2.1",
+        "drupal/jsonapi_node_preview": "^1.0@beta",
         "drupal/lagoon_logs": "2.0.1",
         "drupal/search_api_lunr": "2.0.1",
         "drupal/simple_oauth": "5.2.0",
-        "drush/drush": "11.0.5",
+        "drush/drush": "11.0.9",
         "vlucas/phpdotenv": "5.4.1",
         "zaporylie/composer-drupal-optimizations": "1.2.0"
     },
     "require-dev": {
-        "drupal/core-dev": "9.3.12",
-        "drupal/core-dev-pinned": "9.3.12",
-        "weitzman/drupal-test-traits": "1.5.0"
+        "drupal/core-dev": "9.3.15",
+        "drupal/core-dev-pinned": "9.3.15",
+        "weitzman/drupal-test-traits": "1.6.0"
     },
     "autoload": {
         "files": [
@@ -88,6 +89,9 @@
         "patches": {
             "drupal/decoupled_router": {
                 "https://www.drupal.org/project/decoupled_router/issues/3111456#comment-14093342": "https://www.drupal.org/files/issues/2021-05-05/3111456-34.patch"
+            },
+            "drupal/druxt": {
+                "Node Preview": "https://git.drupalcode.org/project/druxt/-/merge_requests/8.diff"
             }
         }
     }
