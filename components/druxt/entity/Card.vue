@@ -44,7 +44,7 @@ export default {
 
   computed: {
     /* @todo - Implement proper multilingual support */
-    to: ({ entity }) => `/en${entity.attributes.path.alias}`,
+    to: ({ entity }) => `/en${(entity.attributes.path || {}).alias}`,
   },
 
   druxt: {
