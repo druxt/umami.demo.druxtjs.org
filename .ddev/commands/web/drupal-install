@@ -4,9 +4,23 @@
 ## Usage: drupal-install
 ## Example: "ddev drupal-install"
 
+# Install composer dependencies.
 composer install
+
+# Install Drupal using the Umami demo profile.
 drush -y site:install demo_umami
+
+# Enable the Druxt Umami demo module.
 drush -y pm:enable druxt_umami
+
+# Update permission for access to Druxt resources.
 drush role:perm:add anonymous "access druxt resources"
+
+# Add Druxt: Node Preview configuration.
+drush config:set druxt_node_preview.settings frontends "Production|https://demo.druxtjs.org/node/preview/[view_mode]#[jsonapi_node_preview]" -y
+
+# Disable JSON:API read only mode.
 drush config:set jsonapi.settings read_only 0 -y
+
+# Index search results.
 drush search-api:index

@@ -21,7 +21,9 @@ tasks:
 
     - run:
         name: drush config:set
-        command: drush config:set jsonapi.settings read_only 0 -y
+        command: |
+          drush config:set druxt_node_preview.settings frontends "Production|https://demo.druxtjs.org/node/preview/[view_mode]#[jsonapi_node_preview]" -y
+          drush config:set jsonapi.settings read_only 0 -y
         service: cli
 
     - run:

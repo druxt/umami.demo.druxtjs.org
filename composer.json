@@ -26,6 +26,7 @@
         "drupal/gin_toolbar": "1.0.0-beta22@beta",
         "drupal/jsonapi_hypermedia": "1.7.0",
         "drupal/jsonapi_menu_items": "1.2.1",
+        "drupal/jsonapi_node_preview": "^1.0@beta",
         "drupal/lagoon_logs": "2.0.1",
         "drupal/search_api_lunr": "2.0.1",
         "drupal/simple_oauth": "5.2.0",
@@ -88,6 +89,9 @@
         "patches": {
             "drupal/decoupled_router": {
                 "https://www.drupal.org/project/decoupled_router/issues/3111456#comment-14093342": "https://www.drupal.org/files/issues/2021-05-05/3111456-34.patch"
+            },
+            "drupal/druxt": {
+                "Node Preview": "https://git.drupalcode.org/project/druxt/-/merge_requests/8.diff"
             }
         }
     }
