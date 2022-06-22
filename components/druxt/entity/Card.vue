@@ -23,7 +23,7 @@
         :to="to"
         :variant="hover ? 'primary' : 'secondary'"
       >
-        View {{ schema.config.bundle }} <b-icon-arrow-right />
+        {{ buttonText }} <b-icon-arrow-right />
       </b-button>
     </b-card-body>
   </b-card>
@@ -43,6 +43,11 @@ export default {
   }),
 
   computed: {
+    buttonText: ({ schema, langcode }) => ({
+      'en': `View ${schema.config.bundle}`,
+      'es': `Ver ${schema.config.bundle}`
+    }[langcode || 'en']),
+
     to: ({ entity }) => `/${entity.attributes.path.langcode}${(entity.attributes.path || {}).alias}`,
   },
 
