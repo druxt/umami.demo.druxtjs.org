@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Tell us what you think</h2>
+    <h2 v-text="settings.label" />
 
     <DruxtMenu component="span" name="footer" class="ml-auto">
       <template #item="{ item: { entity }, to }">

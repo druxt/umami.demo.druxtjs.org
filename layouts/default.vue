@@ -1,5 +1,8 @@
 <template>
-  <DruxtSite theme="umami">
+  <DruxtSite
+    :langcode="langcode"
+    theme="umami"
+  >
     <template #default="{ props, regions }">
       <b-container fluid>
         <DruxtBlockRegion
@@ -93,6 +96,9 @@ export default {
     containerClass: () => ['mb-3', 'mt-3', 'mb-md-5', 'mt-md-5'],
 
     isHomePath: ({ $store }) => !!$store.state.druxtRouter.route.isHomePath,
+
+    // Set a default language.
+    langcode: ({ $route }) => (($route || {}).meta || {}).langcode || 'en'
   },
 }
 </script>

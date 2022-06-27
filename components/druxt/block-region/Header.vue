@@ -7,8 +7,9 @@
 
     <b-collapse id="nav-collapse" class="ml-auto" is-nav>
       <b-navbar-nav class="ml-auto">
+        <DruxtBlockLanguageBlock />
         <b-nav-item>
-          <b-button v-b-toggle.search><BIconSearch /></b-button>
+          <b-button v-b-toggle.search class="border bg-white text-secondary"><BIconSearch /></b-button>
         </b-nav-item>
       </b-navbar-nav>
 
@@ -26,7 +27,6 @@
 
 <script>
 import { BIconSearch } from 'bootstrap-vue'
-
 export default {
   components: { BIconSearch },
 }

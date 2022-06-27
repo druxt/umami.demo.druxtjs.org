@@ -1,7 +1,7 @@
 <template>
   <b-row>
     <b-col class="text-center" cols="12">
-      <h2>Recipe collections</h2>
+      <h2 v-text="view.data.attributes.label" />
     </b-col>
 
     <b-col v-for="result of results" :key="result.id" class="p-2" md="3">
@@ -9,7 +9,7 @@
         class="font-weight-bold text-white"
         component="strong"
         nuxt
-        :to="`/en${(result.attributes.path || {}).alias}`"
+        :to="`/${result.attributes.path.langcode}${(result.attributes.path || {}).alias}`"
       >
         {{ result.attributes.name }}
       </b-link>
