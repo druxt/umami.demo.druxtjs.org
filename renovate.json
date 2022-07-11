@@ -1,7 +1,4 @@
 {
   "extends": ["@nuxtjs"],
-  "labels": ["dependencies"],
-  "ignoreDeps": [
-    "@nuxtjs/storybook"
-  ]
+  "labels": ["dependencies"]
 }
