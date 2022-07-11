@@ -5,7 +5,7 @@ COPY . /app/
 # Install latest npm
 RUN npm install -g npm
 
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 ARG GITHUB_CLIENT_ID
 ARG GITHUB_CLIENT_SECRET
