@@ -1,8 +1,8 @@
 FROM amazeeio/node:14
 
-COPY . /app/
+COPY ./nuxt/ /app/
 
-RUN npm install --legacy-peer-deps
+RUN yarn
 
 ARG GITHUB_CLIENT_ID
 ARG GITHUB_CLIENT_SECRET
@@ -17,4 +17,4 @@ EXPOSE 3000
 
 WORKDIR /app
 
-CMD ["npx", "nuxt", "storybook", "-p", "3000"]
+CMD ["yarn", "storybook", "-p", "3000"]
