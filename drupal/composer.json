@@ -1,0 +1,98 @@
+{
+    "name": "druxt/demo-api-druxtjs-org",
+    "description": "Drupal 9 JSON:API backend for Demonstration purposes.",
+    "type": "project",
+    "license": "GPL-2.0+",
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/druxt/druxt_drupal"
+        },
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    ],
+    "require": {
+        "amazeeio/drupal_integrations": "0.3.7",
+        "composer/installers": "2.1.1",
+        "cweagans/composer-patches": "1.7.2",
+        "drupal/anonymous_redirect": "2.2.0-rc1",
+        "drupal/core-project-message": "9.3.15",
+        "drupal/core-recommended": "9.3.15",
+        "drupal/druxt": "1.1.1",
+        "drupal/gin": "3.0.0-beta3",
+        "drupal/gin_login": "1.2.0",
+        "drupal/gin_toolbar": "1.0.0-beta22@beta",
+        "drupal/jsonapi_hypermedia": "1.7.0",
+        "drupal/jsonapi_menu_items": "1.2.1",
+        "drupal/jsonapi_node_preview": "^1.0@beta",
+        "drupal/lagoon_logs": "2.0.1",
+        "drupal/search_api_lunr": "2.0.1",
+        "drupal/simple_oauth": "5.2.0",
+        "drush/drush": "11.0.9",
+        "vlucas/phpdotenv": "5.4.1",
+        "zaporylie/composer-drupal-optimizations": "1.2.0"
+    },
+    "require-dev": {
+        "drupal/core-dev": "9.3.15",
+        "drupal/core-dev-pinned": "9.3.15",
+        "weitzman/drupal-test-traits": "1.6.0"
+    },
+    "autoload": {
+        "files": [
+            "load.environment.php"
+        ]
+    },
+    "conflict": {
+        "drupal/drupal": "*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "test": [
+            "phpunit --log-junit ./web/sites/simpletest/browser_output/junit.xml"
+        ]
+    },
+    "config":{
+        "sort-packages": true,
+        "allow-plugins": {
+            "drupal/core-composer-scaffold": true,
+            "composer/installers": true,
+            "cweagans/composer-patches": true,
+            "drupal/core-project-message": true,
+            "zaporylie/composer-drupal-optimizations": true
+        }
+    },
+    "extra": {
+        "installer-paths": {
+            "web/core": ["type:drupal-core"],
+            "web/libraries/{$name}": ["type:drupal-library"],
+            "web/modules/contrib/{$name}": ["type:drupal-module"],
+            "web/profiles/contrib/{$name}": ["type:drupal-profile"],
+            "web/themes/contrib/{$name}": ["type:drupal-theme"],
+            "drush/Commands/contrib/{$name}": ["type:drupal-drush"],
+            "web/modules/custom/{$name}": ["type:drupal-custom-module"],
+            "web/themes/custom/{$name}": ["type:drupal-custom-theme"]
+        },
+        "drupal-scaffold": {
+            "allowed-packages": [
+                "amazeeio/drupal_integrations"
+            ],
+            "file-mapping": {
+                "[web-root]/sites/default/all.settings.php": "assets/all.settings.php"
+            },
+            "locations": {
+                "web-root": "web/"
+            }
+        },
+        "patches": {
+            "drupal/decoupled_router": {
+                "https://www.drupal.org/project/decoupled_router/issues/3111456#comment-14093342": "https://www.drupal.org/files/issues/2021-05-05/3111456-34.patch"
+            },
+            "drupal/druxt": {
+                "Node Preview": "https://git.drupalcode.org/project/druxt/-/merge_requests/8.diff"
+            }
+        }
+    }
+}
