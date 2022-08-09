@@ -4,25 +4,25 @@ image:
 tasks:
   - init: |
       # Setup Gitpod .env
-      # $GITPOD_REPO_ROOT/.gitpod/scripts/env-setup.sh
+      $GITPOD_REPO_ROOT/.gitpod/scripts/env-setup.sh
       # Setup DDev
       $GITPOD_REPO_ROOT/.gitpod/scripts/ddev-download-images.sh
-      # $GITPOD_REPO_ROOT/.gitpod/scripts/ddev-setup.sh
+      $GITPOD_REPO_ROOT/.gitpod/scripts/ddev-setup.sh
       # Install Drupal
-      # $GITPOD_REPO_ROOT/.gitpod/scripts/drupal-setup.sh
+      $GITPOD_REPO_ROOT/.gitpod/scripts/drupal-setup.sh
       # Installing Nuxt
       $GITPOD_REPO_ROOT/.gitpod/scripts/nuxt-setup.sh
     command: |
       # Setup Gitpod .env
       $GITPOD_REPO_ROOT/.gitpod/scripts/env-setup.sh
       # Start DDev
-      # $GITPOD_REPO_ROOT/.gitpod/scripts/ddev-setup.sh
+      $GITPOD_REPO_ROOT/.gitpod/scripts/ddev-setup.sh
       # Add OAuth2 consumer
       # cd $GITPOD_REPO_ROOT/drupal && ddev druxt-add-consumer
       # Setup Nuxt
       $GITPOD_REPO_ROOT/.gitpod/scripts/nuxt-setup.sh
       # Start Nuxt
-      cd $GITPOD_REPO_ROOT/nuxt && NUXT_TELEMETRY_DISABLED=1 npm run dev
+      cd $GITPOD_REPO_ROOT/nuxt && NUXT_TELEMETRY_DISABLED=1 yarn dev
 
 vscode:
   extensions:
