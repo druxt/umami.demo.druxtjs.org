@@ -1,8 +1,8 @@
 FROM uselagoon/node-14-builder:latest as builder
 
-COPY . /app/
+COPY ./nuxt/ /app/
 
-RUN npm install --legacy-peer-deps
+RUN yarn
 
 ARG GITHUB_CLIENT_ID
 ARG GITHUB_CLIENT_SECRET

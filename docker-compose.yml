@@ -1,45 +1,117 @@
-version: '2'
+version: '2.3'
+
+x-user:
+  &default-user
+    # The default user under which the containers should run. Change this if you are on linux and run with another user than id `1000`
+    user: '1000'
 
 services:
-  app:
-    networks:
-      - amazeeio-network
-      - default
+  cli:
     build:
       context: .
-      dockerfile: .docker/Dockerfile.app
-      args:
-        GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
-        GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
-        OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
+      dockerfile: .docker/Dockerfile.cli
+    image: &cli-image druxt-umami-cli
     labels:
-      lagoon.type: nginx
-      lando.type: nginx
-    volumes:
-      - ./dist:/app:delegated
-    environment:
-      LAGOON_LOCALDEV_HTTP_PORT: 8080
-      LAGOON_ROUTE: http://demo-druxtjs-org.docker.amazee.io
+      lagoon.type: cli-persistent
+      lagoon.persistent.name: nginx
+      lagoon.persistent: /app/web/sites/default/files/
+      lando.type: php-cli-drupal
+    # << : *default-volumes
+    user: root
+    volumes_from: ### mount the ssh-agent from the pygmy or cachalot ssh-agent. Automatically removed in CI.
+      - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
+    # environment:
+      # << : *default-environment # loads the defined environment variables from the top
 
-  storybook:
+  nginx:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.nginx
+      args:
+        CLI_IMAGE: *cli-image # Inject the name of the cli image
+    labels:
+      lagoon.type: nginx-php-persistent
+      lagoon.persistent: /app/web/sites/default/files/ # define where the persistent storage should be mounted too
+      lando.type: nginx-drupal
+    # << : *default-volumes # loads the defined volumes from the top
+    << : *default-user # uses the defined user from top
+    depends_on:
+      - cli # basically just tells docker-compose to build the cli first
+    # environment:
+    #   << : *default-environment # loads the defined environment variables from the top
+    #   LAGOON_LOCALDEV_URL: *default-url
     networks:
       - amazeeio-network
       - default
+
+  php:
     build:
       context: .
-      dockerfile: .docker/Dockerfile.storybook
+      dockerfile: .docker/Dockerfile.php
       args:
-        GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
-        GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
-        OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
+        CLI_IMAGE: *cli-image
     labels:
-      lagoon.type: node
-      lando.type: node
-    volumes:
-      - ./dist:/app:delegated
-    environment:
-      LAGOON_LOCALDEV_HTTP_PORT: 3003
-      LAGOON_ROUTE: http://storybook-demo-druxtjs-org.docker.amazee.io
+      lagoon.type: nginx-php-persistent
+      lagoon.name: nginx # we want this service be part of the nginx pod in Lagoon
+      lagoon.persistent: /app/web/sites/default/files/ # define where the persistent storage should be mounted too
+      lando.type: php-fpm
+    # << : *default-volumes # loads the defined volumes from the top
+    # << : *default-user # uses the defined user from top
+    depends_on:
+      - cli # basically just tells docker-compose to build the cli first
+    # environment:
+    #   << : *default-environment # loads the defined environment variables from the top
+
+  mariadb:
+    image: amazeeiolagoon/mariadb-drupal:pr-892
+    labels:
+      lagoon.type: mariadb
+      lando.type: mariadb-drupal
+    ports:
+      - "3306" # exposes the port 3306 with a random local port, find it with `docker-compose port mariadb 3306`
+    # << : *default-user # uses the defined user from top
+    # environment:
+    #   << : *default-environment
+
+  # app:
+  #   networks:
+  #     - amazeeio-network
+  #     - default
+  #   build:
+  #     context: .
+  #     dockerfile: .docker/Dockerfile.app
+  #     args:
+  #       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+  #       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+  #       OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
+  #   labels:
+  #     lagoon.type: nginx
+  #     lando.type: nginx
+  #   volumes:
+  #     - ./nuxt/dist:/app:delegated
+  #   environment:
+  #     LAGOON_LOCALDEV_HTTP_PORT: 8080
+  #     LAGOON_ROUTE: http://demo-druxtjs-org.docker.amazee.io
+
+  # storybook:
+  #   networks:
+  #     - amazeeio-network
+  #     - default
+  #   build:
+  #     context: ./nuxt
+  #     dockerfile: ../.docker/Dockerfile.storybook
+  #     args:
+  #       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+  #       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+  #       OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
+  #   labels:
+  #     lagoon.type: node
+  #     lando.type: node
+  #   volumes:
+  #     - ./nuxt/dist:/app:delegated
+  #   environment:
+  #     LAGOON_LOCALDEV_HTTP_PORT: 3003
+  #     LAGOON_ROUTE: http://storybook-demo-druxtjs-org.docker.amazee.io
 
 networks:
   amazeeio-network:
