@@ -1,4 +1,4 @@
-# DruxtJS demo - Umami food magazine
+# Druxt Umami - A decoupled food magazine
 
 > Drupal Umami installation profile + DruxtSite
 
