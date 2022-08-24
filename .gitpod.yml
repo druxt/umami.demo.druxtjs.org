@@ -2,8 +2,8 @@ image:
   file: .gitpod/Dockerfile
 
 tasks:
-  - init: npm ci
-    command: npm run dev
+  - init: yarn install --frozen-lockfile
+    command: yarn dev
 
 vscode:
   extensions:
