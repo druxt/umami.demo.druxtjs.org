@@ -2,7 +2,7 @@ FROM amazeeio/node:14
 
 COPY . /app/
 
-RUN npm install --legacy-peer-deps
+RUN yarn
 
 ARG GITHUB_CLIENT_ID
 ARG GITHUB_CLIENT_SECRET

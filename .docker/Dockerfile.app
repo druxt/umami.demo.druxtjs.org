@@ -2,7 +2,7 @@ FROM uselagoon/node-14-builder:latest as builder
 
 COPY . /app/
 
-RUN npm install --legacy-peer-deps
+RUN yarn
 
 ARG GITHUB_CLIENT_ID
 ARG GITHUB_CLIENT_SECRET
@@ -12,7 +12,7 @@ ENV GITHUB_CLIENT_ID ${GITHUB_CLIENT_ID}
 ENV GITHUB_CLIENT_SECRET ${GITHUB_CLIENT_SECRET}
 ENV OAUTH_CLIENT_ID ${OAUTH_CLIENT_ID}
 
-RUN npm run generate
+RUN yarn generate
 
 FROM uselagoon/nginx:latest
 

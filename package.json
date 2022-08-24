@@ -10,14 +10,14 @@
     "generate": "nuxt generate",
     "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "lint:style": "stylelint **/*.{vue,css} --ignore-path .gitignore",
-    "lint": "npm run lint:js && npm run lint:style",
-    "lintfix": "prettier --write --list-different . && npm run lint:js -- --fix && npm run lint:style -- --fix",
-    "serve": "npm run generate && npm start",
+    "lint": "yarn lint:js && yarn lint:style",
+    "lintfix": "prettier --write --list-different . && yarn lint:js -- --fix && yarn lint:style -- --fix",
+    "serve": "yarn generate && yarn start",
     "start": "nuxt start",
     "storybook:build": "API_PROXY=0 npx nuxt storybook build",
     "storybook": "npx nuxt storybook",
     "test:cy": "start-server-and-test serve http://localhost:3000 cy:run",
-    "test": "npm run test:cy"
+    "test": "yarn test:cy"
   },
   "cypress-cucumber-preprocessor": {
     "nonGlobalStepDefinitions": true
