@@ -106,7 +106,7 @@ services:
       lagoon.type: node
       lando.type: node
     environment:
-      LAGOON_LOCALDEV_HTTP_PORT: 3003
+      LAGOON_LOCALDEV_HTTP_PORT: 3000
       LAGOON_ROUTE: http://storybook-demo-druxtjs-org.docker.amazee.io
 
 networks:
