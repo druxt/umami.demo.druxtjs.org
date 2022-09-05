@@ -49,7 +49,8 @@ jobs:
         run: cd nuxt && yarn lint
 
       - name: Run tests 🧪
-        run: cd nuxt && yarn test
+        # @TODO - Update to use a local (CI) backend instead of production.
+        run: cd nuxt && BASE_URL=https://demo-api.druxtjs.org yarn test
 
       - uses: actions/upload-artifact@v3
         with:
