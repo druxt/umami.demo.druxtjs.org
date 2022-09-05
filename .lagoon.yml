@@ -44,7 +44,7 @@ environments:
       - storybook:
           - storybook.demo.druxtjs.org
       - nginx:
-        - demo-api.druxtjs.org
+          - demo-api.druxtjs.org
     cronjobs:
       - name: drush cron
         schedule: "*/15 * * * *"
