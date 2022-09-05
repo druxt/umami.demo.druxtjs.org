@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node: [14]
+        node: [16]
 
     steps:
       - name: Checkout 🛎
@@ -43,20 +43,21 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies 👨🏻‍💻
-        run: npm ci --prefer-offline --no-audit --legacy-peer-deps
+        run: cd nuxt && yarn install
 
       - name: Run linter 👀
-        run: npm run lint
+        run: cd nuxt && yarn lint
 
       - name: Run tests 🧪
-        run: npm run test
+        # @TODO - Update to use a local (CI) backend instead of production.
+        run: cd nuxt && BASE_URL=https://demo-api.druxtjs.org yarn test
 
       - uses: actions/upload-artifact@v3
         with:
           name: cypress-videos
-          path: cypress/videos
+          path: nuxt/cypress/videos
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cypress-screenshots
-          path: cypress/screenshots
+          path: nuxt/cypress/screenshots
