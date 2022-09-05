@@ -21,4 +21,7 @@ ENV OAUTH_CLIENT_ID ${OAUTH_CLIENT_ID}
 
 RUN yarn build && yarn generate
 
+ENV HOST 0.0.0.0
+EXPOSE 3000
+
 CMD ["yarn", "start"]
