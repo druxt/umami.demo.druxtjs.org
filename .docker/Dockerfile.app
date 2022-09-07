@@ -17,9 +17,9 @@ ENV GITHUB_CLIENT_ID ${GITHUB_CLIENT_ID}
 ENV GITHUB_CLIENT_SECRET ${GITHUB_CLIENT_SECRET}
 ENV OAUTH_CLIENT_ID ${OAUTH_CLIENT_ID}
 
-# RUN yarn build && yarn generate
+RUN yarn build && yarn generate
 
 ENV HOST 0.0.0.0
 EXPOSE 3000
 
-CMD ["/bin/bash", "-c", "yarn generate && yarn start"]
+CMD ["yarn", "start"]
