@@ -1,6 +1,6 @@
 docker-compose-yaml: docker-compose.yml
 
-project: demo-druxtjs-org
+project: druxtjs-org-demo-umami
 
 tasks:
   post-rollout:
