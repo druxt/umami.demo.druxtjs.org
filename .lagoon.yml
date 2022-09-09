@@ -1,4 +1,4 @@
-docker-compose-yaml: 'docker-compose.backend.yml'
+docker-compose-yaml: 'docker-compose.yml'
 
 project: druxtjs-org-demo-umami
 
