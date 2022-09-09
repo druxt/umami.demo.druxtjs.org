@@ -3,9 +3,15 @@ docker-compose-yaml: 'docker-compose.frontend.yml'
 project: druxtjs-org-demo-umami
 
 environments:
-  main:
+  staging/frontend:
     routes:
       - app:
-          - demo.druxtjs.org
+          - staging.umami.demo.druxtjs.org
       - storybook:
-          - storybook.demo.druxtjs.org
+          - storybook.staging.umami.demo.druxtjs.org
+  production/frontend:
+    routes:
+      - app:
+          - umami.demo.druxtjs.org
+      - storybook:
+          - storybook.umami.demo.druxtjs.org

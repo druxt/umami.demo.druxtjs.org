@@ -37,10 +37,14 @@ tasks:
         service: cli
 
 environments:
-  main:
+  staging/backend:
     routes:
       - nginx:
-          - demo-api.druxtjs.org
+          - api.staging.umami.demo.druxtjs.org
+  production/backend:
+    routes:
+      - nginx:
+          - api.umami.demo.druxtjs.org
     cronjobs:
       - name: drush cron
         schedule: "*/15 * * * *"
