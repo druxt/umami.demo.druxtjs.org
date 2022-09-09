@@ -1,4 +1,4 @@
-name: ci
+name: test
 
 on:
   push:
@@ -42,7 +42,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install dependencies 👨🏻‍💻
+      - name: Install frontend dependencies 👨🏻‍💻
         run: cd nuxt && yarn install
 
       - name: Run linter 👀

@@ -1,0 +1,65 @@
+name: deploy-production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os }}
+
+    environment:
+      name: staging
+      # @TODO - umami.demo.druxtjs.org
+      url: https://demo.druxtjs.org
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [16]
+
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@master
+
+      - name: Configure git
+        run: |
+          git config --global user.name 'Deploy workflow'
+          git config --global user.email "ci@{$GITHUB_HEAD_REF}"
+
+      - name: Deploy backend
+        run: |
+          git checkout -b production/backend
+          cp .lagoon.backend.yml .lagoon.yml
+          git commit -am "chore(ci): add backend lagoon configuration"
+          git push origin production/backend --force
+
+      - name: Sleep
+        run: sleep 120s
+      - name: Wait for backend
+        uses: nev7n/wait_for_response@v1
+        with:
+          url: 'https://nginx.production-backend.druxtjs-org-demo-umami.au2.amazee.io/jsonapi'
+          responseCode: 200
+          timeout: 600000
+          interval: 15000
+
+      - name: Deploy frontend
+        run: |
+          git checkout $GITHUB_HEAD_REF
+          git checkout -b production/frontend
+          cp .lagoon.frontend.yml .lagoon.yml
+          git commit -am "chore(ci): add frontend lagoon configuration"
+          git push origin production/frontend --force
+
+      - name: Wait for frontend
+        uses: nev7n/wait_for_response@v1
+        with:
+          url: 'https://demo.druxtjs.org'
+          responseCode: 200
+          timeout: 600000
+          interval: 15000
+
+      # - name: Setup upterm session
+      #   uses: lhotari/action-upterm@v1

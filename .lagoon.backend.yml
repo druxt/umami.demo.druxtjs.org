@@ -1,4 +1,4 @@
-docker-compose-yaml: 'docker-compose.yml'
+docker-compose-yaml: docker-compose.backend.yml
 
 project: druxtjs-org-demo-umami
 
@@ -39,10 +39,6 @@ tasks:
 environments:
   main:
     routes:
-      - app:
-          - demo.druxtjs.org
-      - storybook:
-          - storybook.demo.druxtjs.org
       - nginx:
           - demo-api.druxtjs.org
     cronjobs:

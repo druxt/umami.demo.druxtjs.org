@@ -9,8 +9,6 @@ COPY --from=builder /app/node_modules /app/node_modules
 COPY ./nuxt/ /app/
 COPY ./.env /app/
 
-RUN yarn
-
 ARG GITHUB_CLIENT_ID
 ARG GITHUB_CLIENT_SECRET
 ARG OAUTH_CLIENT_ID
