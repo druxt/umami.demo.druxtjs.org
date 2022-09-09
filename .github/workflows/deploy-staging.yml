@@ -1,13 +1,8 @@
-name: deploy
+name: deploy-staging
 
 on:
   push:
     branches:
-      - main
-      - develop
-  pull_request:
-    branches:
-      - main
       - develop
 
 jobs:
@@ -30,9 +25,9 @@ jobs:
 
       - name: Deploy backend
         run: |
-          git checkout -b production/backend
+          git checkout -b staging/backend
           git commit -am "chore(ci): add backend lagoon configuration"
-          git push origin production/backend --force
+          git push origin staging/backend --force
 
       - name: Wait for backend
         uses: nev7n/wait_for_response@v1
@@ -45,10 +40,10 @@ jobs:
       - name: Deploy frontend
         run: |
           git checkout $GITHUB_HEAD_REF
-          git checkout -b production/frontend
+          git checkout -b staging/frontend
           cp .lagoon.frontend.yml .lagoon.yml
           git commit -am "chore(ci): add frontend lagoon configuration"
-          git push origin production/frontend --force
+          git push origin staging/frontend --force
 
       # - name: Setup upterm session
       #   uses: lhotari/action-upterm@v1
