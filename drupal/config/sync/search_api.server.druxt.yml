@@ -1,0 +1,14 @@
+uuid: 2cddf8b9-2eb1-42f6-8c44-0c2fbc20fcfc
+langcode: en
+status: true
+dependencies:
+  module:
+    - search_api_lunr
+_core:
+  default_config_hash: 2DN3PPRJ6DNjreGU2c75OJRTn7qC1iUPW-UnXdeCLek
+id: druxt
+name: Druxt
+description: 'Druxt Lunr backend server.'
+backend: search_api_lunr
+backend_config:
+  index_file_limit: 5
