@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "e38bb62b-fbbd-489c-9467-955d1316be6b"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/16"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/tags\/herbs"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

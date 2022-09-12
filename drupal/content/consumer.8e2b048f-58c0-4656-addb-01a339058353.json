@@ -1,0 +1,62 @@
+{
+    "uuid": [
+        {
+            "value": "8e2b048f-58c0-4656-addb-01a339058353"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "owner_id": [
+        {
+            "target_type": "user",
+            "target_uuid": "3d95fd4e-9f81-483c-a9ac-6d0285192f72"
+        }
+    ],
+    "label": [
+        {
+            "value": "Druxt"
+        }
+    ],
+    "description": [
+        {
+            "value": "DruxtJS is a bridge between frameworks, Drupal in the back, Nuxt in the front.\n\nhttps:\/\/druxtjs.org"
+        }
+    ],
+    "image": [],
+    "third_party": [
+        {
+            "value": true
+        }
+    ],
+    "is_default": [
+        {
+            "value": false
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true
+        }
+    ],
+    "secret": [],
+    "confidential": [
+        {
+            "value": false
+        }
+    ],
+    "roles": [],
+    "redirect": [
+        {
+            "value": "http:\/\/localhost:3000\/callback"
+        }
+    ],
+    "user_id": [],
+    "pkce": [
+        {
+            "value": true
+        }
+    ]
+}

@@ -1,0 +1,92 @@
+{
+    "uuid": [
+        {
+            "value": "9b4dcd67-99f3-48d0-93c9-2c46648b29de"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "es"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "disclaimer_block",
+            "target_type": "block_content_type",
+            "target_uuid": "64061b40-4d55-4172-a696-e999daf7b56e"
+        }
+    ],
+    "revision_created": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "revision_user": [],
+    "revision_log": [],
+    "status": [
+        {
+            "value": true
+        }
+    ],
+    "info": [
+        {
+            "value": "Aviso Legal Umami"
+        }
+    ],
+    "changed": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "reusable": [
+        {
+            "value": true
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": false
+        }
+    ],
+    "revision_translation_affected": [
+        {
+            "value": true
+        }
+    ],
+    "content_translation_source": [
+        {
+            "value": "und"
+        }
+    ],
+    "content_translation_outdated": [
+        {
+            "value": false
+        }
+    ],
+    "content_translation_uid": [
+        {
+            "target_type": "user",
+            "target_uuid": "2b2cba1b-9a87-4940-adb0-13818cd1cccf"
+        }
+    ],
+    "content_translation_created": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "field_copyright": [
+        {
+            "value": "&copy; 2022 T\u00e9rminos y Condiciones",
+            "format": "basic_html"
+        }
+    ],
+    "field_disclaimer": [
+        {
+            "value": "<strong>Revista Umami y Publicaciones Umami<\/strong> es una revista ficticia publicada con prop\u00f3sito ilustrativo s\u00f3lamente.",
+            "format": "basic_html"
+        }
+    ]
+}

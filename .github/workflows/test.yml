@@ -1,0 +1,72 @@
+name: test
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [16]
+
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@master
+
+      - name: Setup node env 🏗
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
+          check-latest: true
+
+      - name: Update npm 🏗
+        run: |
+          npm install -g npm
+          npm --version
+
+      - name: Cache node_modules 📦
+        uses: actions/cache@v3.0.4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install frontend dependencies 👨🏻‍💻
+        run: cd nuxt && yarn install
+
+      - name: Run linter 👀
+        run: cd nuxt && yarn lint
+
+      - name: Setup ddev
+        uses: jonaseberle/github-action-setup-ddev@v1
+        with:
+          autostart: false
+      - name: Start ddev
+        run: cd drupal && ddev start
+
+      - name: Install Drupal 👨🏻‍💻
+        run: cd drupal && ddev drupal-install
+
+      - name: Run tests 🧪
+        run: cd nuxt && BASE_URL=http://druxt-js-demo-umami.ddev.site yarn test
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: cypress-videos
+          path: nuxt/cypress/videos
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: nuxt/cypress/screenshots

@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "8aceaf23-448d-4211-8e60-e43d54af41a6"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/node\/07c85c5d-2c72-4890-915a-02045f7809ab"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/articles\/lets-hear-it-for-carrots"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

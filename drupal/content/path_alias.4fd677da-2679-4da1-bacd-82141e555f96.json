@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "4fd677da-2679-4da1-bacd-82141e555f96"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "es"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/node\/07c85c5d-2c72-4890-915a-02045f7809ab"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/articles\/un-aplauso-para-las-zanahorias"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

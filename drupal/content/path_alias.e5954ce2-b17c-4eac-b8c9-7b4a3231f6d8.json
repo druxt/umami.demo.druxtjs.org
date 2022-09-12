@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "e5954ce2-b17c-4eac-b8c9-7b4a3231f6d8"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/25"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/tags\/soup"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

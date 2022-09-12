@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "17d9e7ad-3631-4288-b183-617045386fd6"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "es"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/node\/3008e047-139b-4f39-8abc-c06a590be608"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/articles\/delicioso-chocolate-sin-lactosa"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

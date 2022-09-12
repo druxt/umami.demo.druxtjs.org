@@ -1,0 +1,103 @@
+uuid: 08bde0d2-b9ad-4746-b070-6d5355b5052d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - field.storage.node.field_ingredients
+    - field.storage.node.field_recipe_category
+    - field.storage.node.field_recipe_instruction
+    - search_api.server.druxt
+  module:
+    - node
+    - search_api_lunr
+    - search_api
+_core:
+  default_config_hash: koNuPruvk5JOFXskaO2_u3ZToxMBNuunvW_0AzIS1Mc
+id: default
+name: Default
+description: ''
+read_only: false
+field_settings:
+  body:
+    label: Body
+    datasource_id: 'entity:node'
+    property_path: body
+    type: text
+    dependencies:
+      config:
+        - field.storage.node.body
+  field_ingredients:
+    label: Ingredients
+    datasource_id: 'entity:node'
+    property_path: field_ingredients
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_ingredients
+  field_recipe_category:
+    label: 'Recipe category'
+    datasource_id: 'entity:node'
+    property_path: field_recipe_category
+    type: integer
+    dependencies:
+      config:
+        - field.storage.node.field_recipe_category
+  field_recipe_instruction:
+    label: 'Recipe instruction'
+    datasource_id: 'entity:node'
+    property_path: field_recipe_instruction
+    type: text
+    dependencies:
+      config:
+        - field.storage.node.field_recipe_instruction
+  title:
+    label: Title
+    datasource_id: 'entity:node'
+    property_path: title
+    type: search_api_lunr_label
+    dependencies:
+      module:
+        - node
+  type:
+    label: 'Content type'
+    datasource_id: 'entity:node'
+    property_path: type
+    type: string
+    dependencies:
+      module:
+        - node
+  url:
+    label: URI
+    property_path: search_api_url
+    type: search_api_lunr_url
+    configuration:
+      absolute: false
+  uuid:
+    label: UUID
+    datasource_id: 'entity:node'
+    property_path: uuid
+    type: string
+    dependencies:
+      module:
+        - node
+datasource_settings:
+  'entity:node':
+    bundles:
+      default: true
+      selected: {  }
+    languages:
+      default: true
+      selected: {  }
+processor_settings:
+  add_url: {  }
+  aggregated_field: {  }
+  language_with_fallback: {  }
+  rendered_item: {  }
+tracker_settings:
+  default:
+    indexing_order: fifo
+options:
+  cron_limit: 50
+  index_directly: true
+server: druxt

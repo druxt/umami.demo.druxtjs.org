@@ -1,11 +1,13 @@
-FROM uselagoon/node-14-builder:latest as builder
+FROM uselagoon/node-16-builder:latest as builder
 
-COPY . /app/
+COPY ./nuxt/ /app/
+RUN yarn
 
-# Install latest npm
-RUN npm install -g npm
+FROM uselagoon/node-16:latest
 
-RUN npm install --legacy-peer-deps
+COPY --from=builder /app/node_modules /app/node_modules
+COPY ./nuxt/ /app/
+COPY ./.env /app/
 
 ARG GITHUB_CLIENT_ID
 ARG GITHUB_CLIENT_SECRET
@@ -15,13 +17,9 @@ ENV GITHUB_CLIENT_ID ${GITHUB_CLIENT_ID}
 ENV GITHUB_CLIENT_SECRET ${GITHUB_CLIENT_SECRET}
 ENV OAUTH_CLIENT_ID ${OAUTH_CLIENT_ID}
 
-RUN npm run generate
-
-FROM uselagoon/nginx:latest
-
-COPY --from=builder /app/dist /app/
-
-COPY nginx.conf /etc/nginx/conf.d/app.conf
+RUN yarn build && yarn generate
 
 ENV HOST 0.0.0.0
-EXPOSE 8080
+EXPOSE 3000
+
+CMD ["yarn", "start"]

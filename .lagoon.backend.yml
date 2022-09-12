@@ -1,0 +1,35 @@
+docker-compose-yaml: docker-compose.backend.yml
+
+project: druxtjs-org-demo-umami
+
+tasks:
+  post-rollout:
+    - run:
+        name: drush tome:install
+        command: drush -y tome:install
+        service: cli
+
+    - run:
+        name: drush search-api:index
+        command: drush search-api:index
+        service: cli
+
+    - run:
+        name: drush user:login
+        command: drush user:login
+        service: cli
+
+environments:
+  staging/backend:
+    routes:
+      - nginx:
+          - api.staging.umami.demo.druxtjs.org
+  production/backend:
+    routes:
+      - nginx:
+          - api.umami.demo.druxtjs.org
+    cronjobs:
+      - name: drush cron
+        schedule: "*/15 * * * *"
+        command: drush cron
+        service: cli

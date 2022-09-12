@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "87d96fef-ff2c-4f2a-80ac-fd8fa4b594ca"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/26"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/tags\/supermarkets"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

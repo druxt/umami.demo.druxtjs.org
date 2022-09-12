@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "0fc231e5-92d4-451b-87d6-81b3446bf085"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/14"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/tags\/grow-your-own"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}
