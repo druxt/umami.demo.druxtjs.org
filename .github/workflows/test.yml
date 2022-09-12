@@ -59,7 +59,7 @@ jobs:
         run: cd drupal && ddev drupal-install
 
       - name: Run tests 🧪
-        run: cd nuxt && BASE_URL=https://druxt-js-demo-umami.ddev.site yarn test
+        run: cd nuxt && BASE_URL=http://druxt-js-demo-umami.ddev.site yarn test
 
       - uses: actions/upload-artifact@v3
         with:
