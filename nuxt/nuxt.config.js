@@ -1,6 +1,6 @@
 import storybook from './nuxt-storybook.config'
 
-const baseUrl = process.env.BASE_URL
+const baseUrl = process.env.BASE_URL || 'http://druxt-js-demo-umami.ddev.site'
 
 export default {
   target: 'static',
