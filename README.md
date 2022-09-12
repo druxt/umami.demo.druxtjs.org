@@ -2,7 +2,7 @@
 
 > Drupal Umami installation profile + DruxtSite
 
-[![ci](https://github.com/druxt/umami.demo.druxtjs.org/actions/workflows/ci.yml/badge.svg)](https://github.com/druxt/umami.demo.druxtjs.org/actions/workflows/ci.yml)
+[![ci](https://github.com/druxt/umami.demo.druxtjs.org/actions/workflows/test.yml/badge.svg)](https://github.com/druxt/umami.demo.druxtjs.org/actions/workflows/test.yml)
 <!-- [![storybook](https://raw.githubusercontent.com/storybooks/brand/master/badge/badge-storybook.svg)](http://storybook.demo.druxtjs.org/) -->
 
 This is a demonstation of how to create a DruxtSite using the Drupal 9 Umami installation profile.
