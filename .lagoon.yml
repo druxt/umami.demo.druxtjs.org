@@ -5,7 +5,7 @@ project: druxtjs-org-demo-umami
 tasks:
   post-rollout:
     - run:
-        name: drush tome:install
+        name: drush tome:instal
         command: drush -y tome:install
         service: cli
 
