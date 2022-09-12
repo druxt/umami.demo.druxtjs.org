@@ -48,9 +48,18 @@ jobs:
       - name: Run linter 👀
         run: cd nuxt && yarn lint
 
+      - name: Setup ddev
+        uses: jonaseberle/github-action-setup-ddev@v1
+        with:
+          autostart: false
+      - name: Start ddev
+        run: cd drupal && ddev start
+
+      - name: Install Drupal 👨🏻‍💻
+        run: cd drupal && ddev drupal-install
+
       - name: Run tests 🧪
-        # @TODO - Update to use a local (CI) backend instead of production.
-        run: cd nuxt && BASE_URL=https://demo-api.druxtjs.org yarn test
+        run: cd nuxt && BASE_URL=https://druxt-js-demo-umami.ddev.site yarn test
 
       - uses: actions/upload-artifact@v3
         with:
