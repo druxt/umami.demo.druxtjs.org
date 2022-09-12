@@ -1,0 +1,102 @@
+{
+    "uuid": [
+        {
+            "value": "b0187dad-a2ab-4380-b2e2-40374c0d23b2"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "bundle": [
+        {
+            "target_id": "image",
+            "target_type": "media_type",
+            "target_uuid": "d1c6573b-1e62-435d-be93-2349a43cb78e"
+        }
+    ],
+    "revision_created": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "revision_user": [],
+    "revision_log_message": [],
+    "status": [
+        {
+            "value": true
+        }
+    ],
+    "uid": [
+        {
+            "target_type": "user",
+            "target_uuid": "2b2cba1b-9a87-4940-adb0-13818cd1cccf"
+        }
+    ],
+    "name": [
+        {
+            "value": "Vegan chocolate and nut brownies"
+        }
+    ],
+    "thumbnail": [
+        {
+            "alt": "A stack of chocolate and pecan brownies, sprinkled with pecan crumbs and crushed walnut, fresh out of the oven",
+            "title": null,
+            "width": 770,
+            "height": 512,
+            "target_type": "file",
+            "target_uuid": "0a376509-b2ce-406f-84f8-189e6f93d3f2"
+        }
+    ],
+    "created": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "changed": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true
+        }
+    ],
+    "revision_translation_affected": [
+        {
+            "value": true
+        }
+    ],
+    "path": [
+        {
+            "alias": null,
+            "pid": null,
+            "langcode": "en"
+        }
+    ],
+    "content_translation_source": [
+        {
+            "value": "und"
+        }
+    ],
+    "content_translation_outdated": [
+        {
+            "value": false
+        }
+    ],
+    "field_media_image": [
+        {
+            "alt": "A stack of chocolate and pecan brownies, sprinkled with pecan crumbs and crushed walnut, fresh out of the oven",
+            "title": null,
+            "width": 770,
+            "height": 512,
+            "target_type": "file",
+            "target_uuid": "0a376509-b2ce-406f-84f8-189e6f93d3f2"
+        }
+    ]
+}

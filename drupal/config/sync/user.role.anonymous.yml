@@ -1,0 +1,26 @@
+uuid: f92306d1-d03d-4418-9e95-087275b20e1b
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.restricted_html
+  module:
+    - contact
+    - druxt
+    - filter
+    - media
+    - search
+    - system
+_core:
+  default_config_hash: Gl1lr_RJQ9pMz_DZhY6pNX94k874Gqh15Gm8Du1EepQ
+id: anonymous
+label: 'Anonymous user'
+weight: 0
+is_admin: false
+permissions:
+  - 'access content'
+  - 'access druxt resources'
+  - 'access site-wide contact form'
+  - 'search content'
+  - 'use text format restricted_html'
+  - 'view media'

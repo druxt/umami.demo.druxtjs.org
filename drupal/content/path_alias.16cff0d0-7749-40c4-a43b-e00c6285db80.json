@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "16cff0d0-7749-40c4-a43b-e00c6285db80"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/node\/75c05422-ed3b-42b8-87d0-bfb52cc56bab"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/recipes\/super-easy-vegetarian-pasta-bake"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

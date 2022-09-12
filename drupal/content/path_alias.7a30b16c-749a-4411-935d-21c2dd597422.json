@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "7a30b16c-749a-4411-935d-21c2dd597422"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "es"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/3"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/tags\/cocci\u00f3n"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

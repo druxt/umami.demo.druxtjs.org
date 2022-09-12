@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "16c91e8b-e41c-4335-bfbb-a8bc061a9c26"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "es"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/node\/810605f0-1b6a-4e46-ba02-8f90f1584239"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/recipes\/curry-verde-tailandes"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

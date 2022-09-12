@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "aabefefa-b9b9-431e-903d-79c2e1dd4197"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/node\/4f531ed4-971f-4f13-b839-30ee357368c7"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/recipes\/borscht-with-pork-ribs"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

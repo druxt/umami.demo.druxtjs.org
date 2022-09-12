@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "b2af90e2-027b-4f89-8c35-ddcf651b8318"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "es"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/node\/6fa0f098-6ab7-4653-b68f-3eda4fc8a9c0"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/articles\/prueba-y-cultiva-tus-propias-hierbas"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "8b158ce2-c11b-4288-9aba-0c8549679306"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/32"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/recipe-category\/snacks"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

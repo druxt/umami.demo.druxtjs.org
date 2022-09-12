@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "aadb3d37-1313-4041-94ec-7b50b959271d"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/node\/95fd585f-1343-4308-9aeb-909917bff397"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/recipes\/vegan-chocolate-and-nut-brownies"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

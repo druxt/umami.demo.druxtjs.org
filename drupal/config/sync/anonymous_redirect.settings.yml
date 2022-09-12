@@ -1,0 +1,12 @@
+_core:
+  default_config_hash: 7W0OZCDLDWnVvdsXF32v3ieBb-NVaDu3KTv_zlLF5dw
+enable_redirect: true
+redirect_url: /user/login
+redirect_url_overrides: |-
+  /en/user/*
+  /jsonapi
+  /jsonapi/*
+  /js-search/*
+  /oauth/*
+  /router/*
+  /user/*

@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "ed62e2a2-fa5a-40ca-8660-ebf619420066"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "es"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/6"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/tags\/zanahorias"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

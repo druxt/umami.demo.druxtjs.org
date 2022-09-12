@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "f410e570-ae86-4c93-ae69-d27efbfdf7ef"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/33"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/recipe-category\/starters"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

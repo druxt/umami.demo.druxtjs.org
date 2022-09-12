@@ -1,0 +1,176 @@
+{
+    "uuid": [
+        {
+            "value": "22d0ceb8-7224-4648-bea6-37ceaeb5b33a"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "es"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "recipe",
+            "target_type": "node_type",
+            "target_uuid": "30a8ff6f-401b-4266-b9fb-cac6970e1af8"
+        }
+    ],
+    "revision_timestamp": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "revision_uid": [
+        {
+            "target_type": "user",
+            "target_uuid": "58027964-0aa0-4286-87b1-b0f895c5b736"
+        }
+    ],
+    "revision_log": [],
+    "status": [
+        {
+            "value": true
+        }
+    ],
+    "uid": [
+        {
+            "target_type": "user",
+            "target_uuid": "58027964-0aa0-4286-87b1-b0f895c5b736"
+        }
+    ],
+    "title": [
+        {
+            "value": "Crema catalana"
+        }
+    ],
+    "created": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "changed": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "promote": [
+        {
+            "value": true
+        }
+    ],
+    "sticky": [
+        {
+            "value": false
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": false
+        }
+    ],
+    "revision_translation_affected": [
+        {
+            "value": true
+        }
+    ],
+    "moderation_state": [
+        {
+            "value": "published"
+        }
+    ],
+    "path": [
+        {
+            "alias": "\/recipes\/crema-catalana",
+            "langcode": "es"
+        }
+    ],
+    "content_translation_source": [
+        {
+            "value": "und"
+        }
+    ],
+    "content_translation_outdated": [
+        {
+            "value": false
+        }
+    ],
+    "field_cooking_time": [
+        {
+            "value": 20
+        }
+    ],
+    "field_difficulty": [
+        {
+            "value": "medium"
+        }
+    ],
+    "field_ingredients": [
+        {
+            "value": "1l de Leche"
+        },
+        {
+            "value": " 200g de az\u00facar"
+        },
+        {
+            "value": " 6 yemas de huevo"
+        },
+        {
+            "value": " 30g de Maizena"
+        },
+        {
+            "value": " 1 rama de canela"
+        },
+        {
+            "value": " 1 La piel de un lim\u00f3n"
+        }
+    ],
+    "field_media_image": [
+        {
+            "target_type": "media",
+            "target_uuid": "2fc0a406-4c06-4328-9fd4-2826172939c6"
+        }
+    ],
+    "field_number_of_servings": [
+        {
+            "value": 8
+        }
+    ],
+    "field_preparation_time": [
+        {
+            "value": 10
+        }
+    ],
+    "field_recipe_category": [
+        {
+            "target_type": "taxonomy_term",
+            "target_uuid": "aeef94c3-699e-4534-b8b0-ba7342a267cb"
+        }
+    ],
+    "field_recipe_instruction": [
+        {
+            "value": "<ol>\n  <li>Mezcle las yemas de huevo, el az\u00facar y la harina de maiz con \u2153 de la leche. En un cazo, hierve el resto de la leche con la ralladura de un lim\u00f3n y la canela.<\/li>\n  <li>Despu\u00e9s de 3 minutos, aparte del fuego y quite el lim\u00f3n y la canela.<\/li>\n  <li>Ve a\u00f1adiendo muy despacio la mezcla del huevo sobre la leche utilizando un colador para asegurarse que no hay grumos.<\/li>\n  <li>Coloque el cazo otra vez en el fuego y, sin dejar de remover, espere hasta que hierva.<\/li>\n  <li>Una vez que la mezcla ha empezado a espesar, ap\u00e1rtalo del fuego y ponlo en recipientes individuales para que enfr\u00ede.<\/li>\n  <li>Para un resultado aut\u00e9ntico, esparza un poco de az\u00facar y caramel\u00edzalo con un soplete de cocina o bajo el gratinador del horno.<\/li>\n<\/ol>\n",
+            "format": "basic_html"
+        }
+    ],
+    "field_summary": [
+        {
+            "value": "Disfruta de esta dulce receta de uno de los postres m\u00e1s antiguos de Europa. \u00a1Requiere muy pocos ingredientes!",
+            "format": "basic_html"
+        }
+    ],
+    "field_tags": [
+        {
+            "target_type": "taxonomy_term",
+            "target_uuid": "2eb464a9-64ce-41c9-b7d2-7d25c5791def"
+        },
+        {
+            "target_type": "taxonomy_term",
+            "target_uuid": "0743c12a-9654-4bde-b330-9c6a0d59da47"
+        }
+    ],
+    "layout_builder__layout": []
+}

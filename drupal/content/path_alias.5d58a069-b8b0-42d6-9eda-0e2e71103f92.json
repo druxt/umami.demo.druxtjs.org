@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "5d58a069-b8b0-42d6-9eda-0e2e71103f92"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "es"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/24"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/tags\/compras"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

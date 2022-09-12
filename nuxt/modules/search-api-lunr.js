@@ -6,7 +6,7 @@ export default async function (moduleOptions = {}) {
   const index = moduleOptions.index || 'default'
 
   // Load settings data from the Drupal Search API Lunr module.
-  const { data } = await axios.get(process.env.BASE_URL + '/js-search/settings')
+  const { data } = await axios.get(this.options.druxt.baseUrl + '/js-search/settings')
 
   if (!data.servers[server] || !data.servers[server].indexes[index]) {
     return

@@ -1,0 +1,102 @@
+{
+    "uuid": [
+        {
+            "value": "e6605a0c-f051-49ca-b5e2-e877f53211d9"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "es"
+        }
+    ],
+    "bundle": [
+        {
+            "target_id": "image",
+            "target_type": "media_type",
+            "target_uuid": "d1c6573b-1e62-435d-be93-2349a43cb78e"
+        }
+    ],
+    "revision_created": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "revision_user": [],
+    "revision_log_message": [],
+    "status": [
+        {
+            "value": true
+        }
+    ],
+    "uid": [
+        {
+            "target_type": "user",
+            "target_uuid": "2b2cba1b-9a87-4940-adb0-13818cd1cccf"
+        }
+    ],
+    "name": [
+        {
+            "value": "Pizza sin gluten"
+        }
+    ],
+    "thumbnail": [
+        {
+            "alt": "Aceitunas, albahaca y mozzarella cubren una masa de pizza sin gluten con salsa de tomate.",
+            "title": null,
+            "width": 768,
+            "height": 512,
+            "target_type": "file",
+            "target_uuid": "d05e3298-f965-46ee-a63a-a19ed8b3badc"
+        }
+    ],
+    "created": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "changed": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": false
+        }
+    ],
+    "revision_translation_affected": [
+        {
+            "value": true
+        }
+    ],
+    "path": [
+        {
+            "alias": null,
+            "pid": null,
+            "langcode": "es"
+        }
+    ],
+    "content_translation_source": [
+        {
+            "value": "und"
+        }
+    ],
+    "content_translation_outdated": [
+        {
+            "value": false
+        }
+    ],
+    "field_media_image": [
+        {
+            "alt": "Aceitunas, albahaca y mozzarella cubren una masa de pizza sin gluten con salsa de tomate.",
+            "title": null,
+            "width": 768,
+            "height": 512,
+            "target_type": "file",
+            "target_uuid": "ec12f3e0-95b3-4c1e-b1d4-928380e11ea9"
+        }
+    ]
+}

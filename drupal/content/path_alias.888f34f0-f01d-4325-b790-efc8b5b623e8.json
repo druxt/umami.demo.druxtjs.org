@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "888f34f0-f01d-4325-b790-efc8b5b623e8"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/7"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/tags\/chocolate"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

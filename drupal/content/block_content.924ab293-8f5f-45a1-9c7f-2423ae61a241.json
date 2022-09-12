@@ -1,0 +1,103 @@
+{
+    "uuid": [
+        {
+            "value": "924ab293-8f5f-45a1-9c7f-2423ae61a241"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "footer_promo_block",
+            "target_type": "block_content_type",
+            "target_uuid": "be421e74-c556-4d45-9d18-5777a9ba21a7"
+        }
+    ],
+    "revision_created": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "revision_user": [],
+    "revision_log": [],
+    "status": [
+        {
+            "value": true
+        }
+    ],
+    "info": [
+        {
+            "value": "Umami footer promo"
+        }
+    ],
+    "changed": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "reusable": [
+        {
+            "value": true
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true
+        }
+    ],
+    "revision_translation_affected": [
+        {
+            "value": true
+        }
+    ],
+    "content_translation_source": [
+        {
+            "value": "und"
+        }
+    ],
+    "content_translation_outdated": [
+        {
+            "value": false
+        }
+    ],
+    "content_translation_uid": [
+        {
+            "target_type": "user",
+            "target_uuid": "2b2cba1b-9a87-4940-adb0-13818cd1cccf"
+        }
+    ],
+    "content_translation_created": [
+        {
+            "value": "2022-09-12T00:53:14+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "field_content_link": [
+        {
+            "uri": "internal:\/about-umami",
+            "title": "Find out more",
+            "options": []
+        }
+    ],
+    "field_media_image": [
+        {
+            "target_type": "media",
+            "target_uuid": "c3a1a016-9552-4125-8a77-f40d506228c3"
+        }
+    ],
+    "field_summary": [
+        {
+            "value": "Skills and know-how. Magazine exclusive articles, recipes and plenty of reasons to get your copy today."
+        }
+    ],
+    "field_title": [
+        {
+            "value": "Umami Food Magazine"
+        }
+    ]
+}

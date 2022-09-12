@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "9016d773-c0f7-4fea-aea1-3949ed0af0a4"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/30"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/recipe-category\/desserts"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}
