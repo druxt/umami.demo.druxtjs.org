@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "ea41c6bc-5726-4d42-ba7a-fe92784443bc"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/12"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/tags\/drinks"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

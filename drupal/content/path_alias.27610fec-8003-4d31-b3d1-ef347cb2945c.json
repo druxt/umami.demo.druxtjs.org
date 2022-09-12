@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "27610fec-8003-4d31-b3d1-ef347cb2945c"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/4"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/tags\/breakfast"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

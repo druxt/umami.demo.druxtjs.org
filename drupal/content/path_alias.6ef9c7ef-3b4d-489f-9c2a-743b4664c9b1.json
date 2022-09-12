@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "6ef9c7ef-3b4d-489f-9c2a-743b4664c9b1"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/18"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/tags\/mushrooms"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}

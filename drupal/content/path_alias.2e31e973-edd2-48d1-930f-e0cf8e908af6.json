@@ -1,0 +1,27 @@
+{
+    "uuid": [
+        {
+            "value": "2e31e973-edd2-48d1-930f-e0cf8e908af6"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "es"
+        }
+    ],
+    "path": [
+        {
+            "value": "\/taxonomy\/term\/8"
+        }
+    ],
+    "alias": [
+        {
+            "value": "\/tags\/fiesta-de-coctel"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ]
+}
