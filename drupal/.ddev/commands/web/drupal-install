@@ -7,6 +7,9 @@
 # Install composer dependencies.
 composer install
 
+# Update config sync directory
+sed -i 's/sites\/default\/files\/sync/\.\.\/config\/sync/g' web/sites/default/settings.ddev.php
+
 # Install Drupal using the Umami demo profile via TomeSync.
 drush -y tome:install
 
