@@ -1,4 +1,7 @@
 {
   "extends": ["@nuxtjs"],
-  "labels": ["dependencies"]
+  "labels": ["dependencies"],
+  "ignoreDeps": [
+    "drupal/gin_toolbar"
+  ]
 }
