@@ -5,25 +5,8 @@ project: druxtjs-org-demo-umami
 tasks:
   post-rollout:
     - run:
-        name: drush si
-        command: drush -y si demo_umami
-        service: cli
-
-    - run:
-        name: drush en
-        command: drush -y en druxt_umami
-        service: cli
-
-    - run:
-        name: drush rap
-        command: drush rap anonymous 'access druxt resources'
-        service: cli
-
-    - run:
-        name: drush config:set
-        command: |
-          drush config:set druxt_node_preview.settings frontends "Production|https://demo.druxtjs.org/node/preview/[view_mode]#[jsonapi_node_preview]" -y
-          drush config:set jsonapi.settings read_only 0 -y
+        name: drush tome:install
+        command: drush -y tome:install
         service: cli
 
     - run:
