@@ -6,12 +6,12 @@ on:
       - develop
 
 jobs:
-  deploy:
+  deploy_backend:
     runs-on: ${{ matrix.os }}
 
     environment:
-      name: staging
-      url: https://app.staging-frontend.druxtjs-org-demo-umami.au2.amazee.io
+      name: staging-backend
+      url: https://api.staging.umami.demo.druxtjs.org
 
     strategy:
       matrix:
@@ -39,7 +39,38 @@ jobs:
       - name: Wait for backend
         uses: nev7n/wait_for_response@v1
         with:
-          url: 'https://nginx.staging-backend.druxtjs-org-demo-umami.au2.amazee.io/jsonapi'
+          url: 'https://api.staging.umami.demo.druxtjs.org/jsonapi'
+          responseCode: 200
+          timeout: 600000
+          interval: 15000
+
+  deploy_frontend:
+    runs-on: ${{ matrix.os }}
+
+    needs: deploy_backend
+
+    environment:
+      name: staging-frontend
+      url: https://staging.umami.demo.druxtjs.org
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [16]
+
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@master
+
+      - name: Configure git
+        run: |
+          git config --global user.name 'Deploy workflow'
+          git config --global user.email "ci@{$GITHUB_HEAD_REF}"
+
+      - name: Wait for backend
+        uses: nev7n/wait_for_response@v1
+        with:
+          url: 'https://api.staging.umami.demo.druxtjs.org/jsonapi'
           responseCode: 200
           timeout: 600000
           interval: 15000
@@ -56,7 +87,7 @@ jobs:
       - name: Wait for frontend
         uses: nev7n/wait_for_response@v1
         with:
-          url: 'https://app.staging-frontend.druxtjs-org-demo-umami.au2.amazee.io'
+          url: 'https://staging.umami.demo.druxtjs.org'
           responseCode: 200
           timeout: 600000
           interval: 15000
