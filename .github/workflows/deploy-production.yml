@@ -6,12 +6,12 @@ on:
       - main
 
 jobs:
-  ci:
+  deploy_backend:
     runs-on: ${{ matrix.os }}
 
     environment:
-      name: production
-      url: https://umami.demo.druxtjs.org
+      name: production-backend
+      url: https://api.umami.demo.druxtjs.org
 
     strategy:
       matrix:
@@ -36,6 +36,37 @@ jobs:
 
       - name: Sleep
         run: sleep 120s
+      - name: Wait for backend
+        uses: nev7n/wait_for_response@v1
+        with:
+          url: 'https://api.umami.demo.druxtjs.org/jsonapi'
+          responseCode: 200
+          timeout: 600000
+          interval: 15000
+
+  deploy_frontend:
+    runs-on: ${{ matrix.os }}
+
+    needs: deploy_backend
+
+    environment:
+      name: production-frontend
+      url: https://umami.demo.druxtjs.org
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [16]
+
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@master
+
+      - name: Configure git
+        run: |
+          git config --global user.name 'Deploy workflow'
+          git config --global user.email "ci@{$GITHUB_HEAD_REF}"
+
       - name: Wait for backend
         uses: nev7n/wait_for_response@v1
         with:
