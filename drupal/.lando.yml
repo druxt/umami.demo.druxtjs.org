@@ -1,4 +1,4 @@
-name: demo-api-druxtjs-org
+name: druxtjs-org-demo-umami
 recipe: lagoon
 config:
   build:

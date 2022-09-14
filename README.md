@@ -7,7 +7,7 @@
 
 This is a demonstation of how to create a DruxtSite using the Drupal 9 Umami installation profile.
 
-View the site @ https://demo.druxtjs.org
+View the site @ https://umami.demo.druxtjs.org
 
 ---
 

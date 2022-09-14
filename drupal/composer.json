@@ -1,5 +1,5 @@
 {
-    "name": "druxt/demo-api-druxtjs-org",
+    "name": "druxt/druxtjs-org-demo-umami",
     "description": "Drupal 9 JSON:API backend for Demonstration purposes.",
     "type": "project",
     "license": "GPL-2.0+",
