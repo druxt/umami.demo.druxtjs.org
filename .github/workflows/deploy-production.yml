@@ -10,9 +10,8 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     environment:
-      name: staging
-      # @TODO - umami.demo.druxtjs.org
-      url: https://demo.druxtjs.org
+      name: production
+      url: https://umami.demo.druxtjs.org
 
     strategy:
       matrix:
@@ -40,7 +39,7 @@ jobs:
       - name: Wait for backend
         uses: nev7n/wait_for_response@v1
         with:
-          url: 'https://nginx.production-backend.druxtjs-org-demo-umami.au2.amazee.io/jsonapi'
+          url: 'https://api.umami.demo.druxtjs.org/jsonapi'
           responseCode: 200
           timeout: 600000
           interval: 15000
@@ -56,7 +55,7 @@ jobs:
       - name: Wait for frontend
         uses: nev7n/wait_for_response@v1
         with:
-          url: 'https://demo.druxtjs.org'
+          url: 'https://umami.demo.druxtjs.org'
           responseCode: 200
           timeout: 600000
           interval: 15000

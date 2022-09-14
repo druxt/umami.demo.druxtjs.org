@@ -21,7 +21,7 @@
     <env name="SIMPLETEST_DB" value="mysql://drupal:drupal@mariadb/drupal"/>
 
     <env name="BROWSERTEST_OUTPUT_DIRECTORY" value="./web/sites/simpletest/browser_output"/>
-    <env name="BROWSERTEST_OUTPUT_BASE_URL" value="http://demo-api-druxtjs-org.docker.amazee.io"/>
+    <env name="BROWSERTEST_OUTPUT_BASE_URL" value="http://druxtjs-org-demo-umami.docker.amazee.io"/>
 
     <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
   </php>
