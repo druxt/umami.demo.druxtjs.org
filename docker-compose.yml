@@ -81,6 +81,7 @@ services:
       context: .
       dockerfile: .docker/Dockerfile.app
       args:
+        BASE_URL: ${BASE_URL}
         GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
         GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
         OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
@@ -89,7 +90,7 @@ services:
       lando.type: node
     environment:
       LAGOON_LOCALDEV_HTTP_PORT: 3000
-      LAGOON_ROUTE: http://demo-druxtjs-org.docker.amazee.io
+      LAGOON_ROUTE: http://druxtjs-org-demo-umami.docker.amazee.io
 
   storybook:
     networks:
