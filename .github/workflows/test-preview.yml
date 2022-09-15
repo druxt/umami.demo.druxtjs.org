@@ -1,4 +1,4 @@
-name: test
+name: test-preview
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - develop
 
 jobs:
-  ci:
+  test_preview:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -60,6 +60,25 @@ jobs:
 
       - name: Run tests 🧪
         run: cd nuxt && BASE_URL=http://druxt-js-demo-umami.ddev.site yarn test
+
+      - name: Generate dist 👨🏻‍💻
+        run: cd nuxt && yarn generate
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v1.2
+        with:
+          publish-dir: './nuxt/dist'
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions"
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+          github-deployment-environment: ${{ github.head_ref }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 1
 
       - uses: actions/upload-artifact@v3
         with:
