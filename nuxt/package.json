@@ -63,7 +63,7 @@
     "@storybook/addon-docs": "^6.5.12",
     "babel-core": "7.0.0-bridge.0",
     "chromatic": "6.10.1",
-    "cypress": "9.7.0",
+    "cypress": "11.2.0",
     "cypress-cucumber-preprocessor": "4.3.1",
     "eslint": "8.24.0",
     "eslint-config-prettier": "8.5.0",
