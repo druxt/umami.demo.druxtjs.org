@@ -24,18 +24,13 @@ jobs:
         uses: actions/checkout@master
 
       - name: Setup node env 🏗
-        uses: actions/setup-node@v3.5.0
+        uses: actions/setup-node@v3.8.1
         with:
           node-version: ${{ matrix.node }}
           check-latest: true
 
-      - name: Update npm 🏗
-        run: |
-          npm install -g npm
-          npm --version
-
       - name: Cache node_modules 📦
-        uses: actions/cache@v3.0.8
+        uses: actions/cache@v3.3.1
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -49,7 +44,7 @@ jobs:
         run: cd nuxt && yarn lint
 
       - name: Setup ddev
-        uses: jonaseberle/github-action-setup-ddev@v1
+        uses: ddev/github-action-setup-ddev@v1
         with:
           autostart: false
       - name: Start ddev
