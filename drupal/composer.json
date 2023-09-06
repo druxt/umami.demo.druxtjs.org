@@ -20,7 +20,7 @@
         "drupal/core-recommended": "9.5.10",
         "drupal/druxt": "1.2.0",
         "drupal/gin": "3.0.0-rc6",
-        "drupal/gin_login": "1.6.0",
+        "drupal/gin_login": "2.0.2",
         "drupal/gin_toolbar": "1.0.0-beta22@beta",
         "drupal/jsonapi_hypermedia": "1.9.0",
         "drupal/jsonapi_menu_items": "1.2.4",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3ad235c4eaaab82bf03f8200a66bb3bc",
+    "content-hash": "324ef2b4b37602064da1bbc291946051",
     "packages": [
         {
             "name": "amazeeio/drupal_integrations",
@@ -2009,17 +2009,17 @@
         },
         {
             "name": "drupal/gin_login",
-            "version": "1.6.0",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/gin_login.git",
-                "reference": "8.x-1.6"
+                "reference": "2.0.2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/gin_login-8.x-1.6.zip",
-                "reference": "8.x-1.6",
-                "shasum": "4f328c2533ba9a77c908478dc5298981c1e30aab"
+                "url": "https://ftp.drupal.org/files/projects/gin_login-2.0.2.zip",
+                "reference": "2.0.2",
+                "shasum": "de3180f6418614916e5a99ba686ba93bf8c1dadb"
             },
             "require": {
                 "drupal/core": "^8.9 || ^9 || ^10"
@@ -2027,8 +2027,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.6",
-                    "datestamp": "1683024096",
+                    "version": "2.0.2",
+                    "datestamp": "1682973994",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -12701,5 +12701,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
