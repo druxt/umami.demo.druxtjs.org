@@ -5,10 +5,6 @@
     "license": "GPL-2.0+",
     "repositories": [
         {
-            "type": "git",
-            "url": "https://github.com/druxt/druxt_drupal"
-        },
-        {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
         }
@@ -95,7 +91,7 @@
                 "#2942975 Expose Layout Builder data to REST and JSON:API": "https://www.drupal.org/files/issues/2022-06-24/2942975-199.patch"
             },
             "drupal/decoupled_router": {
-                "https://www.drupal.org/project/decoupled_router/issues/3111456#comment-14093342": "https://www.drupal.org/files/issues/2021-05-05/3111456-34.patch"
+                "https://www.drupal.org/project/decoupled_router/issues/3111456#comment-15211077": "https://www.drupal.org/files/issues/2023-08-30/decoupled_router-3111456-resolve_lang-66.patch"
             },
             "drupal/druxt": {
                 "Node Preview": "https://git.drupalcode.org/project/druxt/-/merge_requests/8.diff"
