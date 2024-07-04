@@ -16,7 +16,7 @@
         "drupal-tome/tome_drush": "dev-master",
         "drupal/anonymous_redirect": "2.2.0-rc1",
         "drupal/core-composer-scaffold": "9.5.10",
-        "drupal/core-project-message": "9.5.10",
+        "drupal/core-project-message": "10.3.1",
         "drupal/core-recommended": "9.5.10",
         "drupal/druxt": "1.2.0",
         "drupal/gin": "3.0.0-rc6",
