@@ -17,7 +17,7 @@
         "drupal/anonymous_redirect": "2.2.0-rc1",
         "drupal/core-composer-scaffold": "9.5.10",
         "drupal/core-project-message": "9.5.10",
-        "drupal/core-recommended": "9.5.10",
+        "drupal/core-recommended": "10.3.1",
         "drupal/druxt": "1.2.0",
         "drupal/gin": "3.0.0-rc6",
         "drupal/gin_login": "2.0.2",
