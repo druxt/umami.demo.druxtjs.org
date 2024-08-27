@@ -2498,19 +2498,20 @@
   resolved "https://registry.yarnpkg.com/@cypress/vue/-/vue-4.2.2.tgz#907d0e7bf490b2dc1340c626e440e979873a03c7"
   integrity sha512-M5u8w3OwEwvhYo43tBwduYn3hra5m5yIIAak8mFt+mt58yCmkW57q6mkNkZNZNtVei2eMHIcCfAWLoZmpqg4fg==
 
-"@cypress/webpack-dev-server@2.5.0":
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/@cypress/webpack-dev-server/-/webpack-dev-server-2.5.0.tgz#a4b5e51a3ff47765f5eee5abb73efe4f3e4f44ee"
-  integrity sha512-IWd6nFiGTMXh89Si6KC3Snq9FnV4raijLt4jDHYvRt4S7y6IoG8Uiw37UpFfzbUpwSFl8FVbWr8VosIotEj1Pw==
+"@cypress/webpack-dev-server@3.11.0":
+  version "3.11.0"
+  resolved "https://registry.yarnpkg.com/@cypress/webpack-dev-server/-/webpack-dev-server-3.11.0.tgz#e94ed209cbda585b226d9b40f567801276558b65"
+  integrity sha512-r2+fy+/yr33HVmg+egjmCfSy4i19oqEixYkqqg9++Y7QpZggTebLN6BWQD/4HVZdvSBuRlVVMF2juTunWbCKIw==
   dependencies:
     find-up "6.3.0"
     fs-extra "9.1.0"
     html-webpack-plugin-4 "npm:html-webpack-plugin@^4"
     html-webpack-plugin-5 "npm:html-webpack-plugin@^5"
     local-pkg "0.4.1"
+    semver "^7.5.3"
     speed-measure-webpack-plugin "1.4.2"
     tslib "^2.3.1"
-    webpack-dev-server "^4.7.4"
+    webpack-dev-server "^4.15.2"
     webpack-merge "^5.4.0"
 
 "@cypress/xvfb@^1.2.4":
@@ -4718,13 +4719,6 @@
     "@types/webpack-sources" "*"
     anymatch "^3.0.0"
     source-map "^0.6.0"
-
-"@types/ws@^8.5.1":
-  version "8.5.3"
-  resolved "https://registry.npmjs.org/@types/ws/-/ws-8.5.3.tgz"
-  integrity sha512-6YOoWjruKj1uLf3INHH7D3qTXwFfEsg1kf3c0uDdSBJwfa/llkwIjrAGV7j7mVgGNbzTQ3HiHKKDXl6bJPD97w==
-  dependencies:
-    "@types/node" "*"
 
 "@types/ws@^8.5.5":
   version "8.5.5"
@@ -15823,13 +15817,6 @@ select-hose@^2.0.0:
   resolved "https://registry.npmjs.org/select-hose/-/select-hose-2.0.0.tgz"
   integrity sha512-mEugaLK+YfkijB4fx0e6kImuJdCIt2LxCRcbEYPqRGCs4F2ogyfZU5IAZRdjCP8JPq2AtdNoC/Dux63d9Kiryg==
 
-selfsigned@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.npmjs.org/selfsigned/-/selfsigned-2.0.1.tgz"
-  integrity sha512-LmME957M1zOsUhG+67rAjKfiWFox3SBxE/yymatMZsAx+oMrJ0YQ8AToOnyCm7xbeg2ep37IHLxdu0o2MavQOQ==
-  dependencies:
-    node-forge "^1"
-
 selfsigned@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/selfsigned/-/selfsigned-2.1.1.tgz#18a7613d714c0cd3385c48af0075abf3f266af61"
@@ -15870,6 +15857,11 @@ semver@^7.0.0, semver@^7.3.2, semver@^7.3.4, semver@^7.3.5, semver@^7.3.6, semve
   integrity sha512-QlYTucUYOews+WeEujDoEGziz4K6c47V/Bd+LjSSYcA94p+DmINdf7ncaUinThfvZyu13lN9OY1XDxt8C0Tw0g==
   dependencies:
     lru-cache "^6.0.0"
+
+semver@^7.5.3:
+  version "7.6.3"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.6.3.tgz#980f7b5550bc175fb4dc09403085627f9eb33143"
+  integrity sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==
 
 send@0.18.0:
   version "0.18.0"
@@ -18198,6 +18190,17 @@ webpack-dev-middleware@^5.0.0, webpack-dev-middleware@^5.3.1:
     range-parser "^1.2.1"
     schema-utils "^4.0.0"
 
+webpack-dev-middleware@^5.3.4:
+  version "5.3.4"
+  resolved "https://registry.yarnpkg.com/webpack-dev-middleware/-/webpack-dev-middleware-5.3.4.tgz#eb7b39281cbce10e104eb2b8bf2b63fce49a3517"
+  integrity sha512-BVdTqhhs+0IfoeAf7EoH5WE+exCmqGerHfDM0IL096Px60Tq2Mn9MAbnaGUe6HiMa41KMCYF19gyzZmBcq/o4Q==
+  dependencies:
+    colorette "^2.0.10"
+    memfs "^3.4.3"
+    mime-types "^2.1.31"
+    range-parser "^1.2.1"
+    schema-utils "^4.0.0"
+
 webpack-dev-server@4.15.1:
   version "4.15.1"
   resolved "https://registry.yarnpkg.com/webpack-dev-server/-/webpack-dev-server-4.15.1.tgz#8944b29c12760b3a45bdaa70799b17cb91b03df7"
@@ -18234,10 +18237,10 @@ webpack-dev-server@4.15.1:
     webpack-dev-middleware "^5.3.1"
     ws "^8.13.0"
 
-webpack-dev-server@^4.7.4:
-  version "4.11.0"
-  resolved "https://registry.yarnpkg.com/webpack-dev-server/-/webpack-dev-server-4.11.0.tgz#290ee594765cd8260adfe83b2d18115ea04484e7"
-  integrity sha512-L5S4Q2zT57SK7tazgzjMiSMBdsw+rGYIX27MgPgx7LDhWO0lViPrHKoLS7jo5In06PWYAhlYu3PbyoC6yAThbw==
+webpack-dev-server@^4.15.2:
+  version "4.15.2"
+  resolved "https://registry.yarnpkg.com/webpack-dev-server/-/webpack-dev-server-4.15.2.tgz#9e0c70a42a012560860adb186986da1248333173"
+  integrity sha512-0XavAZbNJ5sDrCbkpWL8mia0o5WPOd2YGtxrEiZkBK9FjLppIUK2TgxK6qGD2P3hUXTJNNPVibrerKcx5WkR1g==
   dependencies:
     "@types/bonjour" "^3.5.9"
     "@types/connect-history-api-fallback" "^1.3.5"
@@ -18245,7 +18248,7 @@ webpack-dev-server@^4.7.4:
     "@types/serve-index" "^1.9.1"
     "@types/serve-static" "^1.13.10"
     "@types/sockjs" "^0.3.33"
-    "@types/ws" "^8.5.1"
+    "@types/ws" "^8.5.5"
     ansi-html-community "^0.0.8"
     bonjour-service "^1.0.11"
     chokidar "^3.5.3"
@@ -18258,16 +18261,17 @@ webpack-dev-server@^4.7.4:
     html-entities "^2.3.2"
     http-proxy-middleware "^2.0.3"
     ipaddr.js "^2.0.1"
+    launch-editor "^2.6.0"
     open "^8.0.9"
     p-retry "^4.5.0"
     rimraf "^3.0.2"
     schema-utils "^4.0.0"
-    selfsigned "^2.0.1"
+    selfsigned "^2.1.1"
     serve-index "^1.9.1"
     sockjs "^0.3.24"
     spdy "^4.0.2"
-    webpack-dev-middleware "^5.3.1"
-    ws "^8.4.2"
+    webpack-dev-middleware "^5.3.4"
+    ws "^8.13.0"
 
 webpack-filter-warnings-plugin@^1.2.1:
   version "1.2.1"
@@ -18591,7 +18595,7 @@ ws@^8.13.0:
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.13.0.tgz#9a9fb92f93cf41512a0735c8f4dd09b8a1211cd0"
   integrity sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==
 
-ws@^8.2.3, ws@^8.4.2:
+ws@^8.2.3:
   version "8.8.1"
   resolved "https://registry.npmjs.org/ws/-/ws-8.8.1.tgz"
   integrity sha512-bGy2JzvzkPowEJV++hF07hAD6niYSr0JzBNo/J29WsB57A2r7Wlc1UFcTR9IzrPvuNVO4B8LGqF8qcpsVOhJCA==
