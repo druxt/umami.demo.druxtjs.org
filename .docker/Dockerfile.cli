@@ -1,4 +1,4 @@
-FROM amazeeio/php:8.2-cli-drupal
+FROM amazeeio/php:8.3-cli-drupal
 
 COPY ./drupal/composer.* /app/
 COPY ./drupal/assets /app/assets
