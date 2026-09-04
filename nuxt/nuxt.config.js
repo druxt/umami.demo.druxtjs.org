@@ -177,6 +177,13 @@ export default {
     '/es/jsonapi': baseUrl,
   },
 
+  // Serve from a subdirectory when previewing. GitLab Pages publishes each
+  // branch under /<project>/<branch-slug>/, and without this every /_nuxt/
+  // asset resolves to the domain root and 404s. Unset in production.
+  router: {
+    base: process.env.ROUTER_BASE || '/',
+  },
+
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
     extend(config) {

@@ -1,0 +1,210 @@
+---
+# CI for umami.demo.druxtjs.org.
+#
+# Two jobs matter here. `lint` guards the existing eslint/stylelint/prettier
+# setup, which nothing was running on merge requests. `pages` publishes a real,
+# browsable preview of the site per branch, which is the thing a diff cannot
+# give you for a visual change.
+#
+# Toolchain notes, both deliberate:
+#
+#   * Node 16 and Yarn 1, not the node 22 + pnpm the newer repos use. This is a
+#     Nuxt 2 / Vue 2.7 codebase on a frozen toolchain with a v1 lockfile.
+#     Corepack forces Yarn 3 against that lockfile and fails with YN0028, so
+#     `yarn` is pinned rather than taken from corepack.
+#   * The build needs a reachable Drupal. It fetches /js-search/settings for
+#     search_api_lunr and fails hard without it, so BASE_URL points at the live
+#     backend. That backend idles, hence the wake step before generating.
+
+stages:
+  - lint
+  - secret-detection
+  - preview
+
+variables:
+  NODE_IMAGE: node:16.20.2
+  BACKEND_URL: https://api.umami.demo.druxtjs.org
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+default:
+  tags: [docker]
+  timeout: 30m
+  before_script:
+    - 'section_start() { local n="$1" t="${2:-$1}"; printf "\e[0Ksection_start:%s:%s\r\e[0K%s\n" "$(date +%s)" "$n" "$t"; }'
+    - 'section_end() { printf "\e[0Ksection_end:%s:%s\r\e[0K\n" "$(date +%s)" "$1"; }'
+
+# Shared node setup. Corepack is explicitly disabled: this repo has a Yarn 1
+# lockfile, and corepack would activate Yarn 3 and refuse it.
+.node:
+  image: $NODE_IMAGE
+  interruptible: true
+  cache:
+    key:
+      files:
+        - nuxt/yarn.lock
+    paths:
+      - .yarn-cache/
+      - nuxt/node_modules/
+  before_script:
+    - !reference [default, before_script]
+    - section_start "install" "Installing dependencies (Yarn 1)"
+    # package.json pins packageManager to yarn@1.22.22, so corepack provisions
+    # Yarn 1 rather than hijacking to Yarn 3, which cannot read a v1 lockfile.
+    - corepack enable
+    - yarn --version
+    - cd nuxt
+    - yarn config set cache-folder "$CI_PROJECT_DIR/.yarn-cache"
+    - yarn install --frozen-lockfile --network-timeout 600000
+    - section_end "install"
+
+#
+# --- Lint ---
+#
+
+lint:
+  extends: .node
+  stage: lint
+  script:
+    - section_start "eslint" "ESLint"
+    - yarn lint:js
+    - section_end "eslint"
+    - section_start "stylelint" "Stylelint"
+    - yarn lint:style
+    - section_end "stylelint"
+    - section_start "prettier" "Prettier"
+    - npx --no-install prettier --check .
+    - section_end "prettier"
+
+commitlint:
+  stage: lint
+  image: $NODE_IMAGE
+  interruptible: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - npx --yes @commitlint/cli@17 @commitlint/config-conventional@17
+      --from "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" --to HEAD
+
+#
+# --- Preview ---
+#
+# A browsable copy of the site per branch, at
+#   http://druxt.pages.gitlab.local/umami.demo.druxtjs.org/<branch-slug>/
+#
+# `pages.path_prefix` keeps each branch's deployment separate rather than
+# overwriting one shared site (GitLab 16.7+; this instance is 18.9).
+#
+# Two settings make it work off-origin:
+#   * ROUTER_BASE tells Nuxt the site is served from a subdirectory. Without
+#     it every /_nuxt/ asset 404s under the prefix.
+#   * API_PROXY=0 makes Druxt call the backend absolutely. There is no proxy
+#     layer on Pages the way netlify.toml provides one in production, and the
+#     backend does send permissive CORS headers, so direct calls work.
+pages:
+  extends: .node
+  stage: preview
+  timeout: 45m
+  pages:
+    path_prefix: "$CI_COMMIT_REF_SLUG"
+  variables:
+    BASE_URL: $BACKEND_URL
+    API_PROXY: '0'
+  script:
+    # The backend is a Lagoon development environment and idles. A cold start
+    # can take minutes, and the generate step fails hard without it, so wake it
+    # before spending build time.
+    - section_start "wake" "Waking the demo backend"
+    - |
+      for i in $(seq 1 30); do
+        code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$BACKEND_URL/en/jsonapi" || echo 000)
+        echo "attempt $i: $code"
+        [ "$code" = "200" ] && break
+        sleep 10
+      done
+      [ "$code" = "200" ] || { echo "Backend did not wake; cannot generate."; exit 1; }
+    - section_end "wake"
+    - section_start "generate" "nuxt generate"
+    - export ROUTER_BASE="/${CI_PROJECT_NAME}/${CI_COMMIT_REF_SLUG}/"
+    - echo "Router base is $ROUTER_BASE"
+    - yarn generate
+    - section_end "generate"
+    - cd "$CI_PROJECT_DIR"
+    - mv nuxt/dist public
+    # Assert the output is real rather than merely present. Two failure modes
+    # are worth catching before publishing: a shell with no content, and the
+    # router.base mistake, where the HTML loads but every asset resolves to the
+    # domain root and 404s. The second looks like a broken build rather than a
+    # config error, so check for it explicitly.
+    - section_start "smoke" "Checking the generated output"
+    - test -f public/index.html || { echo "No index.html generated."; exit 1; }
+    - |
+      if ! grep -qi '<title>' public/index.html; then
+        echo "index.html has no <title>; the build produced a shell." >&2
+        exit 1
+      fi
+      base="/${CI_PROJECT_NAME}/${CI_COMMIT_REF_SLUG}/"
+      if ! grep -q "${base}_nuxt/" public/index.html; then
+        echo "Asset paths do not carry the router base ${base}." >&2
+        echo "Every /_nuxt/ request would 404 under the Pages prefix." >&2
+        grep -o '/_nuxt/[^\"]*' public/index.html | head -3 >&2
+        exit 1
+      fi
+      echo "Title:  $(sed -n 's/.*<title>\(.*\)<\/title>.*/\1/p' public/index.html | head -1)"
+      echo "Base:   ${base}"
+      echo "Routes: $(find public -name '*.html' | wc -l)"
+    - section_end "smoke"
+    - echo "Preview will be at ${CI_PAGES_URL}/"
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 week
+  environment:
+    name: preview/$CI_COMMIT_REF_SLUG
+    url: $CI_PAGES_URL
+
+#
+# --- Secret detection ---
+#
+# A pinned, checksum-verified gitleaks binary rather than
+# `include: template: Security/Secret-Detection.gitlab-ci.yml`. That template
+# is an Ultimate-tier feature and produces no job at all on this instance, so
+# it reads as coverage in the config while scanning nothing.
+secret-detection:
+  stage: secret-detection
+  image: $NODE_IMAGE
+  interruptible: true
+  needs: []
+  before_script: []
+  script:
+    - |
+      gitleaks_version="8.30.1"
+      case "$(uname -m)" in
+        aarch64|arm64)
+          gitleaks_arch=arm64
+          gitleaks_sha256=e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080
+          ;;
+        x86_64)
+          gitleaks_arch=x64
+          gitleaks_sha256=551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+          ;;
+        *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+      esac
+      url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}"
+      curl -fsSL "${url}/gitleaks_${gitleaks_version}_linux_${gitleaks_arch}.tar.gz" -o /tmp/gitleaks.tar.gz
+      echo "${gitleaks_sha256}  /tmp/gitleaks.tar.gz" | sha256sum -c -
+      tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+      chmod +x /tmp/gitleaks
+    - /tmp/gitleaks dir . --no-banner --redact --report-path gitleaks-report.json
+  artifacts:
+    when: always
+    paths:
+      - gitleaks-report.json
+    expire_in: 1 week
