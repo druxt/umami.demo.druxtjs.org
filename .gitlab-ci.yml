@@ -22,7 +22,11 @@ stages:
   - preview
 
 variables:
+  # The app is pinned to Node 16 with the rest of the frozen Nuxt 2 stack.
   NODE_IMAGE: node:16.20.2
+  # Repo-level tooling has no reason to share that pin, and current
+  # markdownlint-cli2 needs Node 20+ (it uses the `v` regex flag).
+  TOOLS_IMAGE: node:22.23.2
   BACKEND_URL: https://api.umami.demo.druxtjs.org
 
 workflow:
@@ -81,17 +85,89 @@ lint:
     - npx --no-install prettier --check .
     - section_end "prettier"
 
+lint:json:
+  stage: lint
+  image: $TOOLS_IMAGE
+  interruptible: true
+  needs: []
+  before_script:
+    - !reference [default, before_script]
+  script:
+    - section_start "json-lint" "Validating JSON files"
+    - |
+      rc=0; count=0
+      while IFS= read -r -d '' f; do
+        count=$((count + 1))
+        if python3 -m json.tool "$f" > /dev/null 2>&1; then
+          echo "  [PASS] $f"
+        else
+          echo "  [FAIL] $f"; rc=1
+        fi
+      done < <(find . -name '*.json' -not -path '*/.git/*' -not -path '*/node_modules/*' \
+        -not -path '*/dist/*' -not -path '*/.nuxt/*' -not -path '*/drupal/*' \
+        -not -path '*/templates/*' -not -path '*/.vscode/*' -print0)
+      echo "--- $count JSON file(s) checked ---"
+      exit "$rc"
+    - section_end "json-lint"
+
+lint:yaml:
+  stage: lint
+  image: python:3.12-slim
+  interruptible: true
+  needs: []
+  before_script:
+    - !reference [default, before_script]
+  script:
+    - section_start "yaml-lint" "Linting YAML"
+    - pip install yamllint -q
+    - yamllint -c .yamllint .gitlab-ci.yml
+    - section_end "yaml-lint"
+
+# Repo tooling runs on current Node rather than the app's pinned 16: the
+# markdownlint-cli2 release line uses the `v` regex flag, which Node 16 cannot
+# parse, and markdown linting has nothing to do with the frozen Nuxt stack.
+lint:markdown:
+  stage: lint
+  image: $TOOLS_IMAGE
+  interruptible: true
+  needs: []
+  before_script:
+    - !reference [default, before_script]
+  script:
+    - section_start "md-lint" "Linting Markdown"
+    - npx --yes markdownlint-cli2 "**/*.md"
+    - section_end "md-lint"
+
+lint:cspell:
+  stage: lint
+  image: $TOOLS_IMAGE
+  interruptible: true
+  needs: []
+  before_script:
+    - !reference [default, before_script]
+  script:
+    - section_start "cspell" "Spell checking"
+    - npx --yes cspell@8 --no-progress --config .cspell.json "**/*.{js,vue,json,md,yml,yaml}"
+    - section_end "cspell"
+
 commitlint:
   stage: lint
-  image: $NODE_IMAGE
+  image: $TOOLS_IMAGE
   interruptible: true
+  needs: []
+  before_script: []
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   variables:
     GIT_DEPTH: 0
   script:
-    - npx --yes @commitlint/cli@17 @commitlint/config-conventional@17
-      --from "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" --to HEAD
+    # Both packages must be installed with --package; passing the config as a
+    # positional argument makes commitlint reject it as an unknown argument.
+    # The config lives in nuxt/, so point at it explicitly.
+    - git fetch -q origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+    - npx --yes --package @commitlint/cli@17 --package @commitlint/config-conventional@17
+      -- commitlint --config nuxt/commitlint.config.js
+      --from "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" --to HEAD --verbose
 
 #
 # --- Preview ---
@@ -108,24 +184,37 @@ commitlint:
 #   * API_PROXY=0 makes Druxt call the backend absolutely. There is no proxy
 #     layer on Pages the way netlify.toml provides one in production, and the
 #     backend does send permissive CORS headers, so direct calls work.
-pages:
+# A generated copy of the site, served through a Cloudflare quick tunnel so a
+# reviewer can click through the real thing on a real device. Manual: click
+# "Run" on this job, then watch the log for the https://*.trycloudflare.com URL.
+# The tunnel lives as long as the job.
+#
+# This is the house pattern (druxt.js docs:review, stuar.tc preview:live) and
+# not a preference. GitLab Pages is configured on these projects but the Pages
+# host does not resolve: druxt.pages.gitlab.local has no DNS record and there
+# are zero deployments across the instance. druxt.js carries a pages:preview
+# job disabled for the same reason. The disabled job below is kept in the same
+# spirit, ready for the day Pages works.
+preview:
   extends: .node
   stage: preview
-  timeout: 45m
-  pages:
-    path_prefix: "$CI_COMMIT_REF_SLUG"
+  interruptible: false
+  needs: []
+  timeout: 1h
+  rules:
+    - when: manual
+      allow_failure: true
   variables:
     BASE_URL: $BACKEND_URL
+    # No proxy layer in front of a tunnelled static build, so Druxt calls the
+    # backend absolutely. Verified the backend reflects arbitrary origins.
     API_PROXY: '0'
   script:
-    # The backend is a Lagoon development environment and idles. A cold start
-    # can take minutes, and the generate step fails hard without it, so wake it
-    # before spending build time.
     - section_start "wake" "Waking the demo backend"
     - |
       # Assert the response is JSON:API, not merely a 200. A status-only check
       # is not enough here: this estate has sites that answer 200 with an HTML
-      # shell for any path, and Lagoon serves its own holding page while an
+      # shell for any path, and Lagoon serves a holding page while an
       # environment scales up. Either would pass a status check and then fail
       # the generate step with a far less obvious error.
       ok=
@@ -142,48 +231,64 @@ pages:
       done
       if [ -z "$ok" ]; then
         echo "Backend never returned a JSON:API document (last status $code)." >&2
-        echo "It is idled, broken, or answering with a holding page." >&2
         exit 1
       fi
     - section_end "wake"
     - section_start "generate" "nuxt generate"
-    - export ROUTER_BASE="/${CI_PROJECT_NAME}/${CI_COMMIT_REF_SLUG}/"
-    - echo "Router base is $ROUTER_BASE"
     - yarn generate
     - section_end "generate"
-    - cd "$CI_PROJECT_DIR"
-    - mv nuxt/dist public
-    # Assert the output is real rather than merely present. Two failure modes
-    # are worth catching before publishing: a shell with no content, and the
-    # router.base mistake, where the HTML loads but every asset resolves to the
-    # domain root and 404s. The second looks like a broken build rather than a
-    # config error, so check for it explicitly.
-    - section_start "smoke" "Checking the generated output"
-    - test -f public/index.html || { echo "No index.html generated."; exit 1; }
     - |
-      if ! grep -qi '<title>' public/index.html; then
-        echo "index.html has no <title>; the build produced a shell." >&2
-        exit 1
-      fi
-      base="/${CI_PROJECT_NAME}/${CI_COMMIT_REF_SLUG}/"
-      if ! grep -q "${base}_nuxt/" public/index.html; then
-        echo "Asset paths do not carry the router base ${base}." >&2
-        echo "Every /_nuxt/ request would 404 under the Pages prefix." >&2
-        grep -o '/_nuxt/[^\"]*' public/index.html | head -3 >&2
-        exit 1
-      fi
-      echo "Title:  $(sed -n 's/.*<title>\(.*\)<\/title>.*/\1/p' public/index.html | head -1)"
-      echo "Base:   ${base}"
-      echo "Routes: $(find public -name '*.html' | wc -l)"
-    - section_end "smoke"
-    - echo "Preview will be at ${CI_PAGES_URL}/"
-  artifacts:
-    paths:
-      - public
+      # Assert the output is real, not merely present. A shell with no title is
+      # the failure this estate keeps hitting.
+      test -f dist/index.html || { echo "No index.html generated." >&2; exit 1; }
+      grep -qi '<title>' dist/index.html || { echo "index.html has no title; build produced a shell." >&2; exit 1; }
+      echo "Title:  $(sed -n 's/.*<title>\(.*\)<\/title>.*/\1/p' dist/index.html | head -1)"
+      echo "Routes: $(find dist -name '*.html' | wc -l)"
+    - section_start "tunnel" "Starting the preview tunnel"
+    - |
+      cloudflared_version="2026.8.3"
+      case "$(uname -m)" in
+        aarch64|arm64)
+          cloudflared_arch=arm64
+          cloudflared_sha256=4bcfd35521a7cbc545ebfd5d57334a71ee180e2a64874981f374c81472118391
+          ;;
+        x86_64)
+          cloudflared_arch=amd64
+          cloudflared_sha256=f29324fe934d1e100617484c78deef803c4dc2cd351d645bbde42e96b4fccc5e
+          ;;
+        *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+      esac
+      url="https://github.com/cloudflare/cloudflared/releases/download/${cloudflared_version}"
+      curl -fsSL "${url}/cloudflared-linux-${cloudflared_arch}" -o /usr/local/bin/cloudflared
+      echo "${cloudflared_sha256}  /usr/local/bin/cloudflared" | sha256sum -c -
+      chmod +x /usr/local/bin/cloudflared
+    - npx --yes serve --no-clipboard --no-port-switching -l 8080 dist &
+    - npx --yes wait-on http://127.0.0.1:8080
+    - echo "Tunnel starting - the preview URL appears below as https://*.trycloudflare.com"
+    # cloudflared self-updates and restarts mid-run by default, which kills the
+    # tunnel whose URL was already printed and starts a new one silently.
+    - cloudflared tunnel --url http://127.0.0.1:8080 --no-autoupdate
+
+# Disabled: GitLab Pages is configured on this project but the Pages host does
+# not resolve on this instance. Kept so the preview moves to a persistent
+# per-branch URL the moment it does. router.base must be the full path
+# including the project segment, /<project>/<prefix>/, or every asset 404s.
+pages:
+  extends: .node
+  stage: preview
+  needs: []
+  rules:
+    - when: never
+  variables:
+    BASE_URL: $BACKEND_URL
+    API_PROXY: '0'
+  script:
+    - export ROUTER_BASE="/${CI_PROJECT_NAME}/${CI_COMMIT_REF_SLUG}/"
+    - yarn generate
+  pages:
+    publish: nuxt/dist
+    path_prefix: "$CI_COMMIT_REF_SLUG"
     expire_in: 1 week
-  environment:
-    name: preview/$CI_COMMIT_REF_SLUG
-    url: $CI_PAGES_URL
 
 #
 # --- Secret detection ---
@@ -217,7 +322,7 @@ secret-detection:
       echo "${gitleaks_sha256}  /tmp/gitleaks.tar.gz" | sha256sum -c -
       tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
       chmod +x /tmp/gitleaks
-    - /tmp/gitleaks dir . --no-banner --redact --report-path gitleaks-report.json
+    - /tmp/gitleaks dir . --no-banner --redact --config .gitleaks.toml --report-path gitleaks-report.json
   artifacts:
     when: always
     paths:

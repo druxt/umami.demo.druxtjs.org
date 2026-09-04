@@ -27,12 +27,12 @@
 
       <b-col class="my-4">
         <b-row class="h-50 mb-3">
-          <!-- Preperation time. -->
+          <!-- Preparation time. -->
           <b-col cols="6" class="my-auto text-center">
             <slot name="field_preparation_time" />
           </b-col>
 
-          <!-- Preperation time. -->
+          <!-- Preparation time. -->
           <b-col cols="6" class="my-auto text-center">
             <slot name="field_cooking_time" />
           </b-col>

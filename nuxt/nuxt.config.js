@@ -13,7 +13,7 @@ export default {
       '/node/preview/default',
       '/node/preview/full',
       '/node/preview/rss',
-      '/node/preview/teaser'
+      '/node/preview/teaser',
     ],
   },
 

@@ -5,7 +5,7 @@
 [![ci](https://github.com/druxt/umami.demo.druxtjs.org/actions/workflows/test.yml/badge.svg)](https://github.com/druxt/umami.demo.druxtjs.org/actions/workflows/test.yml)
 [![storybook](https://raw.githubusercontent.com/storybooks/brand/master/badge/badge-storybook.svg)](https://storybook.umami.demo.druxtjs.org/)
 
-This is a demonstation of how to create a DruxtSite using the Drupal 9 Umami installation profile.
+This is a demonstration of how to create a DruxtSite using the Drupal 9 Umami installation profile.
 
 View the site @ https://umami.demo.druxtjs.org
 
@@ -21,7 +21,7 @@ View the site @ https://umami.demo.druxtjs.org
 
 ## Contributing
 
-This repostiory is setup to be used with Gitpod:
+This repository is set up to be used with Gitpod:
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/druxt/umami.demo.druxtjs.org)
 

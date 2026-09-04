@@ -2,7 +2,10 @@
   <div class="druxt-node-preview">
     <ClientOnly v-if="!$fetchState.pending">
       <DruxtEntity v-if="entity" v-model="entity" v-bind="props" />
-      <DruxtDebug v-else summary="An error has occured while access the preview data from your Drupal backend.">
+      <DruxtDebug
+        v-else
+        summary="An error occurred while accessing the preview data from your Drupal backend."
+      >
         <a :href="url" target="_blank" v-text="url" />
         <b-textarea v-model="model" />
       </DruxtDebug>
@@ -26,13 +29,12 @@ export default {
   // Fetch the node preview.
   async fetch() {
     try {
-      const { data } = await this.$druxt.axios.get(
-        this.url,
-        { withCredentials: true }
-      )
+      const { data } = await this.$druxt.axios.get(this.url, {
+        withCredentials: true,
+      })
       this.entity = (data || {}).data
       this.response = data
-    } catch(err) {
+    } catch (err) {
       this.response = err.response
     }
   },
@@ -47,14 +49,14 @@ export default {
       const parts = url.split('/')
       return {
         mode: $route.params.view_mode,
-        type: [parts[parts.length - 4], parts[parts.length - 3]].join('--')
+        type: [parts[parts.length - 4], parts[parts.length - 3]].join('--'),
       }
     },
 
     /**
      * The JSON:API Node Preview URL.
      */
-    url: ({ $route }) => $route.hash.substring(1).replace(':/', '://')
+    url: ({ $route }) => $route.hash.substring(1).replace(':/', '://'),
   },
 
   watch: {
@@ -63,8 +65,8 @@ export default {
         const data = JSON.parse(this.model)
         this.entity = (data || {}).data
         this.response = data
-      } catch(err) {}
-    }
-  }
+      } catch (err) {}
+    },
+  },
 }
 </script>
