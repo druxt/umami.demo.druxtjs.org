@@ -151,29 +151,23 @@ lint:cspell:
     - section_end "cspell"
 
 commitlint:
+  extends: .node
   stage: lint
-  image: $TOOLS_IMAGE
   interruptible: true
   needs: []
-  before_script: []
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-  variables:
-    GIT_DEPTH: 0
   script:
-    # Both packages must be installed with --package; passing the config as a
-    # positional argument makes commitlint reject it as an unknown argument.
+    # commitlint is already a devDependency here (@commitlint/cli 17.7.1), so
+    # run the installed binary rather than npx. npx cannot work: commitlint
+    # resolves `extends` from the working directory, not from its own install
+    # prefix, so the config package is never found however it is passed.
     #
-    # --extends rather than --config nuxt/commitlint.config.js: commitlint
-    # resolves a config file's `extends` relative to that file's directory, and
-    # @commitlint/config-conventional is not installed under nuxt/ (npx puts it
-    # in a temp prefix), so pointing at the file fails with MODULE_NOT_FOUND.
-    # The repo config contains nothing but that same extends, so this is
-    # equivalent. If it ever gains rules, install commitlint in nuxt/ instead.
-    - git fetch -q origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
-    - npx --yes --package @commitlint/cli@17 --package @commitlint/config-conventional@17
-      -- commitlint --extends @commitlint/config-conventional
-      --from "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" --to HEAD --verbose
+    # git-raw-commits shells out to `git log`, which refuses to run when the
+    # checkout's owning UID differs from the container's. Not specific to this
+    # job; commitlint is just the one that invokes git directly.
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - yarn commitlint --from "$CI_MERGE_REQUEST_DIFF_BASE_SHA" --to "$CI_COMMIT_SHA" --verbose
 
 #
 # --- Preview ---
