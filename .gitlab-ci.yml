@@ -123,13 +123,28 @@ pages:
     # before spending build time.
     - section_start "wake" "Waking the demo backend"
     - |
+      # Assert the response is JSON:API, not merely a 200. A status-only check
+      # is not enough here: this estate has sites that answer 200 with an HTML
+      # shell for any path, and Lagoon serves its own holding page while an
+      # environment scales up. Either would pass a status check and then fail
+      # the generate step with a far less obvious error.
+      ok=
       for i in $(seq 1 30); do
-        code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$BACKEND_URL/en/jsonapi" || echo 000)
-        echo "attempt $i: $code"
-        [ "$code" = "200" ] && break
+        body=$(curl -s --max-time 30 -H 'Accept: application/vnd.api+json' "$BACKEND_URL/en/jsonapi" || true)
+        code=$(curl -s -o /dev/null --max-time 30 -w '%{http_code}' "$BACKEND_URL/en/jsonapi" || echo 000)
+        case "$body" in
+          *'"jsonapi"'*) ok=1 ;;
+          *) ok= ;;
+        esac
+        echo "attempt $i: http=$code jsonapi=${ok:-no}"
+        [ -n "$ok" ] && break
         sleep 10
       done
-      [ "$code" = "200" ] || { echo "Backend did not wake; cannot generate."; exit 1; }
+      if [ -z "$ok" ]; then
+        echo "Backend never returned a JSON:API document (last status $code)." >&2
+        echo "It is idled, broken, or answering with a holding page." >&2
+        exit 1
+      fi
     - section_end "wake"
     - section_start "generate" "nuxt generate"
     - export ROUTER_BASE="/${CI_PROJECT_NAME}/${CI_COMMIT_REF_SLUG}/"
