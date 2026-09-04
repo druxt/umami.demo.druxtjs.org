@@ -163,10 +163,16 @@ commitlint:
   script:
     # Both packages must be installed with --package; passing the config as a
     # positional argument makes commitlint reject it as an unknown argument.
-    # The config lives in nuxt/, so point at it explicitly.
+    #
+    # --extends rather than --config nuxt/commitlint.config.js: commitlint
+    # resolves a config file's `extends` relative to that file's directory, and
+    # @commitlint/config-conventional is not installed under nuxt/ (npx puts it
+    # in a temp prefix), so pointing at the file fails with MODULE_NOT_FOUND.
+    # The repo config contains nothing but that same extends, so this is
+    # equivalent. If it ever gains rules, install commitlint in nuxt/ instead.
     - git fetch -q origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
     - npx --yes --package @commitlint/cli@17 --package @commitlint/config-conventional@17
-      -- commitlint --config nuxt/commitlint.config.js
+      -- commitlint --extends @commitlint/config-conventional
       --from "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" --to HEAD --verbose
 
 #
