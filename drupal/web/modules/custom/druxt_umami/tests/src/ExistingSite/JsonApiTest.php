@@ -132,6 +132,49 @@ class JsonApiTest extends DruxtUmamiTestBase {
   }
 
   /**
+   * The consumer the login flow uses is actually usable.
+   *
+   * Simple OAuth 6 changed three things that each fail closed and silently:
+   * the client is resolved by the consumer's client_id field rather than its
+   * uuid, every grant is gated on the grant_types field, and the endpoint
+   * cannot sign without a generated key pair. Any of them missing answers
+   * invalid_client, which is indistinguishable from a routing test passing.
+   */
+  public function testOauthConsumerIsUsable(): void {
+    $consumers = \Drupal::entityTypeManager()
+      ->getStorage('consumer')
+      ->loadByProperties(['label' => 'Druxt']);
+    $consumer = reset($consumers);
+    $this->assertNotFalse($consumer, 'The Druxt consumer exists.');
+    $this->assertNotEmpty($consumer->getClientId(), 'The consumer has a client_id.');
+
+    $grants = array_column($consumer->get('grant_types')->getValue(), 'value');
+    $this->assertContains('authorization_code', $grants);
+    $this->assertContains('refresh_token', $grants);
+
+    $settings = \Drupal::config('simple_oauth.settings');
+    foreach (['public_key', 'private_key'] as $key) {
+      $path = \Drupal::service('file_system')->realpath($settings->get($key))
+        ?: DRUPAL_ROOT . '/' . $settings->get($key);
+      $this->assertFileExists($path, "The $key exists.");
+    }
+
+    // A bogus code must be rejected as a bad grant, not as an unknown client:
+    // invalid_client would mean none of the above is actually wired up.
+    $response = $this->request('POST', '/oauth/token', [
+      'form_params' => [
+        'grant_type' => 'authorization_code',
+        'client_id' => $consumer->getClientId(),
+        'code' => 'not-a-real-code',
+        'redirect_uri' => 'http://localhost:3000/callback',
+      ],
+    ]);
+    $data = json_decode((string) $response->getBody(), TRUE, 512, JSON_THROW_ON_ERROR);
+    $this->assertSame('invalid_grant', $data['error']);
+    $this->assertSame(400, $response->getStatusCode());
+  }
+
+  /**
    * The OAuth token endpoint is routed and validates its input.
    *
    * A bare POST must be rejected by simple_oauth rather than by the router, so
