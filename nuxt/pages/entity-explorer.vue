@@ -41,7 +41,9 @@
 
           <div class="mt-4">
             <span class="stat-grid__label">Editable</span>
-            <VueLiveEditor class="mt-2" :code="code" />
+            <client-only>
+              <VueLiveEditor class="mt-2" :code="code" />
+            </client-only>
           </div>
 
           <AppDruxtNote
@@ -77,7 +79,9 @@
             style="background: #faf4ea; border: 1px solid #e6ddcd"
           >
             <div style="max-width: 320px; width: 100%">
-              <VueLivePreview :code="code" />
+              <client-only>
+                <VueLivePreview :code="code" />
+              </client-only>
             </div>
           </div>
 
@@ -101,7 +105,6 @@
 
 <script>
 import { DrupalJsonApiParams } from 'drupal-jsonapi-params'
-import { VueLiveEditor, VueLivePreview } from 'vue-live'
 import { mapActions } from 'vuex'
 
 import 'prismjs/themes/prism-tomorrow.css'
@@ -110,7 +113,14 @@ import 'vue-prism-editor/dist/prismeditor.min.css'
 export default {
   name: 'EntityExplorer',
 
-  components: { VueLiveEditor, VueLivePreview },
+  // vue-live is not SSR-safe: it reads a browser global at module scope and
+  // throws "Cannot read properties of undefined (reading 'get')" during
+  // `nuxt generate`, which failed this route and left it a 404 in the static
+  // build. Loaded lazily and rendered inside <client-only>.
+  components: {
+    VueLiveEditor: () => import('vue-live').then((m) => m.VueLiveEditor),
+    VueLivePreview: () => import('vue-live').then((m) => m.VueLivePreview),
+  },
 
   layout: 'plain',
 
