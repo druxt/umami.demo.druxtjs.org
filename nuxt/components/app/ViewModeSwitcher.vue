@@ -49,9 +49,14 @@ export default {
       required: true,
     },
 
+    /**
+     * `full` is deliberately absent: this switcher renders a DruxtEntity, so
+     * offering `full` from inside a full renderer nests another copy of it.
+     * Pass it explicitly only where that cannot happen.
+     */
     modes: {
       type: Array,
-      default: () => ['card', 'teaser', 'full'],
+      default: () => ['card', 'teaser'],
     },
   },
 
