@@ -17,9 +17,11 @@ opencode
 persistedstate
 prismeditor
 quickstart
+scroller
 Searchbar
 toggleable
 umami
 uselagoon
+unscrimmed
 viewports
 wordmark

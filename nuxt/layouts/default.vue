@@ -75,6 +75,9 @@
           </b-container>
         </div>
 
+        <!-- A hard 520px is wider than a phone, which put the page into
+             horizontal scroll behind the backdrop. min() keeps the desktop
+             panel and makes the phone one full-bleed. -->
         <b-sidebar
           id="search"
           backdrop
@@ -82,7 +85,7 @@
           no-header
           right
           shadow
-          width="520px"
+          width="min(520px, 100vw)"
         >
           <DruxtSearchbar />
         </b-sidebar>
