@@ -9,6 +9,10 @@
 
 // ---------------------------------------------------------------- tokens
 
+// Both header bars stick. The masthead offsets by exactly the demo bar's
+// height so the two stack rather than share a strip; both read this.
+$demo-bar-height: 38px;
+
 $paper: #fdfbf7;
 $paper-warm: #faf4ea;
 $paper-deep: #f6efe4;
@@ -589,10 +593,6 @@ h4 {
 }
 
 // ---------------------------------------------------------------- promo layer
-
-// Both bars stick. The masthead offsets by exactly the demo bar's height, so
-// the two stack instead of overlapping; keep them tied to this variable.
-$demo-bar-height: 38px;
 
 .demo-bar {
   position: sticky;
