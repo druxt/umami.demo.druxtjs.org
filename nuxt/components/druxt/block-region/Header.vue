@@ -1,27 +1,28 @@
 <template>
-  <b-container>
+  <div class="masthead">
     <!-- Branding -->
     <slot name="umami_branding" />
 
     <b-navbar-toggle target="nav-collapse" />
 
-    <b-collapse id="nav-collapse" class="ml-auto" is-nav>
-      <b-navbar-nav class="ml-auto">
-        <b-nav-item>
-          <b-button v-b-toggle.search><BIconSearch /></b-button>
-        </b-nav-item>
-      </b-navbar-nav>
-
+    <b-collapse id="nav-collapse" class="masthead__nav" is-nav>
       <!-- Main menu -->
-      <div class="ml-auto">
-        <!-- <b-navbar-nav class="justify-content-end">
-          <b-nav-item v-if="!$auth.loggedIn" to="/login">Login</b-nav-item>
-          <b-nav-item v-else @click="$auth.logout()">Log out</b-nav-item>
-        </b-navbar-nav> -->
-        <DruxtBlockSystemMenuBlockMain />
+      <DruxtBlockSystemMenuBlockMain />
+
+      <div class="masthead__utils">
+        <button v-b-toggle.search class="masthead__search" type="button">
+          <BIconSearch aria-hidden="true" />
+          Search recipes
+        </button>
+
+        <span class="masthead__lang">
+          <nuxt-link :to="path('en')">EN</nuxt-link>
+          <span style="color: #c4b9a8">/</span>
+          <nuxt-link :to="path('es')" style="color: #a2988a">ES</nuxt-link>
+        </span>
       </div>
     </b-collapse>
-  </b-container>
+  </div>
 </template>
 
 <script>
@@ -29,5 +30,23 @@ import { BIconSearch } from 'bootstrap-vue'
 
 export default {
   components: { BIconSearch },
+
+  methods: {
+    /**
+     * Swap the language prefix on the current route. Druxt resolves the
+     * translated route client-side, so this is a normal in-app navigation
+     * with no full page load.
+     */
+    path(langcode) {
+      const path = this.$route.path
+      if (/^\/(en|es)(\/|$)/.test(path)) {
+        return path.replace(/^\/(en|es)/, `/${langcode}`)
+      }
+      // Unprefixed routes exist (the explorer uses the plain layout and still
+      // renders this header). Without this both links resolve to the current
+      // path and the switcher looks dead.
+      return `/${langcode}${path === '/' ? '' : path}`
+    },
+  },
 }
 </script>
