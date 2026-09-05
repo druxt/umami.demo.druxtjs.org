@@ -64,3 +64,26 @@ Rerolled against **druxt 1.2.2**, with three changes from the raw MR diff:
 
 This demo exists partly to prove these out so they can go upstream. When MR!8
 lands, delete this file and the `jsonapi_node_preview` requires with it.
+
+## `decoupled_router-3111456-resolve-language-from-path.patch`
+
+Issue: [#3111456 Resolve the language from the requested path](https://www.drupal.org/project/decoupled_router/issues/3111456)
+
+Snapshot of the copy druxt.js carries, cut against **decoupled_router 2.0.5**,
+which is the version this site pins.
+
+Vendored rather than fetched from `raw.githubusercontent.com/.../develop/...`.
+That URL is a branch, so the file behind it changes without the URL changing:
+druxt.js is re-cutting this patch against 2.0.7, and the day that lands, a
+build here would fetch a patch for a version it is not on and fail. Drop this
+file and the pin together when the site moves to 2.0.7.
+
+## `decoupled_router-3468825-mr20.patch`
+
+Issue: [#3468825](https://www.drupal.org/project/decoupled_router/issues/3468825)
+Merge request: [MR!20](https://git.drupalcode.org/project/decoupled_router/-/merge_requests/20)
+
+Snapshot at head `a6ac1a8b`, base `be1af9cc`. Same reason as the others: a
+merge request diff is regenerated on every push and composer-patches
+hash-locks it. Reported as fixed upstream and expected to fail against 2.0.7,
+so it should drop at that move.

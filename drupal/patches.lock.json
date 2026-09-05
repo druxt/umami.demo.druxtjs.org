@@ -1,5 +1,5 @@
 {
-    "_hash": "973717c24abf277afb23d46cf4654269788f654a095f16d6a525a4e8989bcbbe",
+    "_hash": "de4eb8f125ebe10990194cc8c3b170db7e77e7481dd2462a25917be8594311d8",
     "patches": {
         "drupal/decoupled_router": [
             {
@@ -15,7 +15,7 @@
             {
                 "package": "drupal/decoupled_router",
                 "description": "https://www.drupal.org/project/decoupled_router/issues/3468825",
-                "url": "https://git.drupalcode.org/project/decoupled_router/-/merge_requests/20.diff",
+                "url": "patches/decoupled_router-3468825-mr20.patch",
                 "sha256": "e57e51602df51a4d4497ff5dfc382c47d5b21b0067cde4d1df0e64f772729e7d",
                 "depth": 1,
                 "extra": {
@@ -25,7 +25,7 @@
             {
                 "package": "drupal/decoupled_router",
                 "description": "#3111456 Resolve the language from the requested path",
-                "url": "https://raw.githubusercontent.com/druxt/druxt.js/develop/docs/drupal/patches/decoupled_router-3111456-resolve-language-from-path.patch",
+                "url": "patches/decoupled_router-3111456-resolve-language-from-path.patch",
                 "sha256": "3e184a6d2a869e12eb0fd7e1c65ccf4eb8f2fb5a0aeaae35b05ad7bf48e59b38",
                 "depth": 1,
                 "extra": {
