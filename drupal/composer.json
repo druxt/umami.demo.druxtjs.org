@@ -12,7 +12,7 @@
     "require": {
         "amazeeio/drupal_integrations": "0.3.7",
         "composer/installers": "2.2.0",
-        "cweagans/composer-patches": "1.7.3",
+        "cweagans/composer-patches": "2.0.0",
         "drupal-tome/tome_drush": "dev-master",
         "drupal/anonymous_redirect": "2.2.0-rc1",
         "drupal/core-composer-scaffold": "9.5.10",
