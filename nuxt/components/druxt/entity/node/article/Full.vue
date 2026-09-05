@@ -2,7 +2,14 @@
   <article>
     <!-- Centred title block, full-bleed lead image. -->
     <b-row>
-      <b-col cols="12" lg="8" offset-lg="2" class="text-center">
+      <b-col
+        cols="12"
+        md="10"
+        offset-md="1"
+        lg="8"
+        offset-lg="2"
+        class="text-center"
+      >
         <div class="d-flex justify-content-center mb-3">
           <slot name="field_tags" />
         </div>
@@ -25,14 +32,14 @@
     </div>
 
     <b-row class="mt-5">
-      <b-col cols="12" lg="8">
+      <b-col cols="12" md="8">
         <div class="field--body">
           <slot name="body" />
         </div>
       </b-col>
 
-      <b-col cols="12" lg="4" class="mt-5 mt-lg-0 pl-lg-5">
-        <AppDevRegion
+      <b-col cols="12" md="4" class="mt-5 mt-md-0 pl-md-4">
+        <DevRegion
           label='DruxtView view-id="articles_aside"'
           source="components/druxt/entity/node/article/Full.vue"
         >
@@ -65,7 +72,7 @@
               />
             </template>
           </DruxtView>
-        </AppDevRegion>
+        </DevRegion>
 
         <AppDruxtNote
           class="mt-4"

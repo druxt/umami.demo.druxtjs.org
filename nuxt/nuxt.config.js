@@ -7,9 +7,6 @@ export default {
 
   generate: {
     routes: [
-      // Not linked from any crawlable page, so the generator cannot discover
-      // it and the route 404s in the static build unless it is listed here.
-      '/entity-explorer',
       '/node/preview/card',
       '/node/preview/card_common',
       '/node/preview/card_common_alt',
@@ -60,9 +57,8 @@ export default {
   plugins: [{ src: '~/plugins/vuex-persistedstate.client.js' }],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
-  // Every component in `~/components/app` takes the `App` prefix, so they are
-  // used as <AppDemoBar />, <AppDevRegion />, <AppDruxtNote /> and so on.
-  // pathPrefix is off so the directory name is not repeated in the tag.
+  // `~/components/app` is flattened so the promo components are usable as
+  // <AppDemoBar />, <AppDruxtNote />, <DevRegion /> and so on.
   components: [
     '~/components',
     { path: '~/components/app', prefix: 'App', pathPrefix: false },
@@ -202,13 +198,6 @@ export default {
     '/es/jsonapi': baseUrl,
   },
 
-  // Serve from a subdirectory when previewing. GitLab Pages publishes each
-  // branch under /<project>/<branch-slug>/, and without this every /_nuxt/
-  // asset resolves to the domain root and 404s. Unset in production.
-  router: {
-    base: process.env.ROUTER_BASE || '/',
-  },
-
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
     extend(config) {
@@ -216,11 +205,6 @@ export default {
     },
 
     extractCSS: true,
-
-    // vue-live ships modern syntax (nullish coalescing, optional chaining).
-    // Nuxt 2's webpack 4 build excludes node_modules from babel, so it has to
-    // be transpiled explicitly or the entity explorer fails to compile.
-    transpile: ['vue-live'],
   },
 
   storybook,
