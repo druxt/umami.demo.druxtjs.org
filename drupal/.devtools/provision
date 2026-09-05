@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+#
+# Provision a throwaway Drupal for the frontend to build against.
+#
+# Docker-free: PHP's built-in server and SQLite, no DDEV, no MySQL. The point
+# is that `nuxt generate` and the Cypress suite have a real backend to talk to
+# in CI and on a laptop, not that this is how the demo is deployed. Lagoon
+# still builds the real thing from .lagoon.yml.
+#
+# A *fresh* demo_umami install, deliberately, rather than importing the
+# committed config and Tome content. Those 366 config and 313 content files
+# were authored against Drupal 9 and DDEV's MySQL, and adopting them would
+# mean porting them before anything could run. Umami is a core install
+# profile, so a fresh install gives the same content model for free.
+#
+# druxt_umami's hook_install() does the Druxt configuration: Gin, the
+# anonymous-redirect allowlist, JSON:API write access, the Simple OAuth keys
+# and the consumer. Enabling it is the provisioning step.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+DB="${DRUPAL_SQLITE_PATH:-$PWD/.devtools/db.sqlite}"
+DRUSH="$PWD/vendor/bin/drush"
+
+# A demo_umami install exceeds PHP's default 128M. This drush launcher does
+# not honour PHP_OPTIONS, so the override is loaded as an ini file instead.
+export PHP_INI_SCAN_DIR="$PWD/.devtools/etc:${PHP_INI_SCAN_DIR:-}"
+SITE_NAME="${DRUPAL_SITE_NAME:-Druxt Umami demo}"
+ACCOUNT_PASS="${DRUPAL_ACCOUNT_PASS:-admin}"
+
+[ -x "$DRUSH" ] || { echo "drush not found at $DRUSH; run composer install first." >&2; exit 1; }
+
+echo "==> Fresh demo_umami install (sqlite: $DB)"
+mkdir -p "$(dirname "$DB")"
+rm -f "$DB"
+chmod -R u+w web/sites/default 2>/dev/null || true
+
+# The db-url parser requires a host segment, so an absolute path needs the
+# extra slash that "localhost/$DB" produces.
+"$DRUSH" site:install demo_umami \
+  --db-url="sqlite://localhost/$DB" \
+  --site-name="$SITE_NAME" \
+  --account-name=admin \
+  --account-pass="$ACCOUNT_PASS" \
+  --yes \
+  --no-interaction
+
+echo "==> Enabling the Druxt layer"
+# druxt_umami depends on druxt, druxt_node_preview, jsonapi_hypermedia,
+# search_api_lunr, simple_oauth, gin_login and anonymous_redirect, so Drupal
+# pulls the rest in. jsonapi_views and jsonapi_menu_items are what DruxtView
+# and DruxtMenu read, and are not dependencies of druxt_umami.
+"$DRUSH" pm:install -y \
+  druxt_umami \
+  jsonapi_menu_items \
+  jsonapi_views \
+  jsonapi_node_preview \
+  jsonapi_node_preview_tab
+
+echo "==> Rebuilding caches"
+"$DRUSH" cache:rebuild
+
+echo
+echo "Provisioned. Start it with .devtools/start, or point BASE_URL at it."
