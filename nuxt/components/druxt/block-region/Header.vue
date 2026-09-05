@@ -1,5 +1,8 @@
 <template>
-  <div class="masthead">
+  <!-- b-navbar, not a plain div: bootstrap-vue needs the navbar-expand-lg
+       class it emits, or navbar-collapse never expands and navbar-toggler
+       never hides, at any width. -->
+  <b-navbar toggleable="lg" class="masthead">
     <!-- Branding -->
     <slot name="umami_branding" />
 
@@ -22,7 +25,7 @@
         </span>
       </div>
     </b-collapse>
-  </div>
+  </b-navbar>
 </template>
 
 <script>

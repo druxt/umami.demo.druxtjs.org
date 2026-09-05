@@ -833,3 +833,85 @@ h4 {
   color: $druxt-blue;
   padding: 0.875rem 1.125rem;
 }
+
+// ------------------------------------------------------------------- mobile
+//
+// The handover mockup carried no media queries: it was composed at desktop
+// width only. These rules are additions rather than corrections to it, and
+// they exist because several of the desktop decisions overflow a phone.
+//
+// Breakpoints follow Bootstrap 4, which bootstrap-vue emits against: the
+// masthead uses lg (992px) because `b-navbar toggleable="lg"` collapses
+// there, and everything else uses md (768px).
+
+@media (max-width: 991.98px) {
+  .masthead {
+    flex-wrap: wrap;
+    padding: 0 1rem;
+    row-gap: 0;
+
+    // The collapse is full width below the brand, so the nav stacks rather
+    // than sitting in a row that cannot fit.
+    &__nav {
+      align-items: stretch;
+      flex-direction: column;
+      gap: 0;
+      padding-bottom: 1rem;
+    }
+
+    // The vertical rule and its indent only make sense beside the menu.
+    &__utils {
+      border-left: 0;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding: 0.75rem 0 0;
+    }
+
+    // 170px plus the indent is wider than the space left on a small phone.
+    &__search {
+      min-width: 0;
+      width: 100%;
+    }
+
+    &__menu {
+      gap: 0;
+    }
+  }
+}
+
+@media (max-width: 767.98px) {
+  // The banner reserves half a screen of height and indents its text by 2rem
+  // against a gradient sized for a wide viewport.
+  .recipe-card__body,
+  .banner__body {
+    min-height: 320px;
+    padding: 2rem 1rem;
+  }
+
+  // Two equal columns cannot hold their content at phone width.
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  // Right-aligned pills read as ragged when they wrap onto three lines.
+  .collections__list {
+    justify-content: flex-start;
+  }
+
+  .section {
+    padding: 2.5rem 0;
+  }
+}
+
+// The dev overlay label is absolutely positioned and holds a component
+// signature such as `DruxtBlockRegion name="banner_top"`. Unconstrained, it is
+// wider than a phone and is itself a source of horizontal scroll, so it wraps
+// and stays inside the region it labels.
+@media (max-width: 767.98px) {
+  .dev-region__label {
+    left: 4px;
+    max-width: calc(100% - 8px);
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+}
