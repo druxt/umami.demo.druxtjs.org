@@ -1,7 +1,7 @@
 <template>
   <article>
     <b-row>
-      <b-col cols="12" lg="7">
+      <b-col cols="12" md="7">
         <div
           class="d-flex flex-wrap align-items-center mb-3"
           style="gap: 0.5rem"
@@ -21,7 +21,7 @@
         </div>
       </b-col>
 
-      <b-col cols="12" lg="5" class="mt-4 mt-lg-0 pl-lg-5">
+      <b-col cols="12" md="5" class="mt-4 mt-md-0 pl-md-4">
         <!-- Prep / cook / servings / difficulty, as a single quiet block. -->
         <div class="stat-grid">
           <div class="stat-grid__cell">
@@ -50,8 +50,6 @@
           </div>
         </div>
 
-        <!-- No `full`: this component is the full renderer, so selecting it
-             would nest another one, with its own switcher, form and drawer. -->
         <AppViewModeSwitcher
           class="mt-4"
           :modes="['card', 'teaser']"
@@ -59,7 +57,7 @@
           :uuid="entity.id"
         />
 
-        <AppDevRegion
+        <DevRegion
           class="mt-4"
           entity
           label="DruxtEntityForm"
@@ -106,7 +104,7 @@
               </div>
             </b-collapse>
           </div>
-        </AppDevRegion>
+        </DevRegion>
 
         <AppJsonApiDrawer class="mt-3" :path="jsonApiPath" />
       </b-col>

@@ -1,86 +1,59 @@
 <template>
-  <b-container fluid>
-    <!-- Header -->
+  <div>
+    <AppDemoBar />
+
+    <!-- Same masthead as the default layout, so the explorer does not read as
+         a different site. -->
     <DruxtBlockRegion
       name="header"
       theme="umami"
       :wrapper="{
-        class: ['bg-white', 'p-3'],
         component: 'b-navbar',
-        propsData: {
-          sticky: true,
-          toggleable: 'lg',
-        },
+        propsData: { sticky: true, toggleable: 'lg' },
       }"
     />
 
-    <!-- Content -->
-    <b-row class="bg-light">
-      <b-container :class="containerClass">
-        <slot v-if="$slots.default" />
-        <Nuxt v-else />
-      </b-container>
-    </b-row>
+    <slot v-if="$slots.default" />
+    <Nuxt v-else />
 
-    <!-- Footer -->
-    <b-row class="bg-dark text-white">
-      <b-container
-        :class="containerClass.concat(['text-center', 'text-md-left'])"
-      >
-        <DruxtBlockRegion name="footer" theme="umami" />
-      </b-container>
-    </b-row>
+    <AppDruxtCta />
 
-    <!-- Bottom -->
-    <b-row>
-      <b-container
-        :class="containerClass.concat(['text-center', 'text-md-left'])"
-      >
+    <div class="disclaimer">
+      <b-container>
         <DruxtBlockRegion name="bottom" theme="umami" />
       </b-container>
-    </b-row>
+    </div>
 
-    <!-- Sidebar search -->
     <b-sidebar
       id="search"
-      title="Search"
       backdrop
-      shadow
       no-close-on-route-change
+      no-header
       right
+      shadow
+      width="min(520px, 100vw)"
     >
       <DruxtSearchbar />
     </b-sidebar>
-  </b-container>
+  </div>
 </template>
 
 <script>
-export default {
-  computed: {
-    containerClass: () => ['mb-3', 'mt-3', 'mb-md-5', 'mt-md-5'],
-  },
-}
+/**
+ * Chrome-light layout for the playground pages (currently the Entity
+ * Explorer). It keeps the demo bar, masthead, CTA and disclaimer, and drops
+ * the banner, breadcrumb, content and footer regions — the page owns its own
+ * full-width header instead.
+ *
+ * This layout previously carried an UNSCOPED <style> block left over from
+ * before the uplift: the Source Sans Pro stack, `word-spacing: 1px` and
+ * `.sticky-top { margin: 0 -15px }`. Because it was global rather than
+ * scoped, it overrode assets/scss/theme.scss for the whole application
+ * whenever this layout mounted — the explorer lost Archivo and Newsreader
+ * entirely. It also wrapped everything in `b-container fluid` and used
+ * `bg-dark text-white` on the footer, which the theme re-skins to paper and
+ * ink, giving near-white text on near-white. All of it is gone; the theme is
+ * the only stylesheet.
+ */
+export default {}
 </script>
-
-<style>
-html {
-  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 16px;
-  word-spacing: 1px;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  box-sizing: border-box;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-}
-
-.sticky-top {
-  margin: 0 -15px;
-}
-</style>

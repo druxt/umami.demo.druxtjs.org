@@ -71,14 +71,14 @@ export default {
 }
 </script>
 
-<style scoped>
-/* The old banner used background-attachment: fixed, which janks badly on
-   iOS and fought the overlay card. It is a real <img> with a gradient scrim
-   now, so the photograph can be object-fit cropped per breakpoint. */
-@media (max-width: 767px) {
-  .banner,
-  .banner__body {
-    min-height: 380px;
-  }
-}
-</style>
+<!--
+  No scoped styles. The banner's height and scrim direction live in
+  assets/scss/theme.scss (.banner and its @media (max-width: 767.98px) block)
+  so there is a single source of truth — the earlier scoped rule set a
+  competing height at a breakpoint 0.98px away from the theme's, and neither
+  matched at 767.5px.
+
+  The old banner used background-attachment: fixed, which janks on iOS. It is a
+  real <img> with a gradient scrim now, so the photograph can be object-fit
+  cropped per breakpoint.
+-->

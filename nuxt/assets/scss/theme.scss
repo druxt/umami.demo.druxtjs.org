@@ -9,21 +9,19 @@
 
 // ---------------------------------------------------------------- tokens
 
-// Both header bars stick. The masthead offsets by exactly the demo bar's
-// height so the two stack rather than share a strip; both read this.
-$demo-bar-height: 38px;
-
 $paper: #fdfbf7;
 $paper-warm: #faf4ea;
 $paper-deep: #f6efe4;
 $rule: #e6ddcd;
 $rule-strong: #e0d6c6;
+$rule-faint: #f0e7d8;
 
 $ink: #241f1a;
 $ink-soft: #55504a;
 $ink-muted: #6b625a;
-$ink-faint: #8a7f70;
-$ink-ghost: #a2988a;
+$ink-faint: #776c5e; // 4.97:1 on $paper — was #8a7f70 at 3.80:1
+$ink-ghost: #6f6454; // 4.97:1 on $paper-warm, 5.40:1 on $paper
+$ink-ghost-dark: #b3a894; // for ghost text on the $ink band — 6.9:1
 
 $spice: #7d4a1a; // single editorial accent
 $spice-dark: #5f3813;
@@ -32,7 +30,8 @@ $night: #3a2f24;
 
 // Promo layer only.
 $druxt-navy: #2f495e;
-$druxt-blue: #0678be;
+$druxt-blue: #0678be; // solid fills only — behind white it is fine
+$druxt-blue-ink: #05619a; // 6.09:1 on $druxt-tint, for type on the tint
 $druxt-teal: #108775;
 $druxt-tint: #eff7fc;
 $druxt-line: #bfdff2;
@@ -41,6 +40,18 @@ $druxt-code: #0f2233;
 $serif: 'Newsreader', Georgia, 'Times New Roman', serif;
 $sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
 $mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+// Bootstrap 4 breakpoints, which is what bootstrap-vue emits against.
+// Both header bars stick. The masthead offsets by exactly the demo bar's
+// height so the two stack rather than share a strip; both read this.
+$demo-bar-height: 38px;
+
+$bp-sm: 575.98px;
+$bp-md: 767.98px;
+$bp-lg: 991.98px;
+
+// Smallest comfortable touch target.
+$tap: 44px;
 
 // ---------------------------------------------------------------- base
 
@@ -64,6 +75,14 @@ body {
   background: $paper;
   color: $ink;
   line-height: 1.6;
+}
+
+// Nothing in this design is allowed to be wider than its column.
+img,
+video,
+pre,
+table {
+  max-width: 100%;
 }
 
 a {
@@ -90,15 +109,17 @@ h4,
   text-wrap: pretty;
 }
 
+// The middle term has to do real work below 900px, or the clamp is decorative
+// and every phone renders the floor: 4vw does not exceed 2.25rem until 900px.
 h1 {
-  font-size: clamp(2.25rem, 4vw, 3.25rem);
+  font-size: clamp(2rem, 6vw, 3.25rem);
   line-height: 1.06;
 }
 h2 {
-  font-size: clamp(1.75rem, 2.6vw, 2rem);
+  font-size: clamp(1.625rem, 4.5vw, 2rem);
 }
 h3 {
-  font-size: 1.625rem;
+  font-size: clamp(1.4375rem, 3.5vw, 1.625rem);
 }
 h4 {
   font-size: 1.25rem;
@@ -121,8 +142,7 @@ h4 {
 .sticky-top {
   margin: 0;
 
-  // The demo bar is sticky at top: 0, so the masthead has to start below it or
-  // the two occupy the same strip.
+  // The demo bar is sticky at top: 0, so the masthead starts below it.
   top: $demo-bar-height;
 }
 
@@ -237,6 +257,7 @@ h4 {
 .breadcrumb {
   background: transparent;
   font-size: 0.8125rem;
+  flex-wrap: wrap;
   padding: 0;
   margin-bottom: 1.5rem;
 
@@ -258,7 +279,7 @@ h4 {
 .list-group-item {
   background: transparent;
   border: 0;
-  border-bottom: 1px solid #efe7d8;
+  border-bottom: 1px solid $rule-faint;
   color: #40392f;
   font-size: 0.9375rem;
   padding: 0.6875rem 0;
@@ -276,6 +297,14 @@ h4 {
   &:focus {
     border-color: $spice;
     box-shadow: none;
+  }
+}
+
+// iOS zooms the viewport when a focused field is under 16px.
+@media (max-width: $bp-md) {
+  .form-control,
+  .custom-select {
+    font-size: 1rem;
   }
 }
 
@@ -401,6 +430,9 @@ h4 {
     top: 0;
     width: 100%;
   }
+
+  // Wide viewports put the text in the left third, so the scrim runs sideways.
+  // The responsive section swaps this for a vertical one — see below.
   &__scrim {
     inset: 0;
     position: absolute;
@@ -430,7 +462,7 @@ h4 {
   }
   &__title {
     color: #fff;
-    font-size: clamp(2rem, 4vw, 3.25rem);
+    font-size: clamp(1.9rem, 6.5vw, 3.25rem);
     margin: 0;
   }
   &__summary {
@@ -450,7 +482,7 @@ h4 {
 
   &--warm {
     background: $paper-warm;
-    border-top: 1px solid #f0e7d8;
+    border-top: 1px solid $rule-faint;
   }
   &__head {
     align-items: flex-end;
@@ -491,6 +523,9 @@ h4 {
     object-fit: cover;
     width: 100%;
   }
+
+  // NB: this block must never share a selector list with .banner__body. The
+  // card body is sized by its content; only the banner reserves height.
   &__body {
     display: flex;
     flex: 1;
@@ -512,6 +547,8 @@ h4 {
   }
 }
 
+// Two columns at every size — four labelled numbers stacked is a 320px tower
+// on a phone, and 2×2 still reads at 155px per cell.
 .stat-grid {
   border: 1px solid $rule;
   background: $paper-warm;
@@ -525,6 +562,14 @@ h4 {
     flex-direction: column;
     gap: 5px;
     padding: 1.375rem 1.25rem;
+
+    // Trim the borders that would double up on the grid's own edge.
+    &:nth-child(2n) {
+      border-right: 0;
+    }
+    &:nth-last-child(-n + 2) {
+      border-bottom: 0;
+    }
   }
   &__label {
     color: $ink-ghost;
@@ -587,9 +632,45 @@ h4 {
 
 .disclaimer {
   background: $ink;
-  color: $ink-ghost;
+  color: $ink-ghost-dark;
   font-size: 0.78125rem;
   padding: 1.375rem 0;
+}
+
+// ------------------------------------------------------- recipes filter bar
+
+.recipe-filters {
+  align-items: center;
+  background: $paper-warm;
+  border-bottom: 1px solid $rule;
+  border-top: 1px solid $rule;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.625rem;
+  margin-bottom: 1.5rem;
+  padding: 0.875rem 1rem;
+
+  &__group {
+    align-items: center;
+    display: flex;
+    gap: 0.5625rem;
+  }
+
+  &__field {
+    max-width: 230px;
+  }
+
+  &__count {
+    color: $druxt-blue-ink;
+    font-family: $mono;
+    font-size: 0.75rem;
+    margin-left: auto;
+  }
+
+  .btn-sm {
+    border-radius: 999px;
+    padding: 0.375rem 0.875rem;
+  }
 }
 
 // ---------------------------------------------------------------- promo layer
@@ -597,7 +678,7 @@ h4 {
 .demo-bar {
   position: sticky;
   top: 0;
-  // Above .sticky-top (1020) so the masthead scrolls under it, not over.
+  // Above .sticky-top (1020) so the masthead scrolls under it.
   z-index: 1030;
   background: $druxt-navy;
   color: #fff;
@@ -614,13 +695,21 @@ h4 {
     align-items: center;
     display: flex;
     gap: 0.5625rem;
+    min-width: 0;
   }
   &__dot {
     background: #3498db;
     border-radius: 50%;
+    flex: 0 0 7px;
     height: 7px;
     width: 7px;
   }
+
+  // Two lengths of the same label; the responsive section picks one.
+  &__short {
+    display: none;
+  }
+
   &__links {
     align-items: center;
     display: flex;
@@ -642,9 +731,10 @@ h4 {
     color: #fff;
     font-size: 0.71875rem;
     padding: 3px 9px;
+    white-space: nowrap;
 
     span {
-      color: #8fa9bd;
+      color: #a8c2d6;
     }
     &.is-on {
       background: $druxt-blue;
@@ -653,12 +743,6 @@ h4 {
       span {
         color: #fff;
       }
-    }
-  }
-
-  @media (max-width: 767px) {
-    &__links a:not(.demo-bar__primary) {
-      display: none;
     }
   }
 }
@@ -670,7 +754,7 @@ h4 {
   padding: 1.625rem 1.875rem;
 
   &__kicker {
-    color: $druxt-blue;
+    color: $druxt-blue-ink;
     font-size: 0.65625rem;
     font-weight: 700;
     letter-spacing: 0.16em;
@@ -690,7 +774,7 @@ h4 {
     max-width: 60ch;
   }
   &__link {
-    color: $druxt-blue;
+    color: $druxt-blue-ink;
     font-size: 0.84375rem;
     font-weight: 600;
   }
@@ -748,17 +832,24 @@ h4 {
     }
   }
 
+  // `npx create-druxt-app@latest` in mono plus a button is wider than a small
+  // phone, so the row wraps and the string is allowed to break.
   &__command {
     align-items: center;
     background: $druxt-code;
     border: 1px solid #3f5f78;
     border-radius: 6px;
     display: flex;
+    flex-wrap: wrap;
     font-family: $mono;
     font-size: 0.84375rem;
-    gap: 1rem;
+    gap: 0.5rem 1rem;
     justify-content: space-between;
     padding: 1rem 1.125rem;
+
+    > span {
+      overflow-wrap: anywhere;
+    }
 
     .prompt {
       color: #9fd2a0;
@@ -776,6 +867,7 @@ h4 {
 
 .view-modes {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.4375rem;
 
   button {
@@ -790,6 +882,111 @@ h4 {
     &.is-active {
       background: $druxt-blue;
       color: #fff;
+    }
+  }
+}
+
+// The search panel is a b-sidebar with width="min(520px, 100vw)". This is the
+// safety net for the case where that inline width is ever overridden.
+#search {
+  max-width: 100vw;
+}
+
+// ---------------------------------------------------------- entity explorer
+//
+// A grid rather than a b-row, so the preview can span the full height of the
+// left-hand stack at md+ while the DOM order stays the one a phone wants:
+// controls, preview, snippet, note.
+
+.explorer {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+
+  &__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__head {
+    align-items: center;
+    border-bottom: 1px solid $rule;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    justify-content: space-between;
+    padding-bottom: 0.5rem;
+  }
+
+  &__stage {
+    align-items: flex-start;
+    background: $paper-warm;
+    border: 1px solid $rule;
+    display: flex;
+    justify-content: center;
+    padding: 2.5rem;
+  }
+
+  // The rendered entity is a card design, so it is capped rather than fluid.
+  &__mount {
+    max-width: 320px;
+    width: 100%;
+  }
+
+  // A JSON:API path is one long unbreakable token.
+  &__request {
+    color: $ink-faint;
+    font-family: $mono;
+    font-size: 0.71875rem;
+    line-height: 1.5;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  // vue-live's editor is a textarea over a highlighted <pre>; both need to be
+  // allowed to wrap, and it should not be able to grow taller than the screen.
+  &__code {
+    .prism-editor-wrapper,
+    .prism-editor__container,
+    .prism-editor__editor,
+    .prism-editor__textarea {
+      font-family: $mono !important;
+      font-size: 0.8125rem !important;
+      white-space: pre-wrap !important;
+      word-break: break-word !important;
+    }
+
+    .prism-editor-wrapper {
+      border: 1px solid #24435c;
+      border-radius: 6px;
+      max-height: 45vh;
+      overflow: auto;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .explorer {
+    align-items: start;
+    gap: 2rem;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+
+    &__controls {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    &__preview {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+    }
+    &__snippet {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    &__note {
+      grid-column: 1;
+      grid-row: 3;
     }
   }
 }
@@ -839,92 +1036,330 @@ h4 {
   border: 1px solid $druxt-line;
   border-radius: 6px;
   display: flex;
+  flex-wrap: wrap;
   font-family: $mono;
   font-size: 0.75rem;
   gap: 0.875rem;
-  color: $druxt-blue;
+  color: $druxt-blue-ink;
   padding: 0.875rem 1.125rem;
 }
 
-// ------------------------------------------------------------------- mobile
+// ================================================================ responsive
 //
-// The handover mockup carried no media queries: it was composed at desktop
-// width only. These rules are additions rather than corrections to it, and
-// they exist because several of the desktop decisions overflow a phone.
+// Breakpoints are Bootstrap 4's, because that is what bootstrap-vue emits
+// against: sm 576, md 768, lg 992.
 //
-// Breakpoints follow Bootstrap 4, which bootstrap-vue emits against: the
-// masthead uses lg (992px) because `b-navbar toggleable="lg"` collapses
-// there, and everything else uses md (768px).
+// The masthead turns at lg because `b-navbar toggleable="lg"` collapses there.
+// Everything else turns at md, and a few details at sm.
+//
+// Spec: "Umami Demo Mobile.dc.html" — 2a is the 375px column, 2b is 768px.
 
-@media (max-width: 991.98px) {
+// ------------------------------------------------------------ lg and below
+@media (max-width: $bp-lg) {
   .masthead {
+    align-items: center;
     flex-wrap: wrap;
+    min-height: 64px;
     padding: 0 1rem;
-    row-gap: 0;
 
-    // The collapse is full width below the brand, so the nav stacks rather
-    // than sitting in a row that cannot fit.
+    // The collapse has to own a full row. Without a basis it flexes in beside
+    // the wordmark and the open menu squeezes into whatever is left.
     &__nav {
       align-items: stretch;
+      border-top: 1px solid $rule;
+      flex-basis: 100%;
       flex-direction: column;
       gap: 0;
-      padding-bottom: 1rem;
+      margin: 0 -1rem;
+      max-width: 100%;
+      padding: 0;
+    }
+
+    // Full-width rows at $tap high, separated by rules: a menu, not a strip.
+    .nav-link {
+      align-items: center;
+      border-bottom: 1px solid $rule-faint;
+      display: flex;
+      font-size: 0.9375rem;
+      min-height: $tap;
+      padding: 0 1rem;
+
+      // The desktop underline reads as a stray rule in a stacked list.
+      &.nuxt-link-exact-active {
+        border-bottom-color: $rule-faint;
+        box-shadow: inset 3px 0 0 $spice;
+        padding-bottom: 0;
+      }
+    }
+
+    .dropdown-menu {
+      border: 0;
+      border-bottom: 1px solid $rule-faint;
+      box-shadow: none;
+      padding: 0 0 0 1rem;
     }
 
     // The vertical rule and its indent only make sense beside the menu.
     &__utils {
+      align-items: stretch;
       border-left: 0;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 0.75rem;
-      padding: 0.75rem 0 0;
+      padding: 1rem;
     }
 
     // 170px plus the indent is wider than the space left on a small phone.
     &__search {
+      justify-content: center;
+      min-height: $tap;
       min-width: 0;
       width: 100%;
     }
 
-    &__menu {
-      gap: 0;
+    &__lang {
+      align-items: center;
+      display: flex;
+      gap: 0.5rem;
+      min-height: $tap;
     }
+
+    // MenuBlockMain sets align-items: center for the desktop strip; stacked,
+    // that centres every item over a full-width row.
+    &__menu {
+      align-items: stretch;
+      flex-direction: column;
+      gap: 0;
+      width: 100%;
+    }
+  }
+
+  // b-navbar-toggle ships as a bare bordered button.
+  .navbar-toggler {
+    border: 0;
+    padding: 0.625rem 0.5rem;
   }
 }
 
-@media (max-width: 767.98px) {
-  // The banner reserves half a screen of height and indents its text by 2rem
-  // against a gradient sized for a wide viewport. Only the banner: a recipe
-  // card body holds a category, title and meta line, and a 320px floor would
-  // leave most of it empty.
-  .banner__body {
-    min-height: 320px;
-    padding: 2rem 1rem;
+// ------------------------------------------------------------ md and below
+@media (max-width: $bp-md) {
+  // The banner owns its height here — the component's scoped rule was removed
+  // so there is one source of truth.
+  .banner {
+    min-height: 400px;
+
+    &__body {
+      justify-content: flex-end; // text sits on the darkest part of the scrim
+      max-width: none;
+      min-height: 400px;
+      padding: 1.5rem 0;
+    }
+
+    // Text is full-width now, so a sideways gradient leaves its right half
+    // unbacked. Scrim from the bottom instead.
+    &__scrim {
+      background: linear-gradient(
+        180deg,
+        rgba(28, 20, 14, 0.22) 0%,
+        rgba(28, 20, 14, 0.52) 44%,
+        rgba(28, 20, 14, 0.87) 100%
+      );
+    }
+
+    &__summary {
+      font-size: 0.9375rem;
+      max-width: none;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+    }
   }
 
-  // Two equal columns cannot hold their content at phone width.
-  .stat-grid {
-    grid-template-columns: 1fr;
-  }
-
-  // Right-aligned pills read as ragged when they wrap onto three lines.
-  .collections__list {
-    justify-content: flex-start;
+  // Content-sized, as it always should have been. See the note on the block.
+  .recipe-card__body {
+    padding: 1rem;
   }
 
   .section {
     padding: 2.5rem 0;
-  }
-}
 
-// The dev overlay label is absolutely positioned and holds a component
-// signature such as `DruxtBlockRegion name="banner_top"`. Unconstrained, it is
-// wider than a phone and is itself a source of horizontal scroll, so it wraps
-// and stays inside the region it labels.
-@media (max-width: 767.98px) {
+    &__head {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+  }
+
+  // Right-aligned pills read as ragged when they wrap onto three lines.
+  .collections {
+    padding: 2.25rem 0;
+
+    &__list {
+      justify-content: flex-start;
+    }
+  }
+
+  .stat-grid {
+    &__cell {
+      padding: 1rem;
+    }
+    &__value {
+      font-size: 1.375rem;
+    }
+  }
+
+  .method-step {
+    gap: 0.75rem;
+    grid-template-columns: 32px 1fr;
+
+    &__n {
+      font-size: 1.5625rem;
+    }
+    &__text {
+      font-size: 0.9375rem;
+    }
+  }
+
+  .field--body,
+  .field--field-summary {
+    p {
+      font-size: 1.0625rem;
+      line-height: 1.7;
+    }
+    blockquote {
+      font-size: 1.25rem;
+      padding-left: 1rem;
+    }
+  }
+
+  // Promo layer.
+  .demo-bar {
+    &__inner {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding-bottom: 0.4375rem;
+      padding-top: 0.4375rem;
+    }
+
+    // The long identity string plus the toggle does not fit one 375px line.
+    &__full {
+      display: none;
+    }
+    &__short {
+      display: inline;
+    }
+
+    &__links {
+      gap: 0.875rem;
+    }
+
+    // Docs and Discord live in the footer CTA as well; the bar keeps source.
+    &__links a:not(.demo-bar__primary) {
+      display: none;
+    }
+
+    &__toggle {
+      padding: 5px 10px;
+    }
+  }
+
+  .druxt-note {
+    border-radius: 6px;
+    padding: 1.125rem;
+
+    &__title {
+      font-size: 1.0625rem;
+    }
+  }
+
+  .druxt-cta {
+    padding: 2.25rem 0;
+  }
+
+  .view-modes button {
+    flex: 1 0 auto;
+    min-height: $tap;
+    padding: 6px 16px;
+  }
+
+  // 3rem of padding around a 320px card leaves it 230px to render in.
+  .explorer__stage {
+    padding: 1.25rem 1rem;
+  }
+
+  // The dev overlay label holds a component signature such as
+  // `DruxtBlockRegion name="banner_top"`. Unconstrained it is wider than a
+  // phone and becomes a source of horizontal scroll itself.
   .dev-region__label {
     left: 4px;
+    line-height: 1.4;
     max-width: calc(100% - 8px);
     overflow-wrap: anywhere;
     white-space: normal;
+  }
+
+  // The filter bar's four groups each take a line at this width, and the
+  // right-aligned count strands itself on a fifth.
+  .recipe-filters {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    &__field {
+      max-width: none;
+    }
+
+    // Difficulty and duration scroll sideways rather than wrapping.
+    &__group--scroll {
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -1rem;
+      overflow-x: auto;
+      padding: 0 1rem 0.125rem;
+
+      .btn {
+        white-space: nowrap;
+      }
+    }
+
+    &__row {
+      align-items: center;
+      display: flex;
+      gap: 0.625rem;
+      justify-content: space-between;
+    }
+
+    &__count {
+      margin-left: 0;
+      text-align: right;
+    }
+
+    .btn-sm {
+      min-height: 38px;
+      padding: 0.5rem 1rem;
+    }
+  }
+}
+
+// ------------------------------------------------------------ sm and below
+@media (max-width: $bp-sm) {
+  .druxt-note {
+    padding: 1rem;
+  }
+
+  .druxt-code {
+    font-size: 0.71875rem;
+    padding: 0.875rem;
+  }
+
+  .disclaimer {
+    line-height: 1.5;
+  }
+
+  // Below sm the search panel is the whole viewport, so there is no backdrop
+  // sliver to mis-tap. See layouts/default.vue.
+  #search {
+    width: 100vw !important;
   }
 }
