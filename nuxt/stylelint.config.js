@@ -5,7 +5,14 @@ module.exports = {
     'stylelint-config-recommended-vue',
     'stylelint-config-prettier',
   ],
-  // add your custom config here
-  // https://stylelint.io/user-guide/configuration
-  rules: {},
+  rules: {
+    // The theme uses BEM (block__element--modifier). stylelint-config-standard
+    // ships a kebab-case-only pattern, which rejects the __ and -- separators.
+    // Widened rather than renaming the classes, which would lose the meaning
+    // the convention carries.
+    'selector-class-pattern': [
+      '^[a-z][a-z0-9]*(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$',
+      { message: 'Expected class selector to be kebab-case or BEM' },
+    ],
+  },
 }

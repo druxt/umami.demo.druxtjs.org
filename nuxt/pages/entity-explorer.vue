@@ -83,7 +83,11 @@
 
           <p
             class="mt-3 mb-0"
-            style="font-family: 'IBM Plex Mono', monospace; font-size: 0.71875rem; color: #8a7f70"
+            style="
+              font-family: 'IBM Plex Mono', monospace;
+              font-size: 0.7188rem;
+              color: #8a7f70;
+            "
           >
             GET /en/jsonapi/{{ resourceType.selected.replace('--', '/') }}/{{
               resource.selected

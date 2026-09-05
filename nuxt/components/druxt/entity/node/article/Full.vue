@@ -33,7 +33,7 @@
 
       <b-col cols="12" lg="4" class="mt-5 mt-lg-0 pl-lg-5">
         <DevRegion
-          label="DruxtView view-id=&quot;articles_aside&quot;"
+          label='DruxtView view-id="articles_aside"'
           source="components/druxt/entity/node/article/Full.vue"
         >
           <DruxtView
@@ -44,7 +44,15 @@
             <template #default="{ display, results }">
               <h4
                 class="pb-2 mb-3"
-                style="border-bottom: 1px solid #e6ddcd; color: #a2988a; font-family: 'Archivo', sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase"
+                style="
+                  border-bottom: 1px solid #e6ddcd;
+                  color: #a2988a;
+                  font-family: Archivo, sans-serif;
+                  font-size: 0.75rem;
+                  font-weight: 700;
+                  letter-spacing: 0.16em;
+                  text-transform: uppercase;
+                "
                 v-text="display.display_options.title"
               />
               <DruxtEntity

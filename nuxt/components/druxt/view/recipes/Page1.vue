@@ -4,7 +4,14 @@
          this line happens in the browser. -->
     <div
       class="d-flex align-items-center flex-wrap py-3 mb-4"
-      style="background: #faf4ea; border-top: 1px solid #e6ddcd; border-bottom: 1px solid #e6ddcd; gap: 1.625rem; padding-left: 1rem; padding-right: 1rem"
+      style="
+        background: #faf4ea;
+        border-top: 1px solid #e6ddcd;
+        border-bottom: 1px solid #e6ddcd;
+        gap: 1.625rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+      "
     >
       <b-form-input
         v-model="query"
@@ -32,12 +39,21 @@
 
       <div class="d-flex align-items-center" style="gap: 0.5625rem">
         <span class="stat-grid__label">Sort</span>
-        <b-form-select v-model="sort" :options="sortOptions" size="sm" style="width: auto" />
+        <b-form-select
+          v-model="sort"
+          :options="sortOptions"
+          size="sm"
+          style="width: auto"
+        />
       </div>
 
       <span
         class="ml-auto"
-        style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: #0678be"
+        style="
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 0.75rem;
+          color: #0678be;
+        "
       >
         {{ filtered.length }} of {{ results.length }} · filtered client-side
       </span>
