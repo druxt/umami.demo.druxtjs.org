@@ -4,7 +4,7 @@
       <div>
         <AppDemoBar />
 
-        <DevRegion
+        <AppDevRegion
           v-if="regions.includes('header')"
           label='DruxtBlockRegion name="header"'
           source="components/druxt/block-region/Header.vue"
@@ -17,15 +17,15 @@
               propsData: { sticky: true, toggleable: 'lg' },
             }"
           />
-        </DevRegion>
+        </AppDevRegion>
 
-        <DevRegion
+        <AppDevRegion
           v-if="regions.includes('banner_top')"
           label='DruxtBlockRegion name="banner_top"'
           source="components/druxt/block-region/BannerTop.vue"
         >
           <DruxtBlockRegion v-bind="props.banner_top" />
-        </DevRegion>
+        </AppDevRegion>
 
         <b-container v-show="!isHomePath" class="pt-4">
           <DruxtBlockRegion
@@ -38,7 +38,7 @@
           />
         </b-container>
 
-        <DevRegion
+        <AppDevRegion
           label='DruxtBlockRegion name="content"'
           source="layouts/default.vue"
         >
@@ -52,7 +52,7 @@
               v-bind="props.content"
             />
           </b-container>
-        </DevRegion>
+        </AppDevRegion>
 
         <div v-if="regions.includes('content_bottom')" class="collections">
           <b-container>
