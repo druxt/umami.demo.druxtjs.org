@@ -9,6 +9,9 @@ export default {
     // The start script builds beside the served copy, then swaps it in.
     dir: process.env.GENERATE_DIR || 'dist',
     routes: [
+      // Not linked from any crawlable page, so the generator cannot discover
+      // it and the route 404s in the static build unless it is listed here.
+      '/entity-explorer',
       '/node/preview/card',
       '/node/preview/card_common',
       '/node/preview/card_common_alt',
