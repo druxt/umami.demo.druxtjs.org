@@ -1,6 +1,7 @@
 amazeeio
 amazeeiolagoon
 Archivo
+crawlable
 crossorigin
 druxt
 druxtjs

@@ -60,8 +60,9 @@ export default {
   plugins: [{ src: '~/plugins/vuex-persistedstate.client.js' }],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
-  // `~/components/app` is flattened so the promo components are usable as
-  // <AppDemoBar />, <AppDruxtNote />, <DevRegion /> and so on.
+  // Every component in `~/components/app` takes the `App` prefix, so they are
+  // used as <AppDemoBar />, <AppDevRegion />, <AppDruxtNote /> and so on.
+  // pathPrefix is off so the directory name is not repeated in the tag.
   components: [
     '~/components',
     { path: '~/components/app', prefix: 'App', pathPrefix: false },
