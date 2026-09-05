@@ -1,0 +1,59 @@
+{
+    "_hash": "a88dfbcd7b64b85ef058f72ea00d237b0421227e2d953ccf174d4214f06d10e5",
+    "patches": {
+        "drupal/decoupled_router": [
+            {
+                "package": "drupal/decoupled_router",
+                "description": "https://www.drupal.org/project/decoupled_router/issues/3172926",
+                "url": "https://www.drupal.org/files/issues/2020-09-24/3172926-2.patch",
+                "sha256": "b2151400ad242ab39ec8f37edcb2e85e933a5a2a6cff594fdc413bd9edccb144",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            },
+            {
+                "package": "drupal/decoupled_router",
+                "description": "https://www.drupal.org/project/decoupled_router/issues/3468825",
+                "url": "https://git.drupalcode.org/project/decoupled_router/-/merge_requests/20.diff",
+                "sha256": "e57e51602df51a4d4497ff5dfc382c47d5b21b0067cde4d1df0e64f772729e7d",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            },
+            {
+                "package": "drupal/decoupled_router",
+                "description": "#3111456 Resolve the language from the requested path",
+                "url": "https://raw.githubusercontent.com/druxt/druxt.js/develop/docs/drupal/patches/decoupled_router-3111456-resolve-language-from-path.patch",
+                "sha256": "3e184a6d2a869e12eb0fd7e1c65ccf4eb8f2fb5a0aeaae35b05ad7bf48e59b38",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            }
+        ],
+        "drupal/druxt": [
+            {
+                "package": "drupal/druxt",
+                "description": "#3273228 Add langcode to Views Decoupled Router integration (rerolled for 1.2.2)",
+                "url": "patches/druxt-3273228-views-route-langcode.patch",
+                "sha256": "6fda488a072463dbb4de918c104bd835fa0fdfd0ed34cde80ed25dc7b48dd863",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            },
+            {
+                "package": "drupal/druxt",
+                "description": "#3264181 Node Preview (MR!8, rerolled for 1.2.2)",
+                "url": "patches/druxt-mr8-node-preview.patch",
+                "sha256": "c57c6a6374c6f0a70fe6505f2a3c4da709ac4efc211cddb24f724959d06e6fcd",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            }
+        ]
+    }
+}

@@ -19,6 +19,7 @@
 stages:
   - lint
   - secret-detection
+  - test
   - preview
 
 variables:
@@ -335,4 +336,54 @@ secret-detection:
     when: always
     paths:
       - gitleaks-report.json
+    expire_in: 1 week
+
+#
+# --- Test ---
+#
+
+# Provisions a real Drupal 11 and asserts the endpoints the frontend calls.
+# SQLite and PHP's built-in server, no DDEV: the suite needs a backend
+# answering HTTP, not a production-shaped stack.
+test:drupal:
+  stage: test
+  image: php:8.4-cli
+  interruptible: true
+  needs: []
+  variables:
+    COMPOSER_ALLOW_SUPERUSER: "1"
+    DRUPAL_PORT: "8888"
+  cache:
+    key:
+      files:
+        - drupal/composer.lock
+    paths:
+      - .composer-cache/
+  before_script:
+    - !reference [default, before_script]
+    - section_start "php" "Installing PHP extensions and Composer"
+    - apt-get update -qq
+    - >-
+      apt-get install -y -qq --no-install-recommends
+      curl git unzip libpng-dev libjpeg-dev libfreetype-dev libzip-dev libicu-dev
+    - docker-php-ext-configure gd --with-jpeg --with-freetype
+    - docker-php-ext-install -j"$(nproc)" gd zip intl
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    - section_end "php"
+  script:
+    - cd drupal
+    - section_start "composer" "Installing Drupal"
+    - composer config cache-dir "$CI_PROJECT_DIR/.composer-cache"
+    - composer install --no-interaction --no-progress
+    - section_end "composer"
+    - section_start "provision" "Provisioning a fresh umami"
+    - .devtools/provision
+    - section_end "provision"
+    - section_start "phpunit" "Running the ExistingSite suite"
+    - .devtools/test --log-junit ../junit.xml
+    - section_end "phpunit"
+  artifacts:
+    when: always
+    reports:
+      junit: junit.xml
     expire_in: 1 week

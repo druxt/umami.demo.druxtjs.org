@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+# Run the ExistingSite suite against a locally served site.
+#
+# The tests talk HTTP, so they need the site actually running. Provision it
+# first with .devtools/provision.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+PORT="${DRUPAL_PORT:-8888}"
+export PHP_INI_SCAN_DIR="$PWD/.devtools/etc:${PHP_INI_SCAN_DIR:-}"
+export DTT_BASE_URL="${DTT_BASE_URL:-http://127.0.0.1:$PORT}"
+
+LOG="$(mktemp)"
+DRUPAL_PORT="$PORT" .devtools/start > "$LOG" 2>&1 &
+SERVER=$!
+trap 'kill "$SERVER" 2>/dev/null || true; rm -f "$LOG"' EXIT
+
+for _ in $(seq 1 60); do
+  if grep -q 'Address already in use' "$LOG"; then
+    echo "Port $PORT is taken; set DRUPAL_PORT to a free one." >&2
+    cat "$LOG" >&2
+    exit 1
+  fi
+  [ "$(curl -s -o /dev/null -w '%{http_code}' "$DTT_BASE_URL/jsonapi" || true)" != "000" ] && break
+  sleep 1
+done
+
+echo "==> phpunit against $DTT_BASE_URL"
+vendor/bin/phpunit "$@"

@@ -1,10 +1,12 @@
 <?php
 
 /**
+ * @file
  * Install functions for the DruxtJS Umami module.
  */
 
 use Drupal\consumers\Entity\Consumer;
+use Drupal\user\RoleInterface;
 
 /**
  * Implements hook_install().
@@ -27,6 +29,14 @@ function druxt_umami_install() {
 
   // JSON:API settings.
   \Drupal::service('config.factory')->getEditable('jsonapi.settings')->set('read_only', FALSE)->save();
+
+  // Druxt JSON:API resource access.
+  // druxt_entity_access() gates view--view, menu--menu and the display config
+  // the frontend builds its components from on this permission, so without it
+  // an anonymous DruxtView cannot read the view it is rendering.
+  foreach ([RoleInterface::ANONYMOUS_ID, RoleInterface::AUTHENTICATED_ID] as $role_id) {
+    user_role_grant_permissions($role_id, ['access druxt resources']);
+  }
 
   // Simple Oauth settings.
   \Drupal::service('config.factory')

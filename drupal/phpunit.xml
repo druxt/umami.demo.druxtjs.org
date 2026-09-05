@@ -1,40 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  bootstrap="vendor/weitzman/drupal-test-traits/src/bootstrap-fast.php"
+  xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+  bootstrap="tests/bootstrap.php"
   colors="true"
+  cacheDirectory=".phpunit.cache"
   beStrictAboutTestsThatDoNotTestAnything="true"
   beStrictAboutOutputDuringTests="true"
   beStrictAboutChangesToGlobalState="true"
   failOnWarning="true"
-  printerClass="\Drupal\Tests\Listeners\HtmlOutputPrinter"
-  cacheResult="false"
-  xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+  displayDetailsOnTestsThatTriggerErrors="true"
+  displayDetailsOnTestsThatTriggerWarnings="true"
+  displayDetailsOnTestsThatTriggerDeprecations="true"
 >
   <php>
     <ini name="error_reporting" value="32767"/>
     <ini name="memory_limit" value="-1"/>
 
-    <env name="DTT_BASE_URL" value="http://nginx:8080"/>
-
-    <env name="SIMPLETEST_BASE_URL" value="http://nginx:8080" />
-    <env name="SIMPLETEST_DB" value="mysql://drupal:drupal@mariadb/drupal"/>
-
-    <env name="BROWSERTEST_OUTPUT_DIRECTORY" value="./web/sites/simpletest/browser_output"/>
-    <env name="BROWSERTEST_OUTPUT_BASE_URL" value="http://druxtjs-org-demo-umami.docker.amazee.io"/>
+    <!-- Where .devtools/start serves. CI and DDEV export their own value,
+         which wins: PHPUnit does not overwrite an existing variable. -->
+    <env name="DTT_BASE_URL" value="http://127.0.0.1:8888"/>
 
     <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
   </php>
 
   <testsuites>
     <testsuite name="existing-site">
-      <directory>./web/modules/custom/druxt_umami/tests/src/*</directory>
+      <directory>./web/modules/custom/druxt_umami/tests/src/ExistingSite</directory>
     </testsuite>
   </testsuites>
-
-  <listeners>
-    <listener class="\Drupal\Tests\Listeners\DrupalListener" />
-    <!-- The Symfony deprecation listener has to come after the Drupal listener -->
-    <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
-  </listeners>
 </phpunit>

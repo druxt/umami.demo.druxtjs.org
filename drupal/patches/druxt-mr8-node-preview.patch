@@ -1,0 +1,429 @@
+diff -ruN m22-orig/README.md m22/README.md
+--- a/README.md	2026-09-05 05:30:33.799487011 +0000
++++ b/README.md	2026-09-05 05:30:33.801487011 +0000
+@@ -82,7 +82,7 @@
+ - Condition plugin bypass for Block resources.
+ - Enables Cross-Origin Resource Sharing (CORS) support.
+ - Ensures EntityViewDisplay configuration available for [DruxtSchema](https://schema.druxtjs.org) module.
+-
++- Node Preview submodule with support for view modes and multiple preview frontends via the [JSON:API Node Preview](https://www.drupal.org/project/jsonapi_node_preview) module.
+ 
+ ## Maintainers
+ 
+diff -ruN m22-orig/modules/druxt_node_preview/config/install/druxt_node_preview.settings.yml m22/modules/druxt_node_preview/config/install/druxt_node_preview.settings.yml
+--- a/modules/druxt_node_preview/config/install/druxt_node_preview.settings.yml	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/config/install/druxt_node_preview.settings.yml	2026-09-05 05:30:33.801487011 +0000
+@@ -0,0 +1,2 @@
++langcode: en
++frontends: "Localhost|http://localhost:3000/preview/node/[bundle]/[mode]#[preview]"
+diff -ruN m22-orig/modules/druxt_node_preview/config/schema/druxt_node_preview.schema.yml m22/modules/druxt_node_preview/config/schema/druxt_node_preview.schema.yml
+--- a/modules/druxt_node_preview/config/schema/druxt_node_preview.schema.yml	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/config/schema/druxt_node_preview.schema.yml	2026-09-05 05:30:33.802487011 +0000
+@@ -0,0 +1,7 @@
++jsonapi.settings:
++  type: config_object
++  label: 'Druxt: Node Preview settings'
++  mapping:
++    frontends:
++      type: string
++      label: 'The available preview frontends'
+diff -ruN m22-orig/modules/druxt_node_preview/css/node_preview.css m22/modules/druxt_node_preview/css/node_preview.css
+--- a/modules/druxt_node_preview/css/node_preview.css	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/css/node_preview.css	2026-09-05 05:30:33.802487011 +0000
+@@ -0,0 +1,17 @@
++.druxt-node-preview iframe {
++  background-color: white;
++  border: none;
++  height: 100%;
++  width: 100%;
++  position: fixed;
++  top: 0px;
++  right: 0px;
++  bottom: 0px;
++  left: 0px;
++  z-index: 500;
++}
++
++/* Olivero z-index fix */
++html[data-once="node-preview"] .layout-main-wrapper {
++  z-index: unset;
++}
+diff -ruN m22-orig/modules/druxt_node_preview/druxt_node_preview.info.yml m22/modules/druxt_node_preview/druxt_node_preview.info.yml
+--- a/modules/druxt_node_preview/druxt_node_preview.info.yml	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/druxt_node_preview.info.yml	2026-09-05 05:30:50.308160004 +0000
+@@ -0,0 +1,11 @@
++name: "Druxt: Node Preview"
++description: JSON:API Node Preview integration for DruxtJS.
++package: Web services
++configure: druxt_node_preview.settings
++
++type: module
++core_version_requirement: ^10 || ^11 || ^12
++
++dependencies:
++  - drupal:druxt
++  - drupal:jsonapi_node_preview
+diff -ruN m22-orig/modules/druxt_node_preview/druxt_node_preview.libraries.yml m22/modules/druxt_node_preview/druxt_node_preview.libraries.yml
+--- a/modules/druxt_node_preview/druxt_node_preview.libraries.yml	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/druxt_node_preview.libraries.yml	2026-09-05 05:30:33.802487011 +0000
+@@ -0,0 +1,9 @@
++druxt.node_preview:
++  js:
++    js/node_preview.js: {}
++  css:
++    theme:
++      css/node_preview.css: {}
++  dependencies:
++    - core/jquery
++    - core/drupal
+diff -ruN m22-orig/modules/druxt_node_preview/druxt_node_preview.links.menu.yml m22/modules/druxt_node_preview/druxt_node_preview.links.menu.yml
+--- a/modules/druxt_node_preview/druxt_node_preview.links.menu.yml	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/druxt_node_preview.links.menu.yml	2026-09-05 05:30:33.802487011 +0000
+@@ -0,0 +1,5 @@
++druxt_node_preview.settings:
++  title: 'Druxt: Node Preview'
++  parent: system.admin_config_services
++  description: "Configure the providers and settings for the Druxt Node Preview."
++  route_name: druxt_node_preview.settings
+diff -ruN m22-orig/modules/druxt_node_preview/druxt_node_preview.module m22/modules/druxt_node_preview/druxt_node_preview.module
+--- a/modules/druxt_node_preview/druxt_node_preview.module	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/druxt_node_preview.module	2026-09-05 05:30:33.802487011 +0000
+@@ -0,0 +1,102 @@
++<?php
++
++/**
++ * @file
++ * Core functions for the Druxt: Node Preview module.
++ */
++
++use Drupal\Core\Form\FormStateInterface;
++
++ /**
++  * Implements hook_theme().
++  */
++function druxt_node_preview_theme($existing, $type, $theme, $path) {
++  return [
++    'druxt_node_preview' => [
++      'variables' => [
++        'bundle' => NULL,
++        'frontend' => NULL,
++        'mode' => NULL,
++        'preview' => NULL,
++        'url' => NULL,
++      ]
++    ]
++  ];
++}
++
++/**
++ * Implements hook_form_FORM_ID_alter().
++ */
++function druxt_node_preview_form_node_preview_form_select_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
++  // Get frontend from request.
++  $frontends = druxt_node_preview_frontends();
++  $frontend = \Drupal::request()->query->get('frontend');
++  // Otherwise use the first available frontend.
++  if (!$frontend) {
++    $frontend = 0;
++  }
++
++  // Add Preview frontend option.
++  $form['frontend'] = [
++    '#type' => 'select',
++    '#title' => t('Frontend'),
++    '#options' => array_keys($frontends),
++    '#default_value' => $frontend,
++    '#attributes' => [
++      'data-drupal-autosubmit' => TRUE,
++    ],
++  ];
++
++  // Adjust weights.
++  $form['view_mode']['#weight'] = 1;
++  $form['submit']['#weight'] = 2;
++
++
++  // Replace submit handler.
++  $form['#submit'] = ['druxt_node_preview_form_node_preview_form_select_submit'];
++}
++
++function druxt_node_preview_form_node_preview_form_select_submit(array &$form, FormStateInterface $form_state) {
++  $route_parameters = [
++    'frontend' => $form_state->getValue('frontend'),
++    'node_preview' => $form_state->getValue('uuid'),
++    'view_mode_id' => $form_state->getValue('view_mode'),
++  ];
++
++  $options = [];
++  $query = \Drupal::request()->query;
++  if ($query->has('destination')) {
++    $options['query']['destination'] = $query->get('destination');
++    $query->remove('destination');
++  }
++  $form_state->setRedirect('entity.node.preview', $route_parameters, $options);
++}
++
++/**
++ * Return available preview frontends.
++ */
++function druxt_node_preview_frontends() {
++  $options = [];
++  $config = \Drupal::config('druxt_node_preview.settings');
++
++  // Extract allowed values.
++  $list = explode("\n", $config->get('frontends'));
++  $list = array_map('trim', $list);
++  $list = array_filter($list, 'strlen');
++  foreach ($list as $item) {
++    // Check for an explicit key.
++    $matches = [];
++    if (preg_match('/(.*)\|(.*)/', $item, $matches)) {
++      // Trim url and label to avoid unwanted spaces issues.
++      $label = trim($matches[1]);
++      $url = trim($matches[2]);
++    }
++    // Otherwise we use the value as the key.
++    else {
++      $label = $url = $item;
++    }
++    $options[$label] = $url;
++  }
++
++  return $options;
++}
+diff -ruN m22-orig/modules/druxt_node_preview/druxt_node_preview.routing.yml m22/modules/druxt_node_preview/druxt_node_preview.routing.yml
+--- a/modules/druxt_node_preview/druxt_node_preview.routing.yml	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/druxt_node_preview.routing.yml	2026-09-05 05:30:33.802487011 +0000
+@@ -0,0 +1,7 @@
++druxt_node_preview.settings:
++  path: '/admin/config/services/druxt/node_preview'
++  defaults:
++    _form: '\Drupal\druxt_node_preview\Form\DruxtNodePreviewSettingsForm'
++    _title: 'Druxt: Node Preview'
++  requirements:
++    _permission: 'administer site configuration'
+diff -ruN m22-orig/modules/druxt_node_preview/druxt_node_preview.services.yml m22/modules/druxt_node_preview/druxt_node_preview.services.yml
+--- a/modules/druxt_node_preview/druxt_node_preview.services.yml	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/druxt_node_preview.services.yml	2026-09-05 05:30:33.802487011 +0000
+@@ -0,0 +1,5 @@
++services:
++  druxt_node_preview.route_subscriber:
++    class: Drupal\druxt_node_preview\Routing\RouteSubscriber
++    tags:
++      - { name: event_subscriber }
+diff -ruN m22-orig/modules/druxt_node_preview/js/node_preview.js m22/modules/druxt_node_preview/js/node_preview.js
+--- a/modules/druxt_node_preview/js/node_preview.js	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/js/node_preview.js	2026-09-05 05:30:33.802487011 +0000
+@@ -0,0 +1,22 @@
++(function (Drupal, $) {
++  Drupal.behaviors.myTheme = {
++    attach: function attach(context) {
++      if (context === document) {
++        $(context).on('drupalViewportOffsetChange.toolbar', function (event, offsets) {
++          var top = offsets.top + parseInt($('.node-preview-container').css('height'))
++          var right = offsets.right
++          var bottom = offsets.bottom
++          var left = offsets.left
++
++          $('.druxt-node-preview iframe')
++            .css('top', top)
++            .css('right', right)
++            .css('bottom', bottom)
++            .css('left', `var(--ginVerticalToolbarOffset, ${left}px)`)
++            .css('height', `calc(100vh - ${top}px - ${bottom}px)`)
++            .css('width', `calc(100vw - var(--ginVerticalToolbarOffset, ${left}px) - ${right}px)`)
++        });
++      }
++    }
++  };
++})(Drupal, jQuery)
+diff -ruN m22-orig/modules/druxt_node_preview/src/Controller/NodePreviewController.php m22/modules/druxt_node_preview/src/Controller/NodePreviewController.php
+--- a/modules/druxt_node_preview/src/Controller/NodePreviewController.php	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/src/Controller/NodePreviewController.php	2026-09-05 05:30:33.802487011 +0000
+@@ -0,0 +1,60 @@
++<?php
++
++namespace Drupal\druxt_node_preview\Controller;
++
++use Drupal\node\Controller\NodePreviewController as CoreNodePreviewController;
++use Drupal\Core\Entity\EntityInterface;
++use Drupal\Core\Url;
++
++/**
++ * Defines a controller to render a single node in Druxt preview.
++ */
++class NodePreviewController extends CoreNodePreviewController {
++
++  /**
++   * {@inheritdoc}
++   */
++  public function view(EntityInterface $node_preview, $view_mode_id = 'full', $langcode = NULL) {
++    // Get frontend from request.
++    $frontends = druxt_node_preview_frontends();
++    $frontend = array_values($frontends)[\Drupal::request()->query->get('frontend')];
++    // Otherwise use the first available frontend.
++    if (!$frontend) {
++      $frontend = array_values($frontends)[0];
++    }
++
++    // Get the JSON:API Node Preview URL.
++    $jsonapi_node_preview = Url::fromRoute(
++      "jsonapi.node--{$node_preview->bundle()}.individual.preview",
++      ['node_preview' => $node_preview->uuid()],
++      ['absolute' => TRUE]
++    )->toString();
++
++    // Process the frontend URL.
++    $tokens = [
++      'bundle' => $node_preview->bundle(),
++      'mode' => $view_mode_id,
++      'preview' => $jsonapi_node_preview,
++    ];
++    $url = $frontend;
++    foreach ($tokens as $token => $value) {
++      $url = str_replace("[{$token}]", $value, $url);
++    }
++
++    $build = [
++      '#theme' => 'druxt_node_preview',
++      '#bundle' => $node_preview->bundle(),
++      '#frontend' => $frontend,
++      '#mode' => $view_mode_id,
++      '#preview' => $jsonapi_node_preview,
++      '#url' => $url,
++    ];
++
++    // Add support for View mode switching via default Node library.
++    $node_preview->preview_view_mode = $view_mode_id;
++    $build['#attached']['library'][] = 'node/drupal.node.preview';
++
++    return $build;
++  }
++
++}
+diff -ruN m22-orig/modules/druxt_node_preview/src/DruxtNodePreviewServiceProvider.php m22/modules/druxt_node_preview/src/DruxtNodePreviewServiceProvider.php
+--- a/modules/druxt_node_preview/src/DruxtNodePreviewServiceProvider.php	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/src/DruxtNodePreviewServiceProvider.php	2026-09-05 05:30:33.802487011 +0000
+@@ -0,0 +1,24 @@
++<?php
++
++namespace Drupal\druxt_node_preview;
++
++use Drupal\Core\DependencyInjection\ContainerBuilder;
++use Drupal\Core\DependencyInjection\ServiceModifierInterface;
++
++/**
++ * Configure CORS supportCredentials option.
++ */
++class DruxtNodePreviewServiceProvider implements ServiceModifierInterface {
++
++  /**
++   * {@inheritdoc}
++   */
++  public function alter(ContainerBuilder $container) {
++    $cors_config = $container->getParameter('cors.config');
++    if (!$cors_config['supportsCredentials']) {
++      $cors_config['supportsCredentials'] = TRUE;
++      $container->setParameter('cors.config', $cors_config);
++    }
++  }
++
++}
+diff -ruN m22-orig/modules/druxt_node_preview/src/Form/DruxtNodePreviewSettingsForm.php m22/modules/druxt_node_preview/src/Form/DruxtNodePreviewSettingsForm.php
+--- a/modules/druxt_node_preview/src/Form/DruxtNodePreviewSettingsForm.php	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/src/Form/DruxtNodePreviewSettingsForm.php	2026-09-05 05:30:33.802487011 +0000
+@@ -0,0 +1,59 @@
++<?php
++
++namespace Drupal\druxt_node_preview\Form;
++
++use Drupal\Core\Form\ConfigFormBase;
++use Drupal\Core\Form\FormStateInterface;
++
++/**
++ * Configure Druxt: Node Preview settings for this site.
++ *
++ * @internal
++ */
++class DruxtNodePreviewSettingsForm extends ConfigFormBase {
++
++  /**
++   * {@inheritdoc}
++   */
++  public function getFormId() {
++    return 'druxt_node_preview_settings';
++  }
++
++  /**
++   * {@inheritdoc}
++   */
++  protected function getEditableConfigNames() {
++    return ['druxt_node_preview.settings'];
++  }
++
++  /**
++   * {@inheritdoc}
++   */
++  public function buildForm(array $form, FormStateInterface $form_state) {
++    $config = $this->config('druxt_node_preview.settings');
++
++    $form['frontends'] = [
++      '#type' => 'textarea',
++      '#title' => $this->t('Preview frontends'),
++      '#default_value' => $config->get('frontends'),
++      '#description' =>
++        $this->t('The available preview frontends. Enter one value per line, in the format label|url') . '<br />' .
++        $this->t('The label is optional: if a line contains a single string, it will be used as url and label.') . '<br />' .
++        $this->t('The following tokens can be used in the url: [bundle], [mode], [preview]'),
++    ];
++
++    return parent::buildForm($form, $form_state);
++  }
++
++  /**
++   * {@inheritdoc}
++   */
++  public function submitForm(array &$form, FormStateInterface $form_state) {
++    $this->config('druxt_node_preview.settings')
++      ->set('frontends', $form_state->getValue('frontends'))
++      ->save();
++
++    parent::submitForm($form, $form_state);
++  }
++
++}
+diff -ruN m22-orig/modules/druxt_node_preview/src/Routing/RouteSubscriber.php m22/modules/druxt_node_preview/src/Routing/RouteSubscriber.php
+--- a/modules/druxt_node_preview/src/Routing/RouteSubscriber.php	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/src/Routing/RouteSubscriber.php	2026-09-05 05:30:33.802487011 +0000
+@@ -0,0 +1,23 @@
++<?php
++namespace Drupal\druxt_node_preview\Routing;
++
++use Drupal\Core\Routing\RouteSubscriberBase;
++use Symfony\Component\Routing\RouteCollection;
++
++/**
++ * RouterSubsciber for altering routes.
++ */
++class RouteSubscriber extends RouteSubscriberBase {
++
++  /**
++   * {@inheritdoc}
++   */
++  protected function alterRoutes(RouteCollection $collection) {
++    if ($route = $collection->get('entity.node.preview')) {
++      $route->setDefaults(array(
++        '_controller' => '\Drupal\druxt_node_preview\Controller\NodePreviewController::view',
++      ));
++    }
++  }
++
++}
+diff -ruN m22-orig/modules/druxt_node_preview/templates/druxt-node-preview.html.twig m22/modules/druxt_node_preview/templates/druxt-node-preview.html.twig
+--- a/modules/druxt_node_preview/templates/druxt-node-preview.html.twig	1970-01-01 00:00:00.000000000 +0000
++++ b/modules/druxt_node_preview/templates/druxt-node-preview.html.twig	2026-09-05 05:30:33.803487011 +0000
+@@ -0,0 +1,4 @@
++{{ attach_library('druxt_node_preview/druxt.node_preview') }}
++<div class="druxt-node-preview">
++  <iframe src="{{ url }}"></iframe>
++</div>

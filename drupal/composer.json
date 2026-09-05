@@ -10,33 +10,32 @@
         }
     ],
     "require": {
-        "amazeeio/drupal_integrations": "0.3.7",
-        "composer/installers": "2.2.0",
-        "cweagans/composer-patches": "1.7.3",
-        "drupal-tome/tome_drush": "dev-master",
-        "drupal/anonymous_redirect": "2.2.0-rc1",
-        "drupal/core-composer-scaffold": "9.5.10",
-        "drupal/core-project-message": "9.5.10",
-        "drupal/core-recommended": "9.5.10",
-        "drupal/druxt": "1.2.0",
-        "drupal/gin": "3.0.0-rc6",
-        "drupal/gin_login": "2.0.2",
-        "drupal/gin_toolbar": "1.0.0-beta22@beta",
-        "drupal/jsonapi_hypermedia": "1.9.0",
-        "drupal/jsonapi_menu_items": "1.2.4",
-        "drupal/jsonapi_node_preview": "^1.0.0-beta2@beta",
-        "drupal/jsonapi_node_preview_tab": "^1.0.1",
-        "drupal/lagoon_logs": "2.1.1",
-        "drupal/search_api_lunr": "2.0.1",
-        "drupal/simple_oauth": "5.2.3",
-        "drupal/tome": "^1.11.0",
-        "drush/drush": "11.6.0",
-        "vlucas/phpdotenv": "5.5.0",
-        "zaporylie/composer-drupal-optimizations": "1.2.0"
+        "amazeeio/drupal_integrations": "^0.5",
+        "composer/installers": "^2.2",
+        "cweagans/composer-patches": "^2.0@beta",
+        "drupal/anonymous_redirect": "^2.5",
+        "drupal/core-composer-scaffold": "~11",
+        "drupal/core-project-message": "~11",
+        "drupal/core-recommended": "~11",
+        "drupal/decoupled_router": "2.0.5",
+        "drupal/druxt": "^1.2.2",
+        "drupal/gin": "^4.0",
+        "drupal/gin_login": "^2.1",
+        "drupal/gin_toolbar": "^2.0",
+        "drupal/jsonapi_hypermedia": "^1.10",
+        "drupal/jsonapi_menu_items": "^1.2",
+        "drupal/jsonapi_node_preview": "^1.0@beta",
+        "drupal/jsonapi_node_preview_tab": "^1.0",
+        "drupal/lagoon_logs": "^3.0",
+        "drupal/search_api_lunr": "^3.1",
+        "drupal/simple_oauth": "^6.1",
+        "drupal/tome": "^1.16",
+        "drush/drush": "^13",
+        "vlucas/phpdotenv": "^5.6"
     },
     "require-dev": {
-        "drupal/core-dev": "9.5.10",
-        "weitzman/drupal-test-traits": "1.6.0"
+        "drupal/core-dev": "~11",
+        "weitzman/drupal-test-traits": "^2.6"
     },
     "autoload": {
         "files": [
@@ -53,27 +52,50 @@
             "phpunit --log-junit ./web/sites/simpletest/browser_output/junit.xml"
         ]
     },
-    "config":{
+    "config": {
         "sort-packages": true,
         "allow-plugins": {
-            "drupal/core-composer-scaffold": true,
             "composer/installers": true,
             "cweagans/composer-patches": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
-            "zaporylie/composer-drupal-optimizations": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "php-http/discovery": true,
+            "phpstan/extension-installer": true,
+            "symfony/runtime": true,
+            "tbachert/spi": true,
+            "zaporylie/composer-drupal-optimizations": true
+        },
+        "platform": {
+            "php": "8.3"
         }
     },
     "extra": {
         "installer-paths": {
-            "web/core": ["type:drupal-core"],
-            "web/libraries/{$name}": ["type:drupal-library"],
-            "web/modules/contrib/{$name}": ["type:drupal-module"],
-            "web/profiles/contrib/{$name}": ["type:drupal-profile"],
-            "web/themes/contrib/{$name}": ["type:drupal-theme"],
-            "drush/Commands/contrib/{$name}": ["type:drupal-drush"],
-            "web/modules/custom/{$name}": ["type:drupal-custom-module"],
-            "web/themes/custom/{$name}": ["type:drupal-custom-theme"]
+            "web/core": [
+                "type:drupal-core"
+            ],
+            "web/libraries/{$name}": [
+                "type:drupal-library"
+            ],
+            "web/modules/contrib/{$name}": [
+                "type:drupal-module"
+            ],
+            "web/profiles/contrib/{$name}": [
+                "type:drupal-profile"
+            ],
+            "web/themes/contrib/{$name}": [
+                "type:drupal-theme"
+            ],
+            "drush/Commands/contrib/{$name}": [
+                "type:drupal-drush"
+            ],
+            "web/modules/custom/{$name}": [
+                "type:drupal-custom-module"
+            ],
+            "web/themes/custom/{$name}": [
+                "type:drupal-custom-theme"
+            ]
         },
         "drupal-scaffold": {
             "allowed-packages": [
@@ -87,14 +109,14 @@
             }
         },
         "patches": {
-            "drupal/core": {
-                "#2942975 Expose Layout Builder data to REST and JSON:API": "https://www.drupal.org/files/issues/2022-06-24/2942975-199.patch"
-            },
             "drupal/decoupled_router": {
-                "https://www.drupal.org/project/decoupled_router/issues/3111456#comment-15211077": "https://www.drupal.org/files/issues/2023-08-30/decoupled_router-3111456-resolve_lang-66.patch"
+                "https://www.drupal.org/project/decoupled_router/issues/3172926": "https://www.drupal.org/files/issues/2020-09-24/3172926-2.patch",
+                "https://www.drupal.org/project/decoupled_router/issues/3468825": "https://git.drupalcode.org/project/decoupled_router/-/merge_requests/20.diff",
+                "#3111456 Resolve the language from the requested path": "https://raw.githubusercontent.com/druxt/druxt.js/develop/docs/drupal/patches/decoupled_router-3111456-resolve-language-from-path.patch"
             },
             "drupal/druxt": {
-                "Node Preview": "https://git.drupalcode.org/project/druxt/-/merge_requests/8.diff"
+                "#3273228 Add langcode to Views Decoupled Router integration (rerolled for 1.2.2)": "patches/druxt-3273228-views-route-langcode.patch",
+                "#3264181 Node Preview (MR!8, rerolled for 1.2.2)": "patches/druxt-mr8-node-preview.patch"
             }
         }
     }

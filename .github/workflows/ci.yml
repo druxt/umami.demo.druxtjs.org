@@ -133,3 +133,35 @@ jobs:
           name: gitleaks-report
           path: gitleaks-report.json
           if-no-files-found: ignore
+
+  test-backend:
+    name: Backend (Drupal 11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: gd, pdo_sqlite, mbstring, xml, curl, zip, intl
+          coverage: none
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ hashFiles('drupal/composer.lock') }}
+          restore-keys: composer-
+
+      - run: composer install --no-interaction --no-progress
+        working-directory: drupal
+
+      # A fresh demo_umami on SQLite, served by PHP's built-in server. The
+      # suite asserts over HTTP, so it needs a backend that answers.
+      - name: Provision a fresh umami
+        run: .devtools/provision
+        working-directory: drupal
+
+      - name: ExistingSite tests
+        run: .devtools/test
+        working-directory: drupal
