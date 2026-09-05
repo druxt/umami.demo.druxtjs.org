@@ -18,7 +18,10 @@
       </button>
     </div>
 
-    <div class="mt-3 p-2" style="background: #fdfbf7; border: 1px solid #d8e8f4; border-radius: 6px">
+    <div
+      class="mt-3 p-2"
+      style="background: #fdfbf7; border: 1px solid #d8e8f4; border-radius: 6px"
+    >
       <DruxtEntity :key="mode" :mode="mode" :type="type" :uuid="uuid" />
     </div>
 

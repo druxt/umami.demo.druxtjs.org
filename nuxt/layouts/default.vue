@@ -6,7 +6,7 @@
 
         <DevRegion
           v-if="regions.includes('header')"
-          label="DruxtBlockRegion name=&quot;header&quot;"
+          label='DruxtBlockRegion name="header"'
           source="components/druxt/block-region/Header.vue"
         >
           <DruxtBlockRegion
@@ -21,7 +21,7 @@
 
         <DevRegion
           v-if="regions.includes('banner_top')"
-          label="DruxtBlockRegion name=&quot;banner_top&quot;"
+          label='DruxtBlockRegion name="banner_top"'
           source="components/druxt/block-region/BannerTop.vue"
         >
           <DruxtBlockRegion v-bind="props.banner_top" />
@@ -39,10 +39,13 @@
         </b-container>
 
         <DevRegion
-          label="DruxtBlockRegion name=&quot;content&quot;"
+          label='DruxtBlockRegion name="content"'
           source="layouts/default.vue"
         >
-          <b-container :class="isHomePath ? 'px-0' : 'pb-5'" :fluid="isHomePath">
+          <b-container
+            :class="isHomePath ? 'px-0' : 'pb-5'"
+            :fluid="isHomePath"
+          >
             <slot v-if="$slots.default" />
             <DruxtBlockRegion
               v-else-if="regions.includes('content')"
