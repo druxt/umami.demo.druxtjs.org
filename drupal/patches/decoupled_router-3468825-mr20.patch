@@ -1,0 +1,25 @@
+diff --git a/src/EventSubscriber/RouterPathTranslatorSubscriber.php b/src/EventSubscriber/RouterPathTranslatorSubscriber.php
+index cc20fad8bfe7ef995db9bac64fad4934a7647178..154b5079e5644be0cff336c611843b36a2224c55 100644
+--- a/src/EventSubscriber/RouterPathTranslatorSubscriber.php
++++ b/src/EventSubscriber/RouterPathTranslatorSubscriber.php
+@@ -292,10 +292,16 @@ class RouterPathTranslatorSubscriber implements EventSubscriberInterface {
+         $entity = $match_info[$entity_type_id];
+       }
+     }
+-    $param_uses_uuid = strpos(
+-      $route_parameters[$route_parameter_entity_key]['converter'],
+-      'entity_uuid'
+-    ) === FALSE;
++
++    // Ensure that 'converter' exists and is a string before using strpos().
++    $param_uses_uuid = true;
++    if (!empty($route_parameters[$route_parameter_entity_key]['converter']) &&
++        is_string($route_parameters[$route_parameter_entity_key]['converter'])) {
++      $param_uses_uuid = strpos(
++        $route_parameters[$route_parameter_entity_key]['converter'],
++        'entity_uuid'
++      ) === FALSE;
++    }
+ 
+     return [$entity, $param_uses_uuid, $route_parameter_entity_key];
+   }
