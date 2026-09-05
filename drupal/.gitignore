@@ -25,3 +25,7 @@ web/sites/simpletest
 /.gitattributes
 .vscode/*
 !.vscode/launch.json
+
+# Ignore the Docker-free dev database and PHPUnit's cache
+/.devtools/db.sqlite*
+/.phpunit.cache/
