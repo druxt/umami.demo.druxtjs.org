@@ -21,6 +21,12 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 DB="${DRUPAL_SQLITE_PATH:-$PWD/.devtools/db.sqlite}"
+
+# The db-url parser needs a host segment, so an absolute SQLite path needs the
+# extra slash "localhost/$DB" produces. DRUPAL_DB_URL replaces the whole URL,
+# which is how DDEV and Lagoon point this at their MariaDB instead.
+DB_URL="${DRUPAL_DB_URL:-sqlite://localhost/$DB}"
+
 DRUSH="$PWD/vendor/bin/drush"
 
 # A demo_umami install exceeds PHP's default 128M. This drush launcher does
@@ -31,15 +37,18 @@ ACCOUNT_PASS="${DRUPAL_ACCOUNT_PASS:-admin}"
 
 [ -x "$DRUSH" ] || { echo "drush not found at $DRUSH; run composer install first." >&2; exit 1; }
 
-echo "==> Fresh demo_umami install (sqlite: $DB)"
-mkdir -p "$(dirname "$DB")"
-rm -f "$DB"
+# Only the driver, never the whole URL: it can carry a password.
+echo "==> Fresh demo_umami install (${DB_URL%%:*})"
+case "$DB_URL" in
+  sqlite://*)
+    mkdir -p "$(dirname "$DB")"
+    rm -f "$DB"
+    ;;
+esac
 chmod -R u+w web/sites/default 2>/dev/null || true
 
-# The db-url parser requires a host segment, so an absolute path needs the
-# extra slash that "localhost/$DB" produces.
 "$DRUSH" site:install demo_umami \
-  --db-url="sqlite://localhost/$DB" \
+  --db-url="$DB_URL" \
   --site-name="$SITE_NAME" \
   --account-name=admin \
   --account-pass="$ACCOUNT_PASS" \
@@ -57,6 +66,11 @@ echo "==> Enabling the Druxt layer"
   jsonapi_views \
   jsonapi_node_preview \
   jsonapi_node_preview_tab
+
+echo "==> Building the search index"
+# The frontend fetches /js-search/settings at build time and fails without it,
+# so the Lunr files have to exist before anything generates.
+"$DRUSH" search-api:index
 
 echo "==> Rebuilding caches"
 "$DRUSH" cache:rebuild
