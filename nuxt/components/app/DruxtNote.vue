@@ -4,7 +4,11 @@
       <span class="druxt-note__kicker">{{ kicker }}</span>
       <h3 class="druxt-note__title">{{ title }}</h3>
       <p class="druxt-note__body"><slot /></p>
-      <nuxt-link v-if="to" class="druxt-note__link d-inline-block mt-2" :to="to">
+      <nuxt-link
+        v-if="to"
+        class="druxt-note__link d-inline-block mt-2"
+        :to="to"
+      >
         {{ cta }} →
       </nuxt-link>
       <a

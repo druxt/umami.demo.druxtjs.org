@@ -38,6 +38,6 @@ export default {
 .masthead__menu .nav-item .dropdown-menu {
   border: 1px solid #e6ddcd;
   border-radius: 0;
-  box-shadow: 0 8px 24px rgba(36, 31, 26, 0.1);
+  box-shadow: 0 8px 24px rgb(36 31 26 / 10%);
 }
 </style>

@@ -13,10 +13,24 @@
             you want to.
           </p>
           <div class="druxt-cta__links">
-            <a href="https://github.com/druxt/umami.demo.druxtjs.org" rel="noopener" target="_blank">GitHub</a>
-            <a href="https://discord.druxtjs.org" rel="noopener" target="_blank">Discord</a>
-            <a href="https://storybook.umami.demo.druxtjs.org" rel="noopener" target="_blank">Storybook</a>
-            <a href="https://druxtjs.org" rel="noopener" target="_blank">Docs</a>
+            <a
+              href="https://github.com/druxt/umami.demo.druxtjs.org"
+              rel="noopener"
+              target="_blank"
+              >GitHub</a
+            >
+            <a href="https://discord.druxtjs.org" rel="noopener" target="_blank"
+              >Discord</a
+            >
+            <a
+              href="https://storybook.umami.demo.druxtjs.org"
+              rel="noopener"
+              target="_blank"
+              >Storybook</a
+            >
+            <a href="https://druxtjs.org" rel="noopener" target="_blank"
+              >Docs</a
+            >
           </div>
         </b-col>
 
@@ -28,7 +42,7 @@
               {{ copied ? 'copied' : 'copy' }}
             </button>
           </div>
-          <p class="mt-2 mb-0" style="font-size: 0.78125rem">
+          <p class="mt-2 mb-0" style="font-size: 0.7813rem">
             Or open this exact site in Gitpod — backend, frontend and demo
             content included.
           </p>

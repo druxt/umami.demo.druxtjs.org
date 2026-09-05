@@ -3,7 +3,14 @@
     <button
       v-b-toggle="id"
       class="d-flex align-items-center justify-content-between w-100 text-left"
-      style="background: #faf4ea; border: 0; padding: 0.875rem 1.125rem; font-size: 0.84375rem; font-weight: 600; color: #55504a"
+      style="
+        background: #faf4ea;
+        border: 0;
+        padding: 0.875rem 1.125rem;
+        font-size: 0.8438rem;
+        font-weight: 600;
+        color: #55504a;
+      "
       type="button"
     >
       View the JSON:API request

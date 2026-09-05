@@ -2,7 +2,10 @@
   <article>
     <b-row>
       <b-col cols="12" lg="7">
-        <div class="d-flex flex-wrap align-items-center mb-3" style="gap: 0.5rem">
+        <div
+          class="d-flex flex-wrap align-items-center mb-3"
+          style="gap: 0.5rem"
+        >
           <slot name="field_recipe_category" />
           <slot name="field_tags" />
         </div>
@@ -60,15 +63,34 @@
           label="DruxtEntityForm"
           source="components/druxt/entity-form/node/Default.vue"
         >
-          <div style="border: 1px solid #e6ddcd; border-radius: 8px; overflow: hidden">
+          <div
+            style="
+              border: 1px solid #e6ddcd;
+              border-radius: 8px;
+              overflow: hidden;
+            "
+          >
             <button
               v-b-toggle.recipe-edit
               class="d-flex align-items-center justify-content-between w-100 text-left"
-              style="background: #faf4ea; border: 0; padding: 0.875rem 1.125rem; font-size: 0.84375rem; font-weight: 600; color: #55504a"
+              style="
+                background: #faf4ea;
+                border: 0;
+                padding: 0.875rem 1.125rem;
+                font-size: 0.8438rem;
+                font-weight: 600;
+                color: #55504a;
+              "
               type="button"
             >
               Edit this recipe
-              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6875rem; color: #0678be">
+              <span
+                style="
+                  font-family: 'IBM Plex Mono', monospace;
+                  font-size: 0.6875rem;
+                  color: #0678be;
+                "
+              >
                 DruxtEntityForm
               </span>
             </button>
