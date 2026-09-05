@@ -1,0 +1,130 @@
+---
+# Lint and tooling checks. The same checks run at merge-request time in
+# .gitlab-ci.yml; keep the two in step when either changes.
+#
+# Split by Node version on purpose. The app is pinned to Node 16 with the rest
+# of the frozen Nuxt 2 stack, but repo-level tooling has no reason to share
+# that pin, and current markdownlint-cli2 cannot parse on 16 (it uses the `v`
+# regex flag).
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint (app)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 16
+          cache: yarn
+          cache-dependency-path: nuxt/yarn.lock
+      - run: yarn install --frozen-lockfile
+        working-directory: nuxt
+      - run: yarn lint:js
+        working-directory: nuxt
+      - run: yarn lint:style
+        working-directory: nuxt
+      - run: npx --no-install prettier --check .
+        working-directory: nuxt
+
+  lint-repo:
+    name: Lint (repo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Validate JSON
+        run: |
+          rc=0; count=0
+          while IFS= read -r -d '' f; do
+            count=$((count + 1))
+            if python3 -m json.tool "$f" > /dev/null 2>&1; then
+              echo "  [PASS] $f"
+            else
+              echo "  [FAIL] $f"; rc=1
+            fi
+          done < <(find . -name '*.json' -not -path '*/.git/*' \
+            -not -path '*/node_modules/*' -not -path '*/dist/*' \
+            -not -path '*/.nuxt/*' -not -path '*/drupal/*' \
+            -not -path '*/templates/*' -not -path '*/.vscode/*' -print0)
+          echo "--- $count JSON file(s) checked ---"
+          exit "$rc"
+
+      - name: Lint YAML
+        run: |
+          pip install yamllint -q
+          yamllint -c .yamllint .gitlab-ci.yml .github/workflows/
+
+      - name: Lint Markdown
+        run: npx --yes markdownlint-cli2 "**/*.md"
+
+      - name: Spell check
+        run: >-
+          npx --yes cspell@8 --no-progress --config .cspell.json
+          "**/*.{js,vue,json,md,yml,yaml}"
+
+  commitlint:
+    name: Commit messages
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 16
+          cache: yarn
+          cache-dependency-path: nuxt/yarn.lock
+      - run: yarn install --frozen-lockfile
+        working-directory: nuxt
+      # Run the installed binary. npx cannot work here: commitlint resolves
+      # `extends` from the working directory, not its own install prefix.
+      - run: >-
+          yarn commitlint
+          --from "${{ github.event.pull_request.base.sha }}"
+          --to "${{ github.event.pull_request.head.sha }}" --verbose
+        working-directory: nuxt
+
+  secret-detection:
+    name: Secret detection
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # A pinned, checksum-verified binary rather than gitleaks-action, which
+      # requires a paid licence for organisation repositories.
+      - name: Install gitleaks
+        run: |
+          gitleaks_version="8.30.1"
+          sha256=551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+          url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}"
+          curl -fsSL "${url}/gitleaks_${gitleaks_version}_linux_x64.tar.gz" -o /tmp/gitleaks.tar.gz
+          echo "${sha256}  /tmp/gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+          chmod +x /tmp/gitleaks
+      - name: Scan
+        run: >-
+          /tmp/gitleaks dir . --no-banner --redact
+          --config .gitleaks.toml --report-path gitleaks-report.json
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.json
+          if-no-files-found: ignore
