@@ -1,0 +1,18 @@
+# gitleaks configuration.
+#
+# The generic-api-key rule fires on a high-entropy value sitting next to a
+# keyword. That is usually right, but npm dependency names carry keywords too:
+# "@nuxtjs/auth-next": "5.0.0-1667386184.dfbbb54" reads as auth + secret and is
+# just a pinned version.
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+[rules.allowlist]
+condition = "AND"
+description = "Pinned npm versions in package.json are not credentials"
+paths = ['''(^|/)package(-lock)?\.json$''']
+regexTarget = "line"
+regexes = ['''"[^"]+":\s*"\d+\.\d+\.\d+[^"]*"''']

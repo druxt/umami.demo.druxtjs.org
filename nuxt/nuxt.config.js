@@ -13,7 +13,7 @@ export default {
       '/node/preview/default',
       '/node/preview/full',
       '/node/preview/rss',
-      '/node/preview/teaser'
+      '/node/preview/teaser',
     ],
   },
 
@@ -175,6 +175,13 @@ export default {
   proxy: {
     '/en/jsonapi': baseUrl,
     '/es/jsonapi': baseUrl,
+  },
+
+  // Serve from a subdirectory when previewing. GitLab Pages publishes each
+  // branch under /<project>/<branch-slug>/, and without this every /_nuxt/
+  // asset resolves to the domain root and 404s. Unset in production.
+  router: {
+    base: process.env.ROUTER_BASE || '/',
   },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)

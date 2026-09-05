@@ -1,0 +1,10 @@
+---
+extends: default
+rules:
+  line-length:
+    max: 200
+    level: warning
+  # GitHub Actions' `on:` key is parsed as the boolean true by YAML 1.1.
+  # It is not a mistake and cannot be spelled differently.
+  truthy:
+    allowed-values: ['true', 'false', 'on']

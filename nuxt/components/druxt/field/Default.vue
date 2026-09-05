@@ -53,7 +53,9 @@
         </b-button>
       </b-card-header>
       <b-collapse :id="`collapse-${schema.id}`">
-        <b-card-body v-if="Array.isArray(relationships) && relationships[0].type">
+        <b-card-body
+          v-if="Array.isArray(relationships) && relationships[0].type"
+        >
           <DruxtEntityForm
             v-for="{ type, id } of relationships"
             :key="id"

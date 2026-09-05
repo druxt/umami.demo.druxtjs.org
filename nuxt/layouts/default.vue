@@ -29,10 +29,7 @@
             </b-row>
 
             <b-row v-show="!isHomePath">
-              <b-col
-                v-if="regions.includes('page_title')"
-                class="mb-3 mb-md-5"
-              >
+              <b-col v-if="regions.includes('page_title')" class="mb-3 mb-md-5">
                 <DruxtBlockRegion v-bind="props.page_title" />
               </b-col>
             </b-row>

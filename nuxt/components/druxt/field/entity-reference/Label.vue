@@ -16,7 +16,10 @@
       v-bind="{ ...item, mode: 'label' }"
     >
       <template #default="{ entity }">
-        <NuxtLink class="mr-1" :to="`/en${(entity.attributes.path || {}).alias}`">
+        <NuxtLink
+          class="mr-1"
+          :to="`/en${(entity.attributes.path || {}).alias}`"
+        >
           <b-badge variant="info">{{ entity.attributes.name }}</b-badge>
         </NuxtLink>
       </template>

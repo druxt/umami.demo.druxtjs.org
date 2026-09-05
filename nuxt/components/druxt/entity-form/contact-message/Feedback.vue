@@ -45,7 +45,7 @@
 
         <div v-else>
           <p><strong>Thank you for your feedback</strong></p>
-          <p>The following is the response data recieved from Drupal:</p>
+          <p>The following is the response data received from Drupal:</p>
           <VueJsonPretty :data="response.data" />
         </div>
       </b-card>

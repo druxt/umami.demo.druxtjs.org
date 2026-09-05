@@ -1,6 +1,6 @@
 import createPersistedState from 'vuex-persistedstate'
 
-export default ({store}) => {
+export default ({ store }) => {
   createPersistedState({
     key: 'druxtCache',
     paths: [
@@ -9,7 +9,7 @@ export default ({store}) => {
       'druxtMenu.entities',
       'druxtSchema.schemas',
       'druxt.collections',
-      'druxt.resources'
-    ]
+      'druxt.resources',
+    ],
   })(store)
 }
