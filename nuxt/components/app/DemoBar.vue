@@ -3,7 +3,10 @@
     <b-container class="demo-bar__inner">
       <span class="demo-bar__id">
         <span class="demo-bar__dot" />
-        A DruxtJS demo — Drupal Umami content, rendered by Nuxt
+        <span class="demo-bar__full">
+          A DruxtJS demo — Drupal Umami content, rendered by Nuxt
+        </span>
+        <span class="demo-bar__short">DruxtJS demo</span>
       </span>
 
       <nav class="demo-bar__links">
@@ -27,7 +30,9 @@
           :aria-pressed="devOverlay ? 'true' : 'false'"
           @click="toggleDevOverlay"
         >
-          Dev overlay <span>{{ devOverlay ? 'on' : 'off' }}</span>
+          <span class="demo-bar__full">Dev overlay</span>
+          <span class="demo-bar__short">Overlay</span>
+          <span>{{ devOverlay ? 'on' : 'off' }}</span>
         </button>
       </nav>
     </b-container>
