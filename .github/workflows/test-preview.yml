@@ -57,8 +57,15 @@ jobs:
       - name: Run tests 🧪
         run: cd nuxt && BASE_URL=http://druxt-js-demo-umami.ddev.site yarn test
 
+      # Build the deploy preview against the public backend, not the ddev one.
+      # ddev is here for the test step above; baking its hostname into the
+      # static output leaves every absolute Drupal URL, images included,
+      # pointing at druxt-js-demo-umami.ddev.site, which no browser can reach.
       - name: Generate dist 👨🏻‍💻
         run: cd nuxt && yarn generate
+        env:
+          BASE_URL: https://api.umami.demo.druxtjs.org
+          API_PROXY: '0'
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2
