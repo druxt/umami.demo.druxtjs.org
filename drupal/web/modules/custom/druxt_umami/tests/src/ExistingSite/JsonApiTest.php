@@ -81,6 +81,31 @@ class JsonApiTest extends DruxtUmamiTestBase {
   }
 
   /**
+   * Resolves a view in a non-default language, with its translated title.
+   *
+   * This is the end-to-end proof for drupal.org #3273228. The router request
+   * carries no language of its own, so the subscriber reads the language off
+   * the requested path, strips the prefix before matching the route, and
+   * points the config override language at it. Without the last part the view
+   * loads with default-language config and reports the untranslated title.
+   */
+  public function testRouterResolvesViewInSpanish(): void {
+    $data = $this->getJson('/router/translate-path?path=/es');
+
+    $this->assertSame('frontpage', $data['view']['view_id']);
+    $this->assertSame('page_1', $data['view']['display_id']);
+    $this->assertSame('es', $data['view']['langcode']);
+    $this->assertSame('Inicio', $data['label']);
+    $this->assertStringEndsWith('/es/node', $data['resolved']);
+
+    // The same view in the default language, to prove the langcode is read
+    // from the path rather than being constant.
+    $english = $this->getJson('/router/translate-path?path=/en/node');
+    $this->assertSame('en', $english['view']['langcode']);
+    $this->assertSame('Home', $english['label']);
+  }
+
+  /**
    * DruxtView reads a view's results through jsonapi_views.
    */
   public function testJsonApiViewsResource(): void {
