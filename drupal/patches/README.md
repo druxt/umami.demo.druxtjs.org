@@ -1,33 +1,31 @@
 # Patches
 
-Local reworks of patches and merge requests still open upstream. Each one
-should be pushed back to its issue and deleted from here.
+Patches for issues still open upstream. Prefer pointing `composer.json` at the
+merge request diff; a local file here means the upstream one does not apply to
+the version this demo pins, and it should be pushed back and deleted.
 
-## `druxt-3273228-views-route-langcode.patch`
+## #3273228 Views route langcode
 
 Issue: [#3273228 Add langcode to Views Decoupled Router integration](https://www.drupal.org/project/druxt/issues/3273228)
+Merge request: [MR!9](https://git.drupalcode.org/project/druxt/-/merge_requests/9)
 
-Makes the Views decoupled-router integration resolve against the language in
-the requested path, so a `/es` view route returns Spanish rather than the
-site default. Without it a decoupled frontend sends `/es` straight back to `/`.
+No local file: `composer.json` points at the merge request diff directly.
 
-Rerolled here against **druxt 1.2.2**. 1.2.2 rewrote most of `ViewsPathTranslatorSubscriber`: `declare(strict_types=1)`,
-`#[\Override]` and a `: void` return on `onPathTranslation`, non-capturing
-`catch` clauses, the `CacheableJsonResponse` guard removed, and route
-resolution moved from the route object to `ROUTE_NAME` plus
-`array_intersect_key` parameters. The 1.2.0 and 1.2.1 versions of this patch
-do not survive that, so this was hand-rerolled rather than fuzzed: applying
-the older one lands hunks at fuzz 3 and one hunk fails outright.
+The local reroll that used to live here has been superseded. MR!9 was rebased
+onto 1.2.2 upstream and is a superset of it: it also strips the language prefix
+before matching the route, restores the config override language in a `finally`
+so a shared language manager is not left mutated, and reports the default
+langcode for an unprefixed path.
 
-The new helper is typed (`getPathLanguage(string $path): ?LanguageInterface`)
-and uses `str_starts_with`, to match 1.2.2's own style rather than the Drupal 9
-era code it came from.
+`JsonApiTest::testRouterResolvesViewInSpanish` is the end-to-end proof the
+merge request's own kernel tests cannot give: two of them skip because
+`PathProcessorLanguage` is not wired in a kernel harness. Against a real site
+`/es` resolves the frontpage view with `langcode: es` and the translated label
+`Inicio`.
 
-**The copy in `druxt.js` at `docs/drupal/patches/` is still the 1.2.0 version**
-and carries a live trap: 1.2.1 added the same `MethodNotAllowedException`
-import the patch adds, so applying it there produces a duplicate import and a
-file that will not parse. That copy and this one should not both exist; see
-the ownership note on the umami MR.
+One gap found while proving it: `isHomePath` is `false` for `/es` but `true`
+for `/` and `/en/node`, so a decoupled frontend will not treat the Spanish
+front page as home. That belongs on the issue, not in a local patch.
 
 ## `druxt-mr8-node-preview.patch`
 
