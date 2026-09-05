@@ -1,8 +1,8 @@
 <template>
-  <!-- b-navbar, not a plain div: bootstrap-vue needs the navbar-expand-lg
-       class it emits, or navbar-collapse never expands and navbar-toggler
-       never hides, at any width. -->
-  <b-navbar toggleable="lg" class="masthead">
+  <!-- Plain div on purpose: layouts/default.vue already wraps this region in a
+       b-navbar (toggleable lg, sticky) via DruxtBlockRegion's wrapper prop, so
+       nesting another navbar here duplicates the class and the padding. -->
+  <div class="masthead">
     <!-- Branding -->
     <slot name="umami_branding" />
 
@@ -25,7 +25,7 @@
         </span>
       </div>
     </b-collapse>
-  </b-navbar>
+  </div>
 </template>
 
 <script>
