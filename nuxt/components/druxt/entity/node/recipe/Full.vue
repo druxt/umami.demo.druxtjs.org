@@ -50,9 +50,11 @@
           </div>
         </div>
 
+        <!-- No `full`: this component is the full renderer, so selecting it
+             would nest another one, with its own switcher, form and drawer. -->
         <AppViewModeSwitcher
           class="mt-4"
-          :modes="['card', 'teaser', 'full']"
+          :modes="['card', 'teaser']"
           :type="entity.type"
           :uuid="entity.id"
         />

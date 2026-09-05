@@ -116,6 +116,10 @@ h4 {
 // margin; the masthead is full-width now, so that hack goes.
 .sticky-top {
   margin: 0;
+
+  // The demo bar is sticky at top: 0, so the masthead has to start below it or
+  // the two occupy the same strip.
+  top: $demo-bar-height;
 }
 
 // ---------------------------------------------------------------- bootstrap re-skin
@@ -586,7 +590,15 @@ h4 {
 
 // ---------------------------------------------------------------- promo layer
 
+// Both bars stick. The masthead offsets by exactly the demo bar's height, so
+// the two stack instead of overlapping; keep them tied to this variable.
+$demo-bar-height: 38px;
+
 .demo-bar {
+  position: sticky;
+  top: 0;
+  // Above .sticky-top (1020) so the masthead scrolls under it, not over.
+  z-index: 1030;
   background: $druxt-navy;
   color: #fff;
   font-size: 0.78125rem;
@@ -596,7 +608,7 @@ h4 {
     display: flex;
     gap: 1rem;
     justify-content: space-between;
-    min-height: 38px;
+    min-height: $demo-bar-height;
   }
   &__id {
     align-items: center;
@@ -881,8 +893,9 @@ h4 {
 
 @media (max-width: 767.98px) {
   // The banner reserves half a screen of height and indents its text by 2rem
-  // against a gradient sized for a wide viewport.
-  .recipe-card__body,
+  // against a gradient sized for a wide viewport. Only the banner: a recipe
+  // card body holds a category, title and meta line, and a 320px floor would
+  // leave most of it empty.
   .banner__body {
     min-height: 320px;
     padding: 2rem 1rem;

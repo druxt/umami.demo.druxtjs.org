@@ -41,7 +41,15 @@ export default {
      * with no full page load.
      */
     path(langcode) {
-      return this.$route.path.replace(/^\/(en|es)/, `/${langcode}`)
+      const path = this.$route.path
+      // Prefixed route: swap the prefix.
+      if (/^\/(en|es)(\/|$)/.test(path)) {
+        return path.replace(/^\/(en|es)/, `/${langcode}`)
+      }
+      // Unprefixed routes exist (the entity explorer uses the plain layout and
+      // still renders this header). Without this the regex matches nothing and
+      // both links resolve to the current path, so the switcher looks broken.
+      return `/${langcode}${path === '/' ? '' : path}`
     },
   },
 }

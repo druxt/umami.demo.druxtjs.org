@@ -49,7 +49,17 @@ export default {
   },
 
   computed: {
-    id: ({ path }) => `jsonapi-${path.replace(/[^a-z0-9]+/gi, '-').slice(-40)}`,
+    // Hash the whole path rather than truncating it. Recipe drawers share a
+    // long query suffix, so slicing the tail dropped the uuid and two recipes
+    // could produce the same id; bootstrap-vue then toggles every collapse
+    // with that id at once.
+    id: ({ path }) => {
+      let h = 0
+      for (let i = 0; i < path.length; i++) {
+        h = (Math.imul(31, h) + path.charCodeAt(i)) | 0
+      }
+      return `jsonapi-${(h >>> 0).toString(36)}`
+    },
 
     url: ({ $config, path }) => $config.baseUrl + path,
   },

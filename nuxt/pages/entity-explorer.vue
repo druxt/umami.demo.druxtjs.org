@@ -42,7 +42,11 @@
           <div class="mt-4">
             <span class="stat-grid__label">Editable</span>
             <client-only>
-              <VueLiveEditor class="mt-2" :code="code" />
+              <VueLiveEditor
+                class="mt-2"
+                :code="previewCode"
+                @change="edited = $event"
+              />
             </client-only>
           </div>
 
@@ -80,7 +84,7 @@
           >
             <div style="max-width: 320px; width: 100%">
               <client-only>
-                <VueLivePreview :code="code" />
+                <VueLivePreview :code="previewCode" />
               </client-only>
             </div>
           </div>
@@ -125,6 +129,8 @@ export default {
   layout: 'plain',
 
   data: () => ({
+    /** Edits made in the live editor. Null means "follow the selections". */
+    edited: null,
     display: { selected: 'card', options: undefined },
     resource: { selected: undefined, options: undefined },
     resourceType: {
@@ -149,7 +155,10 @@ export default {
         text: resource.attributes.title,
       }))
     )
-    this.resource.selected = this.resource.options[0].value
+    // An entity type can have no published resources. Dereferencing [0] then
+    // rejects fetch() and the page renders nothing at all rather than an
+    // empty state.
+    this.resource.selected = (this.resource.options[0] || {}).value
 
     const [entityType, bundle] = this.resourceType.selected.split('--')
     this.display.options = await this.getResources({
@@ -161,7 +170,21 @@ export default {
     }).then((displays) => displays.map((display) => display.attributes.mode))
   },
 
+  watch: {
+    // A new selection means the generated snippet changed, so an earlier edit
+    // no longer matches. Without this the controls look broken once edited.
+    code() {
+      this.edited = null
+    },
+  },
+
   computed: {
+    /** What the preview renders: the edited source if there is any, else the
+     * snippet the current selections describe. */
+    previewCode() {
+      return this.edited === null ? this.code : this.edited
+    },
+
     code() {
       return `<Druxt
   module="entity"
