@@ -1,5 +1,5 @@
 {
-    "_hash": "bfefde3284ac89d83f23803e90082c6ed3fa0401fc01e4eeaaad6bcf7e462728",
+    "_hash": "973717c24abf277afb23d46cf4654269788f654a095f16d6a525a4e8989bcbbe",
     "patches": {
         "drupal/decoupled_router": [
             {
@@ -37,8 +37,8 @@
             {
                 "package": "drupal/druxt",
                 "description": "#3273228 Add langcode to Views Decoupled Router integration",
-                "url": "https://git.drupalcode.org/project/druxt/-/merge_requests/9.diff",
-                "sha256": "70ded00e87b2dd0b1b172b4991012d124e7f0af696d275d961cb2d6195b9a003",
+                "url": "patches/druxt-3273228-views-route-langcode.patch",
+                "sha256": "fcb5cfd1dbe60c0742dbafcec993b27fb2c845b17d9f5bc23feb39bc86987c6b",
                 "depth": 1,
                 "extra": {
                     "provenance": "root"
