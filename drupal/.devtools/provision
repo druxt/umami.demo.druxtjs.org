@@ -67,6 +67,11 @@ echo "==> Enabling the Druxt layer"
   jsonapi_node_preview \
   jsonapi_node_preview_tab
 
+echo "==> Generating the OAuth keys"
+# simple_oauth.settings points at ../keys, which is empty in a fresh checkout.
+# Without the key pair the token endpoint cannot sign anything.
+"$DRUSH" simple-oauth:generate-keys "$PWD/keys"
+
 echo "==> Building the search index"
 # The frontend fetches /js-search/settings at build time and fails without it,
 # so the Lunr files have to exist before anything generates.
