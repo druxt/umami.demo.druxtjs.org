@@ -1,5 +1,5 @@
 {
-    "_hash": "678f9b9dc4625c728009725c9e65ed920e4f3f5a1041df757ba650f02ccf42f1",
+    "_hash": "a88dfbcd7b64b85ef058f72ea00d237b0421227e2d953ccf174d4214f06d10e5",
     "patches": {
         "drupal/decoupled_router": [
             {
@@ -36,9 +36,9 @@
         "drupal/druxt": [
             {
                 "package": "drupal/druxt",
-                "description": "#3273228 Add langcode to Views Decoupled Router integration (rerolled for 1.2.1)",
+                "description": "#3273228 Add langcode to Views Decoupled Router integration (rerolled for 1.2.2)",
                 "url": "patches/druxt-3273228-views-route-langcode.patch",
-                "sha256": "262bf8019cf506509ed9a86971f37cb36e73c61abcc10b9b372a9dcce1e71420",
+                "sha256": "6fda488a072463dbb4de918c104bd835fa0fdfd0ed34cde80ed25dc7b48dd863",
                 "depth": 1,
                 "extra": {
                     "provenance": "root"
@@ -46,9 +46,9 @@
             },
             {
                 "package": "drupal/druxt",
-                "description": "#3264181 Node Preview (MR!8, rerolled for 1.2.1)",
+                "description": "#3264181 Node Preview (MR!8, rerolled for 1.2.2)",
                 "url": "patches/druxt-mr8-node-preview.patch",
-                "sha256": "8e157f90be91d856a3b4684dbf95286dcd3352937f6b9f3e12f05d4f72a4fd31",
+                "sha256": "c57c6a6374c6f0a70fe6505f2a3c4da709ac4efc211cddb24f724959d06e6fcd",
                 "depth": 1,
                 "extra": {
                     "provenance": "root"

@@ -1,36 +1,24 @@
-diff -ruN mr8-orig/README.md mr8/README.md
---- a/README.md	2026-09-05 03:09:54.133061006 +0000
-+++ b/README.md	2026-09-05 03:09:54.135061006 +0000
-@@ -13,7 +13,7 @@
+diff -ruN m22-orig/README.md m22/README.md
+--- a/README.md	2026-09-05 05:30:33.799487011 +0000
++++ b/README.md	2026-09-05 05:30:33.801487011 +0000
+@@ -82,7 +82,7 @@
  - Condition plugin bypass for Block resources.
  - Enables Cross-Origin Resource Sharing (CORS) support.
  - Ensures EntityViewDisplay configuration available for [DruxtSchema](https://schema.druxtjs.org) module.
 -
 +- Node Preview submodule with support for view modes and multiple preview frontends via the [JSON:API Node Preview](https://www.drupal.org/project/jsonapi_node_preview) module.
  
- ## Installation
+ ## Maintainers
  
-diff -ruN mr8-orig/druxt.info.yml mr8/druxt.info.yml
---- a/druxt.info.yml	2026-09-05 03:09:54.133061006 +0000
-+++ b/druxt.info.yml	2026-09-05 03:09:54.135061006 +0000
-@@ -1,5 +1,6 @@
--name: DruxtJS
--description: A bridge between frameworks, Drupal in the back, Nuxt.js in the front.
-+name: Druxt
-+description: DruxtJS; A bridge between frameworks, Drupal in the back, Nuxt.js in the front.
-+package: Web services
- 
- type: module
- core_version_requirement: ^8.8 || ^9 || ^10 || ^11
-diff -ruN mr8-orig/modules/druxt_node_preview/config/install/druxt_node_preview.settings.yml mr8/modules/druxt_node_preview/config/install/druxt_node_preview.settings.yml
+diff -ruN m22-orig/modules/druxt_node_preview/config/install/druxt_node_preview.settings.yml m22/modules/druxt_node_preview/config/install/druxt_node_preview.settings.yml
 --- a/modules/druxt_node_preview/config/install/druxt_node_preview.settings.yml	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/config/install/druxt_node_preview.settings.yml	2026-09-05 03:09:54.135061006 +0000
++++ b/modules/druxt_node_preview/config/install/druxt_node_preview.settings.yml	2026-09-05 05:30:33.801487011 +0000
 @@ -0,0 +1,2 @@
 +langcode: en
 +frontends: "Localhost|http://localhost:3000/preview/node/[bundle]/[mode]#[preview]"
-diff -ruN mr8-orig/modules/druxt_node_preview/config/schema/druxt_node_preview.schema.yml mr8/modules/druxt_node_preview/config/schema/druxt_node_preview.schema.yml
+diff -ruN m22-orig/modules/druxt_node_preview/config/schema/druxt_node_preview.schema.yml m22/modules/druxt_node_preview/config/schema/druxt_node_preview.schema.yml
 --- a/modules/druxt_node_preview/config/schema/druxt_node_preview.schema.yml	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/config/schema/druxt_node_preview.schema.yml	2026-09-05 03:09:54.135061006 +0000
++++ b/modules/druxt_node_preview/config/schema/druxt_node_preview.schema.yml	2026-09-05 05:30:33.802487011 +0000
 @@ -0,0 +1,7 @@
 +jsonapi.settings:
 +  type: config_object
@@ -39,9 +27,9 @@ diff -ruN mr8-orig/modules/druxt_node_preview/config/schema/druxt_node_preview.s
 +    frontends:
 +      type: string
 +      label: 'The available preview frontends'
-diff -ruN mr8-orig/modules/druxt_node_preview/css/node_preview.css mr8/modules/druxt_node_preview/css/node_preview.css
+diff -ruN m22-orig/modules/druxt_node_preview/css/node_preview.css m22/modules/druxt_node_preview/css/node_preview.css
 --- a/modules/druxt_node_preview/css/node_preview.css	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/css/node_preview.css	2026-09-05 03:09:54.135061006 +0000
++++ b/modules/druxt_node_preview/css/node_preview.css	2026-09-05 05:30:33.802487011 +0000
 @@ -0,0 +1,17 @@
 +.druxt-node-preview iframe {
 +  background-color: white;
@@ -60,9 +48,9 @@ diff -ruN mr8-orig/modules/druxt_node_preview/css/node_preview.css mr8/modules/d
 +html[data-once="node-preview"] .layout-main-wrapper {
 +  z-index: unset;
 +}
-diff -ruN mr8-orig/modules/druxt_node_preview/druxt_node_preview.info.yml mr8/modules/druxt_node_preview/druxt_node_preview.info.yml
+diff -ruN m22-orig/modules/druxt_node_preview/druxt_node_preview.info.yml m22/modules/druxt_node_preview/druxt_node_preview.info.yml
 --- a/modules/druxt_node_preview/druxt_node_preview.info.yml	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/druxt_node_preview.info.yml	2026-09-05 03:10:20.745746005 +0000
++++ b/modules/druxt_node_preview/druxt_node_preview.info.yml	2026-09-05 05:30:50.308160004 +0000
 @@ -0,0 +1,11 @@
 +name: "Druxt: Node Preview"
 +description: JSON:API Node Preview integration for DruxtJS.
@@ -70,14 +58,14 @@ diff -ruN mr8-orig/modules/druxt_node_preview/druxt_node_preview.info.yml mr8/mo
 +configure: druxt_node_preview.settings
 +
 +type: module
-+core_version_requirement: ^8.8 || ^9 || ^10 || ^11
++core_version_requirement: ^10 || ^11 || ^12
 +
 +dependencies:
 +  - drupal:druxt
 +  - drupal:jsonapi_node_preview
-diff -ruN mr8-orig/modules/druxt_node_preview/druxt_node_preview.libraries.yml mr8/modules/druxt_node_preview/druxt_node_preview.libraries.yml
+diff -ruN m22-orig/modules/druxt_node_preview/druxt_node_preview.libraries.yml m22/modules/druxt_node_preview/druxt_node_preview.libraries.yml
 --- a/modules/druxt_node_preview/druxt_node_preview.libraries.yml	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/druxt_node_preview.libraries.yml	2026-09-05 03:09:54.135061006 +0000
++++ b/modules/druxt_node_preview/druxt_node_preview.libraries.yml	2026-09-05 05:30:33.802487011 +0000
 @@ -0,0 +1,9 @@
 +druxt.node_preview:
 +  js:
@@ -88,18 +76,18 @@ diff -ruN mr8-orig/modules/druxt_node_preview/druxt_node_preview.libraries.yml m
 +  dependencies:
 +    - core/jquery
 +    - core/drupal
-diff -ruN mr8-orig/modules/druxt_node_preview/druxt_node_preview.links.menu.yml mr8/modules/druxt_node_preview/druxt_node_preview.links.menu.yml
+diff -ruN m22-orig/modules/druxt_node_preview/druxt_node_preview.links.menu.yml m22/modules/druxt_node_preview/druxt_node_preview.links.menu.yml
 --- a/modules/druxt_node_preview/druxt_node_preview.links.menu.yml	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/druxt_node_preview.links.menu.yml	2026-09-05 03:09:54.135061006 +0000
++++ b/modules/druxt_node_preview/druxt_node_preview.links.menu.yml	2026-09-05 05:30:33.802487011 +0000
 @@ -0,0 +1,5 @@
 +druxt_node_preview.settings:
 +  title: 'Druxt: Node Preview'
 +  parent: system.admin_config_services
 +  description: "Configure the providers and settings for the Druxt Node Preview."
 +  route_name: druxt_node_preview.settings
-diff -ruN mr8-orig/modules/druxt_node_preview/druxt_node_preview.module mr8/modules/druxt_node_preview/druxt_node_preview.module
+diff -ruN m22-orig/modules/druxt_node_preview/druxt_node_preview.module m22/modules/druxt_node_preview/druxt_node_preview.module
 --- a/modules/druxt_node_preview/druxt_node_preview.module	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/druxt_node_preview.module	2026-09-05 03:09:54.135061006 +0000
++++ b/modules/druxt_node_preview/druxt_node_preview.module	2026-09-05 05:30:33.802487011 +0000
 @@ -0,0 +1,102 @@
 +<?php
 +
@@ -203,9 +191,9 @@ diff -ruN mr8-orig/modules/druxt_node_preview/druxt_node_preview.module mr8/modu
 +
 +  return $options;
 +}
-diff -ruN mr8-orig/modules/druxt_node_preview/druxt_node_preview.routing.yml mr8/modules/druxt_node_preview/druxt_node_preview.routing.yml
+diff -ruN m22-orig/modules/druxt_node_preview/druxt_node_preview.routing.yml m22/modules/druxt_node_preview/druxt_node_preview.routing.yml
 --- a/modules/druxt_node_preview/druxt_node_preview.routing.yml	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/druxt_node_preview.routing.yml	2026-09-05 03:09:54.135061006 +0000
++++ b/modules/druxt_node_preview/druxt_node_preview.routing.yml	2026-09-05 05:30:33.802487011 +0000
 @@ -0,0 +1,7 @@
 +druxt_node_preview.settings:
 +  path: '/admin/config/services/druxt/node_preview'
@@ -214,18 +202,18 @@ diff -ruN mr8-orig/modules/druxt_node_preview/druxt_node_preview.routing.yml mr8
 +    _title: 'Druxt: Node Preview'
 +  requirements:
 +    _permission: 'administer site configuration'
-diff -ruN mr8-orig/modules/druxt_node_preview/druxt_node_preview.services.yml mr8/modules/druxt_node_preview/druxt_node_preview.services.yml
+diff -ruN m22-orig/modules/druxt_node_preview/druxt_node_preview.services.yml m22/modules/druxt_node_preview/druxt_node_preview.services.yml
 --- a/modules/druxt_node_preview/druxt_node_preview.services.yml	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/druxt_node_preview.services.yml	2026-09-05 03:09:54.135061006 +0000
++++ b/modules/druxt_node_preview/druxt_node_preview.services.yml	2026-09-05 05:30:33.802487011 +0000
 @@ -0,0 +1,5 @@
 +services:
 +  druxt_node_preview.route_subscriber:
 +    class: Drupal\druxt_node_preview\Routing\RouteSubscriber
 +    tags:
 +      - { name: event_subscriber }
-diff -ruN mr8-orig/modules/druxt_node_preview/js/node_preview.js mr8/modules/druxt_node_preview/js/node_preview.js
+diff -ruN m22-orig/modules/druxt_node_preview/js/node_preview.js m22/modules/druxt_node_preview/js/node_preview.js
 --- a/modules/druxt_node_preview/js/node_preview.js	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/js/node_preview.js	2026-09-05 03:09:54.135061006 +0000
++++ b/modules/druxt_node_preview/js/node_preview.js	2026-09-05 05:30:33.802487011 +0000
 @@ -0,0 +1,22 @@
 +(function (Drupal, $) {
 +  Drupal.behaviors.myTheme = {
@@ -249,9 +237,9 @@ diff -ruN mr8-orig/modules/druxt_node_preview/js/node_preview.js mr8/modules/dru
 +    }
 +  };
 +})(Drupal, jQuery)
-diff -ruN mr8-orig/modules/druxt_node_preview/src/Controller/NodePreviewController.php mr8/modules/druxt_node_preview/src/Controller/NodePreviewController.php
+diff -ruN m22-orig/modules/druxt_node_preview/src/Controller/NodePreviewController.php m22/modules/druxt_node_preview/src/Controller/NodePreviewController.php
 --- a/modules/druxt_node_preview/src/Controller/NodePreviewController.php	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/src/Controller/NodePreviewController.php	2026-09-05 03:09:54.135061006 +0000
++++ b/modules/druxt_node_preview/src/Controller/NodePreviewController.php	2026-09-05 05:30:33.802487011 +0000
 @@ -0,0 +1,60 @@
 +<?php
 +
@@ -313,9 +301,9 @@ diff -ruN mr8-orig/modules/druxt_node_preview/src/Controller/NodePreviewControll
 +  }
 +
 +}
-diff -ruN mr8-orig/modules/druxt_node_preview/src/DruxtNodePreviewServiceProvider.php mr8/modules/druxt_node_preview/src/DruxtNodePreviewServiceProvider.php
+diff -ruN m22-orig/modules/druxt_node_preview/src/DruxtNodePreviewServiceProvider.php m22/modules/druxt_node_preview/src/DruxtNodePreviewServiceProvider.php
 --- a/modules/druxt_node_preview/src/DruxtNodePreviewServiceProvider.php	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/src/DruxtNodePreviewServiceProvider.php	2026-09-05 03:09:54.135061006 +0000
++++ b/modules/druxt_node_preview/src/DruxtNodePreviewServiceProvider.php	2026-09-05 05:30:33.802487011 +0000
 @@ -0,0 +1,24 @@
 +<?php
 +
@@ -341,9 +329,9 @@ diff -ruN mr8-orig/modules/druxt_node_preview/src/DruxtNodePreviewServiceProvide
 +  }
 +
 +}
-diff -ruN mr8-orig/modules/druxt_node_preview/src/Form/DruxtNodePreviewSettingsForm.php mr8/modules/druxt_node_preview/src/Form/DruxtNodePreviewSettingsForm.php
+diff -ruN m22-orig/modules/druxt_node_preview/src/Form/DruxtNodePreviewSettingsForm.php m22/modules/druxt_node_preview/src/Form/DruxtNodePreviewSettingsForm.php
 --- a/modules/druxt_node_preview/src/Form/DruxtNodePreviewSettingsForm.php	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/src/Form/DruxtNodePreviewSettingsForm.php	2026-09-05 03:09:54.135061006 +0000
++++ b/modules/druxt_node_preview/src/Form/DruxtNodePreviewSettingsForm.php	2026-09-05 05:30:33.802487011 +0000
 @@ -0,0 +1,59 @@
 +<?php
 +
@@ -404,9 +392,9 @@ diff -ruN mr8-orig/modules/druxt_node_preview/src/Form/DruxtNodePreviewSettingsF
 +  }
 +
 +}
-diff -ruN mr8-orig/modules/druxt_node_preview/src/Routing/RouteSubscriber.php mr8/modules/druxt_node_preview/src/Routing/RouteSubscriber.php
+diff -ruN m22-orig/modules/druxt_node_preview/src/Routing/RouteSubscriber.php m22/modules/druxt_node_preview/src/Routing/RouteSubscriber.php
 --- a/modules/druxt_node_preview/src/Routing/RouteSubscriber.php	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/src/Routing/RouteSubscriber.php	2026-09-05 03:09:54.136061006 +0000
++++ b/modules/druxt_node_preview/src/Routing/RouteSubscriber.php	2026-09-05 05:30:33.802487011 +0000
 @@ -0,0 +1,23 @@
 +<?php
 +namespace Drupal\druxt_node_preview\Routing;
@@ -431,9 +419,9 @@ diff -ruN mr8-orig/modules/druxt_node_preview/src/Routing/RouteSubscriber.php mr
 +  }
 +
 +}
-diff -ruN mr8-orig/modules/druxt_node_preview/templates/druxt-node-preview.html.twig mr8/modules/druxt_node_preview/templates/druxt-node-preview.html.twig
+diff -ruN m22-orig/modules/druxt_node_preview/templates/druxt-node-preview.html.twig m22/modules/druxt_node_preview/templates/druxt-node-preview.html.twig
 --- a/modules/druxt_node_preview/templates/druxt-node-preview.html.twig	1970-01-01 00:00:00.000000000 +0000
-+++ b/modules/druxt_node_preview/templates/druxt-node-preview.html.twig	2026-09-05 03:09:54.136061006 +0000
++++ b/modules/druxt_node_preview/templates/druxt-node-preview.html.twig	2026-09-05 05:30:33.803487011 +0000
 @@ -0,0 +1,4 @@
 +{{ attach_library('druxt_node_preview/druxt.node_preview') }}
 +<div class="druxt-node-preview">

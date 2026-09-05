@@ -1,31 +1,30 @@
 --- a/src/EventSubscriber/ViewsPathTranslatorSubscriber.php
 +++ b/src/EventSubscriber/ViewsPathTranslatorSubscriber.php
-@@ -12,6 +12,7 @@
+@@ -6,11 +6,13 @@
+ 
+ use Drupal\Component\Utility\UrlHelper;
+ use Drupal\Core\Cache\CacheableMetadata;
++use Drupal\Core\Language\LanguageInterface;
+ use Drupal\Core\Routing\RouteObjectInterface;
+ use Drupal\Core\Url;
+ use Drupal\decoupled_router\EventSubscriber\RouterPathTranslatorSubscriber;
+ use Drupal\decoupled_router\PathTranslatorEvent;
  use Drupal\views\Views;
++use Symfony\Component\HttpFoundation\Request;
  use Symfony\Component\Routing\Exception\MethodNotAllowedException;
  use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-+use Symfony\Component\HttpFoundation\Request;
- 
- /**
-  * Event subscriber that processes a path translation with the router info.
-@@ -27,12 +28,30 @@
-       $this->logger->error('Unable to get the response object for the decoupled router event.');
-       return;
-     }
-+
-     if (!$this->moduleHandler->moduleExists('jsonapi_views')) {
-       return;
-     }
+ use Symfony\Component\Routing\Exception\RouteNotFoundException;
+@@ -32,6 +34,23 @@
  
      $path = $event->getPath();
      $path = $this->cleanSubdirInPath($path, $event->getRequest());
 +
 +    // The router request carries no language prefix of its own, so the
-+    // language has to be read back off the requested path. Without it a
-+    // view route always resolves in the site's default language and a
-+    // decoupled frontend sends /es straight back to /.
++    // language has to be read back off the requested path. Without it a view
++    // route always resolves in the site's default language and a decoupled
++    // frontend sends /es straight back to /.
 +    $language = $this->getPathLanguage($path);
-+    $langcode = $language ? $language->getId() : NULL;
++    $langcode = $language?->getId();
 +    $url_options = ['absolute' => TRUE, 'language' => $language];
 +
 +    // Config overrides follow the router request's own negotiated language,
@@ -39,16 +38,16 @@
      try {
        $match_info = $this->router->match($path);
      }
-@@ -63,7 +82,7 @@
-     $executable->setDisplay($match_info['display_id']);
- 
-     $route = $match_info[RouteObjectInterface::ROUTE_OBJECT];
--    $resolved_url = Url::fromRoute($route, [], ['absolute' => TRUE])->toString(TRUE);
-+    $resolved_url = Url::fromRoute($route, [], $url_options)->toString(TRUE);
+@@ -67,7 +86,7 @@
+       $match_info,
+       array_flip($route->compile()->getPathVariables())
+     );
+-    $resolved_url = Url::fromRoute($route_name, $route_parameters, ['absolute' => TRUE])->toString(TRUE);
++    $resolved_url = Url::fromRoute($route_name, $route_parameters, $url_options)->toString(TRUE);
      $response->addCacheableDependency($resolved_url);
  
      $is_home_path = $this->resolvedPathIsHomePath($resolved_url->getGeneratedUrl());
-@@ -78,6 +97,7 @@
+@@ -82,6 +101,7 @@
          'uuid' => $view->get('uuid'),
          'view_id' => $match_info['view_id'],
          'display_id' => $match_info['display_id'],
@@ -56,10 +55,10 @@
        ],
        'label' => $executable->getTitle(),
      ];
-@@ -92,14 +112,14 @@
-       $rt = $rt_repo->get($view_type_id, $view->bundle());
-       $type_name = $rt->getTypeName();
-       $jsonapi_base_path = $this->container->getParameter('jsonapi.base_path');
+@@ -99,14 +119,14 @@
+       if (!is_string($jsonapi_base_path)) {
+         $jsonapi_base_path = '';
+       }
 -      $entry_point_url = Url::fromRoute('jsonapi.resource_list', [], ['absolute' => TRUE])->toString(TRUE);
 +      $entry_point_url = Url::fromRoute('jsonapi.resource_list', [], $url_options)->toString(TRUE);
        $route_name = sprintf('jsonapi.%s.individual', $type_name);
@@ -73,19 +72,20 @@
        )->toString(TRUE);
        $response->addCacheableDependency($entry_point_url);
        $response->addCacheableDependency($individual);
-@@ -127,7 +147,7 @@
-         $match_info['display_id'],
-       ];
-       $jsonapi_views_route = implode('.', $parts);
+@@ -138,7 +158,7 @@
+     // resource type. Such a view has no JSON:API endpoint. That is not an
+     // error, so keep the view data and leave the jsonapi_views key out.
+     try {
 -      $resolved_jsonapi_views_url = Url::fromRoute($jsonapi_views_route, [], ['absolute' => TRUE])->toString(TRUE);
 +      $resolved_jsonapi_views_url = Url::fromRoute($jsonapi_views_route, [], $url_options)->toString(TRUE);
        $response->addCacheableDependency($resolved_jsonapi_views_url);
  
        $output['jsonapi_views'] = $resolved_jsonapi_views_url->getGeneratedUrl();
-@@ -140,4 +160,40 @@
+@@ -154,4 +174,41 @@
      $event->stopPropagation();
    }
  
++
 +  /**
 +   * Gets the language a requested path is prefixed with, if any.
 +   *
@@ -97,10 +97,10 @@
 +   *   The requested path.
 +   *
 +   * @return \Drupal\Core\Language\LanguageInterface|null
-+   *   The language, or NULL when the site is monolingual or the path
-+   *   carries no language prefix.
++   *   The language, or NULL when the site is monolingual or the path carries
++   *   no language prefix.
 +   */
-+  protected function getPathLanguage($path) {
++  protected function getPathLanguage(string $path): ?LanguageInterface {
 +    $language_manager = $this->container->get('language_manager');
 +    if (!$language_manager->isMultilingual()) {
 +      return NULL;
@@ -115,7 +115,7 @@
 +
 +    $prefixes = $this->configFactory->get('language.negotiation')->get('url.prefixes');
 +    $prefix = $prefixes[$langcode] ?? '';
-+    if (!$prefix || !($path === "/$prefix" || strpos($path, "/$prefix/") === 0)) {
++    if (!$prefix || !($path === "/$prefix" || str_starts_with($path, "/$prefix/"))) {
 +      return NULL;
 +    }
 +
