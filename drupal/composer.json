@@ -18,7 +18,7 @@
         "drupal/core-project-message": "~11",
         "drupal/core-recommended": "~11",
         "drupal/decoupled_router": "2.0.5",
-        "drupal/druxt": "^1.2.1",
+        "drupal/druxt": "^1.2.2",
         "drupal/gin": "^4.0",
         "drupal/gin_login": "^2.1",
         "drupal/gin_toolbar": "^2.0",
@@ -115,8 +115,8 @@
                 "#3111456 Resolve the language from the requested path": "https://raw.githubusercontent.com/druxt/druxt.js/develop/docs/drupal/patches/decoupled_router-3111456-resolve-language-from-path.patch"
             },
             "drupal/druxt": {
-                "#3273228 Add langcode to Views Decoupled Router integration (rerolled for 1.2.1)": "patches/druxt-3273228-views-route-langcode.patch",
-                "#3264181 Node Preview (MR!8, rerolled for 1.2.1)": "patches/druxt-mr8-node-preview.patch"
+                "#3273228 Add langcode to Views Decoupled Router integration (rerolled for 1.2.2)": "patches/druxt-3273228-views-route-langcode.patch",
+                "#3264181 Node Preview (MR!8, rerolled for 1.2.2)": "patches/druxt-mr8-node-preview.patch"
             }
         }
     }
