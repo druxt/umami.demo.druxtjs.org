@@ -107,6 +107,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          # `git` mode reads history, which a shallow clone does not have.
+          fetch-depth: 0
       # A pinned, checksum-verified binary rather than gitleaks-action, which
       # requires a paid licence for organisation repositories.
       - name: Install gitleaks
@@ -118,9 +121,11 @@ jobs:
           echo "${sha256}  /tmp/gitleaks.tar.gz" | sha256sum -c -
           tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
           chmod +x /tmp/gitleaks
+      # `git` mode, not `dir`: a secret committed and later removed is still
+      # exposed, and `dir` only sees the current checkout.
       - name: Scan
         run: >-
-          /tmp/gitleaks dir . --no-banner --redact
+          /tmp/gitleaks git . --no-banner --redact
           --config .gitleaks.toml --report-path gitleaks-report.json
       - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}

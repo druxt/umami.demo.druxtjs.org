@@ -1,0 +1,11 @@
+# Reviewed historical findings. Each line is a gitleaks fingerprint
+# (commit:path:rule:line) for a finding that has been looked at and accepted.
+
+# OAUTH_CLIENT_ID committed to .env on 2022-08-09. An OAuth client id is public
+# by design: it is sent to the browser in the authorization request, so this is
+# not a credential disclosure. The value is no longer in the working tree.
+#
+# The surrounding problem is worth fixing separately: .env is both tracked and
+# listed in .gitignore, so it looks ignored while still being committed, and the
+# template beside it lists GITHUB_CLIENT_SECRET.
+dfb2c67eb4afe581b85a8e40ed660cbfcb5073e2:.env:generic-api-key:9

@@ -11,6 +11,7 @@ useDefault = true
 [[rules]]
 id = "generic-api-key"
 [rules.allowlist]
+condition = "AND"
 description = "Pinned npm versions in package.json are not credentials"
 paths = ['''(^|/)package(-lock)?\.json$''']
 regexTarget = "line"
