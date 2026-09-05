@@ -1,5 +1,5 @@
 {
-    "_hash": "de4eb8f125ebe10990194cc8c3b170db7e77e7481dd2462a25917be8594311d8",
+    "_hash": "07380e9a6ea0a50241c3a27efc471f339b59d81fc833c5bd52daef6f3f1cb5b8",
     "patches": {
         "drupal/decoupled_router": [
             {
@@ -15,7 +15,7 @@
             {
                 "package": "drupal/decoupled_router",
                 "description": "https://www.drupal.org/project/decoupled_router/issues/3468825",
-                "url": "patches/decoupled_router-3468825-mr20.patch",
+                "url": "https://git.drupalcode.org/project/decoupled_router/-/merge_requests/20.diff",
                 "sha256": "e57e51602df51a4d4497ff5dfc382c47d5b21b0067cde4d1df0e64f772729e7d",
                 "depth": 1,
                 "extra": {
@@ -37,7 +37,7 @@
             {
                 "package": "drupal/druxt",
                 "description": "#3273228 Add langcode to Views Decoupled Router integration",
-                "url": "patches/druxt-3273228-views-route-langcode.patch",
+                "url": "https://git.drupalcode.org/project/druxt/-/merge_requests/9.diff",
                 "sha256": "fcb5cfd1dbe60c0742dbafcec993b27fb2c845b17d9f5bc23feb39bc86987c6b",
                 "depth": 1,
                 "extra": {
