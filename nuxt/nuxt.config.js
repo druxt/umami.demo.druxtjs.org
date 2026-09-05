@@ -212,6 +212,11 @@ export default {
     },
 
     extractCSS: true,
+
+    // vue-live ships modern syntax (nullish coalescing, optional chaining).
+    // Nuxt 2's webpack 4 build excludes node_modules from babel, so it has to
+    // be transpiled explicitly or the entity explorer fails to compile.
+    transpile: ['vue-live'],
   },
 
   storybook,
