@@ -1,11 +1,11 @@
-docker-compose-yaml: 'docker-compose.yml'
+docker-compose-yaml: docker-compose.backend.yml
 
 project: druxtjs-org-demo-umami
 
 tasks:
   post-rollout:
     - run:
-        name: drush tome:instal
+        name: drush tome:install
         command: drush -y tome:install
         service: cli
 
@@ -20,22 +20,10 @@ tasks:
         service: cli
 
 environments:
-  staging/frontend:
-    routes:
-      - app:
-          - staging.umami.demo.druxtjs.org
-      - storybook:
-          - storybook.staging.umami.demo.druxtjs.org
   staging/backend:
     routes:
       - nginx:
           - api.staging.umami.demo.druxtjs.org
-  production/frontend:
-    routes:
-      - app:
-          - umami.demo.druxtjs.org
-      - storybook:
-          - storybook.umami.demo.druxtjs.org
   production/backend:
     routes:
       - nginx:
