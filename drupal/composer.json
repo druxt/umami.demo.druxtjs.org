@@ -115,7 +115,7 @@
                 "#3111456 Resolve the language from the requested path": "https://raw.githubusercontent.com/druxt/druxt.js/develop/docs/drupal/patches/decoupled_router-3111456-resolve-language-from-path.patch"
             },
             "drupal/druxt": {
-                "#3273228 Add langcode to Views Decoupled Router integration": "https://git.drupalcode.org/project/druxt/-/merge_requests/9.diff",
+                "#3273228 Add langcode to Views Decoupled Router integration": "patches/druxt-3273228-views-route-langcode.patch",
                 "#3264181 Node Preview (MR!8, rerolled for 1.2.2)": "patches/druxt-mr8-node-preview.patch"
             }
         }
