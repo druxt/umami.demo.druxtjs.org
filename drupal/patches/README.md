@@ -55,3 +55,17 @@ Delete this file at the 2.0.7 move and reference MR!35's diff directly. The
 same move drops [#3172926](https://www.drupal.org/project/decoupled_router/issues/3172926)
 and [#3468825](https://www.drupal.org/project/decoupled_router/issues/3468825),
 both reported fixed upstream and both expected to fail against 2.0.7.
+
+One thing to set up front at that move: MR!35's diff also touches `.cspell.json`
+and two files under `tests/src/Functional` that the packaged 2.0.7 release
+excludes with `export-ignore`, so against a dist install the diff can never
+apply whole. Add
+
+```json
+"config": { "preferred-install": { "drupal/decoupled_router": "source" } }
+```
+
+so composer checks out the full git tree and every file the diff names is
+present. Composer Patches 2.x fails hard on the partial apply rather than
+skipping it, which is the behaviour we want but will stop the build until this
+is set.
