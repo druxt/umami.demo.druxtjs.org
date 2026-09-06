@@ -39,7 +39,7 @@
       </b-col>
 
       <b-col cols="12" md="4" class="mt-5 mt-md-0 pl-md-4">
-        <DevRegion
+        <AppDevRegion
           label='DruxtView view-id="articles_aside"'
           source="components/druxt/entity/node/article/Full.vue"
         >
@@ -72,7 +72,7 @@
               />
             </template>
           </DruxtView>
-        </DevRegion>
+        </AppDevRegion>
 
         <AppDruxtNote
           class="mt-4"
