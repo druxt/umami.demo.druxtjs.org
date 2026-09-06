@@ -57,7 +57,7 @@
           :uuid="entity.id"
         />
 
-        <DevRegion
+        <AppDevRegion
           class="mt-4"
           entity
           label="DruxtEntityForm"
@@ -104,7 +104,7 @@
               </div>
             </b-collapse>
           </div>
-        </DevRegion>
+        </AppDevRegion>
 
         <AppJsonApiDrawer class="mt-3" :path="jsonApiPath" />
       </b-col>
