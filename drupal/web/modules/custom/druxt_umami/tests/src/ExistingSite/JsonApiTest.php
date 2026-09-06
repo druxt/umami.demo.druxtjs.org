@@ -48,6 +48,32 @@ class JsonApiTest extends DruxtUmamiTestBase {
   }
 
   /**
+   * A tag reference carries everything needed to render a link to it.
+   *
+   * DruxtEntity filters its query by the schema DruxtSchema derives from the
+   * view display. A taxonomy term display holds only `description`, since a
+   * term's name is its label and its path is not a display component, so the
+   * mere existence of one starves the query of `name` and `path`. The visible
+   * result is an empty badge linking to `/en` plus undefined, and every tag
+   * page stops being linked and so stops being generated: 48 routes instead
+   * of 65. druxt_umami_install() deletes those displays; this asserts both
+   * halves so the workaround cannot be quietly dropped.
+   */
+  public function testTagReferencesAreRenderable(): void {
+    $displays = \Drupal::entityTypeManager()
+      ->getStorage('entity_view_display')
+      ->loadByProperties(['targetEntityType' => 'taxonomy_term']);
+    $this->assertSame([], array_keys($displays), 'No taxonomy term view display exists.');
+
+    $data = $this->getJson('/en/jsonapi/taxonomy_term/tags');
+    $this->assertNotEmpty($data['data']);
+    foreach ($data['data'] as $term) {
+      $this->assertNotEmpty($term['attributes']['name'] ?? NULL);
+      $this->assertNotEmpty($term['attributes']['path']['alias'] ?? NULL);
+    }
+  }
+
+  /**
    * DruxtMenu reads the main menu through jsonapi_menu_items.
    */
   public function testMenuItems(): void {

@@ -30,6 +30,24 @@ function druxt_umami_install() {
   // JSON:API settings.
   \Drupal::service('config.factory')->getEditable('jsonapi.settings')->set('read_only', FALSE)->save();
 
+  // Remove the taxonomy term view displays druxt_install() auto-creates.
+  //
+  // druxt_ensure_entity_view_displays() creates one per bundle so DruxtSchema
+  // always has a display to read. For a term that display holds only
+  // `description`, because a term's name is its label and its path is not a
+  // display component at all. DruxtEntity's schema-filtered query then asks
+  // for terms without `name` or `path`, so a tag reference renders as an empty
+  // badge linking to `/en` plus undefined, and every tag page stops being
+  // linked and so stops being generated. A site with no term display has no
+  // schema to filter by and works, which is why this never showed up before.
+  //
+  // Workaround, not a fix. The fix belongs upstream in the schema-filtered
+  // query, which should always carry the entity's label and path.
+  $displays = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+  foreach ($displays->loadByProperties(['targetEntityType' => 'taxonomy_term']) as $display) {
+    $display->delete();
+  }
+
   // Druxt JSON:API resource access.
   // druxt_entity_access() gates view--view, menu--menu and the display config
   // the frontend builds its components from on this permission, so without it
