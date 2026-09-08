@@ -1,3 +1,12 @@
+# Umami prefixes every language, English included, so the front page is /en and
+# "/" is not a page. Nuxt generate writes a client-side redirect stub there,
+# which paints nothing; force = true makes Netlify serve this 301 instead of
+# that file.
+[[redirects]]
+  from = "/"
+  to = "/en"
+  status = 301
+  force = true
 
 [[redirects]]
   from = "/en/jsonapi*"
