@@ -25,4 +25,7 @@ if ($path !== '/' && file_exists($file) && !is_dir($file)) {
 }
 
 $_SERVER['SCRIPT_NAME'] = '/index.php';
+// Symfony Runtime requires SCRIPT_FILENAME and expects index.php's closure
+// back. For file-like URLs the built-in server points it at this router.
+$_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/../web/index.php';
 require __DIR__ . '/../web/index.php';
