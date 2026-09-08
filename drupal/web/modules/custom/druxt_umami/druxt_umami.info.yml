@@ -6,6 +6,9 @@ core_version_requirement: ^10 || ^11
 
 dependencies:
   - drupal:anonymous_redirect
+  # demo_umami leaves contact out, so /contact 404s and the frontend's
+  # contact form has no contact_message bundle to build itself from.
+  - drupal:contact
   - drupal:druxt
   - drupal:druxt_node_preview
   - drupal:gin_login
