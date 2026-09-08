@@ -44,11 +44,6 @@
         {{ link.title }}
       </a>
     </div>
-
-    <div class="site-footer__base">
-      <span>© {{ year }} Umami Publications</span>
-      <nuxt-link to="/terms-and-conditions">Terms &amp; Conditions</nuxt-link>
-    </div>
   </div>
 </template>
 
@@ -71,9 +66,5 @@ export default {
       { title: 'Storybook', href: 'https://storybook.umami.demo.druxtjs.org' },
     ],
   }),
-
-  computed: {
-    year: () => new Date().getFullYear(),
-  },
 }
 </script>
