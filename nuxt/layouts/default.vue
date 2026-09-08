@@ -32,7 +32,9 @@
         <!-- v-if, not v-show: on the front page these should not be in the
              DOM at all. isHomePath is false at /en/ because the router's home
              path is /node, so the langcode roots are tested here too. -->
-        <div v-if="!isFront" class="band band--paper">
+        <!-- A Nuxt page owns its own heading, and Drupal has no breadcrumb
+             for a route it does not know, so the band would be empty. -->
+        <div v-if="!isFront && !$slots.default" class="band band--paper">
           <b-container>
             <DruxtBlockRegion
               v-if="regions.includes('breadcrumbs')"
@@ -88,9 +90,13 @@
 
         <AppMobileDrawer />
 
+        <!-- lazy, so only one DruxtSearchbar is mounted at a time: the
+             drawer holds the other one, and two mounted panels fought over
+             the autofocus. -->
         <b-sidebar
           id="search"
           backdrop
+          lazy
           no-close-on-route-change
           no-header
           right

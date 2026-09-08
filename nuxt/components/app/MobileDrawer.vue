@@ -2,6 +2,7 @@
   <b-sidebar
     id="menu"
     backdrop
+    lazy
     left
     no-close-on-route-change
     no-header
@@ -41,6 +42,16 @@
             </nuxt-link>
           </template>
         </DruxtMenu>
+
+        <div class="drawer__account">
+          <nuxt-link
+            class="drawer__account-link"
+            to="/login"
+            @click.native="hide"
+          >
+            Sign in
+          </nuxt-link>
+        </div>
 
         <div class="drawer__lang">
           <nuxt-link
