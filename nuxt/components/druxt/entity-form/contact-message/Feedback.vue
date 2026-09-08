@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="form-page">
     <b-alert show>
       <p>
         This website is a demonstration of the DruxtJS decoupled framework for

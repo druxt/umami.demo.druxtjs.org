@@ -78,7 +78,12 @@
       <b-form-checkbox v-if="isTypeCheckbox" v-model="model" v-bind="props" />
 
       <!-- Input fields -->
-      <b-input v-else-if="isTypeInput" v-model="model" v-bind="props" />
+      <b-input
+        v-else-if="isTypeInput"
+        v-model="model"
+        :type="inputType"
+        v-bind="props"
+      />
 
       <!-- Textarea -->
       <b-textarea
@@ -130,7 +135,15 @@ export default {
     isTypeCheckbox: ({ schema }) => ['boolean_checkbox'].includes(schema.type),
     isTypeLink: ({ schema }) => ['link'].includes(schema.type),
     isTypeImage: ({ schema }) => ['responsive_image'].includes(schema.type),
-    isTypeInput: ({ schema }) => ['string_textfield'].includes(schema.type),
+    // Anything not listed here renders as a textarea, which is how the
+    // contact form's email field became a five-line box.
+    isTypeInput: ({ schema }) =>
+      ['email_default', 'string_textfield', 'telephone_default'].includes(
+        schema.type
+      ),
+    inputType: ({ schema }) =>
+      ({ email_default: 'email', telephone_default: 'tel' }[schema.type] ||
+      'text'),
 
     label: ({ schema }) =>
       ((string) => string.charAt(0).toUpperCase() + string.slice(1))(
