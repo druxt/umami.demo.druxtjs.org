@@ -17,9 +17,10 @@
         </b-button>
 
         <AppDruxtNote
+          cta="Authentication guide"
+          href="https://druxtjs.org/modules/auth"
           kicker="How this works"
-          link="https://druxtjs.org/modules/auth"
-          link-title="Authentication guide"
+          title="Drupal owns the login, Druxt holds the token"
         >
           <code>druxt-auth</code> runs OAuth2 Authorization Code with PKCE. You
           land on Drupal's own login, come back to <code>/callback</code>, and
