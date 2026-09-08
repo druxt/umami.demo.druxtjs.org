@@ -1,49 +1,42 @@
 <template>
-  <div class="d-flex flex-column" style="height: 100%">
-    <div class="p-4" style="border-bottom: 1px solid #e6ddcd">
-      <div class="d-flex align-items-center justify-content-between mb-3">
+  <div class="searchbar">
+    <div class="searchbar__head">
+      <div
+        v-if="!compact"
+        class="d-flex align-items-center justify-content-between mb-3"
+      >
         <h2 class="mb-0">Search</h2>
-        <b-button v-b-toggle.search variant="link" style="color: #a2988a"
-          >×</b-button
-        >
+        <b-button v-b-toggle.search class="searchbar__close" variant="link">
+          ×
+        </b-button>
       </div>
 
-      <b-input-group>
-        <b-form-input
-          v-model="searchText"
-          autofocus
-          debounce="60"
-          placeholder="Try “brownie”, “quiche”, “mushroom”"
-          type="search"
-        />
-      </b-input-group>
+      <b-form-input
+        ref="input"
+        v-model="searchText"
+        :autofocus="!compact"
+        debounce="60"
+        :placeholder="compact ? 'Search recipes' : placeholder"
+        type="search"
+      />
 
-      <div class="d-flex align-items-center justify-content-between mt-3">
-        <span style="font-size: 0.8125rem; color: #6b625a">
+      <div class="searchbar__meta">
+        <span>
           {{
             resultsVisible
               ? `${searchResults.length} results as you type`
               : 'Results appear as you type'
           }}
         </span>
-        <span
-          style="
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.7188rem;
-            color: #0678be;
-          "
-        >
-          lunr · no request
-        </span>
+        <span class="searchbar__engine">lunr · no request</span>
       </div>
     </div>
 
-    <div style="flex: 1; overflow-y: auto">
+    <div class="searchbar__results">
       <nuxt-link
         v-for="(item, key) of searchResults"
         :key="key"
-        class="d-flex align-items-center p-3"
-        style="border-bottom: 1px solid #f0e7d8; color: inherit; gap: 1rem"
+        class="searchbar__result"
         :to="searchMeta[item.ref].href"
       >
         <Druxt
@@ -55,7 +48,7 @@
       </nuxt-link>
     </div>
 
-    <div class="p-3" style="background: #eff7fc; border-top: 1px solid #bfdff2">
+    <div v-if="!compact" class="searchbar__note">
       <span class="druxt-note__kicker">How this works</span>
       <p class="druxt-note__body mt-1 mb-0">
         Drupal's Search API index is compiled to a Lunr index at build time and
@@ -71,5 +64,31 @@ import LunrSearch from 'lunr-module/search'
 
 export default {
   extends: LunrSearch,
+
+  props: {
+    /**
+     * Drop the panel chrome: the heading, its close button and the footer
+     * note. The drawer supplies its own, and the long placeholder does not
+     * fit a 330px panel.
+     */
+    compact: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
+  data: () => ({
+    placeholder: 'Try “brownie”, “quiche”, “mushroom”',
+  }),
+
+  methods: {
+    /** Called by the drawer when the masthead's search button opened it. */
+    focus() {
+      const input = this.$refs.input
+      if (input) {
+        input.focus()
+      }
+    },
+  },
 }
 </script>

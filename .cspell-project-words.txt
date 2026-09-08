@@ -14,6 +14,7 @@ lintfix
 LOCALDEV
 nuxtjs
 persistedstate
+PKCE
 prismeditor
 quickstart
 scroller
