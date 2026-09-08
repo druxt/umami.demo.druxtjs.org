@@ -17,7 +17,7 @@
         "drupal/core-composer-scaffold": "~11",
         "drupal/core-project-message": "~11",
         "drupal/core-recommended": "~11",
-        "drupal/decoupled_router": "2.0.5",
+        "drupal/decoupled_router": "2.0.7",
         "drupal/druxt": "^1.2.2",
         "drupal/gin": "^4.0",
         "drupal/gin_login": "^2.1",
@@ -68,6 +68,9 @@
         },
         "platform": {
             "php": "8.3"
+        },
+        "preferred-install": {
+            "drupal/decoupled_router": "source"
         }
     },
     "extra": {
@@ -110,9 +113,7 @@
         },
         "patches": {
             "drupal/decoupled_router": {
-                "https://www.drupal.org/project/decoupled_router/issues/3172926": "https://www.drupal.org/files/issues/2020-09-24/3172926-2.patch",
-                "https://www.drupal.org/project/decoupled_router/issues/3468825": "https://git.drupalcode.org/project/decoupled_router/-/merge_requests/20.diff",
-                "#3111456 Resolve the language from the requested path": "patches/decoupled_router-3111456-resolve-language-from-path.patch"
+                "#3111456 Resolve the language from the requested path": "https://git.drupalcode.org/project/decoupled_router/-/merge_requests/35.diff"
             },
             "drupal/druxt": {
                 "#3273228 Add langcode to Views Decoupled Router integration": "https://git.drupalcode.org/project/druxt/-/merge_requests/9.diff",
