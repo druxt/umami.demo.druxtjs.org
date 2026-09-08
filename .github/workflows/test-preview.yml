@@ -66,6 +66,7 @@ jobs:
           PUBLIC_BASE_URL=https://api.umami.demo.druxtjs.org yarn generate
 
       - name: Deploy to Netlify
+        id: netlify
         uses: nwtgck/actions-netlify@v1.2
         with:
           publish-dir: './nuxt/dist'
@@ -83,6 +84,15 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         timeout-minutes: 1
+
+      - name: Check the root redirect 🔁
+        # Cypress ran against the local dist, where Nuxt's client-side stub
+        # does the redirect. Only the deployed site proves Netlify's 301.
+        run: |
+          headers=$(curl -sSI --max-time 20 "${{ steps.netlify.outputs.deploy-url }}/")
+          echo "$headers"
+          echo "$headers" | grep -q '^HTTP/[0-9.]* 301'
+          echo "$headers" | grep -qi '^location: /en\r\?$'
 
       - uses: actions/upload-artifact@v7
         with:
