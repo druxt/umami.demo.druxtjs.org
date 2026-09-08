@@ -146,6 +146,27 @@ class JsonApiTest extends DruxtUmamiTestBase {
   }
 
   /**
+   * The front page grid does not repeat the banner's recipes.
+   *
+   * Both views list promoted recipes newest first. Drupal 11 gives every demo
+   * node its own created date (core #3399970), so without the offset
+   * druxt_umami_install() sets, the grid opens with the two recipes the banner
+   * attachment just showed.
+   */
+  public function testFrontPageGridSkipsTheBannerRecipes(): void {
+    $banner = $this->getJson('/en/jsonapi/views/promoted_items/attachment_1');
+    $grid = $this->getJson('/en/jsonapi/views/frontpage/page_1');
+    $this->assertCount(2, $banner['data']);
+    $this->assertCount(4, $grid['data']);
+
+    $overlap = array_intersect(
+      array_column($banner['data'], 'id'),
+      array_column($grid['data'], 'id'),
+    );
+    $this->assertSame([], $overlap, 'No recipe appears in both the banner and the grid.');
+  }
+
+  /**
    * Publishes a Lunr index for the frontend search bar.
    */
   public function testSearchIndexIsPublished(): void {
