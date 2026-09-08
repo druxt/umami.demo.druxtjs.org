@@ -16,7 +16,9 @@
         :wrapper="{ class: 'promo__summary', component: 'div' }"
       />
 
-      <slot name="field_content_link" />
+      <b-button v-if="link" :to="link.to" variant="secondary">
+        {{ link.title }}
+      </b-button>
     </div>
   </div>
 </template>
@@ -55,6 +57,26 @@ export default {
     if (file) {
       this.img = this.$config.baseUrl + file.attributes.uri.url
     }
+  },
+
+  computed: {
+    /**
+     * The link field holds an unprefixed internal URI, so the button used to
+     * send a Spanish reader to the English page.
+     */
+    link() {
+      const field = (this.fields || {}).field_content_link
+      if (!field || !field.data) {
+        return null
+      }
+      const langcode =
+        (this.$route.path.match(/^\/(en|es)(\/|$)/) || [])[1] || 'en'
+      const path = field.data.uri.replace('internal:', '')
+      return {
+        title: field.data.title,
+        to: `/${langcode}${path}`,
+      }
+    },
   },
 
   methods: {
