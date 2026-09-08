@@ -4,14 +4,11 @@
 ## Usage: drupal-install
 ## Example: "ddev drupal-install"
 
-# Install composer dependencies.
+set -euo pipefail
+
 composer install
 
-# Update config sync directory
-sed -i 's/sites\/default\/files\/sync/\.\.\/config\/sync/g' web/sites/default/settings.ddev.php
-
-# Install Drupal using the Umami demo profile via TomeSync.
-drush -y tome:install
-
-# Index search results.
-drush search-api:index
+# The same fresh install CI and local development use. The committed Tome
+# config predates Drupal 10 and still lists ckeditor and rdf, so it cannot be
+# imported on Drupal 11; re-exporting it is a separate job.
+DRUPAL_DB_URL="mysql://db:db@db/db" .devtools/provision

@@ -58,12 +58,21 @@ jobs:
         run: cd nuxt && BASE_URL=http://druxt-js-demo-umami.ddev.site yarn test
 
       - name: Generate dist 👨🏻‍💻
-        run: cd nuxt && yarn generate
+        # The runner's backend is gone once the job ends, and Umami's demo
+        # files have the same names on production, so the preview loads its
+        # images from there.
+        run: >-
+          cd nuxt &&
+          PUBLIC_BASE_URL=https://api.umami.demo.druxtjs.org yarn generate
 
       - name: Deploy to Netlify
+        id: netlify
         uses: nwtgck/actions-netlify@v1.2
         with:
           publish-dir: './nuxt/dist'
+          # The action uploads the publish dir only; without this the
+          # redirects in netlify.toml never reach a preview.
+          netlify-config-path: ./netlify.toml
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: "Deploy from GitHub Actions"
@@ -75,6 +84,15 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         timeout-minutes: 1
+
+      - name: Check the root redirect 🔁
+        # Cypress ran against the local dist, where Nuxt's client-side stub
+        # does the redirect. Only the deployed site proves Netlify's 301.
+        run: |
+          headers=$(curl -sSI --max-time 20 "${{ steps.netlify.outputs.deploy-url }}/")
+          echo "$headers"
+          echo "$headers" | grep -q '^HTTP/[0-9.]* 301'
+          echo "$headers" | grep -qi '^location: /en\r\?$'
 
       - uses: actions/upload-artifact@v7
         with:

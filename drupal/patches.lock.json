@@ -1,0 +1,39 @@
+{
+    "_hash": "14712e2e8ff833dec08aa4542b11b8ca10f945ea12f3bfaa219698974d4905f7",
+    "patches": {
+        "drupal/decoupled_router": [
+            {
+                "package": "drupal/decoupled_router",
+                "description": "#3111456 Resolve the language from the requested path",
+                "url": "https://git.drupalcode.org/project/decoupled_router/-/merge_requests/35.diff",
+                "sha256": "ffcc63a68eb0a3524968ad234a6b14683eeab46c054b4f86680248e4c87acd23",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            }
+        ],
+        "drupal/druxt": [
+            {
+                "package": "drupal/druxt",
+                "description": "#3273228 Add langcode to Views Decoupled Router integration",
+                "url": "https://git.drupalcode.org/project/druxt/-/merge_requests/9.diff",
+                "sha256": "fcb5cfd1dbe60c0742dbafcec993b27fb2c845b17d9f5bc23feb39bc86987c6b",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            },
+            {
+                "package": "drupal/druxt",
+                "description": "#3264181 Node Preview (MR!8, rerolled for 1.2.2)",
+                "url": "patches/druxt-mr8-node-preview.patch",
+                "sha256": "db32433be9f8bbaa389beeac0c23bb6b3f77143d1c9dfe06d44f4990faddf9df",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            }
+        ]
+    }
+}

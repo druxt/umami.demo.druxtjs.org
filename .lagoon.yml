@@ -5,13 +5,10 @@ project: druxtjs-org-demo-umami
 tasks:
   post-rollout:
     - run:
-        name: drush tome:instal
-        command: drush -y tome:install
-        service: cli
-
-    - run:
-        name: drush search-api:index
-        command: drush search-api:index
+        name: drupal install
+        command: >-
+          DRUPAL_DB_URL="mysql://${MARIADB_USERNAME}:${MARIADB_PASSWORD}@${MARIADB_HOST}:${MARIADB_PORT}/${MARIADB_DATABASE}"
+          .devtools/provision
         service: cli
 
     - run:
