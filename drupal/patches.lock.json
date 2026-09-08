@@ -1,32 +1,12 @@
 {
-    "_hash": "07380e9a6ea0a50241c3a27efc471f339b59d81fc833c5bd52daef6f3f1cb5b8",
+    "_hash": "14712e2e8ff833dec08aa4542b11b8ca10f945ea12f3bfaa219698974d4905f7",
     "patches": {
         "drupal/decoupled_router": [
             {
                 "package": "drupal/decoupled_router",
-                "description": "https://www.drupal.org/project/decoupled_router/issues/3172926",
-                "url": "https://www.drupal.org/files/issues/2020-09-24/3172926-2.patch",
-                "sha256": "b2151400ad242ab39ec8f37edcb2e85e933a5a2a6cff594fdc413bd9edccb144",
-                "depth": 1,
-                "extra": {
-                    "provenance": "root"
-                }
-            },
-            {
-                "package": "drupal/decoupled_router",
-                "description": "https://www.drupal.org/project/decoupled_router/issues/3468825",
-                "url": "https://git.drupalcode.org/project/decoupled_router/-/merge_requests/20.diff",
-                "sha256": "e57e51602df51a4d4497ff5dfc382c47d5b21b0067cde4d1df0e64f772729e7d",
-                "depth": 1,
-                "extra": {
-                    "provenance": "root"
-                }
-            },
-            {
-                "package": "drupal/decoupled_router",
                 "description": "#3111456 Resolve the language from the requested path",
-                "url": "patches/decoupled_router-3111456-resolve-language-from-path.patch",
-                "sha256": "3e184a6d2a869e12eb0fd7e1c65ccf4eb8f2fb5a0aeaae35b05ad7bf48e59b38",
+                "url": "https://git.drupalcode.org/project/decoupled_router/-/merge_requests/35.diff",
+                "sha256": "ffcc63a68eb0a3524968ad234a6b14683eeab46c054b4f86680248e4c87acd23",
                 "depth": 1,
                 "extra": {
                     "provenance": "root"

@@ -12,8 +12,15 @@ downloaded from ...". When that happens, run `composer patches-relock`, re-run
 the suite (`.devtools/test`, which includes the Spanish view e2e), and carry
 that evidence to the issue as the review case.
 
-A file lives here only when no upstream URL can do the job. Both current ones
-are that case, and both go away when their blocker does.
+A file lives here only when no upstream URL can do the job. The one current
+file is that case, and it goes away when its blocker does.
+
+`drupal/decoupled_router` is a source install (`config.preferred-install` in
+`composer.json`). [MR!35](https://git.drupalcode.org/project/decoupled_router/-/merge_requests/35)
+touches `.cspell.json` and files under `tests/src/Functional` that the packaged
+release excludes with `export-ignore`, so against a dist install the diff can
+never apply whole, and Composer Patches 2.x fails the build rather than
+skipping the missing files.
 
 ## `druxt-mr8-node-preview.patch`
 
@@ -38,34 +45,3 @@ differences from upstream:
 
 Rerolling this against 1.2.2 upstream would let the reference become a URL like
 the others. That is the fix, not copying less.
-
-## `decoupled_router-3111456-resolve-language-from-path.patch`
-
-Issue: [#3111456 Resolve the language from the requested path](https://www.drupal.org/project/decoupled_router/issues/3111456)
-Merge request: [MR!35](https://git.drupalcode.org/project/decoupled_router/-/merge_requests/35)
-
-No URL targets the version this site pins. MR!35 is cut against
-**decoupled_router 2.0.7** and this site is pinned to **2.0.5**, held there
-until [#3111456](https://www.drupal.org/project/decoupled_router/issues/3111456)
-is rerolled. The only other copy, on druxt.js `develop`, is being re-cut for
-2.0.7 as well, so referencing it would fetch a patch for a version this site is
-not on.
-
-Delete this file at the 2.0.7 move and reference MR!35's diff directly. The
-same move drops [#3172926](https://www.drupal.org/project/decoupled_router/issues/3172926)
-and [#3468825](https://www.drupal.org/project/decoupled_router/issues/3468825),
-both reported fixed upstream and both expected to fail against 2.0.7.
-
-One thing to set up front at that move: MR!35's diff also touches `.cspell.json`
-and two files under `tests/src/Functional` that the packaged 2.0.7 release
-excludes with `export-ignore`, so against a dist install the diff can never
-apply whole. Add
-
-```json
-"config": { "preferred-install": { "drupal/decoupled_router": "source" } }
-```
-
-so composer checks out the full git tree and every file the diff names is
-present. Composer Patches 2.x fails hard on the partial apply rather than
-skipping it, which is the behaviour we want but will stop the build until this
-is set.
