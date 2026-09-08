@@ -39,6 +39,8 @@
           Search recipes
         </button>
 
+        <nuxt-link class="masthead__account" to="/login">Sign in</nuxt-link>
+
         <nav aria-label="Language" class="masthead__lang">
           <nuxt-link
             v-for="code in ['en', 'es']"
