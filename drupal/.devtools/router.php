@@ -18,9 +18,14 @@ declare(strict_types=1);
 chdir(__DIR__ . '/../web');
 
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-$file = __DIR__ . '/../web' . $path;
 
-if ($path !== '/' && file_exists($file) && !is_dir($file)) {
+// Resolve before deciding, so a path with dot segments cannot name a file
+// outside the docroot. `/../.env` is a real file; only its resolved location
+// says whether it is ours to serve.
+$root = realpath(__DIR__ . '/../web');
+$file = realpath($root . $path);
+
+if ($file !== FALSE && is_file($file) && str_starts_with($file, $root . DIRECTORY_SEPARATOR)) {
   return FALSE;
 }
 
