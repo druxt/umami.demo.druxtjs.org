@@ -1402,6 +1402,19 @@ h4 {
     padding: 0 1rem;
   }
 
+  &__account {
+    align-items: center;
+    color: $ink-soft;
+    display: flex;
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-height: $tap;
+
+    &:hover {
+      color: $spice;
+    }
+  }
+
   &__lang {
     display: flex;
     gap: 0.75rem;
@@ -1583,6 +1596,26 @@ h4 {
     &.nuxt-link-exact-active {
       border-left-color: $spice;
       color: $spice;
+    }
+  }
+
+  &__account {
+    border-bottom: 1px solid $rule;
+    display: flex;
+    padding: 0 1.25rem;
+  }
+
+  &__account-link {
+    align-items: center;
+    color: $ink-soft;
+    display: flex;
+    font-size: 0.875rem;
+    font-weight: 600;
+    min-height: 52px;
+
+    &:hover {
+      color: $spice;
+      text-decoration: none;
     }
   }
 
@@ -1847,6 +1880,44 @@ h4 {
       flex: 0 0 78%;
       scroll-snap-align: start;
     }
+  }
+}
+
+// ── Teaser ───────────────────────────────────────────────────────────────────
+// Image, kicker, headline. The card is the link.
+
+.teaser {
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+
+  &:hover {
+    color: inherit;
+    text-decoration: none;
+
+    .teaser__title {
+      color: $spice;
+    }
+  }
+
+  &__media img {
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  &__kicker {
+    color: $ink-faint;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-size: 1.25rem;
+    margin: 0;
   }
 }
 
