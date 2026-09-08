@@ -7,20 +7,10 @@
       </b-col>
     </b-row>
 
-    <!-- Results. -->
-    <b-row>
-      <slot
-        name="results"
-        :wrapper="{
-          class: 'mb-3',
-          component: 'b-col',
-          propsData: {
-            cols: 12,
-            md: 4,
-            sm: 6,
-          },
-        }"
-      />
-    </b-row>
+    <!-- Three teasers across, a snap scroller below md. The grid lives in
+         .featured-strip, so the results are plain children here. -->
+    <div class="featured-strip">
+      <slot name="results" :wrapper="{ component: 'div' }" />
+    </div>
   </div>
 </template>
