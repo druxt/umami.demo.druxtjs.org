@@ -58,7 +58,12 @@ jobs:
         run: cd nuxt && BASE_URL=http://druxt-js-demo-umami.ddev.site yarn test
 
       - name: Generate dist 👨🏻‍💻
-        run: cd nuxt && yarn generate
+        # The runner's backend is gone once the job ends, and Umami's demo
+        # files have the same names on production, so the preview loads its
+        # images from there.
+        run: >-
+          cd nuxt &&
+          PUBLIC_BASE_URL=https://api.umami.demo.druxtjs.org yarn generate
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2
