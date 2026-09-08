@@ -9,12 +9,14 @@
           label='DruxtBlockRegion name="header"'
           source="components/druxt/block-region/Header.vue"
         >
+          <!-- toggleable: false — the phone menu is a drawer now, so the
+               navbar no longer owns a collapse. -->
           <DruxtBlockRegion
             v-bind="props.header"
             :wrapper="{
               class: ['masthead-wrapper'],
               component: 'b-navbar',
-              propsData: { sticky: true, toggleable: 'lg' },
+              propsData: { sticky: true, toggleable: false },
             }"
           />
         </AppDevRegion>
@@ -27,40 +29,49 @@
           <DruxtBlockRegion v-bind="props.banner_top" />
         </AppDevRegion>
 
-        <b-container v-show="!isHomePath" class="pt-4">
-          <DruxtBlockRegion
-            v-if="regions.includes('breadcrumbs')"
-            v-bind="props.breadcrumbs"
-          />
-          <DruxtBlockRegion
-            v-if="regions.includes('page_title')"
-            v-bind="props.page_title"
-          />
-        </b-container>
+        <!-- v-if, not v-show: on the front page these should not be in the
+             DOM at all. isHomePath is false at /en/ because the router's home
+             path is /node, so the langcode roots are tested here too. -->
+        <div v-if="!isFront" class="band band--paper">
+          <b-container>
+            <DruxtBlockRegion
+              v-if="regions.includes('breadcrumbs')"
+              v-bind="props.breadcrumbs"
+            />
+            <DruxtBlockRegion
+              v-if="regions.includes('page_title')"
+              v-bind="props.page_title"
+            />
+          </b-container>
+        </div>
 
+        <!-- Every band is full-bleed with its own ground; the content inside
+             every band sits in the same b-container. See REPASS.md §2. -->
         <AppDevRegion
           label='DruxtBlockRegion name="content"'
           source="layouts/default.vue"
         >
-          <b-container
-            :class="isHomePath ? 'px-0' : 'pb-5'"
-            :fluid="isHomePath"
-          >
-            <slot v-if="$slots.default" />
-            <DruxtBlockRegion
-              v-else-if="regions.includes('content')"
-              v-bind="props.content"
-            />
-          </b-container>
+          <div class="band band--paper">
+            <b-container>
+              <slot v-if="$slots.default" />
+              <DruxtBlockRegion
+                v-else-if="regions.includes('content')"
+                v-bind="props.content"
+              />
+            </b-container>
+          </div>
         </AppDevRegion>
 
-        <div v-if="regions.includes('content_bottom')" class="collections">
+        <div
+          v-if="regions.includes('content_bottom')"
+          class="band band--warm collections"
+        >
           <b-container>
             <DruxtBlockRegion v-bind="props.content_bottom" />
           </b-container>
         </div>
 
-        <div v-if="regions.includes('footer')" class="section">
+        <div v-if="regions.includes('footer')" class="band band--paper">
           <b-container>
             <DruxtBlockRegion v-bind="props.footer" />
           </b-container>
@@ -69,15 +80,14 @@
         <!-- The one unconditional piece of promotion in the page flow. -->
         <AppDruxtCta />
 
-        <div v-if="regions.includes('bottom')" class="disclaimer">
+        <div v-if="regions.includes('bottom')" class="site-footer">
           <b-container>
             <DruxtBlockRegion v-bind="props.bottom" />
           </b-container>
         </div>
 
-        <!-- A hard 520px is wider than a phone, which put the page into
-             horizontal scroll behind the backdrop. min() keeps the desktop
-             panel and makes the phone one full-bleed. -->
+        <AppMobileDrawer />
+
         <b-sidebar
           id="search"
           backdrop
@@ -95,9 +105,14 @@
 </template>
 
 <script>
+const FRONT = /^\/(en|es)?\/?$/
+
 export default {
   computed: {
-    isHomePath: ({ $store }) => !!$store.state.druxtRouter.route.isHomePath,
+    isFront() {
+      const route = this.$store.state.druxtRouter.route
+      return !!route.isHomePath || FRONT.test(this.$route.path)
+    },
   },
 }
 </script>

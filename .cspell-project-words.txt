@@ -15,6 +15,7 @@ LOCALDEV
 nuxtjs
 opencode
 persistedstate
+PKCE
 prismeditor
 quickstart
 scroller
