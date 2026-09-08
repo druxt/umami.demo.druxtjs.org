@@ -89,10 +89,14 @@ jobs:
         # Cypress ran against the local dist, where Nuxt's client-side stub
         # does the redirect. Only the deployed site proves Netlify's 301.
         run: |
-          headers=$(curl -sSI --max-time 20 "${{ steps.netlify.outputs.deploy-url }}/")
+          # Headers arrive CRLF-terminated, and HTTP/2 has no reason phrase so
+          # curl leaves a trailing space on the status line. Strip both before
+          # anchoring on the end of the line.
+          headers=$(curl -sSI --max-time 20 "${{ steps.netlify.outputs.deploy-url }}/" \
+            | tr -d '\r' | sed 's/[[:space:]]*$//')
           echo "$headers"
-          echo "$headers" | grep -q '^HTTP/[0-9.]* 301'
-          echo "$headers" | grep -qi '^location: /en\r\?$'
+          echo "$headers" | grep -q '^HTTP/[0-9.]* 301$'
+          echo "$headers" | grep -qi '^location: /en$'
 
       - uses: actions/upload-artifact@v7
         with:
