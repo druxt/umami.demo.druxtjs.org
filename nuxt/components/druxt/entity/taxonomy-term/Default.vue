@@ -1,5 +1,5 @@
 <template>
-  <b-row v-if="!$fetchState.pending" class="align-items-stretch">
+  <b-row v-if="!$fetchState.pending" class="term-page align-items-stretch">
     <b-col
       v-for="entity of entities"
       :key="entity.id"

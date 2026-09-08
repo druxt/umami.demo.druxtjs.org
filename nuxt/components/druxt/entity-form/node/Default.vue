@@ -1,5 +1,5 @@
 <template>
-  <b-form>
+  <b-form class="form-page">
     <b-overlay :show="submitting">
       <b-alert v-if="errors.length" :show="true" variant="warning">
         <VueJsonPretty :data="errors" />
