@@ -48,6 +48,16 @@ function druxt_umami_install() {
     $display->delete();
   }
 
+  // Skip the two recipes the banner already shows.
+  //
+  // The promoted_items attachment and the frontpage grid both list promoted
+  // recipes newest first. Since Drupal 11 (core #3399970) every demo node has
+  // its own created date, so the grid's first two cards repeat the banner.
+  $view = \Drupal::entityTypeManager()->getStorage('view')->load('frontpage');
+  $display = &$view->getDisplay('default');
+  $display['display_options']['pager']['options']['offset'] = 2;
+  $view->save();
+
   // Druxt JSON:API resource access.
   // druxt_entity_access() gates view--view, menu--menu and the display config
   // the frontend builds its components from on this permission, so without it
