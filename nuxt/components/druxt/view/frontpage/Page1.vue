@@ -13,10 +13,11 @@
         name="results"
         :wrapper="{
           component: 'b-col',
-          class: 'mb-3',
+          class: 'mb-4',
           propsData: {
-            cols: 12,
-            sm: 6,
+            cols: 6,
+            md: 4,
+            lg: 3,
           },
         }"
       />
