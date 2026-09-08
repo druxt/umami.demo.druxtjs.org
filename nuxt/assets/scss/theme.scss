@@ -44,7 +44,7 @@ $mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 // Bootstrap 4 breakpoints, which is what bootstrap-vue emits against.
 // Both header bars stick. The masthead offsets by exactly the demo bar's
 // height so the two stack rather than share a strip; both read this.
-$demo-bar-height: 38px;
+$demo-bar-height: 40px;
 
 $bp-sm: 575.98px;
 $bp-md: 767.98px;
@@ -330,90 +330,9 @@ h4 {
   }
 }
 
-// ---------------------------------------------------------------- masthead
-
-.masthead {
-  align-items: center;
-  background: $paper;
-  border-bottom: 1px solid $rule;
-  display: flex;
-  gap: 1.5rem;
-  justify-content: space-between;
-  min-height: 84px;
-  padding: 0 2rem;
-
-  &__brand {
-    display: flex;
-    flex-direction: column;
-  }
-  &__wordmark {
-    color: $ink;
-    font-family: $serif;
-    font-size: 1.875rem;
-    line-height: 1;
-  }
-  &__tagline {
-    color: $ink-ghost;
-    font-size: 0.625rem;
-    letter-spacing: 0.22em;
-    margin-top: 3px;
-    text-transform: uppercase;
-  }
-
-  &__nav {
-    align-items: center;
-    display: flex;
-    gap: 1.625rem;
-  }
-  &__utils {
-    align-items: center;
-    border-left: 1px solid $rule;
-    display: flex;
-    gap: 0.875rem;
-    padding-left: 1.5rem;
-  }
-
-  .nav-link {
-    color: $ink-soft;
-    font-size: 0.90625rem;
-    font-weight: 500;
-    padding: 0;
-
-    &:hover {
-      color: $ink;
-      text-decoration: none;
-    }
-    &.nuxt-link-exact-active {
-      border-bottom: 2px solid $spice;
-      color: $ink;
-      padding-bottom: 2px;
-    }
-  }
-
-  &__search {
-    align-items: center;
-    background: transparent;
-    border: 1px solid $rule-strong;
-    border-radius: 999px;
-    color: $ink-faint;
-    display: flex;
-    font-size: 0.8125rem;
-    gap: 0.4375rem;
-    min-width: 170px;
-    padding: 0.4375rem 0.875rem;
-
-    &:hover {
-      border-color: $spice;
-      color: $spice;
-    }
-  }
-
-  &__lang {
-    color: $ink-soft;
-    font-size: 0.78125rem;
-    font-weight: 600;
-  }
-}
+// The masthead is in the re-pass section at the end of this file: the drawer
+// replaced the collapse, so its rules are one block rather than a desktop
+// block plus responsive overrides.
 
 // ---------------------------------------------------------------- editorial pieces
 
@@ -605,11 +524,9 @@ h4 {
   }
 }
 
+// The band owns the ground now (`band band--warm`), so these pills sit on
+// paper: the cream-on-night colours left the labels invisible.
 .collections {
-  background: $night;
-  color: $paper-deep;
-  padding: 3.5rem 0;
-
   &__list {
     display: flex;
     flex-wrap: wrap;
@@ -617,24 +534,21 @@ h4 {
     justify-content: flex-end;
   }
   &__link {
-    border: 1px solid #6b5a48;
+    align-items: center;
+    border: 1px solid $rule-strong;
     border-radius: 999px;
-    color: $paper-deep;
+    color: $ink-soft;
+    display: flex;
     font-size: 0.875rem;
-    padding: 0.5625rem 1.125rem;
+    min-height: $tap;
+    padding: 0 1.125rem;
     &:hover {
-      background: #6b5a48;
-      color: #fff;
+      background: $ink;
+      border-color: $ink;
+      color: $paper;
       text-decoration: none;
     }
   }
-}
-
-.disclaimer {
-  background: $ink;
-  color: $ink-ghost-dark;
-  font-size: 0.78125rem;
-  padding: 1.375rem 0;
 }
 
 // ------------------------------------------------------- recipes filter bar
@@ -674,78 +588,6 @@ h4 {
 }
 
 // ---------------------------------------------------------------- promo layer
-
-.demo-bar {
-  position: sticky;
-  top: 0;
-  // Above .sticky-top (1020) so the masthead scrolls under it.
-  z-index: 1030;
-  background: $druxt-navy;
-  color: #fff;
-  font-size: 0.78125rem;
-
-  &__inner {
-    align-items: center;
-    display: flex;
-    gap: 1rem;
-    justify-content: space-between;
-    min-height: $demo-bar-height;
-  }
-  &__id {
-    align-items: center;
-    display: flex;
-    gap: 0.5625rem;
-    min-width: 0;
-  }
-  &__dot {
-    background: #3498db;
-    border-radius: 50%;
-    flex: 0 0 7px;
-    height: 7px;
-    width: 7px;
-  }
-
-  // Two lengths of the same label; the responsive section picks one.
-  &__short {
-    display: none;
-  }
-
-  &__links {
-    align-items: center;
-    display: flex;
-    gap: 1.25rem;
-  }
-
-  a {
-    color: #cfe0ec;
-    &:hover {
-      color: #fff;
-      text-decoration: none;
-    }
-  }
-
-  &__toggle {
-    background: transparent;
-    border: 1px solid #59748a;
-    border-radius: 4px;
-    color: #fff;
-    font-size: 0.71875rem;
-    padding: 3px 9px;
-    white-space: nowrap;
-
-    span {
-      color: #a8c2d6;
-    }
-    &.is-on {
-      background: $druxt-blue;
-      border-color: $druxt-blue;
-      font-weight: 600;
-      span {
-        color: #fff;
-      }
-    }
-  }
-}
 
 .druxt-note {
   background: $druxt-tint;
@@ -1049,96 +891,10 @@ h4 {
 // Breakpoints are Bootstrap 4's, because that is what bootstrap-vue emits
 // against: sm 576, md 768, lg 992.
 //
-// The masthead turns at lg because `b-navbar toggleable="lg"` collapses there.
+// The masthead turns at lg, where the drawer gives way to the editorial row.
 // Everything else turns at md, and a few details at sm.
 //
 // Spec: "Umami Demo Mobile.dc.html" — 2a is the 375px column, 2b is 768px.
-
-// ------------------------------------------------------------ lg and below
-@media (max-width: $bp-lg) {
-  .masthead {
-    align-items: center;
-    flex-wrap: wrap;
-    min-height: 64px;
-    padding: 0 1rem;
-
-    // The collapse has to own a full row. Without a basis it flexes in beside
-    // the wordmark and the open menu squeezes into whatever is left.
-    &__nav {
-      align-items: stretch;
-      border-top: 1px solid $rule;
-      flex-basis: 100%;
-      flex-direction: column;
-      gap: 0;
-      margin: 0 -1rem;
-      max-width: 100%;
-      padding: 0;
-    }
-
-    // Full-width rows at $tap high, separated by rules: a menu, not a strip.
-    .nav-link {
-      align-items: center;
-      border-bottom: 1px solid $rule-faint;
-      display: flex;
-      font-size: 0.9375rem;
-      min-height: $tap;
-      padding: 0 1rem;
-
-      // The desktop underline reads as a stray rule in a stacked list.
-      &.nuxt-link-exact-active {
-        border-bottom-color: $rule-faint;
-        box-shadow: inset 3px 0 0 $spice;
-        padding-bottom: 0;
-      }
-    }
-
-    .dropdown-menu {
-      border: 0;
-      border-bottom: 1px solid $rule-faint;
-      box-shadow: none;
-      padding: 0 0 0 1rem;
-    }
-
-    // The vertical rule and its indent only make sense beside the menu.
-    &__utils {
-      align-items: stretch;
-      border-left: 0;
-      flex-direction: column;
-      gap: 0.75rem;
-      padding: 1rem;
-    }
-
-    // 170px plus the indent is wider than the space left on a small phone.
-    &__search {
-      justify-content: center;
-      min-height: $tap;
-      min-width: 0;
-      width: 100%;
-    }
-
-    &__lang {
-      align-items: center;
-      display: flex;
-      gap: 0.5rem;
-      min-height: $tap;
-    }
-
-    // MenuBlockMain sets align-items: center for the desktop strip; stacked,
-    // that centres every item over a full-width row.
-    &__menu {
-      align-items: stretch;
-      flex-direction: column;
-      gap: 0;
-      width: 100%;
-    }
-  }
-
-  // b-navbar-toggle ships as a bare bordered button.
-  .navbar-toggler {
-    border: 0;
-    padding: 0.625rem 0.5rem;
-  }
-}
 
 // ------------------------------------------------------------ md and below
 @media (max-width: $bp-md) {
@@ -1194,8 +950,6 @@ h4 {
 
   // Right-aligned pills read as ragged when they wrap onto three lines.
   .collections {
-    padding: 2.25rem 0;
-
     &__list {
       justify-content: flex-start;
     }
@@ -1231,37 +985,6 @@ h4 {
     blockquote {
       font-size: 1.25rem;
       padding-left: 1rem;
-    }
-  }
-
-  // Promo layer.
-  .demo-bar {
-    &__inner {
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      padding-bottom: 0.4375rem;
-      padding-top: 0.4375rem;
-    }
-
-    // The long identity string plus the toggle does not fit one 375px line.
-    &__full {
-      display: none;
-    }
-    &__short {
-      display: inline;
-    }
-
-    &__links {
-      gap: 0.875rem;
-    }
-
-    // Docs and Discord live in the footer CTA as well; the bar keeps source.
-    &__links a:not(.demo-bar__primary) {
-      display: none;
-    }
-
-    &__toggle {
-      padding: 5px 10px;
     }
   }
 
@@ -1353,13 +1076,858 @@ h4 {
     padding: 0.875rem;
   }
 
-  .disclaimer {
-    line-height: 1.5;
-  }
-
   // Below sm the search panel is the whole viewport, so there is no backdrop
   // sliver to mis-tap. See layouts/default.vue.
   #search {
     width: 100vw !important;
+  }
+}
+
+// ================================================================ re-pass
+//
+// Bands, the drawer-era masthead and demo bar, the three-column footer, and
+// the screens that had no design. Last in the file so these win over the
+// rules they replace.
+
+// ── Bands ────────────────────────────────────────────────────────────────────
+// Every band is full-bleed with its own ground; the content inside every band
+// sits in the same b-container. Replaces the mix of full-bleed / fluid /
+// `px-0 fluid` / fixed containers in layouts/default.vue.
+
+.band {
+  padding: 4rem 0;
+
+  &--paper {
+    background: $paper;
+  }
+  &--warm {
+    background: $paper-warm;
+  }
+
+  + .band--paper {
+    border-top: 1px solid $rule;
+  }
+
+  @media (max-width: $bp-md) {
+    padding: 2.5rem 0;
+  }
+}
+
+// ── Demo bar ─────────────────────────────────────────────────────────────────
+// REPLACES the existing .demo-bar block. One row at every width; the identity
+// string has three lengths and Docs / Discord drop below lg (they live in the
+// drawer instead).
+
+.demo-bar {
+  background: $druxt-navy;
+  color: #fff;
+  font-size: 0.75rem;
+  position: sticky;
+  top: 0;
+  // Above .sticky-top (1020) so the masthead scrolls under it. The masthead
+  // offsets by $demo-bar-height, which is this bar's 40px row.
+  z-index: 1030;
+
+  // The same gutter as the masthead, so the two chrome bars share an edge.
+  &__inner {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    height: 40px;
+    justify-content: space-between;
+    padding: 0 1rem;
+    white-space: nowrap;
+
+    @media (min-width: 992px) {
+      padding: 0 2rem;
+    }
+  }
+
+  &__id {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__dot {
+    background: #3498db;
+    border-radius: 50%;
+    flex-shrink: 0;
+    height: 6px;
+    width: 6px;
+  }
+
+  &__links {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    gap: 0.25rem;
+
+    a {
+      align-items: center;
+      color: #cfe0ec;
+      display: flex;
+      height: 40px;
+      padding: 0 0.5rem;
+
+      &:hover {
+        color: #fff;
+        text-decoration: none;
+      }
+    }
+  }
+
+  &__primary {
+    font-weight: 600;
+  }
+
+  // Dev overlay: a switch, not a word. 44px target, 5.1:1 knob on the navy.
+  &__toggle {
+    align-items: center;
+    background: none;
+    border: 0;
+    color: #cfe0ec;
+    display: flex;
+    gap: 0.5rem;
+    height: 40px;
+    min-width: $tap;
+    justify-content: center;
+    padding: 0 0.5rem;
+
+    &.is-on {
+      color: #fff;
+    }
+    &.is-on .demo-bar__switch {
+      background: $druxt-blue;
+      border-color: $druxt-blue;
+    }
+    &.is-on .demo-bar__knob {
+      background: #fff;
+      transform: translateX(14px);
+    }
+  }
+
+  &__switch {
+    align-items: center;
+    border: 1px solid #59748a;
+    border-radius: 999px;
+    display: flex;
+    height: 18px;
+    padding: 0 2px;
+    width: 32px;
+  }
+
+  &__knob {
+    background: #a8c2d6;
+    border-radius: 50%;
+    height: 12px;
+    transition: transform 0.15s ease;
+    width: 12px;
+  }
+}
+
+// ── Masthead ─────────────────────────────────────────────────────────────────
+// REPLACES the masthead rules in the `max-width: $bp-lg` block. The collapse
+// is gone: below lg the masthead is toggle / wordmark / search on one row.
+
+.masthead {
+  align-items: center;
+  background: $paper;
+  border-bottom: 1px solid $rule;
+  display: flex;
+  gap: 0.5rem;
+  min-height: 60px;
+  padding: 0 1rem;
+  width: 100%;
+
+  // The main menu, at lg and up. Below that the drawer owns these links.
+  .nav-link {
+    color: $ink-soft;
+    font-size: 0.90625rem;
+    font-weight: 500;
+    padding: 0;
+
+    &:hover {
+      color: $ink;
+      text-decoration: none;
+    }
+
+    &.nuxt-link-exact-active {
+      border-bottom: 2px solid $spice;
+      color: $ink;
+      padding-bottom: 2px;
+    }
+  }
+
+  &__toggle,
+  &__search-icon {
+    align-items: center;
+    background: none;
+    border: 0;
+    color: $ink;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    height: 48px;
+    justify-content: center;
+    width: 48px;
+  }
+
+  &__search-icon {
+    font-size: 1.1rem;
+  }
+
+  // Two rules, not three: editorial, not app chrome.
+  &__toggle-bar {
+    background: $ink;
+    height: 1.5px;
+    width: 20px;
+  }
+
+  // DruxtBlock renders each block inside a div of its own, so the element
+  // that grows has to be the wrapper this component controls.
+  &__brand-slot {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  &__brand {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  &__wordmark {
+    font-family: $serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  &__tagline {
+    color: $ink-faint;
+    font-size: 0.53rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  &__desktop {
+    display: none;
+  }
+
+  @media (min-width: 992px) {
+    min-height: 84px;
+    padding: 0 2rem;
+
+    &__toggle,
+    &__search-icon {
+      display: none;
+    }
+
+    &__brand-slot {
+      flex: 0 0 auto;
+      margin-right: 2.5rem;
+    }
+
+    &__brand {
+      align-items: flex-start;
+    }
+
+    &__wordmark {
+      font-size: 2rem;
+    }
+
+    &__desktop {
+      align-items: center;
+      display: flex;
+      flex: 1;
+      gap: 2rem;
+      justify-content: space-between;
+    }
+  }
+
+  // Tablet keeps a search pill in the masthead — there is room.
+  @media (min-width: 768px) and (max-width: $bp-lg) {
+    min-height: 64px;
+    padding-right: 0.25rem;
+
+    &__brand {
+      align-items: flex-start;
+    }
+    &__brand-slot {
+      justify-content: flex-start;
+    }
+    &__search-icon {
+      display: none;
+    }
+
+    // Wordmark left, then the pill, then the toggle at the right edge.
+    &__desktop {
+      display: flex;
+      flex: 0 0 auto;
+      order: 3;
+    }
+    &__toggle {
+      order: 4;
+    }
+
+    .masthead__menu,
+    .masthead__lang {
+      display: none;
+    }
+  }
+
+  &__utils {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__search {
+    align-items: center;
+    background: $paper;
+    border: 1px solid $rule-strong;
+    border-radius: 999px;
+    color: $ink-soft;
+    display: flex;
+    font-size: 0.8rem;
+    gap: 0.5rem;
+    min-height: $tap;
+    padding: 0 1rem;
+  }
+
+  &__lang {
+    display: flex;
+    gap: 0.75rem;
+
+    a {
+      color: $ink-ghost; // was an inline #a2988a at 2.75:1
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      min-height: $tap;
+      align-items: center;
+      display: flex;
+
+      &.is-active {
+        color: $ink;
+      }
+    }
+  }
+}
+
+// b-navbar brings Bootstrap's own padding, which inset the masthead and left
+// its bottom rule short of both edges. The masthead owns its gutter.
+.masthead-wrapper {
+  padding: 0;
+}
+
+// ── Search panel ─────────────────────────────────────────────────────────────
+// One component, two homes: the #search sidebar at lg and up, and the drawer
+// below it, where `compact` drops the heading, the close and the footer note.
+
+.searchbar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &__head {
+    border-bottom: 1px solid $rule;
+    padding: 1.5rem;
+  }
+
+  &__close {
+    color: $ink-ghost;
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 0 0.5rem;
+  }
+
+  &__meta {
+    align-items: baseline;
+    color: $ink-muted;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    gap: 0.25rem 0.75rem;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+  }
+
+  &__engine {
+    color: $druxt-blue-ink;
+    font-family: $mono;
+    font-size: 0.71875rem;
+  }
+
+  &__results {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  &__result {
+    align-items: center;
+    border-bottom: 1px solid $rule-faint;
+    color: inherit;
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+
+    &:hover {
+      background: $paper-warm;
+      color: inherit;
+      text-decoration: none;
+    }
+  }
+
+  &__note {
+    background: $druxt-tint;
+    border-top: 1px solid $druxt-line;
+    padding: 1rem;
+  }
+}
+
+// ── Mobile drawer ────────────────────────────────────────────────────────────
+
+.drawer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+
+  &__head {
+    align-items: center;
+    border-bottom: 1px solid $rule;
+    display: flex;
+    justify-content: space-between;
+    min-height: 60px;
+    padding: 0 0.375rem 0 1.25rem;
+  }
+
+  &__brand {
+    display: flex;
+    flex-direction: column;
+  }
+  &__wordmark {
+    font-family: $serif;
+    font-size: 1.4rem;
+    font-weight: 500;
+    line-height: 1;
+  }
+  &__tagline {
+    color: $ink-faint;
+    font-size: 0.53rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  &__close {
+    align-items: center;
+    background: none;
+    border: 0;
+    color: $ink-soft;
+    display: flex;
+    height: 48px;
+    justify-content: center;
+    width: 48px;
+  }
+
+  &__search {
+    border-bottom: 1px solid $rule;
+
+    .searchbar__head {
+      border-bottom: 0;
+      padding: 1rem 1.25rem;
+    }
+
+    .searchbar__results {
+      max-height: 40vh;
+    }
+
+    .searchbar__result {
+      padding: 0.75rem 1.25rem;
+    }
+
+    .form-control {
+      font-size: 1rem; // no iOS zoom on focus
+      min-height: 48px;
+    }
+  }
+
+  &__menu {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__link {
+    align-items: center;
+    border-bottom: 1px solid $rule-faint;
+    border-left: 3px solid transparent;
+    color: $ink;
+    display: flex;
+    font-family: $serif;
+    font-size: 1.3rem;
+    font-weight: 500;
+    min-height: 56px;
+    padding: 0 1.25rem;
+
+    &:hover {
+      text-decoration: none;
+    }
+
+    &.nuxt-link-exact-active {
+      border-left-color: $spice;
+      color: $spice;
+    }
+  }
+
+  &__lang {
+    border-bottom: 1px solid $rule;
+    display: flex;
+    padding: 1.25rem;
+  }
+
+  &__lang-btn {
+    align-items: center;
+    border: 1px solid $rule-strong;
+    color: $ink-ghost;
+    display: flex;
+    flex: 1;
+    font-size: 0.8rem;
+    font-weight: 600;
+    justify-content: center;
+    letter-spacing: 0.06em;
+    min-height: $tap;
+
+    &:hover {
+      text-decoration: none;
+    }
+    + .drawer__lang-btn {
+      border-left: 0;
+    }
+
+    &.is-active {
+      background: $ink;
+      border-color: $ink;
+      color: $paper;
+    }
+  }
+
+  // The promo layer stays confined to blue.
+  &__druxt {
+    background: $druxt-tint;
+    border-top: 1px solid $druxt-line;
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    padding: 1rem 1.25rem 1.5rem;
+  }
+
+  &__druxt-kicker {
+    color: $druxt-blue-ink;
+    font-size: 0.59rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    padding-bottom: 0.375rem;
+    text-transform: uppercase;
+  }
+
+  &__druxt-link {
+    align-items: center;
+    border-bottom: 1px solid #d6e8f4;
+    color: $druxt-blue-ink;
+    display: flex;
+    font-size: 0.875rem;
+    font-weight: 500;
+    justify-content: space-between;
+    min-height: $tap;
+
+    &:hover {
+      color: $druxt-blue-ink;
+      text-decoration: underline;
+    }
+  }
+}
+
+// ── Site footer (the `bottom` region) ────────────────────────────────────────
+// REPLACES .disclaimer.
+
+.site-footer {
+  background: $ink;
+  color: $ink-ghost-dark;
+  padding: 3rem 0 1.5rem;
+
+  &__grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1.4fr 1fr 1fr;
+  }
+
+  &__col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__wordmark {
+    color: $paper;
+    font-family: $serif;
+    font-size: 1.4rem;
+    font-weight: 500;
+  }
+
+  &__kicker {
+    color: $ink-ghost-dark;
+    font-size: 0.59rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+
+    &--demo {
+      color: #a8c2d6;
+    }
+  }
+
+  &__link {
+    color: #efe4d6;
+    font-size: 0.8rem;
+    min-height: 32px;
+    align-items: center;
+    display: flex;
+
+    &:hover {
+      color: #fff;
+    }
+    &--demo {
+      color: #cfe0ec;
+    }
+  }
+
+  &__base {
+    align-items: center;
+    border-top: 1px solid #3a332b;
+    display: flex;
+    font-size: 0.7rem;
+    grid-column: 1 / -1;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding-top: 0.875rem;
+
+    a {
+      color: $ink-ghost-dark;
+    }
+  }
+
+  strong {
+    color: #efe4d6;
+    font-weight: 600;
+  }
+
+  @media (max-width: $bp-md) {
+    padding: 2rem 0 1.25rem;
+
+    &__grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    &__base {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.375rem;
+    }
+    &__link {
+      min-height: $tap;
+    }
+  }
+}
+
+// ── Footer promo + feedback ──────────────────────────────────────────────────
+
+.promo {
+  align-items: center;
+  display: flex;
+  gap: 1.75rem;
+
+  &__cover {
+    flex-shrink: 0;
+    height: auto;
+    width: 180px;
+  }
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__kicker {
+    color: $spice;
+    font-size: 0.59rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-size: 1.6rem;
+    margin: 0;
+  }
+  &__summary {
+    color: $ink-muted;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: $bp-md) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    &__cover {
+      width: 140px;
+    }
+  }
+}
+
+.feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__title {
+    font-size: 1.4rem;
+    margin: 0;
+  }
+  &__copy {
+    color: $ink-muted;
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  code {
+    color: $spice-dark;
+    font-family: $mono;
+    font-size: 0.8rem;
+  }
+
+  .btn {
+    align-self: flex-start;
+    min-height: $tap;
+  }
+
+  @media (max-width: $bp-md) {
+    .btn {
+      align-self: stretch;
+    }
+  }
+}
+
+// ── Featured strip ───────────────────────────────────────────────────────────
+// The view renders three teasers. Below md they become a snap scroller rather
+// than three stacked headlines.
+
+.featured-strip {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  @media (max-width: $bp-md) {
+    display: flex;
+    gap: 1rem;
+    margin: 0 -1rem;
+    overflow-x: auto;
+    padding: 0 1rem 0.5rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+
+    > * {
+      flex: 0 0 78%;
+      scroll-snap-align: start;
+    }
+  }
+}
+
+// ── Auth, forms and term pages ───────────────────────────────────────────────
+// Screens that already exist in the repo and were rendering as raw
+// bootstrap-vue. See REPASS.md §4.
+
+.auth,
+.form-page,
+.term-page {
+  margin: 0 auto;
+  max-width: 640px;
+
+  &__kicker {
+    color: $spice;
+    font-size: 0.59rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-family: $serif;
+    font-size: clamp(1.9rem, 6vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.12;
+    margin: 0.5rem 0 0.75rem;
+  }
+
+  &__blurb {
+    color: $ink-muted;
+    font-size: 0.95rem;
+  }
+
+  .form-group label {
+    color: $ink-ghost;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .form-control {
+    border: 1px solid $rule-strong;
+    border-radius: 3px;
+    min-height: $tap;
+
+    @media (max-width: $bp-md) {
+      font-size: 1rem;
+    }
+  }
+
+  textarea.form-control {
+    min-height: 92px;
+  }
+
+  .btn-primary {
+    min-height: 48px;
+    width: 100%;
+  }
+}
+
+.term-page {
+  max-width: none;
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0 2rem;
+  }
+
+  &__chip {
+    background: $paper;
+    border: 1px solid $rule-strong;
+    border-radius: 999px;
+    color: $ink-soft;
+    font-size: 0.75rem;
+    min-height: $tap;
+    align-items: center;
+    display: flex;
+    padding: 0 0.875rem;
   }
 }
