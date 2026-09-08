@@ -1,12 +1,36 @@
 <template>
   <div class="masthead">
-    <!-- Branding -->
-    <slot name="umami_branding" />
+    <!-- Below lg: toggle, wordmark, search on one row. The menu is a drawer
+         (AppMobileDrawer), not a collapse — see REPASS.md §1. -->
+    <button
+      v-b-toggle.menu
+      aria-label="Open menu"
+      class="masthead__toggle"
+      type="button"
+    >
+      <span class="masthead__toggle-bar" />
+      <span class="masthead__toggle-bar" />
+    </button>
 
-    <b-navbar-toggle target="nav-collapse" />
+    <!-- Branding. DruxtBlock wraps each block in a div of its own, so the
+         growing element has to be this one, not the block's own class. -->
+    <div class="masthead__brand-slot">
+      <slot name="umami_branding" />
+    </div>
 
-    <b-collapse id="nav-collapse" class="masthead__nav" is-nav>
-      <!-- Main menu -->
+    <!-- One search panel, not two: below lg this opens the drawer, which
+         holds the field. The #search sidebar belongs to the desktop row. -->
+    <button
+      aria-label="Search recipes"
+      class="masthead__search-icon"
+      type="button"
+      @click="openSearch"
+    >
+      <BIconSearch aria-hidden="true" />
+    </button>
+
+    <!-- lg and up: the full editorial row. -->
+    <div class="masthead__desktop">
       <DruxtBlockSystemMenuBlockMain />
 
       <div class="masthead__utils">
@@ -15,13 +39,18 @@
           Search recipes
         </button>
 
-        <span class="masthead__lang">
-          <nuxt-link :to="path('en')">EN</nuxt-link>
-          <span style="color: #c4b9a8">/</span>
-          <nuxt-link :to="path('es')" style="color: #a2988a">ES</nuxt-link>
-        </span>
+        <nav aria-label="Language" class="masthead__lang">
+          <nuxt-link
+            v-for="code in ['en', 'es']"
+            :key="code"
+            :class="{ 'is-active': code === current }"
+            :to="path(code)"
+          >
+            {{ code.toUpperCase() }}
+          </nuxt-link>
+        </nav>
       </div>
-    </b-collapse>
+    </div>
   </div>
 </template>
 
@@ -31,20 +60,31 @@ import { BIconSearch } from 'bootstrap-vue'
 export default {
   components: { BIconSearch },
 
+  computed: {
+    current() {
+      return (this.$route.path.match(/^\/(en|es)(\/|$)/) || [])[1] || 'en'
+    },
+  },
+
   methods: {
+    /** Open the drawer on its search field. */
+    openSearch() {
+      this.$root.$emit('umami::search')
+      this.$root.$emit('bv::toggle::collapse', 'menu')
+    },
+
     /**
      * Swap the language prefix on the current route. Druxt resolves the
-     * translated route client-side, so this is a normal in-app navigation
-     * with no full page load.
+     * translated route client-side, so this is a normal in-app navigation.
+     *
+     * The inactive link used to carry an inline #a2988a — the pre-correction
+     * ghost token at 2.75:1. Contrast now lives in the theme, not here.
      */
     path(langcode) {
       const path = this.$route.path
       if (/^\/(en|es)(\/|$)/.test(path)) {
         return path.replace(/^\/(en|es)/, `/${langcode}`)
       }
-      // Unprefixed routes exist (the explorer uses the plain layout and still
-      // renders this header). Without this both links resolve to the current
-      // path and the switcher looks dead.
       return `/${langcode}${path === '/' ? '' : path}`
     },
   },
