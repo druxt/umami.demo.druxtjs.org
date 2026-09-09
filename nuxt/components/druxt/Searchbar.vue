@@ -11,23 +11,22 @@
         </b-button>
       </div>
 
-      <b-form-input
-        ref="input"
-        v-model="searchText"
-        :autofocus="!compact"
-        debounce="60"
-        :placeholder="compact ? 'Search recipes' : placeholder"
-        type="search"
-      />
+      <div class="searchbar__field">
+        <BIconSearch aria-hidden="true" class="searchbar__icon" />
+        <b-form-input
+          ref="input"
+          v-model="searchText"
+          :autofocus="!compact"
+          debounce="60"
+          :placeholder="compact ? 'Search recipes' : placeholder"
+          type="search"
+        />
+      </div>
 
+      <!-- One line in the drawer: 330px does not fit two phrases. -->
       <div class="searchbar__meta">
-        <span>
-          {{
-            resultsVisible
-              ? `${searchResults.length} results as you type`
-              : 'Results appear as you type'
-          }}
-        </span>
+        <span v-if="resultsVisible">{{ searchResults.length }} results</span>
+        <span v-else-if="!compact">Results appear as you type</span>
         <span class="searchbar__engine">lunr · no request</span>
       </div>
     </div>
@@ -39,7 +38,10 @@
         class="searchbar__result"
         :to="searchMeta[item.ref].href"
       >
+        <!-- The drawer is 330px wide: a title per row, not a teaser card. -->
+        <span v-if="compact">{{ searchMeta[item.ref].title }}</span>
         <Druxt
+          v-else
           module="entity"
           mode="teaser"
           :type="searchMeta[item.ref].type"
@@ -60,9 +62,12 @@
 </template>
 
 <script>
+import { BIconSearch } from 'bootstrap-vue'
 import LunrSearch from 'lunr-module/search'
 
 export default {
+  components: { BIconSearch },
+
   extends: LunrSearch,
 
   props: {
