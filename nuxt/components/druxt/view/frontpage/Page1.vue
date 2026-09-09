@@ -1,11 +1,9 @@
 <template>
   <div>
-    <AppSectionHead
-      cta="All recipes"
-      lede="Pulled from the Recipes view, four at a time."
-      title="Recipes to try this week"
-      to="/en/recipes"
-    />
+    <!-- The view's own title is the heading: Drupal owns this copy. -->
+    <h2 v-if="$scopedSlots.header" class="band__title">
+      <slot name="header" />
+    </h2>
 
     <b-row>
       <slot
@@ -21,5 +19,9 @@
         }"
       />
     </b-row>
+
+    <b-button class="band__cta" to="/en/recipes" variant="outline-secondary">
+      All recipes
+    </b-button>
   </div>
 </template>
