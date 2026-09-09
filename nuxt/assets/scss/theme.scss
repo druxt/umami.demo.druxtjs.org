@@ -437,6 +437,15 @@ h4 {
   height: 100%;
   transition: border-color 0.15s ease, transform 0.15s ease;
 
+  // The image arrives through b-card-img-lazy, which starts as a 1px
+  // placeholder: without a reserved box the card collapses to its title until
+  // the real file loads.
+  img {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    width: 100%;
+  }
+
   &:hover {
     border-color: $ember;
     transform: translateY(-2px);
@@ -467,6 +476,13 @@ h4 {
     font-size: 0.8125rem;
     gap: 0.5625rem;
     margin-top: auto;
+  }
+
+  // An article's standfirst sits where a recipe's meta row would.
+  &__summary {
+    color: $ink-muted;
+    font-size: 0.875rem;
+    margin: 0;
   }
 }
 
@@ -623,6 +639,12 @@ h4 {
     color: $druxt-blue-ink;
     font-size: 0.84375rem;
     font-weight: 600;
+  }
+
+  &__file {
+    color: $druxt-blue-ink;
+    font-family: $mono;
+    font-size: 0.75rem;
   }
 }
 
@@ -1466,6 +1488,23 @@ h4 {
     padding: 0 0.5rem;
   }
 
+  &__field {
+    align-items: center;
+    display: flex;
+    position: relative;
+
+    .form-control {
+      padding-left: 2.25rem;
+    }
+  }
+
+  &__icon {
+    color: $ink-faint;
+    left: 0.875rem;
+    pointer-events: none;
+    position: absolute;
+  }
+
   &__meta {
     align-items: baseline;
     color: $ink-muted;
@@ -1567,7 +1606,9 @@ h4 {
     }
 
     .searchbar__result {
-      padding: 0.75rem 1.25rem;
+      font-size: 0.9375rem;
+      min-height: $tap;
+      padding: 0.5rem 1.25rem;
     }
 
     .form-control {
@@ -1603,28 +1644,7 @@ h4 {
     }
   }
 
-  &__account {
-    border-bottom: 1px solid $rule;
-    display: flex;
-    padding: 0 1.25rem;
-  }
-
-  &__account-link {
-    align-items: center;
-    color: $ink-soft;
-    display: flex;
-    font-size: 0.875rem;
-    font-weight: 600;
-    min-height: 52px;
-
-    &:hover {
-      color: $spice;
-      text-decoration: none;
-    }
-  }
-
   &__lang {
-    border-bottom: 1px solid $rule;
     display: flex;
     padding: 1.25rem;
   }
@@ -1655,13 +1675,13 @@ h4 {
     }
   }
 
-  // The promo layer stays confined to blue.
+  // The promo layer stays confined to blue, and follows the language pair
+  // rather than being pinned to the bottom of a half-empty panel.
   &__druxt {
     background: $druxt-tint;
     border-top: 1px solid $druxt-line;
     display: flex;
     flex-direction: column;
-    margin-top: auto;
     padding: 1rem 1.25rem 1.5rem;
   }
 
@@ -1901,6 +1921,44 @@ h4 {
   }
 }
 
+// ── Section head ─────────────────────────────────────────────────────────────
+// Title, one line of lede, and a link to the full listing, on every band that
+// shows a slice of a view.
+
+.section-head {
+  align-items: baseline;
+  border-bottom: 1px solid $rule;
+  display: flex;
+  gap: 1.5rem;
+  justify-content: space-between;
+  margin-bottom: 1.75rem;
+  padding-bottom: 0.875rem;
+
+  &__title {
+    font-size: clamp(1.5rem, 4vw, 1.875rem);
+    margin: 0;
+  }
+
+  &__lede {
+    color: $ink-muted;
+    font-size: 0.9375rem;
+    margin: 0.25rem 0 0;
+  }
+
+  &__cta {
+    color: $spice;
+    flex-shrink: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  @media (max-width: $bp-md) {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
 // ── Teaser ───────────────────────────────────────────────────────────────────
 // Image, kicker, headline. The card is the link.
 
@@ -1970,11 +2028,15 @@ h4 {
     font-size: 0.95rem;
   }
 
-  .form-group label {
+  // b-form-group renders a fieldset with a legend when it has no label-for,
+  // so the label rule has to cover both.
+  .form-group label,
+  .form-group legend {
     color: $ink-ghost;
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.06em;
+    padding-bottom: 0.25rem;
     text-transform: uppercase;
   }
 

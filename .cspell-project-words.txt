@@ -10,6 +10,7 @@ janked
 janks
 lando
 langcode
+lede
 lintfix
 LOCALDEV
 nuxtjs
@@ -20,6 +21,7 @@ prismeditor
 quickstart
 scroller
 Searchbar
+standfirst
 toggleable
 umami
 uselagoon
