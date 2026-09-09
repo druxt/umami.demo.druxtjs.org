@@ -1,20 +1,18 @@
 <template>
-  <!-- <b-tabs v-if="$auth.loggedIn"> -->
-  <b-tabs>
+  <!-- The tab bar is the demo's teaching layer: the same entity rendered and
+       edited. A contact form has no edit mode, so it was left showing a lone
+       "View" tab. -->
+  <b-tabs v-if="editable">
     <b-tab title="View" class="mt-3">
       <component :is="component" v-bind="route.props" />
     </b-tab>
-    <!-- <b-tab v-if="$auth.loggedIn" title="Edit" class="mt-3"> -->
-    <b-tab
-      v-if="route.props.type !== 'contact_form--contact_form'"
-      title="Edit"
-      class="mt-3"
-    >
+
+    <b-tab title="Edit" class="mt-3">
       <DruxtEntityForm v-bind="route.props" />
     </b-tab>
   </b-tabs>
 
-  <!-- <component :is="component" v-else v-bind="route.props" /> -->
+  <component :is="component" v-else v-bind="route.props" />
 </template>
 
 <script>
@@ -31,6 +29,10 @@ export default {
   mixins: [DruxtRouterMixin],
 
   computed: {
+    editable() {
+      return this.route.props.type !== 'contact_form--contact_form'
+    },
+
     component() {
       if (this.mode === 'form') {
         return 'druxt-entity-form'

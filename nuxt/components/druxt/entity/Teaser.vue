@@ -1,30 +1,17 @@
 <template>
-  <b-card
-    :class="{
-      'h-100': true,
-      'overflow-hidden': true,
-      'p-0': true,
-      shadow: hover,
-      'w-100': true,
-    }"
-    no-body
-    tag="article"
-    @click="$router.push({ path: to })"
-    @mouseover="hover = true"
-    @mouseleave="hover = false"
-  >
-    <b-row no-gutters>
-      <b-col cols="6" md="12" xl="6">
-        <slot name="field_media_image" />
-      </b-col>
+  <nuxt-link class="teaser" :to="to">
+    <div class="teaser__media">
+      <slot name="field_media_image" />
+    </div>
 
-      <b-col cols="6" md="12" xl="6">
-        <b-card-body :title="entity.attributes.title" title-tag="h6">
-          <slot name="field_tags" />
-        </b-card-body>
-      </b-col>
-    </b-row>
-  </b-card>
+    <div class="teaser__body">
+      <span v-if="$scopedSlots.field_tags" class="teaser__kicker">
+        <slot name="field_tags" />
+      </span>
+
+      <h3 class="teaser__title">{{ entity.attributes.title }}</h3>
+    </div>
+  </nuxt-link>
 </template>
 
 <script>
@@ -33,25 +20,18 @@ import { DruxtEntityMixin } from 'druxt-entity'
 export default {
   mixins: [DruxtEntityMixin],
 
-  data: () => ({
-    hover: false,
-  }),
-
   computed: {
     /* @todo - Implement proper multilingual support */
     to: ({ entity }) => `/en${(entity.attributes.path || {}).alias}`,
   },
 
   druxt: {
+    // The image and the tags are on the teaser display, but a fields filter
+    // that omits them means the query never asks Drupal for either, so the
+    // strip rendered as three bare headlines.
     query: {
-      fields: ['path', 'title'],
+      fields: ['field_media_image', 'field_tags', 'path', 'title'],
     },
   },
 }
 </script>
-
-<style scoped>
-* {
-  cursor: pointer;
-}
-</style>

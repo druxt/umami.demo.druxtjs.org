@@ -1,30 +1,27 @@
 <template>
-  <b-row
-    v-if="!$fetchState.pending"
-    :style="style"
-    class="pb-3 pt-3 pb-md-5 pt-md-5"
-  >
+  <div v-if="!$fetchState.pending" class="banner">
+    <img v-if="img" class="banner__media" :src="img" alt="" />
+    <div class="banner__scrim" />
+
     <b-container>
-      <b-row>
-        <b-col cols="12" md="6">
-          <b-card class="text-white" bg-variant="dark">
-            <b-card-title>{{ fields.field_title.data }}</b-card-title>
+      <div class="banner__body">
+        <span class="banner__kicker">{{ kicker }}</span>
 
-            <b-card-text>
-              {{ fields.field_summary.data }}
-            </b-card-text>
+        <h2 class="banner__title">{{ fields.field_title.data }}</h2>
 
-            <b-button
-              :to="fields.field_content_link.data.uri.replace('internal:', '')"
-              variant="danger"
-            >
-              {{ fields.field_content_link.data.title }}
-            </b-button>
-          </b-card>
-        </b-col>
-      </b-row>
+        <p class="banner__summary">{{ fields.field_summary.data }}</p>
+
+        <div class="d-flex align-items-center flex-wrap" style="gap: 1.25rem">
+          <b-button
+            :to="fields.field_content_link.data.uri.replace('internal:', '')"
+            variant="primary"
+          >
+            {{ fields.field_content_link.data.title }}
+          </b-button>
+        </div>
+      </div>
     </b-container>
-  </b-row>
+  </div>
 </template>
 
 <script>
@@ -34,6 +31,14 @@ import { mapActions } from 'vuex'
 
 export default {
   mixins: [DruxtEntityMixin],
+
+  props: {
+    /** Editorial eyebrow above the banner title. */
+    kicker: {
+      type: String,
+      default: 'Recipe of the week',
+    },
+  },
 
   data: () => ({
     img: false,
@@ -58,22 +63,6 @@ export default {
         .uri.url
   },
 
-  computed: {
-    style() {
-      if (!this.img) {
-        return false
-      }
-
-      return {
-        backgroundAttachment: 'fixed',
-        backgroundImage: `url(${this.img})`,
-        backgroundPosition: 'center',
-        backgroundSize: 'cover',
-        minHeight: '43vw',
-      }
-    },
-  },
-
   methods: {
     ...mapActions({
       getResource: 'druxt/getResource',
@@ -82,8 +71,14 @@ export default {
 }
 </script>
 
-<style scoped>
-.card.bg-dark {
-  background-color: rgb(52 58 64 / 60%) !important;
-}
-</style>
+<!--
+  No scoped styles. The banner's height and scrim direction live in
+  assets/scss/theme.scss (.banner and its @media (max-width: 767.98px) block)
+  so there is a single source of truth — the earlier scoped rule set a
+  competing height at a breakpoint 0.98px away from the theme's, and neither
+  matched at 767.5px.
+
+  The old banner used background-attachment: fixed, which janks on iOS. It is a
+  real <img> with a gradient scrim now, so the photograph can be object-fit
+  cropped per breakpoint.
+-->

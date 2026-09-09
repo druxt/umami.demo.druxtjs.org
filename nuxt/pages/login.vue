@@ -1,47 +1,50 @@
 <template>
-  <b-row>
+  <div class="band band--paper">
     <b-container>
-      <b-row class="mb-3">
-        <b-col>
-          <h1>Login</h1>
-        </b-col>
-      </b-row>
+      <div class="auth">
+        <span class="auth__kicker">Editors</span>
+        <h1 class="auth__title">Sign in to edit this magazine</h1>
+        <p class="auth__blurb">
+          Drupal owns the accounts. Druxt sends you there and back with a token.
+        </p>
 
-      <b-row>
-        <b-col cols="12" sm="6" class="mb-3">
-          <b-card title="Contribute">
-            <p>Test Druxt content editing capabilities.</p>
-            <!-- <b-button
-              block
-              variant="success"
-              @click="$auth.loginWith('github')"
-            >
-              Login with Github
-            </b-button> -->
-          </b-card>
-        </b-col>
+        <b-form-group label="Site">
+          <b-input :value="site" plaintext readonly />
+        </b-form-group>
 
-        <b-col cols="12" sm="6">
-          <b-card title="Administer">
-            <p>Edit content with live Drupal backend.</p>
-            <!-- <b-button
-              block
-              variant="primary"
-              @click="$auth.loginWith('drupal')"
-            >
-              Login with Drupal
-            </b-button> -->
-          </b-card>
-        </b-col>
-      </b-row>
+        <b-button variant="primary" @click="login">
+          Continue with Drupal →
+        </b-button>
+
+        <AppDruxtNote
+          cta="Authentication guide"
+          href="https://druxtjs.org/modules/auth"
+          kicker="How this works"
+          title="Drupal owns the login, Druxt holds the token"
+        >
+          <code>druxt-auth</code> runs OAuth2 Authorization Code with PKCE. You
+          land on Drupal's own login, come back to <code>/callback</code>, and
+          the token lets every Druxt component write as well as read.
+        </AppDruxtNote>
+      </div>
     </b-container>
-  </b-row>
+  </div>
 </template>
 
 <script>
 export default {
-  layout: 'plain',
-  // middleware: 'auth',
-  // auth: 'guest',
+  head: () => ({ title: 'Sign in' }),
+
+  computed: {
+    site() {
+      return (this.$config.baseUrl || '').replace(/^https?:\/\//, '')
+    },
+  },
+
+  methods: {
+    login() {
+      this.$auth.loginWith('drupal')
+    },
+  },
 }
 </script>

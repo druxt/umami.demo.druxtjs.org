@@ -6,6 +6,8 @@
  */
 
 use Drupal\consumers\Entity\Consumer;
+use Drupal\contact\Entity\ContactForm;
+use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\user\RoleInterface;
 
 /**
@@ -57,6 +59,83 @@ function druxt_umami_install() {
   $display = &$view->getDisplay('default');
   $display['display_options']['pager']['options']['offset'] = 2;
   $view->save();
+
+  // The recipe teaser has no image, so a teaser strip renders as headlines.
+  // The article teaser already carries one.
+  $display = \Drupal::entityTypeManager()
+    ->getStorage('entity_view_display')
+    ->load('node.recipe.teaser');
+  if ($display && !$display->getComponent('field_media_image')) {
+    $display->setComponent('field_media_image', [
+      'type' => 'entity_reference_entity_view',
+      'label' => 'hidden',
+      'settings' => ['view_mode' => 'medium_3_2_2x'],
+      'weight' => -1,
+    ])->save();
+  }
+
+  // The contact module ships the personal form only, and its site-wide form
+  // setting points at a `feedback` form that no profile here creates, so
+  // /contact fatals and every link to it is filtered out as inaccessible.
+  if (!ContactForm::load('feedback')) {
+    ContactForm::create([
+      'id' => 'feedback',
+      'label' => 'Website feedback',
+      'recipients' => ['admin@example.com'],
+      'message' => 'Your message has been sent.',
+      'reply' => '',
+      'weight' => 0,
+    ])->save();
+  }
+  user_role_grant_permissions(RoleInterface::ANONYMOUS_ID, ['access site-wide contact form']);
+  user_role_grant_permissions(RoleInterface::AUTHENTICATED_ID, ['access site-wide contact form']);
+
+  // DruxtEntityForm builds itself from the form display, and a form created
+  // in code has none, so the contact page rendered as two bare buttons.
+  $form_display = \Drupal::entityTypeManager()
+    ->getStorage('entity_form_display')
+    ->load('contact_message.feedback.default');
+  if (!$form_display) {
+    $form_display = \Drupal::entityTypeManager()
+      ->getStorage('entity_form_display')
+      ->create([
+        'targetEntityType' => 'contact_message',
+        'bundle' => 'feedback',
+        'mode' => 'default',
+        'status' => TRUE,
+      ]);
+    $weight = 0;
+    foreach (['name' => 'string_textfield', 'mail' => 'email_default', 'subject' => 'string_textfield', 'message' => 'string_textarea', 'copy' => 'boolean_checkbox'] as $field => $type) {
+      $form_display->setComponent($field, ['type' => $type, 'weight' => $weight++]);
+    }
+    $form_display->save();
+  }
+
+  // Menu links for the pages the frontend already renders.
+  //
+  // demo_umami ships the About page and the contact form, but links to
+  // neither: the main menu is three view routes and the footer menu is empty,
+  // so the footer's Magazine column had nothing to list.
+  $links = [
+    // Articles is 20 and Recipes is 30 in the view's own menu settings, so
+    // these two sit after them.
+    ['title' => 'About', 'uri' => 'internal:/about-umami', 'menu' => 'main', 'weight' => 40],
+    ['title' => 'Contact', 'uri' => 'internal:/contact', 'menu' => 'main', 'weight' => 41],
+    ['title' => 'Home', 'uri' => 'internal:/', 'menu' => 'footer', 'weight' => 0],
+    ['title' => 'Articles', 'uri' => 'internal:/articles', 'menu' => 'footer', 'weight' => 1],
+    ['title' => 'Recipes', 'uri' => 'internal:/recipes', 'menu' => 'footer', 'weight' => 2],
+    ['title' => 'About', 'uri' => 'internal:/about-umami', 'menu' => 'footer', 'weight' => 3],
+    ['title' => 'Contact', 'uri' => 'internal:/contact', 'menu' => 'footer', 'weight' => 4],
+  ];
+  foreach ($links as $link) {
+    MenuLinkContent::create([
+      'title' => $link['title'],
+      'link' => ['uri' => $link['uri']],
+      'menu_name' => $link['menu'],
+      'weight' => $link['weight'],
+      'expanded' => TRUE,
+    ])->save();
+  }
 
   // Druxt JSON:API resource access.
   // druxt_entity_access() gates view--view, menu--menu and the display config
