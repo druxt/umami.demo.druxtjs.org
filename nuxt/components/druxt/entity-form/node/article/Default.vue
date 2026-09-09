@@ -14,10 +14,8 @@
     </b-overlay>
 
     <AppDruxtNote
-      cta="Entity guide"
-      href="https://druxtjs.org/modules/entity"
+      file="entity-form/node/article/Default.vue"
       kicker="How this works"
-      title="A POST to JSON:API with your sign-in token"
     >
       The article is saved unpublished, then previewed through
       <code>node/preview</code> in the same view modes the site already renders.
