@@ -32,10 +32,8 @@
     </b-overlay>
 
     <AppDruxtNote
-      cta="Entity guide"
-      href="https://druxtjs.org/modules/entity"
+      file="entity-form/contact-message/Feedback.vue"
       kicker="How this works"
-      title="One component per field, straight from the form display"
     >
       <code>DruxtEntityForm</code> reads the <code>contact_message</code> form
       display and renders a component per field type. None of this is

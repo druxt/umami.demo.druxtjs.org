@@ -2,8 +2,11 @@
   <b-row class="druxt-note" no-gutters>
     <b-col cols="12" :lg="code ? 7 : 12">
       <span class="druxt-note__kicker">{{ kicker }}</span>
-      <h3 class="druxt-note__title">{{ title }}</h3>
+      <h3 v-if="title" class="druxt-note__title">{{ title }}</h3>
       <p class="druxt-note__body"><slot /></p>
+      <!-- The component that renders the screen, so a reader can go and look
+           at it. Named on every screen in the design. -->
+      <code v-if="file" class="druxt-note__file d-block mt-2">{{ file }}</code>
       <nuxt-link
         v-if="to"
         class="druxt-note__link d-inline-block mt-2"
@@ -46,7 +49,13 @@ export default {
 
     title: {
       type: String,
-      required: true,
+      default: '',
+    },
+
+    /** Repo-relative path of the component this note is describing. */
+    file: {
+      type: String,
+      default: '',
     },
 
     code: {
