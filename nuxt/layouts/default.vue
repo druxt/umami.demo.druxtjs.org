@@ -29,12 +29,30 @@
           <DruxtBlockRegion v-bind="props.banner_top" />
         </AppDevRegion>
 
+        <!-- The one note in the editorial flow, and the front page is where
+             it earns its place: the bands above are Drupal's block layout. -->
+        <div v-if="isFront" class="band band--paper">
+          <b-container>
+            <AppDruxtNote
+              :code="blocksSnippet"
+              cta="Read the Blocks guide"
+              href="https://druxtjs.org/modules/blocks"
+              kicker="How this page works"
+              title="The blocks above are Drupal's block layout, placed by an editor"
+            >
+              Nothing here is hard-coded into the frontend. Druxt reads the
+              region and renders whichever blocks Drupal reports, so an editor
+              moving the promoted items block changes this page with no deploy.
+            </AppDruxtNote>
+          </b-container>
+        </div>
+
         <!-- v-if, not v-show: on the front page these should not be in the
              DOM at all. isHomePath is false at /en/ because the router's home
              path is /node, so the langcode roots are tested here too. -->
-        <!-- A Nuxt page owns its own heading, and Drupal has no breadcrumb
-             for a route it does not know, so the band would be empty. -->
-        <div v-if="!isFront && !$slots.default" class="band band--paper">
+        <!-- Drupal has no breadcrumb or title for a route it does not know,
+             so on a Nuxt-owned page this band would be an empty stripe. -->
+        <div v-if="!isFront && isDrupalRoute" class="band band--paper">
           <b-container>
             <DruxtBlockRegion
               v-if="regions.includes('breadcrumbs')"
@@ -64,14 +82,13 @@
           </div>
         </AppDevRegion>
 
-        <div
+        <!-- Each block in this region brings its own band: the region holds
+             the articles grid and the collection pills, on different
+             grounds. -->
+        <DruxtBlockRegion
           v-if="regions.includes('content_bottom')"
-          class="band band--warm collections"
-        >
-          <b-container>
-            <DruxtBlockRegion v-bind="props.content_bottom" />
-          </b-container>
-        </div>
+          v-bind="props.content_bottom"
+        />
 
         <div v-if="regions.includes('footer')" class="band band--paper">
           <b-container>
@@ -113,8 +130,21 @@
 <script>
 const FRONT = /^\/(en|es)?\/?$/
 
+const SNIPPET = [
+  "<span class='t'>DruxtBlockRegion</span>",
+  "  <span class='a'>name</span>=<span class='v'>\"banner_top\"</span>",
+  "  <span class='a'>theme</span>=<span class='v'>\"umami\"</span>",
+].join('\n')
+
 export default {
+  data: () => ({ blocksSnippet: SNIPPET }),
+
   computed: {
+    /** The router resolved this path to something in Drupal. */
+    isDrupalRoute() {
+      return !!this.$store.state.druxtRouter.route.resolvedPath
+    },
+
     isFront() {
       const route = this.$store.state.druxtRouter.route
       return !!route.isHomePath || FRONT.test(this.$route.path)
