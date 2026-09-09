@@ -7,6 +7,8 @@
 
 use Drupal\consumers\Entity\Consumer;
 use Drupal\contact\Entity\ContactForm;
+use Drupal\block\Entity\Block;
+use Drupal\Core\Field\Entity\BaseFieldOverride;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\user\RoleInterface;
 
@@ -60,18 +62,44 @@ function druxt_umami_install() {
   $display['display_options']['pager']['options']['offset'] = 2;
   $view->save();
 
-  // The recipe teaser has no image, so a teaser strip renders as headlines.
-  // The article teaser already carries one.
-  $display = \Drupal::entityTypeManager()
-    ->getStorage('entity_view_display')
-    ->load('node.recipe.teaser');
-  if ($display && !$display->getComponent('field_media_image')) {
-    $display->setComponent('field_media_image', [
-      'type' => 'entity_reference_entity_view',
-      'label' => 'hidden',
-      'settings' => ['view_mode' => 'medium_3_2_2x'],
-      'weight' => -1,
-    ])->save();
+  // Card and teaser displays ship with an image and a title and nothing else,
+  // so every card in the frontend renders as a bare headline: no category
+  // kicker, no difficulty badge, no cooking time, no standfirst. The frontend
+  // has a component per field for all of them. Put the fields on the displays
+  // that feed the cards.
+  $image = [
+    'type' => 'entity_reference_entity_view',
+    'label' => 'hidden',
+    'settings' => ['view_mode' => 'medium_3_2_2x'],
+    'weight' => -10,
+  ];
+  $displays = [
+    'node.recipe.card' => [
+      'field_media_image' => $image,
+      'field_recipe_category' => ['type' => 'entity_reference_label', 'label' => 'hidden', 'settings' => ['link' => FALSE], 'weight' => -5],
+      'field_difficulty' => ['type' => 'list_default', 'label' => 'hidden', 'weight' => 5],
+      'field_cooking_time' => ['type' => 'number_integer', 'label' => 'hidden', 'weight' => 6],
+    ],
+    'node.article.card' => [
+      'field_media_image' => $image,
+      'field_tags' => ['type' => 'entity_reference_label', 'label' => 'hidden', 'settings' => ['link' => FALSE], 'weight' => -5],
+      'field_body' => ['type' => 'text_summary_or_trimmed', 'label' => 'hidden', 'settings' => ['trim_length' => 130], 'weight' => 5],
+    ],
+    'node.recipe.teaser' => [
+      'field_media_image' => $image,
+    ],
+  ];
+
+  $storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+  foreach ($displays as $id => $components) {
+    $display = $storage->load($id);
+    if (!$display) {
+      continue;
+    }
+    foreach ($components as $field => $options) {
+      $display->setComponent($field, $options);
+    }
+    $display->save();
   }
 
   // The contact module ships the personal form only, and its site-wide form
@@ -109,6 +137,86 @@ function druxt_umami_install() {
       $form_display->setComponent($field, ['type' => $type, 'weight' => $weight++]);
     }
     $form_display->save();
+  }
+
+  // A visitor submitting an article through the demo should not be able to
+  // publish it. The frontend's save button says "Save as unpublished", and
+  // this is what makes that true.
+  BaseFieldOverride::createFromBaseFieldDefinition(
+    \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('node')['status'],
+    'article'
+  )->setDefaultValue(FALSE)->save();
+
+  // Every card on the site is the same card. The profile ships three view
+  // modes for it (card, card_common, card_common_alt) which differ only in
+  // which fields somebody remembered to enable, and each one needs its own
+  // frontend component. Point the views that feed cards at `card`.
+  $rows = [
+    'frontpage' => ['default'],
+    'promoted_items' => ['default', 'attachment_1'],
+    'featured_articles' => ['default'],
+    'articles_aside' => ['default'],
+  ];
+  foreach ($rows as $view_id => $display_ids) {
+    $view = \Drupal::entityTypeManager()->getStorage('view')->load($view_id);
+    if (!$view) {
+      continue;
+    }
+    $display = $view->get('display');
+    foreach ($display_ids as $display_id) {
+      if (isset($display[$display_id]['display_options']['row']['options']['view_mode'])) {
+        $display[$display_id]['display_options']['row']['options']['view_mode'] = 'card';
+      }
+    }
+    $view->set('display', $display)->save();
+  }
+
+  // The homepage design has an articles band under the recipe grid. The only
+  // article block the profile ships is articles_aside, which takes the
+  // current node as an argument and answers a 500 without one, so give the
+  // featured_articles view a block display of its own and place that.
+  $view = \Drupal::entityTypeManager()->getStorage('view')->load('featured_articles');
+  if ($view && !isset($view->get('display')['block_1'])) {
+    $display = $view->get('display');
+    $display['block_1'] = [
+      'display_plugin' => 'block',
+      'id' => 'block_1',
+      'display_title' => 'Block',
+      'position' => 2,
+      'display_options' => [
+        'display_extenders' => [],
+        'display_description' => 'Three articles for the front page.',
+        'pager' => [
+          'type' => 'some',
+          'options' => ['offset' => 0, 'items_per_page' => 3],
+        ],
+        'defaults' => ['pager' => FALSE, 'pager_options' => FALSE],
+      ],
+    ];
+    $view->set('display', $display)->save();
+  }
+
+  if (!Block::load('umami_articles_front')) {
+    Block::create([
+      'id' => 'umami_articles_front',
+      'theme' => 'umami',
+      'region' => 'content_bottom',
+      'weight' => -10,
+      'plugin' => 'views_block:featured_articles-block_1',
+      'settings' => [
+        'id' => 'views_block:featured_articles-block_1',
+        'label' => 'From the magazine',
+        'label_display' => '0',
+        'items_per_page' => 'none',
+      ],
+      'visibility' => [
+        'request_path' => [
+          'id' => 'request_path',
+          'negate' => FALSE,
+          'pages' => '<front>',
+        ],
+      ],
+    ])->save();
   }
 
   // Menu links for the pages the frontend already renders.
