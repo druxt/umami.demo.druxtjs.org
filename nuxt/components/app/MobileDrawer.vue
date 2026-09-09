@@ -43,16 +43,6 @@
           </template>
         </DruxtMenu>
 
-        <div class="drawer__account">
-          <nuxt-link
-            class="drawer__account-link"
-            to="/login"
-            @click.native="hide"
-          >
-            Sign in
-          </nuxt-link>
-        </div>
-
         <div class="drawer__lang">
           <nuxt-link
             v-for="code in ['en', 'es']"
@@ -70,10 +60,6 @@
         <div class="drawer__druxt">
           <span class="drawer__druxt-kicker">Built with Druxt</span>
 
-          <nuxt-link class="drawer__druxt-link" to="/entity-explorer">
-            Entity Explorer <span aria-hidden="true">→</span>
-          </nuxt-link>
-
           <a
             v-for="link in links"
             :key="link.href"
@@ -84,6 +70,22 @@
           >
             {{ link.title }} <span aria-hidden="true">→</span>
           </a>
+
+          <nuxt-link
+            class="drawer__druxt-link"
+            to="/entity-explorer"
+            @click.native="hide"
+          >
+            Entity Explorer <span aria-hidden="true">→</span>
+          </nuxt-link>
+
+          <nuxt-link
+            class="drawer__druxt-link"
+            to="/login"
+            @click.native="hide"
+          >
+            Sign in <span aria-hidden="true">→</span>
+          </nuxt-link>
         </div>
       </div>
     </template>
