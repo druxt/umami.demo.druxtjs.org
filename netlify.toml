@@ -8,6 +8,9 @@
   status = 301
   force = true
 
+# Each language proxies to its own prefix on the backend. These were rotated
+# by one, so a Spanish page asked the English API and the language switch
+# failed with a network error.
 [[redirects]]
   from = "/en/jsonapi*"
   to = "https://api.umami.demo.druxtjs.org/en/jsonapi:splat"
