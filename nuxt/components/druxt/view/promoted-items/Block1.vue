@@ -1,8 +1,10 @@
 <template>
   <div class="band band--warm">
     <b-container>
-      <!-- The block and its attachment are one strip: three teasers across,
-           a snap scroller below md. See REPASS.md 3b. -->
+      <span class="band__label">This week</span>
+
+      <!-- Image, kicker, headline. A snap scroller below md showing 1.15
+           items, so the cut edge says swipe. -->
       <div class="featured-strip">
         <slot name="results" :wrapper="{ component: 'div' }" />
         <slot

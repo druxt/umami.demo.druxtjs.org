@@ -4,13 +4,9 @@
       <slot name="field_media_image" />
     </div>
 
-    <div class="teaser__body">
-      <span v-if="$scopedSlots.field_tags" class="teaser__kicker">
-        <slot name="field_tags" />
-      </span>
+    <span class="teaser__kicker">{{ kicker }}</span>
 
-      <h3 class="teaser__title">{{ entity.attributes.title }}</h3>
-    </div>
+    <h3 class="teaser__title">{{ entity.attributes.title }}</h3>
   </nuxt-link>
 </template>
 
@@ -23,14 +19,14 @@ export default {
   computed: {
     /* @todo - Implement proper multilingual support */
     to: ({ entity }) => `/en${(entity.attributes.path || {}).alias}`,
+
+    /** The strip mixes content types, so the kicker names the type. */
+    kicker: ({ entity }) => (entity.type || '').split('--').pop() || '',
   },
 
   druxt: {
-    // The image and the tags are on the teaser display, but a fields filter
-    // that omits them means the query never asks Drupal for either, so the
-    // strip rendered as three bare headlines.
     query: {
-      fields: ['field_media_image', 'field_tags', 'path', 'title'],
+      fields: ['path', 'title'],
     },
   },
 }

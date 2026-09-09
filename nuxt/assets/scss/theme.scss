@@ -421,6 +421,28 @@ h4 {
   }
 }
 
+.recipe-card .kicker {
+  color: $spice;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+
+  // The category renders as a badge elsewhere; here it is a line of type.
+  .badge {
+    background: none;
+    border: 0;
+    color: inherit;
+    font-size: inherit;
+    letter-spacing: inherit;
+    padding: 0;
+  }
+
+  a {
+    color: inherit;
+  }
+}
+
 .kicker {
   color: $spice;
   font-size: 0.65625rem;
@@ -470,12 +492,9 @@ h4 {
     margin: 0;
   }
   &__meta {
-    align-items: center;
     color: $ink-faint;
-    display: flex;
     font-size: 0.8125rem;
-    gap: 0.5625rem;
-    margin-top: auto;
+    margin: auto 0 0;
   }
 
   // An article's standfirst sits where a recipe's meta row would.
@@ -947,9 +966,10 @@ h4 {
       );
     }
 
+    // 375 leads with the headline and the button; the summary is the first
+    // thing to go when the banner is 320px tall.
     &__summary {
-      font-size: 0.9375rem;
-      max-width: none;
+      display: none;
     }
 
     .btn {
@@ -1914,9 +1934,43 @@ h4 {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
 
-    > * {
+    // The attachment's rows arrive inside a display: contents wrapper, so
+    // they are flex items too and need the same width.
+    > *,
+    > .contents > * {
       flex: 0 0 78%;
       scroll-snap-align: start;
+    }
+  }
+}
+
+// ── Band furniture ───────────────────────────────────────────────────────────
+// A small label above a strip, the view's own title above a grid, and one
+// outline button below it.
+
+.band {
+  &__label {
+    color: $spice;
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    margin-bottom: 1.25rem;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    margin: 0 0 1.75rem;
+    max-width: 34ch;
+  }
+
+  &__cta {
+    margin-top: 0.5rem;
+
+    @media (max-width: $bp-md) {
+      display: block;
+      width: 100%;
     }
   }
 }
@@ -1984,7 +2038,7 @@ h4 {
   }
 
   &__kicker {
-    color: $ink-faint;
+    color: $spice;
     font-size: 0.625rem;
     font-weight: 700;
     letter-spacing: 0.14em;
