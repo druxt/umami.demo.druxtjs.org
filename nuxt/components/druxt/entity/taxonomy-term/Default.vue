@@ -1,5 +1,11 @@
 <template>
-  <div v-if="!$fetchState.pending" class="term-page">
+  <!-- Every term reference on the site resolves to this component: with no
+       term view display, a card's kicker asking for a term label lands here
+       too. Build the term page only for the term the router actually
+       resolved; anywhere else this is a name. -->
+  <span v-if="!isRoutedTerm">{{ entity.attributes.name }}</span>
+
+  <div v-else-if="!$fetchState.pending" class="term-page">
     <!-- The page title block above already prints the term's name. -->
     <span class="term-page__kicker">Collection</span>
     <p class="term-page__blurb">{{ blurb }}</p>
@@ -9,6 +15,15 @@
         {{ chip }}
       </span>
     </div>
+
+    <AppDruxtNote
+      file="entity/taxonomy-term/tags/Default.vue"
+      kicker="How this works"
+    >
+      The term page is one entity plus one view, both resolved by the router
+      from the URL alias. Term description, then the referencing content in card
+      view mode.
+    </AppDruxtNote>
 
     <b-row class="align-items-stretch">
       <b-col
@@ -45,6 +60,9 @@ export default {
   }),
 
   async fetch() {
+    if (!this.isRoutedTerm) {
+      return
+    }
     this.entities = (
       await Promise.all(
         this.entityTypes.map(
@@ -63,6 +81,12 @@ export default {
   },
 
   computed: {
+    /** True only when this term is the one the router resolved. */
+    isRoutedTerm() {
+      const route = this.$store.state.druxtRouter.route || {}
+      return ((route.entity || {}).uuid || null) === this.entity.id
+    },
+
     counts() {
       return this.entityTypes.map((type) => ({
         label: type.split('--').pop(),
