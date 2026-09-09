@@ -7,7 +7,6 @@
 
 use Drupal\consumers\Entity\Consumer;
 use Drupal\contact\Entity\ContactForm;
-use Drupal\block\Entity\Block;
 use Drupal\Core\Field\Entity\BaseFieldOverride;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\user\RoleInterface;
@@ -153,7 +152,6 @@ function druxt_umami_install() {
   // frontend component. Point the views that feed cards at `card`.
   $rows = [
     'frontpage' => ['default'],
-    'promoted_items' => ['default', 'attachment_1'],
     'featured_articles' => ['default'],
     'articles_aside' => ['default'],
   ];
@@ -169,54 +167,6 @@ function druxt_umami_install() {
       }
     }
     $view->set('display', $display)->save();
-  }
-
-  // The homepage design has an articles band under the recipe grid. The only
-  // article block the profile ships is articles_aside, which takes the
-  // current node as an argument and answers a 500 without one, so give the
-  // featured_articles view a block display of its own and place that.
-  $view = \Drupal::entityTypeManager()->getStorage('view')->load('featured_articles');
-  if ($view && !isset($view->get('display')['block_1'])) {
-    $display = $view->get('display');
-    $display['block_1'] = [
-      'display_plugin' => 'block',
-      'id' => 'block_1',
-      'display_title' => 'Block',
-      'position' => 2,
-      'display_options' => [
-        'display_extenders' => [],
-        'display_description' => 'Three articles for the front page.',
-        'pager' => [
-          'type' => 'some',
-          'options' => ['offset' => 0, 'items_per_page' => 3],
-        ],
-        'defaults' => ['pager' => FALSE, 'pager_options' => FALSE],
-      ],
-    ];
-    $view->set('display', $display)->save();
-  }
-
-  if (!Block::load('umami_articles_front')) {
-    Block::create([
-      'id' => 'umami_articles_front',
-      'theme' => 'umami',
-      'region' => 'content_bottom',
-      'weight' => -10,
-      'plugin' => 'views_block:featured_articles-block_1',
-      'settings' => [
-        'id' => 'views_block:featured_articles-block_1',
-        'label' => 'From the magazine',
-        'label_display' => '0',
-        'items_per_page' => 'none',
-      ],
-      'visibility' => [
-        'request_path' => [
-          'id' => 'request_path',
-          'negate' => FALSE,
-          'pages' => '<front>',
-        ],
-      ],
-    ])->save();
   }
 
   // Menu links for the pages the frontend already renders.
