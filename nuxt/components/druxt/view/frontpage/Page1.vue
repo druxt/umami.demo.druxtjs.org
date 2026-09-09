@@ -1,13 +1,12 @@
 <template>
   <div>
-    <!-- Header -->
-    <b-row v-if="$scopedSlots.header">
-      <b-col>
-        <h3 class="text-center"><slot name="header" /></h3>
-      </b-col>
-    </b-row>
+    <AppSectionHead
+      cta="All recipes"
+      lede="Pulled from the Recipes view, four at a time."
+      title="Recipes to try this week"
+      to="/en/recipes"
+    />
 
-    <!-- Results. -->
     <b-row>
       <slot
         name="results"
