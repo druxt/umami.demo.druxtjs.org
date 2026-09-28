@@ -2,8 +2,8 @@
 # Node.
 
 [tools]
-# What the backend's Lagoon images run.
-php = "8.2"
+# The floor drupal/composer.json resolves the lock against, and what CI runs.
+php = "8.3"
 # The Node Nuxt 2 builds with. The root tooling is held to versions that still
 # run on it.
 node = "16.20.2"
