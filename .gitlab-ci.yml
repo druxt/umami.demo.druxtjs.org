@@ -58,11 +58,12 @@ default:
   before_script:
     - !reference [default, before_script]
     - section_start "install" "Installing dependencies (Yarn 1)"
-    # package.json pins packageManager to yarn@1.22.22, so corepack provisions
-    # Yarn 1 rather than hijacking to Yarn 3, which cannot read a v1 lockfile.
+    # nuxt/package.json pins packageManager to yarn@1.22.22, so corepack
+    # provisions Yarn 1 there, rather than Yarn 3, which cannot read a v1
+    # lockfile. The root pins npm, so yarn only runs inside nuxt/.
     - corepack enable
-    - yarn --version
     - cd nuxt
+    - yarn --version
     - yarn config set cache-folder "$CI_PROJECT_DIR/.yarn-cache"
     - yarn install --frozen-lockfile --network-timeout 600000
     - section_end "install"
