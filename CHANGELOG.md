@@ -16,3 +16,4 @@ The demo is a site without releases, so changes are grouped by date.
 
 - The backend moves to Drupal 11, and runs without Docker for development
   and CI.
+- Drupal 11.4.8 and `drupal/druxt` 1.3.1.
