@@ -33,7 +33,7 @@ tasks:
     # New content means new entity IDs, so the site builds again from it.
     - run:
         name: regenerate the site
-        command: curl -fsS -X POST http://app:3000/_regenerate
+        command: curl -fsS --retry 5 --retry-connrefused -X POST http://app:3000/_regenerate
         service: cli
 
     - run:
