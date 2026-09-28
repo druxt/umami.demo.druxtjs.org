@@ -209,6 +209,7 @@ const clearCache = (req, res) => {
   if (!cacheSecret || req.method !== 'POST') {
     return (distDir ? serveStatic : starting)(req, res)
   }
+  req.resume()
   if (!sameSecret(req.headers['x-druxt-secret'])) {
     res.writeHead(401)
     return res.end()
@@ -221,7 +222,6 @@ const clearCache = (req, res) => {
     pending = true
     cycle()
   }, quietPeriod)
-  req.resume()
   res.writeHead(204)
   res.end()
 }
