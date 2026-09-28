@@ -21,3 +21,5 @@ The demo is a site without releases, so changes are grouped by date.
   and CI.
 - Drupal 11.4.8 and `drupal/druxt` 1.3.1.
 - The druxt.js 0.25.0 dev snapshot.
+- Drupal's responses may be cached for five minutes, and content changes
+  rebuild the site through Purge.
