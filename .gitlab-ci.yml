@@ -424,7 +424,13 @@ test:drupal:
       curl git unzip libpng-dev libjpeg-dev libfreetype-dev libzip-dev libicu-dev
     - docker-php-ext-configure gd --with-jpeg --with-freetype
     - docker-php-ext-install -j"$(nproc)" gd zip intl
-    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    # A pinned release, checked against its published SHA-256 before it runs.
+    - |
+      composer_version="2.10.3"
+      composer_sha256=7a2d379d5b8ffdaa028580ef26494c36d2feef4b178d3dd1473a4dbc5e17c8d6
+      curl -fsSL "https://getcomposer.org/download/${composer_version}/composer.phar" -o /usr/local/bin/composer
+      echo "${composer_sha256}  /usr/local/bin/composer" | sha256sum -c -
+      chmod +x /usr/local/bin/composer
     - section_end "php"
   script:
     - cd drupal
