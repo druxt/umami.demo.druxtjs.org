@@ -252,6 +252,10 @@ commitlint:
     COMPOSER_ALLOW_SUPERUSER: "1"
     DRUPAL_PORT: "8888"
     SITE_PORT: "8080"
+    # Drupal's purger and the site share this to clear the site's cache.
+    DRUXT_CACHE_SECRET: ci-test
+    DRUXT_CACHE_CLEAR_HOST: 127.0.0.1
+    DRUXT_CACHE_CLEAR_PORT: "8080"
   cache:
     - key:
         files:
@@ -358,23 +362,39 @@ test:stack:
       article=$(curl -fsS "$site/en/articles/give-your-oatmeal-the-ultimate-makeover")
       grep -q 'gluten-free' <<<"$article" || fail "an article page does not render its body"
 
+      # Drupal's own saves can reach the site through Purge while this runs,
+      # so builds are counted as they rise, not as exact totals.
+      log="$CI_PROJECT_DIR/start.log"
+      count() { grep -c "$1" "$log" || true; }
+
       # A regenerate request from a public host is just a page request.
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Host: umami.demo.druxtjs.org' "$site/_regenerate")
       [ "$code" = 200 ] || fail "a public regenerate answered $code, not the fallback page"
-      grep -c '^start: generated in' "$CI_PROJECT_DIR/start.log" | grep -qx 1 || fail "a public host triggered a build"
+      [ "$(count '^start: regenerate requested')" = 0 ] || fail "a public host requested a build"
 
       # From the internal network it builds again, serving the old copy meanwhile.
+      built=$(count '^start: generated in')
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/_regenerate")
       [ "$code" = 202 ] || fail "an internal regenerate answered $code"
       curl -fsS -o /dev/null "$site/en" || fail "/en stopped serving during the rebuild"
       for i in $(seq 1 60); do
-        [ "$(grep -c '^start: generated in' "$CI_PROJECT_DIR/start.log")" = 2 ] && break
+        [ "$(count '^start: generated in')" -gt "$built" ] && [ "$(ls -d dist-* | wc -l)" = 1 ] && break
         sleep 10
       done
-      [ "$(grep -c '^start: generated in' "$CI_PROJECT_DIR/start.log")" = 2 ] || fail "the rebuild never finished"
+      [ "$(count '^start: generated in')" -gt "$built" ] || fail "the rebuild never finished"
       [ "$(ls -d dist-* | wc -l)" = 1 ] || fail "the previous build was not removed"
       body=$(curl -fsS "$site/en")
       grep -q 'Umami' <<<"$body" || fail "/en does not render after the rebuild"
+
+      # Drupal's responses may be cached for five minutes, which Druxt follows.
+      headers=$(curl -sSI "http://127.0.0.1:$DRUPAL_PORT/en/jsonapi/node/recipe" | tr -d '\r')
+      grep -qi '^cache-control: .*max-age=300' <<<"$headers" || fail "Drupal does not send max-age=300"
+
+      # Purge's cache clear: refused without the secret, accepted with it.
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'X-Druxt-Secret: wrong' "$site/_druxt/cache/clear")
+      [ "$code" = 401 ] || fail "a wrong cache secret answered $code"
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "X-Druxt-Secret: $DRUXT_CACHE_SECRET" "$site/_druxt/cache/clear")
+      [ "$code" = 204 ] || fail "the cache secret answered $code"
       echo "All assertions passed."
   artifacts:
     when: always
