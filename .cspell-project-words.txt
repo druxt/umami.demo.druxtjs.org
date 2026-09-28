@@ -11,4 +11,5 @@ opencode
 persistedstate
 toggleable
 umami
+uselagoon
 viewports
