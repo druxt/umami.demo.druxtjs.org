@@ -1,0 +1,21 @@
+# Pinned toolchain, so `mise install` gives every contributor the same PHP and
+# Node.
+
+[tools]
+# What the backend's Lagoon images run.
+php = "8.2"
+# The Node Nuxt 2 builds with. The root tooling is held to versions that still
+# run on it.
+node = "16.20.2"
+
+[tasks.install]
+description = "Install the root tooling"
+run = "npm ci"
+
+[tasks.lint]
+description = "Lint the root tooling and markdown"
+run = "npm run lint"
+
+[tasks."hooks:install"]
+description = "Point git at the committed .githooks/ directory"
+run = "git config core.hooksPath .githooks"
