@@ -5,14 +5,14 @@ of carrying a patch is to exercise the upstream work on a real site and push it
 to merge, and a local copy freezes a moment and stops tracking the branch. The
 exit for every reference is the upstream merge.
 
-The cost is known and accepted: a merge request diff regenerates on every push
+This has a known cost. GitLab regenerates a merge request's diff on every push
 to its branch, and `cweagans/composer-patches` 2.x records a hash of each patch
 in `patches.lock.json`, so the next install fails with "Hash mismatch for patch
 downloaded from ...". When that happens, run `composer patches-relock`, re-run
 the suite (`.devtools/test`, which includes the Spanish view e2e), and carry
 that evidence to the issue as the review case.
 
-A file lives here only when no upstream URL can do the job. The one current
+A patch is kept as a file here only when no upstream URL can do the job. The one current
 file is that case, and it goes away when its blocker does.
 
 `drupal/decoupled_router` is a source install (`config.preferred-install` in
