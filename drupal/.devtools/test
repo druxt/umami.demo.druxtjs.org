@@ -17,15 +17,22 @@ DRUPAL_PORT="$PORT" .devtools/start > "$LOG" 2>&1 &
 SERVER=$!
 trap 'kill "$SERVER" 2>/dev/null || true; rm -f "$LOG"' EXIT
 
+ready=
 for _ in $(seq 1 60); do
   if grep -q 'Address already in use' "$LOG"; then
     echo "Port $PORT is taken; set DRUPAL_PORT to a free one." >&2
     cat "$LOG" >&2
     exit 1
   fi
-  [ "$(curl -s -o /dev/null -w '%{http_code}' "$DTT_BASE_URL/jsonapi" || true)" != "000" ] && break
+  code=$(curl -s -o /dev/null --connect-timeout 2 --max-time 10 -w '%{http_code}' "$DTT_BASE_URL/jsonapi" || true)
+  [ "$code" != "000" ] && { ready=1; break; }
   sleep 1
 done
+if [ -z "$ready" ]; then
+  echo "Drupal never answered at $DTT_BASE_URL." >&2
+  cat "$LOG" >&2
+  exit 1
+fi
 
 echo "==> phpunit against $DTT_BASE_URL"
 vendor/bin/phpunit "$@"
