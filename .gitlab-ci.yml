@@ -284,7 +284,7 @@ commitlint:
       echo "${node_sha256}  /tmp/${tarball}" | sha256sum -c -
       tar -xJf "/tmp/${tarball}" -C /usr/local --strip-components=1
       corepack enable
-      node --version && yarn --version
+      node --version
     - section_end "node"
     - section_start "drupal" "Provisioning a fresh umami"
     - cd drupal
@@ -302,6 +302,7 @@ commitlint:
     - section_end "drupal"
     - section_start "install" "Installing the site (Yarn 1)"
     - cd nuxt
+    - yarn --version
     - yarn config set cache-folder "$CI_PROJECT_DIR/.yarn-cache"
     - yarn install --frozen-lockfile --network-timeout 600000
     - section_end "install"
