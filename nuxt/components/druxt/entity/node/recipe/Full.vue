@@ -130,8 +130,8 @@
       :code="code"
     >
       Drupal's <em>full</em> display mode maps to this file. Change the layout
-      here and all 24 recipes follow — the field templates, labels and
-      formatters still come from Drupal's display config.
+      here and all 24 recipes follow. The field templates, labels and formatters
+      still come from Drupal's display config.
     </AppDruxtNote>
   </article>
 </template>

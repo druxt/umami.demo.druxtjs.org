@@ -43,8 +43,8 @@
             </button>
           </div>
           <p class="mt-2 mb-0" style="font-size: 0.7813rem">
-            Or open this exact site in Gitpod — backend, frontend and demo
-            content included.
+            Or open this site in Gitpod, with its backend, frontend and demo
+            content.
           </p>
         </b-col>
       </b-row>

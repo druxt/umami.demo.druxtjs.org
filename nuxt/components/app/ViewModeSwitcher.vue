@@ -3,7 +3,7 @@
     <span class="druxt-note__kicker">Same node, other view modes</span>
     <p class="druxt-note__body mt-2">
       Drupal's display modes are components here. Switch one and the page
-      re-renders from the entity already in the store — no second request.
+      re-renders from the entity already in the store, with no second request.
     </p>
 
     <div class="view-modes mt-3">
