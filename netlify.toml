@@ -10,15 +10,15 @@
 
 [[redirects]]
   from = "/en/jsonapi*"
-  to = "https://api.umami.demo.druxtjs.org/jsonapi:splat"
-
-[[redirects]]
-  from = "/es/jsonapi*"
   to = "https://api.umami.demo.druxtjs.org/en/jsonapi:splat"
 
 [[redirects]]
-  from = "/jsonapi*"
+  from = "/es/jsonapi*"
   to = "https://api.umami.demo.druxtjs.org/es/jsonapi:splat"
+
+[[redirects]]
+  from = "/jsonapi*"
+  to = "https://api.umami.demo.druxtjs.org/jsonapi:splat"
 
 [[redirects]]
   from = "/router/translate-path*"
