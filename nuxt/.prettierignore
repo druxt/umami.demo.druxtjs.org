@@ -9,5 +9,6 @@ modules/templates/
 .nuxt/
 .nuxt-storybook/
 dist/
+dist-*/
 storybook-static/
 node_modules/
