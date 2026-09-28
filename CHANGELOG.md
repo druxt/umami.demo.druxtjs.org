@@ -11,6 +11,8 @@ The demo is a site without releases, so changes are grouped by date.
 
 - Repository tooling at the root: commit message lint, commit hooks, prose
   lint, and the documents the Druxt repository standard asks for.
+- The whole demo runs in one Lagoon environment, `main`, which does not idle.
+- The site builds when its container starts, against its own Drupal.
 
 ### Changed
 
