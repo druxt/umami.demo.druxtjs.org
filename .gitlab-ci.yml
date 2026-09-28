@@ -146,7 +146,7 @@ lint:prose:
     - section_start "prose" "Linting prose with Vale"
     - bash .gitlab/scripts/install-vale.sh .vale/bin .vale/styles
     - bash .gitlab/scripts/lint-prose.sh
-    - git ls-files -z 'nuxt/**/*.vue' | xargs -0 .vale/bin/vale --config .vale.ini --output=line
+    - bash .gitlab/scripts/lint-prose-templates.sh
     - section_end "prose"
 
 lint:json:
