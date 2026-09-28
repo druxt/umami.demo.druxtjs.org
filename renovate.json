@@ -21,6 +21,17 @@
       "enabled": false
     },
     {
+      "description": "The druxt.js dev snapshot is pinned by hand until 0.25.0 is published.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "druxt",
+        "druxt-site"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Majors need a human. An automated major lands a breaking change on a branch nobody chose to upgrade.",
       "matchUpdateTypes": [
         "major"
