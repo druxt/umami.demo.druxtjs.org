@@ -1,0 +1,25 @@
+{
+  "name": "umami.demo.druxtjs.org",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Druxt Umami demo: Drupal's Umami food magazine with a Nuxt frontend",
+  "license": "MIT",
+  "packageManager": "npm@8.19.4",
+  "engines": {
+    "node": ">=16.20.1"
+  },
+  "scripts": {
+    "hooks:install": "git config core.hooksPath .githooks",
+    "lint": "npm run lint:js && npm run lint:md",
+    "lint:commit": "commitlint",
+    "lint:js": "eslint --ext .js,.mjs,.cjs .",
+    "lint:md": "markdownlint-cli2 \"**/*.md\""
+  },
+  "devDependencies": {
+    "@commitlint/cli": "17.8.1",
+    "@commitlint/config-conventional": "17.8.1",
+    "eslint": "8.28.0",
+    "eslint-config-prettier": "8.10.0",
+    "markdownlint-cli2": "0.10.0"
+  }
+}

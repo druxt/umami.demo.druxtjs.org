@@ -67,6 +67,26 @@ default:
     - yarn install --frozen-lockfile --network-timeout 600000
     - section_end "install"
 
+# The root tooling: commitlint, the root eslint config and markdownlint, on
+# the npm the root package.json pins. It runs on the app's Node 16, which the
+# tooling versions are held to.
+.root:
+  image: $NODE_IMAGE
+  interruptible: true
+  needs: []
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - .npm/
+  before_script:
+    - !reference [default, before_script]
+    - section_start "install" "Installing the root tooling"
+    - corepack enable
+    - npm ci --cache .npm --prefer-offline --no-audit --no-fund
+    - section_end "install"
+
 #
 # --- Lint ---
 #
@@ -84,6 +104,13 @@ lint:
     - section_start "prettier" "Prettier"
     - npx --no-install prettier --check .
     - section_end "prettier"
+
+# The root ESLint config: the tooling's own config files and scripts.
+lint:root:
+  extends: .root
+  stage: lint
+  script:
+    - npm run lint:js
 
 lint:json:
   stage: lint
@@ -151,23 +178,15 @@ lint:cspell:
     - section_end "cspell"
 
 commitlint:
-  extends: .node
+  extends: .root
   stage: lint
-  interruptible: true
-  needs: []
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   script:
-    # commitlint is already a devDependency here (@commitlint/cli 17.7.1), so
-    # run the installed binary rather than npx. npx cannot work: commitlint
-    # resolves `extends` from the working directory, not from its own install
-    # prefix, so the config package is never found however it is passed.
-    #
     # git-raw-commits shells out to `git log`, which refuses to run when the
-    # checkout's owning UID differs from the container's. Not specific to this
-    # job; commitlint is just the one that invokes git directly.
+    # checkout's owning UID differs from the container's.
     - git config --global --add safe.directory "$CI_PROJECT_DIR"
-    - yarn commitlint --from "$CI_MERGE_REQUEST_DIFF_BASE_SHA" --to "$CI_COMMIT_SHA" --verbose
+    - npm run lint:commit -- --from "$CI_MERGE_REQUEST_DIFF_BASE_SHA" --to "$CI_COMMIT_SHA" --verbose
 
 #
 # --- Preview ---
