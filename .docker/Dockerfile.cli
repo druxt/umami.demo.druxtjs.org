@@ -1,4 +1,4 @@
-FROM amazeeio/php:8.3-cli-drupal
+FROM uselagoon/php-8.3-cli-drupal:26.8.1
 
 COPY ./drupal/composer.* /app/
 COPY ./drupal/assets /app/assets
