@@ -13,6 +13,7 @@ The demo is a site without releases, so changes are grouped by date.
   lint, and the documents the Druxt repository standard asks for.
 - The whole demo runs in one Lagoon environment, `main`, which does not idle.
 - The site builds when its container starts, against its own Drupal.
+- An editorial theme, and demo tools that show how each page is built.
 
 ### Changed
 
