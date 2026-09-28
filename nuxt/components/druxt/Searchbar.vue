@@ -54,8 +54,8 @@
       <span class="druxt-note__kicker">How this works</span>
       <p class="druxt-note__body mt-1 mb-0">
         Drupal's Search API index is compiled to a Lunr index at build time and
-        shipped with the app, so every keystroke searches locally and the site
-        stays fully static.
+        bundled with the app, so every keystroke searches locally and the site
+        stays static.
       </p>
     </div>
   </div>

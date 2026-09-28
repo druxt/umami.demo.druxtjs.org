@@ -3,7 +3,7 @@
     <span class="auth__kicker">Editors</span>
     <h1 class="auth__title">Sign in to edit this magazine</h1>
     <p class="auth__blurb">
-      Drupal owns the accounts. Druxt sends you there and back with a token.
+      Your account is in Drupal. Druxt sends you there and back with a token.
     </p>
 
     <b-form-group label="Site">

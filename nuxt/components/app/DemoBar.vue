@@ -6,10 +6,10 @@
         <!-- Three lengths of the same sentence, switched by Bootstrap's own
              display utilities so the row never wraps. -->
         <span class="d-none d-lg-inline">
-          A DruxtJS demo — Drupal Umami content, rendered by Nuxt
+          A DruxtJS demo of Drupal Umami content, rendered by Nuxt
         </span>
         <span class="d-none d-md-inline d-lg-none">
-          A DruxtJS demo — Umami by Nuxt
+          A DruxtJS demo of Umami by Nuxt
         </span>
         <span class="d-inline d-md-none">DruxtJS demo</span>
       </span>

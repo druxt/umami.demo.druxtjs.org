@@ -96,7 +96,7 @@
         >
           This one is
           <code>components/druxt/entity/Card.vue</code>. Drupal decides which
-          fields the mode exposes; the component decides how they look.
+          fields the mode exposes. The component decides how they look.
         </AppDruxtNote>
       </div>
     </b-container>
