@@ -74,6 +74,7 @@ typings/
 
 # Nuxt generate
 dist
+dist-*
 
 # Nuxt storybook
 .nuxt-storybook

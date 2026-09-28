@@ -80,11 +80,6 @@ services:
     build:
       context: .
       dockerfile: .docker/Dockerfile.app
-      args:
-        BASE_URL: ${BASE_URL}
-        GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
-        GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
-        OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
     labels:
       lagoon.type: node
       lando.type: node
@@ -99,10 +94,6 @@ services:
     build:
       context: .
       dockerfile: .docker/Dockerfile.storybook
-      args:
-        GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
-        GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
-        OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
     labels:
       lagoon.type: node
       lando.type: node
