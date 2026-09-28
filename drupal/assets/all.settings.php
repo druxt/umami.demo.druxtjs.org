@@ -27,3 +27,11 @@ if (getenv('LAGOON_ENVIRONMENT_TYPE') !== 'production') {
      */
     $settings['skip_permissions_hardening'] = TRUE;
 }
+
+// While .devtools/provision runs, web requests stop here, before Drupal loads
+// a container or writes a cache from a half-installed site.
+if (PHP_SAPI !== 'cli' && file_exists(__DIR__ . '/files/.provisioning')) {
+  http_response_code(503);
+  header('Retry-After: 30');
+  exit;
+}
