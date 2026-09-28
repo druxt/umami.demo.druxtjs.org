@@ -159,8 +159,9 @@ const cycle = async () => {
     }
     const previous = distDir
     distDir = dir
-    log(`generated in ${Math.round((Date.now() - started) / 1000)}s`)
     if (previous) fs.rmSync(previous, { recursive: true, force: true })
+    // Logged once the swap is complete: the stack test reads this line.
+    log(`generated in ${Math.round((Date.now() - started) / 1000)}s`)
   }
   running = false
 }
