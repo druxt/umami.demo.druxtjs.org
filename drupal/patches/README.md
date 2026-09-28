@@ -28,8 +28,8 @@ Issue: [#3264181 Node Preview](https://www.drupal.org/project/druxt/issues/32641
 Merge request: [MR!8](https://git.drupalcode.org/project/druxt/-/merge_requests/8)
 
 Not a snapshot: the raw MR!8 diff does not apply to druxt 1.2.2 or 1.3.1. This
-reroll, made for 1.2.2, applies to 1.3.1 unchanged. Verified on 1.2.2,
-`composer.json` hunk 2 fails and the whole patch is rejected. Three deliberate
+reroll, made for 1.2.2, applies to 1.3.1 unchanged. Verified against the raw MR!8 diff
+on 1.2.2: `composer.json` hunk 2 fails and the whole patch is rejected. Three deliberate
 differences from upstream:
 
 - The `composer.json` hunk is dropped. It only adds `drupal/jsonapi_node_preview`
