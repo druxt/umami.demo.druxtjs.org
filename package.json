@@ -10,10 +10,14 @@
   },
   "scripts": {
     "hooks:install": "git config core.hooksPath .githooks",
-    "lint": "npm run lint:js && npm run lint:md",
+    "lint": "npm run lint:js && npm run lint:md && npm run lint:attribution",
+    "lint:attribution": "bash .gitlab/scripts/check-attribution.sh",
     "lint:commit": "commitlint",
     "lint:js": "eslint --ext .js,.mjs,.cjs .",
-    "lint:md": "markdownlint-cli2 \"**/*.md\""
+    "lint:md": "markdownlint-cli2 \"**/*.md\"",
+    "lint:prose": "PROSE_LINT_GLOB='!CODE_OF_CONDUCT.md' bash .gitlab/scripts/lint-prose.sh --all && npm run lint:prose:site",
+    "lint:prose:install": "bash .gitlab/scripts/install-vale.sh .vale/bin .vale/styles",
+    "lint:prose:site": "git ls-files -z 'nuxt/**/*.vue' | xargs -0 .vale/bin/vale --config .vale.ini --output=line"
   },
   "devDependencies": {
     "@commitlint/cli": "17.8.1",

@@ -99,3 +99,6 @@ sw.*
 
 # The root tooling's npm cache in CI
 .npm/
+
+# Vale binary and styles, installed by .gitlab/scripts/install-vale.sh
+.vale/

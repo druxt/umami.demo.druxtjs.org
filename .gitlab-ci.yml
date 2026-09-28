@@ -112,6 +112,42 @@ lint:root:
   script:
     - npm run lint:js
 
+# No AI tool credited in the merge request's commits, its description or any
+# tracked file.
+lint:attribution:
+  image: $TOOLS_IMAGE
+  stage: lint
+  interruptible: true
+  needs: []
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - bash .gitlab/scripts/check-attribution.sh
+
+# Vale with the ai-tells style: the markdown a change touches, its commit
+# messages and the merge request description, then the text every Vue
+# template shows. The code of conduct is the Contributor Covenant, quoted.
+lint:prose:
+  image: $TOOLS_IMAGE
+  stage: lint
+  interruptible: true
+  needs: []
+  variables:
+    GIT_DEPTH: 0
+    PROSE_LINT_GLOB: '!CODE_OF_CONDUCT.md'
+  cache:
+    key: vale-3.17.1
+    paths:
+      - .vale/
+  script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - section_start "prose" "Linting prose with Vale"
+    - bash .gitlab/scripts/install-vale.sh .vale/bin .vale/styles
+    - bash .gitlab/scripts/lint-prose.sh
+    - git ls-files -z 'nuxt/**/*.vue' | xargs -0 .vale/bin/vale --config .vale.ini --output=line
+    - section_end "prose"
+
 lint:json:
   stage: lint
   image: $TOOLS_IMAGE
