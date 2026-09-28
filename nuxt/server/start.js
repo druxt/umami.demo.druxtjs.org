@@ -99,7 +99,13 @@ const serveStatic = (req, res) => {
     headers['Cache-Control'] = 'public, max-age=31536000, immutable'
   }
   res.writeHead(200, headers)
-  fs.createReadStream(file).pipe(res)
+  // A build swapped out mid-request loses its files; answer 404, don't crash.
+  fs.createReadStream(file)
+    .on('error', () => {
+      if (!res.headersSent) res.writeHead(404)
+      res.end()
+    })
+    .pipe(res)
 }
 
 // The running `nuxt generate`, stopped with the server.

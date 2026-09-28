@@ -33,7 +33,6 @@ const normalize = (args) => {
       path: url.pathname + url.search,
     }
   } else {
-    callback = typeof options === 'function' ? options : callback
     options = {}
   }
   return [{ ...input, ...options }, callback]

@@ -95,6 +95,20 @@ const waitForDrupal = async (baseUrl, log) => {
  * @param {string} baseUrl - Drupal's base URL.
  * @returns {Function} The request listener.
  */
+// Headers that describe one connection, not the message, so never forwarded.
+const HOP_BY_HOP = [
+  'connection',
+  'keep-alive',
+  'proxy-connection',
+  'transfer-encoding',
+  'upgrade',
+]
+const endToEnd = (headers) => {
+  const out = { ...headers }
+  for (const name of HOP_BY_HOP) delete out[name]
+  return out
+}
+
 const createDrupalProxy = (baseUrl) => {
   const target = new URL(baseUrl)
   const client = target.protocol === 'https:' ? https : http
@@ -106,13 +120,15 @@ const createDrupalProxy = (baseUrl) => {
         port: target.port,
         method: req.method,
         path: req.url,
-        headers: req.headers,
+        headers: endToEnd(req.headers),
+        timeout: 60000,
       },
       (answer) => {
-        res.writeHead(answer.statusCode, answer.headers)
+        res.writeHead(answer.statusCode, endToEnd(answer.headers))
         answer.pipe(res)
       }
     )
+    upstream.on('timeout', () => upstream.destroy())
     upstream.on('error', () => {
       if (!res.headersSent) res.writeHead(502)
       res.end()
