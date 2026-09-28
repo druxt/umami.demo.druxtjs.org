@@ -1,0 +1,29 @@
+# Agent instructions
+
+The [Umami demo](https://umami.demo.druxtjs.org) is Drupal's Umami food
+magazine with a Druxt frontend. It follows the Druxt repository standard for a
+Nuxt application.
+
+## Layout
+
+| Path | What it is |
+| --- | --- |
+| `drupal/` | The Drupal backend, a Composer project with the `druxt_umami` module |
+| `nuxt/` | The Nuxt 2 frontend, with its own Yarn 1 manifest and lint setup |
+| `.docker/`, `docker-compose*.yml`, `.lagoon*.yml` | The Lagoon hosting |
+| The root `package.json` | Repository tooling only: commit and markdown lint, the root ESLint config |
+
+## Rules
+
+- **This repository is public.** Nothing that resolves only on a private
+  network may reach a tracked file: no internal URLs, hostnames, repository
+  names or issue links, in any file, including comments, patch descriptions and
+  lock files.
+- **Conventional Commits**, and the same for merge request and pull request
+  titles. A squash merge makes the title the commit subject, so a prose title
+  breaks the next push to the target branch.
+- **No AI tool is credited.** No co-author trailer naming an assistant, no
+  generated-with footer and no session link, in commits, merge request
+  descriptions or tracked files. The commit-msg hook rejects it locally.
+- **Node 16 for everything.** The frontend is Nuxt 2, and the root tooling is
+  held to versions that still run on Node 16.
