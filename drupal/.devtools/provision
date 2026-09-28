@@ -44,6 +44,8 @@ FLAG="$PWD/web/sites/default/files/.provisioning"
 mkdir -p "$(dirname "$FLAG")"
 touch "$FLAG"
 trap 'rm -f "$FLAG"' EXIT
+# A deploy that stops this task mid-install must not leave the site answering 503.
+trap 'exit 143' INT TERM HUP
 
 # Only the driver, never the whole URL: it can carry a password.
 echo "==> Fresh demo_umami install (${DB_URL%%:*})"

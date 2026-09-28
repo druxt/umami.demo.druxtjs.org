@@ -61,6 +61,10 @@ const main = async () => {
     ['storybook', '-p', String(inner), '-h', '127.0.0.1', '--ci'],
     { cwd: path.join(__dirname, '..'), stdio: 'inherit' }
   )
+  child.on('error', (error) => {
+    log(`Storybook could not start: ${error.message}`)
+    process.exit(1)
+  })
   child.on('exit', (code, signal) => {
     log(`Storybook exited with ${signal || code}`)
     process.exit(code || 1)
@@ -69,6 +73,13 @@ const main = async () => {
   await waitForStorybook()
   handler = createDrupalProxy(`http://127.0.0.1:${inner}`)
   log(`serving Storybook from port ${inner}`)
+}
+
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.on(signal, () => {
+    server.close(() => process.exit(0))
+    setTimeout(() => process.exit(0), 10000).unref()
+  })
 }
 
 main().catch((error) => {
