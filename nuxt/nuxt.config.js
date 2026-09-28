@@ -60,7 +60,7 @@ export default {
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   // `~/components/app` is flattened so the promo components are usable as
-  // <AppDemoBar />, <AppDruxtNote />, <DevRegion /> and so on.
+  // <AppDemoBar />, <AppDruxtNote />, <AppDevRegion /> and so on.
   components: [
     '~/components',
     { path: '~/components/app', prefix: 'App', pathPrefix: false },

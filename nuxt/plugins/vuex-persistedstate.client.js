@@ -10,6 +10,8 @@ export default ({ store }) => {
       'druxtSchema.schemas',
       'druxt.collections',
       'druxt.resources',
+      // The dev overlay stays as the visitor left it across reloads.
+      'ui.devOverlay',
     ],
   })(store)
 }
