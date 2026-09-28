@@ -12,8 +12,8 @@ downloaded from ...". When that happens, run `composer patches-relock`, re-run
 the suite (`.devtools/test`, which includes the Spanish view e2e), and carry
 that evidence to the issue as the review case.
 
-A patch is kept as a file here only when no upstream URL can do the job. The one current
-file is that case, and it goes away when its blocker does.
+A patch is kept as a file here only when no upstream URL can do the job. Both
+current files are that case, and each goes away when its blocker does.
 
 `drupal/decoupled_router` is a source install (`config.preferred-install` in
 `composer.json`). [MR!35](https://git.drupalcode.org/project/decoupled_router/-/merge_requests/35)
@@ -27,7 +27,8 @@ skipping the missing files.
 Issue: [#3264181 Node Preview](https://www.drupal.org/project/druxt/issues/3264181)
 Merge request: [MR!8](https://git.drupalcode.org/project/druxt/-/merge_requests/8)
 
-Not a snapshot: the raw MR!8 diff does not apply to druxt 1.2.2. Verified,
+Not a snapshot: the raw MR!8 diff does not apply to druxt 1.2.2 or 1.3.1. This
+reroll, made for 1.2.2, applies to 1.3.1 unchanged. Verified on 1.2.2,
 `composer.json` hunk 2 fails and the whole patch is rejected. Three deliberate
 differences from upstream:
 
@@ -45,3 +46,14 @@ differences from upstream:
 
 Rerolling this against 1.2.2 upstream would let the reference become a URL like
 the others. That is the fix, not copying less.
+
+## `druxt-mr9-views-langcode.patch`
+
+Issue: [#3273228 Add langcode to Views Decoupled Router integration](https://www.drupal.org/project/druxt/issues/3273228)
+Merge request: [MR!9](https://git.drupalcode.org/project/druxt/-/merge_requests/9)
+
+MR!9 targets 1.2.x, and its `CHANGELOG.md` and `README.md` hunks do not apply
+to 1.3.1, which rewrote both. This file is MR!9's code and test hunks only,
+unchanged: `ViewsPathTranslatorSubscriber.php` and
+`ViewsPathTranslationMultilingualKernelTest.php`. Once MR!9 is rebased onto
+1.3.x, the reference goes back to its URL.
