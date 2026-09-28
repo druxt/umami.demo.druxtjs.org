@@ -8,7 +8,7 @@ Nuxt application.
 
 | Path | What it is |
 | --- | --- |
-| `drupal/` | The Drupal backend, a Composer project with the `druxt_umami` module |
+| `drupal/` | The Drupal 11 backend, a Composer project with the `druxt_umami` module |
 | `nuxt/` | The Nuxt 2 frontend, with its own Yarn 1 manifest and lint setup |
 | `.docker/`, `docker-compose*.yml`, `.lagoon*.yml` | The Lagoon hosting |
 | The root `package.json` | Repository tooling only: commit and markdown lint, the root ESLint config |
@@ -25,5 +25,9 @@ Nuxt application.
 - **No AI tool is credited.** No co-author trailer naming an assistant, no
   generated-with footer and no session link, in commits, merge request
   descriptions or tracked files. The commit-msg hook rejects it locally.
+- **Patches are public upstream diffs where possible.** A file in
+  `drupal/patches/` exists only when no upstream URL applies, and
+  `drupal/patches/README.md` says why. Commit `drupal/patches.lock.json` with
+  any change to a patch.
 - **Node 16 for everything.** The frontend is Nuxt 2, and the root tooling is
   held to versions that still run on Node 16.

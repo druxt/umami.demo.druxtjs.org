@@ -14,5 +14,5 @@ and then breaks the next push to the target branch.
 ## How it was checked
 
 - [ ] `npm run lint` and `yarn lint` in `nuxt/` pass
-- [ ] The backend's tests pass, if the backend changed
+- [ ] `.devtools/test` passes in `drupal/`, if the backend changed
 - [ ] Nothing that resolves only on a private network reached a tracked file
