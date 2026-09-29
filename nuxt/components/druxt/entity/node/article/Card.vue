@@ -7,5 +7,12 @@ import NodeCard from '../Card.vue'
  */
 export default {
   extends: NodeCard,
+
+  /** An article has no category to fetch; the kicker names the type. */
+  data: () => ({
+    kicker: 'Article',
+  }),
+
+  fetch() {},
 }
 </script>

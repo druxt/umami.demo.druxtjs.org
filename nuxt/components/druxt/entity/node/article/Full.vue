@@ -1,45 +1,39 @@
 <template>
-  <article>
-    <!-- Centred title block, full-bleed lead image. -->
-    <b-row>
-      <b-col
-        cols="12"
-        md="10"
-        offset-md="1"
-        lg="8"
-        offset-lg="2"
-        class="text-center"
-      >
-        <div class="d-flex justify-content-center mb-3">
-          <slot name="field_tags" />
-        </div>
-
-        <h1>{{ entity.attributes.title }}</h1>
-
-        <div class="field--field-summary mt-3">
-          <slot name="field_summary" />
-        </div>
-
-        <p class="mt-3 mb-0" style="font-size: 0.8125rem; color: #8a7f70">
-          By the Umami kitchen
-          <slot name="field_display_submitted" />
-        </p>
-      </b-col>
-    </b-row>
-
-    <div class="mt-5">
+  <article class="article-page">
+    <div class="node-hero node-hero--article bleed">
       <slot name="field_media_image" />
     </div>
 
-    <b-row class="mt-5">
-      <b-col cols="12" md="8">
-        <div class="field--body">
+    <!-- One measure at every width. At lg the meta moves into the left rail
+         and the column holds at 680px. -->
+    <div class="article-page__grid">
+      <aside class="article-page__rail">
+        Article<br />{{ readTime }} min read<br />{{ shortDate }}
+      </aside>
+
+      <div class="article-page__column">
+        <span class="article-page__kicker">
+          Article · {{ readTime }} min read
+        </span>
+
+        <h1 class="article-page__title">{{ entity.attributes.title }}</h1>
+
+        <p class="article-page__byline">
+          By the Umami kitchen<span class="article-page__date">
+            · {{ longDate }}</span
+          >
+        </p>
+
+        <div class="field--body article-page__body">
           <slot name="field_body" />
         </div>
-      </b-col>
 
-      <b-col cols="12" md="4" class="mt-5 mt-md-0 pl-md-4">
+        <div class="recipe-tags">
+          <slot name="field_tags" />
+        </div>
+
         <AppDevRegion
+          class="article-page__more"
           label='DruxtView view-id="articles_aside"'
           source="components/druxt/entity/node/article/Full.vue"
         >
@@ -49,34 +43,26 @@
             view-id="articles_aside"
           >
             <template #default="{ display, results }">
-              <h4
-                class="pb-2 mb-3"
-                style="
-                  border-bottom: 1px solid #e6ddcd;
-                  color: #a2988a;
-                  font-family: Archivo, sans-serif;
-                  font-size: 0.75rem;
-                  font-weight: 700;
-                  letter-spacing: 0.16em;
-                  text-transform: uppercase;
-                "
+              <h2
+                class="recipe-body__heading"
                 v-text="display.display_options.title"
               />
-              <DruxtEntity
-                v-for="result of results"
-                :key="result.id"
-                class="mb-3 d-block"
-                mode="teaser"
-                :type="result.type"
-                :uuid="result.id"
-              />
+              <div class="article-grid article-grid--aside">
+                <DruxtEntity
+                  v-for="result of results"
+                  :key="result.id"
+                  mode="card"
+                  :type="result.type"
+                  :uuid="result.id"
+                />
+              </div>
             </template>
           </DruxtView>
         </AppDevRegion>
 
         <AppDruxtNote
           class="mt-4"
-          title="That sidebar is a Drupal view"
+          title="Those related articles are a Drupal view"
           cta="Views guide"
           href="https://druxtjs.org/modules/views"
           :code="code"
@@ -85,8 +71,8 @@
           markup. Editors change the filter or the sort in Drupal; the front end
           does not redeploy.
         </AppDruxtNote>
-      </b-col>
-    </b-row>
+      </div>
+    </div>
   </article>
 </template>
 
@@ -99,6 +85,34 @@ export default {
   computed: {
     theme: () => 'umami',
 
+    /** Words in the body at 200 a minute, never under one. */
+    readTime: ({ entity }) => {
+      const html = ((entity.attributes || {}).field_body || {}).processed || ''
+      const words = html
+        .replace(/<[^>]+>/g, ' ')
+        .split(/\s+/)
+        .filter(Boolean)
+      return Math.max(1, Math.round(words.length / 200))
+    },
+
+    created: ({ entity }) => new Date((entity.attributes || {}).created),
+
+    longDate() {
+      return this.created.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    },
+
+    shortDate() {
+      return this.created.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    },
+
     code: () =>
       [
         '<span class="t">&lt;DruxtView</span>',
@@ -110,7 +124,7 @@ export default {
 
   druxt: {
     query: {
-      fields: ['drupal_internal__nid'],
+      fields: ['created', 'drupal_internal__nid', 'field_body'],
     },
   },
 }
