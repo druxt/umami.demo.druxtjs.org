@@ -22,7 +22,7 @@
 
         <b-row class="mb-3">
           <b-col>
-            <slot name="body" />
+            <slot name="field_body" />
           </b-col>
         </b-row>
       </b-col>
