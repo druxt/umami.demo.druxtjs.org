@@ -102,3 +102,6 @@ sw.*
 
 # Vale binary and styles, installed by .gitlab/scripts/install-vale.sh
 .vale/
+
+# Dev container service logs
+.devcontainer/logs/
