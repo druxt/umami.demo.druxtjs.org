@@ -354,6 +354,10 @@ test:stack:
       api=$(curl -fsS -H 'Accept: application/vnd.api+json' "$site/en/jsonapi")
       grep -q '"jsonapi"' <<<"$api" || fail "/en/jsonapi is not proxied to JSON:API"
 
+      # An article shows its body, which Drupal 11 names field_body.
+      article=$(curl -fsS "$site/en/articles/give-your-oatmeal-the-ultimate-makeover")
+      grep -q 'gluten-free' <<<"$article" || fail "an article page does not render its body"
+
       # A regenerate request from a public host is just a page request.
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Host: umami.demo.druxtjs.org' "$site/_regenerate")
       [ "$code" = 200 ] || fail "a public regenerate answered $code, not the fallback page"
