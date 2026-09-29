@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>DruxtJS is starting</title>
+    <style>
+      :root {
+        --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+          'Helvetica Neue', sans-serif;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        --bg: #ffffff;
+        --fg: #1f2937;
+        --muted: rgba(31, 41, 55, 0.62);
+        --track: rgba(31, 41, 55, 0.1);
+        --fill: #036397;
+        --ghost: rgba(83, 176, 235, 0.32);
+        --shimmer: rgba(255, 255, 255, 0.7);
+        --ink: #2f495e;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0e161e;
+          --fg: #e4ecf2;
+          --muted: rgba(228, 236, 242, 0.62);
+          --track: rgba(228, 236, 242, 0.12);
+          --fill: #53b0eb;
+          --ghost: rgba(83, 176, 235, 0.28);
+          --shimmer: rgba(255, 255, 255, 0.3);
+          --ink: #e5ecf1;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100svh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 64px;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--sans);
+      }
+      main {
+        width: 100%;
+        max-width: 560px;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .brand svg {
+        height: 54px;
+        width: auto;
+        display: block;
+        flex: none;
+      }
+      .brand svg path:nth-child(1) {
+        animation: breathe 2.4s ease-in-out infinite alternate;
+      }
+      .brand svg path:nth-child(2) {
+        animation: breathe 2.4s ease-in-out 0.25s infinite alternate;
+      }
+      .brand svg path:nth-child(3) {
+        animation: breathe 2.4s ease-in-out 0.5s infinite alternate;
+      }
+      .word {
+        font-size: 36px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1;
+      }
+      .words {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        line-height: 1.25;
+        transition: opacity 0.2s ease;
+      }
+      p {
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--muted);
+        max-width: 38ch;
+        transition: opacity 0.2s ease;
+      }
+      .progress {
+        width: 100%;
+        max-width: 360px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .bar {
+        display: flex;
+        gap: 4px;
+        position: relative;
+      }
+      .seg {
+        position: relative;
+        flex: 1;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--track);
+        overflow: hidden;
+        transition: background-color 0.42s ease-out;
+      }
+      .seg.done {
+        background: var(--fill);
+      }
+      .seg.now {
+        background: var(--ghost);
+      }
+      .seg.now::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--shimmer),
+          transparent
+        );
+        animation: sweep 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      .meta {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+      .slow {
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--muted);
+        display: none;
+      }
+      body.is-slow .slow {
+        display: block;
+      }
+      body.is-failed .fail {
+        display: block;
+      }
+      .fail {
+        position: absolute;
+        inset: 0;
+        border-radius: 3px;
+        overflow: hidden;
+        display: none;
+      }
+      .fail i {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 6px;
+        width: 38%;
+        border-radius: 3px;
+        background: var(--muted);
+        animation: failsweep 2.2s ease-in-out infinite alternate;
+      }
+      @keyframes breathe {
+        from {
+          opacity: 0.45;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes sweep {
+        from {
+          transform: translateX(-100%);
+        }
+        to {
+          transform: translateX(220%);
+        }
+      }
+      @keyframes failsweep {
+        from {
+          transform: translateX(-60%);
+        }
+        to {
+          transform: translateX(160%);
+        }
+      }
+      @media (max-width: 520px) {
+        body {
+          padding: 32px 24px;
+        }
+        main {
+          gap: 24px;
+        }
+        .brand {
+          gap: 12px;
+        }
+        .brand svg {
+          height: 40px;
+        }
+        .word {
+          font-size: 27px;
+        }
+        h1 {
+          font-size: 17px;
+        }
+        p,
+        .slow {
+          font-size: 14px;
+        }
+        .meta {
+          font-size: 12px;
+        }
+        .progress {
+          max-width: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .brand svg path,
+        .seg.now::after,
+        .fail i {
+          animation: none;
+        }
+        .seg,
+        h1,
+        p {
+          transition: none;
+        }
+      }
+    </style>
+    <noscript><meta http-equiv="refresh" content="15" /></noscript>
+  </head>
+  <body>
+    <main>
+      <div class="brand">
+        <svg viewBox="0 0 452 342" role="img" aria-label="DruxtJS">
+          <path
+            fill="#3498DB"
+            d="M139 330l-1-2c-2-4-2-8-1-13H29L189 31l67 121 22-16-67-121c-1-2-9-14-22-14-6 0-15 2-22 15L5 303c-1 3-8 16-2 27 4 6 10 12 24 12h136c-14 0-21-6-24-12z"
+          />
+          <path
+            fill="#108775"
+            d="M447 304L317 70c-2-2-9-15-22-15-6 0-15 3-22 15l-17 28v54l39-67 129 230h-49a23 23 0 0 1-2 14l-1 1c-6 11-21 12-23 12h76c3 0 17-1 24-12 3-5 5-14-2-26z"
+          />
+          <path
+            fill="var(--ink)"
+            d="M376 330v-1l1-2c1-4 2-8 1-12l-4-12-102-178-15-27h-1l-15 27-102 178-4 12a24 24 0 0 0 2 15c4 6 10 12 24 12h190c3 0 18-1 25-12zM256 152l93 163H163l93-163z"
+          />
+        </svg>
+        <span class="word">druxt.js</span>
+      </div>
+      <div class="words">
+        <h1 id="head" aria-live="polite" aria-atomic="true">
+          Waiting for the content
+        </h1>
+        <p id="detail">
+          Drupal is still installing and importing. This can take a few minutes.
+        </p>
+      </div>
+      <div class="progress">
+        <div
+          class="bar"
+          id="bar"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="3"
+          aria-valuenow="1"
+          aria-valuetext="Step 1 of 3, waiting for the content"
+        >
+          <div class="seg now" aria-hidden="true"></div>
+          <div class="seg" aria-hidden="true"></div>
+          <div class="seg" aria-hidden="true"></div>
+          <div class="fail" aria-hidden="true"><i></i></div>
+        </div>
+        <div class="meta" id="meta">step 1 of 3</div>
+      </div>
+      <div class="slow">
+        This is taking longer than usual. The page keeps checking.
+      </div>
+    </main>
+    <script>
+      var WORDS = {
+        waiting: {
+          step: 1,
+          head: 'Waiting for the content',
+          detail:
+            'Drupal is still installing and importing. This can take a few minutes.',
+        },
+        building: {
+          step: 2,
+          head: 'Building the site',
+          detail: 'The app is building against Drupal.',
+        },
+        starting: {
+          step: 3,
+          head: 'Almost there',
+          detail: 'The build is done. The server is starting.',
+        },
+        failed: {
+          step: 0,
+          head: 'Something went wrong',
+          detail:
+            'Trying again. The container restarts, and this page keeps checking.',
+        },
+      }
+      var segs = document.querySelectorAll('.seg'),
+        started = Date.now()
+
+      function mmss(ms) {
+        var s = Math.max(0, Math.round(ms / 1000))
+        return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0')
+      }
+
+      function render(phase, since, attempt) {
+        var w = WORDS[phase] || WORDS.building,
+          failed = phase === 'failed'
+        var elapsed = since
+          ? Date.now() - Date.parse(since)
+          : Date.now() - started
+        document.getElementById('head').textContent = w.head
+        document.getElementById('detail').textContent = w.detail
+        document.getElementById('meta').textContent = failed
+          ? 'restarting · ' + (attempt ? 'attempt ' + attempt : mmss(elapsed))
+          : 'step ' + w.step + ' of 3 · ' + mmss(elapsed)
+        document.title = w.head + ' · DruxtJS'
+        segs.forEach(function (el, i) {
+          el.className =
+            'seg' +
+            (failed
+              ? ''
+              : i < w.step - 1
+              ? ' done'
+              : i === w.step - 1
+              ? ' now'
+              : '')
+        })
+        var bar = document.getElementById('bar')
+        if (failed) bar.removeAttribute('aria-valuenow')
+        else bar.setAttribute('aria-valuenow', w.step)
+        bar.setAttribute(
+          'aria-valuetext',
+          failed ? w.head : 'Step ' + w.step + ' of 3, ' + w.head.toLowerCase()
+        )
+        document.body.classList.toggle('is-failed', failed)
+        document.body.classList.toggle(
+          'is-slow',
+          !failed && elapsed > 5 * 60 * 1000
+        )
+      }
+
+      var override = new URLSearchParams(location.search).get('phase')
+      if (override) {
+        render(
+          override === 'slow' ? 'building' : override,
+          new Date(
+            Date.now() - (override === 'slow' ? 371000 : 24000)
+          ).toISOString()
+        )
+      } else {
+        var last = { phase: 'waiting', since: null }
+        ;(function poll() {
+          fetch('/__status', { cache: 'no-store' })
+            .then(function (r) {
+              return r.ok ? r.json() : null
+            })
+            .then(function (d) {
+              if (!d || !d.phase) return location.reload()
+              last = d
+              render(d.phase, d.since, d.attempt)
+              setTimeout(poll, 2500)
+            })
+            .catch(function () {
+              setTimeout(poll, 2500)
+            })
+        })()
+        setInterval(function () {
+          render(last.phase, last.since, last.attempt)
+        }, 1000)
+      }
+    </script>
+  </body>
+</html>
