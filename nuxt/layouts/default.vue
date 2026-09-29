@@ -52,15 +52,18 @@
              path is /node, so the langcode roots are tested here too. -->
         <!-- Drupal has no breadcrumb or title for a route it does not know,
              so on a Nuxt-owned page this band would be an empty stripe. -->
-        <div v-if="!isFront && isDrupalRoute" class="band band--paper">
+        <!-- A node's full template draws its own head under its photograph. -->
+        <div
+          v-if="!isFront && isDrupalRoute && !isNode"
+          class="band band--warm band--head"
+        >
           <b-container>
             <DruxtBlockRegion
               v-if="regions.includes('breadcrumbs')"
               v-bind="props.breadcrumbs"
             />
-            <!-- A node's full template carries its own h1. -->
             <DruxtBlockRegion
-              v-if="regions.includes('page_title') && !isNode"
+              v-if="regions.includes('page_title')"
               v-bind="props.page_title"
             />
           </b-container>

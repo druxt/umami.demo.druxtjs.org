@@ -1,51 +1,47 @@
 <template>
-  <article>
-    <b-row>
-      <b-col cols="12" md="7">
-        <div
-          class="d-flex flex-wrap align-items-center mb-3"
-          style="gap: 0.5rem"
-        >
+  <article class="recipe-page">
+    <!-- The photograph leads at every width. At lg the title sits on it. -->
+    <div class="recipe-hero bleed">
+      <div class="node-hero node-hero--recipe">
+        <slot name="field_media_image" />
+      </div>
+      <div class="recipe-hero__scrim" />
+      <b-container class="node-head recipe-hero__head">
+        <DruxtBreadcrumb />
+        <h1 class="node-head__title">{{ entity.attributes.title }}</h1>
+        <div class="node-head__summary field--field-summary">
+          <slot name="field_summary" />
+        </div>
+      </b-container>
+    </div>
+
+    <dl class="stat-grid bleed">
+      <div v-for="stat of stats" :key="stat.label" class="stat-grid__cell">
+        <dt class="stat-grid__label">{{ stat.label }}</dt>
+        <dd class="stat-grid__value">{{ stat.value }}</dd>
+      </div>
+    </dl>
+
+    <!-- Ingredients first, then the method; side by side from md. -->
+    <div class="recipe-body">
+      <section class="recipe-ingredients">
+        <h2 class="recipe-body__heading">Ingredients</h2>
+        <slot name="field_ingredients" />
+      </section>
+
+      <section class="recipe-method">
+        <h2 class="recipe-body__heading">Method</h2>
+        <slot name="field_recipe_instruction" />
+
+        <div class="recipe-tags">
           <slot name="field_recipe_category" />
           <slot name="field_tags" />
         </div>
+      </section>
+    </div>
 
-        <h1>{{ entity.attributes.title }}</h1>
-
-        <div class="field--field-summary mt-3">
-          <slot name="field_summary" />
-        </div>
-
-        <div class="mt-4">
-          <slot name="field_media_image" />
-        </div>
-      </b-col>
-
-      <b-col cols="12" md="5" class="mt-4 mt-md-0 pl-md-4">
-        <dl class="stat-grid">
-          <div v-for="stat of stats" :key="stat.label" class="stat-grid__cell">
-            <dt class="stat-grid__label">{{ stat.label }}</dt>
-            <dd class="stat-grid__value">{{ stat.value }}</dd>
-          </div>
-        </dl>
-      </b-col>
-    </b-row>
-
-    <b-row class="mt-5">
-      <b-col cols="12" md="4">
-        <h2>Ingredients</h2>
-        <slot name="field_ingredients" />
-      </b-col>
-
-      <b-col cols="12" md="8" class="mt-4 mt-md-0 pl-md-5">
-        <h2>Method</h2>
-        <slot name="field_recipe_instruction" />
-      </b-col>
-    </b-row>
-
-    <!-- The learning layer follows the recipe, so on a phone the ingredients
-         and method come straight after the photograph and the numbers.
-         Editing is the page's Edit tab. -->
+    <!-- The learning layer follows the recipe. Editing is the page's Edit
+         tab. -->
     <AppViewModeSwitcher
       class="mt-5"
       :modes="['card', 'teaser']"
@@ -80,8 +76,8 @@ export default {
       const a = entity.attributes
       const level = a.field_difficulty || ''
       return [
-        { label: 'Preparation', value: `${a.field_preparation_time} min` },
-        { label: 'Cooking', value: `${a.field_cooking_time} min` },
+        { label: 'Prep', value: `${a.field_preparation_time} min` },
+        { label: 'Cook', value: `${a.field_cooking_time} min` },
         { label: 'Serves', value: a.field_number_of_servings },
         {
           label: 'Difficulty',

@@ -101,9 +101,9 @@ function druxt_umami_install() {
     $display->save();
   }
 
-  // The full templates set their own headings, so Drupal's field labels
-  // would print twice.
-  foreach (['node.recipe.full', 'node.article.full'] as $id) {
+  // The node templates set their own headings, so Drupal's field labels
+  // would print twice. The route renders the default display.
+  foreach (['node.recipe.default', 'node.recipe.full', 'node.article.default', 'node.article.full'] as $id) {
     $display = $storage->load($id);
     if (!$display) {
       continue;
