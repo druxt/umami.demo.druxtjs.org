@@ -12,8 +12,13 @@
         :key="id"
         v-bind="{ type, uuid: id }"
       >
+        <!-- A plain image with native lazy loading: it is in the page
+             before JavaScript runs, and the browser decides when to fetch. -->
         <template #default="{ entity }">
-          <b-card-img-lazy
+          <img
+            alt=""
+            class="card-img"
+            loading="lazy"
             :src="
               $config.baseUrl +
               entity.attributes.uri.value.replace(

@@ -124,7 +124,7 @@ export default {
 
   druxt: {
     query: {
-      fields: ['created', 'drupal_internal__nid', 'field_body'],
+      fields: ['created', 'drupal_internal__nid', 'field_body', 'title'],
     },
   },
 }

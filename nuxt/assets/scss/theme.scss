@@ -153,13 +153,18 @@ h4 {
   }
 }
 
-// The old layout pulled the sticky navbar out of the container with a negative
-// margin; the masthead is full-width now, so that hack goes.
-.sticky-top {
-  margin: 0;
-
-  // The demo bar is sticky at top: 0, so the masthead starts below it.
+// The masthead's dev-region wrapper is the sticky element: the navbar inside
+// it could only stick within the wrapper's own height, which scrolled away.
+// The demo bar is sticky at top: 0, so the masthead starts below it.
+.dev-region.masthead-sticky {
+  position: sticky;
   top: $demo-bar-height;
+  z-index: 1020;
+
+  .sticky-top {
+    margin: 0;
+    position: static;
+  }
 }
 
 // ---------------------------------------------------------------- bootstrap re-skin
@@ -3903,5 +3908,30 @@ h4 {
   }
   .ck.ck-editor__editable_inline > :first-child {
     margin-top: 14px;
+  }
+}
+
+// The View / Edit bar on a node page.
+.page-tabs {
+  border-bottom: 1px solid $rule;
+  display: flex;
+  gap: 4px;
+  margin-bottom: 1.5rem;
+
+  &__tab {
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: $spice;
+    font-size: 0.9375rem;
+    margin-bottom: -1px;
+    min-height: $tap;
+    padding: 0 12px;
+
+    &.is-active {
+      border-bottom-color: $ink;
+      color: $ink;
+      font-weight: 600;
+    }
   }
 }
