@@ -31,7 +31,7 @@
 
         <!-- The one note in the editorial flow, and the front page is where
              it earns its place: the bands above are Drupal's block layout. -->
-        <div v-if="isFront" class="band band--paper">
+        <div v-if="isFront" class="band band--paper d-none d-md-block">
           <b-container>
             <AppDruxtNote
               :code="blocksSnippet"
@@ -90,7 +90,10 @@
           v-bind="props.content_bottom"
         />
 
-        <div v-if="regions.includes('footer')" class="band band--paper">
+        <div
+          v-if="regions.includes('footer')"
+          class="band band--paper band--footer"
+        >
           <b-container>
             <DruxtBlockRegion v-bind="props.footer" />
           </b-container>

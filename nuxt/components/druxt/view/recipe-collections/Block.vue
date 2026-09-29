@@ -17,6 +17,9 @@
             >
               {{ result.attributes.name }}
             </b-link>
+            <b-link class="collections__more" nuxt to="/en/recipes">
+              More →
+            </b-link>
           </div>
         </b-col>
       </b-row>
