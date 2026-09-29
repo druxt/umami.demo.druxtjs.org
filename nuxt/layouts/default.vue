@@ -4,8 +4,11 @@
       <div>
         <AppDemoBar />
 
+        <!-- The wrapper is what sticks: a sticky element can only stay
+             within its parent's box, and this parent is the page. -->
         <AppDevRegion
           v-if="regions.includes('header')"
+          class="masthead-sticky"
           label='DruxtBlockRegion name="header"'
           source="components/druxt/block-region/Header.vue"
         >

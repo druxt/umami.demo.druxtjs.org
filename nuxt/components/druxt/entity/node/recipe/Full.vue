@@ -98,5 +98,13 @@ export default {
         '<span class="t">/&gt;</span>',
       ].join('\n'),
   },
+
+  // The display carries no title: the page title block does, and this
+  // template draws its own.
+  druxt: {
+    query: {
+      fields: ['title'],
+    },
+  },
 }
 </script>
