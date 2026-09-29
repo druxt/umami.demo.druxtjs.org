@@ -76,6 +76,21 @@ body {
   background: $paper;
   color: $ink;
   line-height: 1.6;
+  // A full-bleed band that overshoots by a pixel must not make the whole page
+  // drag sideways on a phone. clip, not hidden, so sticky headers still work.
+  overflow-x: clip;
+}
+
+// Drawers fit the visible viewport, not 100vh, which on iOS Safari runs under
+// the toolbar and leaves the last rows out of reach.
+.b-sidebar {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.b-sidebar-body {
+  overscroll-behavior: contain;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 // Nothing in this design is allowed to be wider than its column.
@@ -1657,9 +1672,9 @@ h4 {
     color: $ink;
     display: flex;
     font-family: $serif;
-    font-size: 1.3rem;
+    font-size: 1.1875rem;
     font-weight: 500;
-    min-height: 56px;
+    min-height: 48px;
     padding: 0 1.25rem;
 
     &:hover {
@@ -1674,7 +1689,7 @@ h4 {
 
   &__lang {
     display: flex;
-    padding: 1.25rem;
+    padding: 1rem 1.25rem;
   }
 
   &__lang-btn {
@@ -1710,7 +1725,7 @@ h4 {
     border-top: 1px solid $druxt-line;
     display: flex;
     flex-direction: column;
-    padding: 1rem 1.25rem 1.5rem;
+    padding: 0.875rem 1.25rem 1.25rem;
   }
 
   &__druxt-kicker {
@@ -2005,10 +2020,12 @@ h4 {
   @media (max-width: $bp-md) {
     display: flex;
     gap: 0.75rem;
-    margin: 0 -1rem;
+    // Exactly the container's gutter, so the strip meets the screen edges
+    // without widening the page.
+    margin: 0 -15px;
     overflow-x: auto;
-    padding: 0 1rem 0.5rem;
-    scroll-padding-left: 1rem;
+    padding: 0 15px 0.5rem;
+    scroll-padding-left: 15px;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
 
