@@ -83,6 +83,8 @@ export default {
     ],
     // DruxtJS Site.
     'druxt-site',
+    // Drupal's own CKEditor 5, mounted on the edit form's text fields.
+    '@druxt-contrib/ckeditor',
   ],
 
   publicRuntimeConfig: {
@@ -185,6 +187,13 @@ export default {
       api: process.env.API_PROXY === '1',
     },
 
+    // The editor's scripts and the pictures in a body come through the
+    // site's own origin, which proxies Drupal's core and files paths.
+    ckeditor: {
+      scripts: '/core/assets/vendor/ckeditor5',
+      files: { from: '/sites/default/files/', to: '/sites/default/files/' },
+    },
+
     // Druxt Router module settings.
     router: {
       // Disable middleware/redirect support.
@@ -201,6 +210,7 @@ export default {
   proxy: {
     '/en/jsonapi': baseUrl,
     '/es/jsonapi': baseUrl,
+    '/core/assets': baseUrl,
   },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)

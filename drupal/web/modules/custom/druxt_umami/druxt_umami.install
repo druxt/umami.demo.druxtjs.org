@@ -33,6 +33,16 @@ function druxt_umami_install() {
   // JSON:API settings.
   \Drupal::service('config.factory')->getEditable('jsonapi.settings')->set('read_only', FALSE)->save();
 
+  // The edit form's editor reads each text format's toolbar and filters.
+  $druxt = \Drupal::service('config.factory')->getEditable('druxt.settings');
+  $resources = $druxt->get('resources') ?: [];
+  foreach (['editor--editor', 'filter_format--filter_format'] as $resource) {
+    if (!in_array($resource, $resources, TRUE)) {
+      $resources[] = $resource;
+    }
+  }
+  $druxt->set('resources', $resources)->save();
+
   // Remove the taxonomy term view displays druxt_install() auto-creates.
   //
   // druxt_ensure_entity_view_displays() creates one per bundle so DruxtSchema

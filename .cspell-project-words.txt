@@ -1,11 +1,14 @@
+aeiou
 amazeeio
 amazeeiolagoon
 Archivo
 crawlable
 crossorigin
+dcbdaaf
 druxt
 druxtjs
 Druxty
+Español
 giget
 janked
 janks
@@ -25,7 +28,7 @@ Searchbar
 standfirst
 toggleable
 umami
-uselagoon
 unscrimmed
+uselagoon
 viewports
 wordmark

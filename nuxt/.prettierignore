@@ -12,3 +12,4 @@ dist/
 dist-*/
 storybook-static/
 node_modules/
+vendor/
