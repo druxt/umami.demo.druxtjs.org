@@ -114,6 +114,17 @@ function druxt_umami_install() {
       'weight' => 0,
     ])->save();
   }
+  // The footer's base line, worded as the design has it.
+  $blocks = \Drupal::entityTypeManager()
+    ->getStorage('block_content')
+    ->loadByProperties(['type' => 'disclaimer_block']);
+  foreach ($blocks as $block) {
+    $block->set('field_copyright', [
+      'value' => '&copy; ' . date('Y') . ' Umami Publications &middot; Terms &amp; Conditions',
+      'format' => 'basic_html',
+    ])->save();
+  }
+
   // The demo's contact form says no email is sent. Core's test collector
   // keeps each message in state instead of handing it to a mail server.
   \Drupal::configFactory()
