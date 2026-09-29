@@ -11,6 +11,7 @@ const http = require('http')
 const path = require('path')
 const { spawn } = require('child_process')
 const { createDrupalProxy, waitForDrupal } = require('./drupal')
+const { createStartingHandler } = require('./starting')
 
 const env = process.env
 const port = Number(env.PORT) || 3000
@@ -19,13 +20,13 @@ const inner = port + 1
 const drupalUrl = env.DRUPAL_URL || 'http://nginx:8080'
 const log = (message) => process.stdout.write(`storybook: ${message}\n`)
 
-const starting = (req, res) => {
-  res.writeHead(503, {
-    'Content-Type': 'text/html; charset=utf-8',
-    'Retry-After': '30',
-  })
-  res.end('<!doctype html><title>Starting</title><p>Storybook is starting.</p>')
+// druxtjs.org's starting page, until Storybook answers.
+const state = { phase: 'waiting', since: new Date().toISOString() }
+const setPhase = (phase) => {
+  state.phase = phase
+  state.since = new Date().toISOString()
 }
+const starting = createStartingHandler(state)
 
 let handler = starting
 const server = http.createServer((req, res) => handler(req, res))
@@ -55,6 +56,7 @@ const main = async () => {
 
   await waitForDrupal(drupalUrl, log)
   log(`Drupal is ready at ${drupalUrl}`)
+  setPhase('building')
 
   const child = spawn(
     'yarn',
@@ -62,15 +64,18 @@ const main = async () => {
     { cwd: path.join(__dirname, '..'), stdio: 'inherit' }
   )
   child.on('error', (error) => {
+    setPhase('failed')
     log(`Storybook could not start: ${error.message}`)
     process.exit(1)
   })
   child.on('exit', (code, signal) => {
+    setPhase('failed')
     log(`Storybook exited with ${signal || code}`)
     process.exit(code || 1)
   })
 
   await waitForStorybook()
+  setPhase('starting')
   handler = createDrupalProxy(`http://127.0.0.1:${inner}`)
   log(`serving Storybook from port ${inner}`)
 }
