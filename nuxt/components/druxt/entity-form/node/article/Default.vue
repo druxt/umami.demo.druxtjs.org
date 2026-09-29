@@ -1,19 +1,43 @@
 <template>
-  <b-form class="form-page">
-    <span class="form-page__kicker">Authenticated write</span>
-    <h1 class="form-page__title">Submit an article</h1>
-    <p class="form-page__blurb">
-      Signed in, the same form machinery that renders content creates it.
-    </p>
+  <b-form class="edit-form" novalidate @submit.prevent="$parent.onSubmit()">
+    <!-- A new article gets the page's head; an existing one is the Edit tab. -->
+    <template v-if="creating">
+      <span class="form-page__kicker">Authenticated write</span>
+      <h1 class="form-page__title">Submit an article</h1>
+      <p class="form-page__blurb">
+        Signed in, the same form machinery that renders content creates it.
+      </p>
+    </template>
 
-    <b-overlay :show="submitting">
-      <b-alert v-if="errors.length" :show="true" variant="warning">
-        <VueJsonPretty :data="errors" />
-      </b-alert>
-      <slot />
+    <AppEditFormErrors :errors="errors" :fields="fieldLabels" />
+
+    <b-overlay :show="submitting" class="edit-form__content">
+      <slot name="title" />
+      <slot name="field_media_image" />
+      <slot name="field_body" />
+      <slot name="field_tags" />
+
+      <details class="edit-form__settings">
+        <summary>Settings</summary>
+        <div class="edit-form__settings-body">
+          <slot name="path" />
+          <slot name="status" />
+          <slot name="promote" />
+          <slot name="sticky" />
+          <slot name="uid" />
+          <slot name="created" />
+          <slot name="moderation_state" />
+          <slot name="langcode" />
+        </div>
+      </details>
     </b-overlay>
 
+    <div class="edit-form__actions">
+      <slot name="buttons" />
+    </div>
+
     <AppDruxtNote
+      v-if="creating"
       file="entity-form/node/article/Default.vue"
       kicker="How this works"
     >
@@ -28,5 +52,9 @@ import NodeEditForm from '../Default.vue'
 
 export default {
   extends: NodeEditForm,
+
+  computed: {
+    creating: ({ $parent }) => !($parent.entity || {}).id,
+  },
 }
 </script>

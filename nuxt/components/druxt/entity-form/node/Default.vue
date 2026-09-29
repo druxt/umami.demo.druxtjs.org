@@ -1,25 +1,29 @@
 <template>
-  <b-form class="form-page">
-    <b-overlay :show="submitting">
-      <b-alert v-if="errors.length" :show="true" variant="warning">
-        <VueJsonPretty :data="errors" />
-      </b-alert>
+  <b-form class="edit-form" novalidate @submit.prevent="$parent.onSubmit()">
+    <AppEditFormErrors :errors="errors" :fields="fieldLabels" />
+    <b-overlay :show="submitting" class="edit-form__content">
       <slot />
     </b-overlay>
   </b-form>
 </template>
 
 <script>
-import { BAlert, BOverlay } from 'bootstrap-vue'
-import VueJsonPretty from 'vue-json-pretty'
-import 'vue-json-pretty/lib/styles.css'
+import { BOverlay } from 'bootstrap-vue'
 
+/** Every node form: the fields in Drupal's order, the errors summarised. */
 export default {
-  components: { BAlert, BOverlay, VueJsonPretty },
+  components: { BOverlay },
 
   computed: {
-    errors: ({ $parent }) => ($parent.errors || []).filter((o) => !o.source),
+    errors: ({ $parent }) => $parent.errors || [],
     submitting: ({ $parent }) => $parent.submitting,
+    fieldLabels: ({ $parent }) =>
+      Object.fromEntries(
+        (($parent.schema || {}).fields || []).map((f) => [
+          f.id,
+          (f.label || {}).text || f.id,
+        ])
+      ),
   },
 }
 </script>

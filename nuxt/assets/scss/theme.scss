@@ -3277,3 +3277,602 @@ h4 {
     }
   }
 }
+
+// ── Edit form ────────────────────────────────────────────────────────────────
+// The Edit tab: one column of content in reading order, a settings drawer,
+// two actions. Label above, 52px control, description below, the error takes
+// the description's slot.
+
+.edit-form {
+  margin: 0 auto;
+  max-width: 640px;
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    @media (min-width: 768px) {
+      gap: 22px;
+    }
+  }
+
+  &__numbers {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    @media (min-width: 768px) {
+      gap: 14px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  &__settings {
+    border-bottom: 1px solid $rule;
+    border-top: 1px solid $rule;
+
+    > summary {
+      align-items: center;
+      cursor: pointer;
+      display: flex;
+      font-size: 0.875rem;
+      font-weight: 600;
+      justify-content: space-between;
+      list-style: none;
+      min-height: 52px;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+      &::after {
+        color: $ink-faint;
+        content: '▼';
+        font-size: 0.75rem;
+      }
+    }
+    &[open] > summary::after {
+      content: '▲';
+    }
+  }
+  &__settings-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 4px 0 20px;
+  }
+
+  &__alert {
+    background: #fff5f3;
+    border: 1px solid #8f2f22;
+    color: #8f2f22;
+    font-size: 0.84375rem;
+    line-height: 1.5;
+    margin-bottom: 18px;
+    padding: 12px 14px;
+
+    a {
+      color: inherit;
+      text-decoration: underline;
+    }
+  }
+
+  &__actions {
+    margin-top: 22px;
+  }
+
+  // On a phone the actions stay in reach.
+  @media (max-width: $bp-md) {
+    &__actions {
+      background: $paper;
+      border-top: 1px solid $rule;
+      bottom: 0;
+      margin: 22px -15px 0;
+      padding: 12px 15px;
+      position: sticky;
+      z-index: 5;
+    }
+  }
+}
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  &__required {
+    color: #8f2f22;
+    margin-left: 3px;
+  }
+  &__description {
+    color: $ink-faint;
+    font-size: 0.78125rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+  &__error {
+    color: #8f2f22;
+    font-size: 0.78125rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+  &__format {
+    align-self: flex-end;
+    color: $ink-faint;
+    font-family: $mono;
+    font-size: 0.6875rem;
+  }
+  &--invalid .edit-control {
+    border-color: #8f2f22;
+  }
+}
+
+.edit-control {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d8cfc0;
+  border-radius: 0;
+  color: $ink;
+  display: flex;
+  font-family: $sans;
+  font-size: 0.9375rem;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 14px;
+  width: 100%;
+
+  &:focus,
+  &:focus-within {
+    border-color: $ink;
+    outline: none;
+  }
+
+  &--title {
+    font-family: $serif;
+    font-size: 1.5rem;
+    min-height: 60px;
+  }
+  &--area {
+    display: block;
+    line-height: 1.6;
+    min-height: 92px;
+    padding: 14px;
+    resize: vertical;
+  }
+  &--small {
+    font-size: 0.875rem;
+    min-height: 44px;
+  }
+  &--select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, $ink-faint 50%),
+      linear-gradient(135deg, $ink-faint 50%, transparent 50%);
+    background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%;
+    background-repeat: no-repeat;
+    background-size: 5px 5px;
+    padding-right: 36px;
+  }
+  &--readonly {
+    background: $paper-warm;
+    color: $ink-soft;
+    justify-content: space-between;
+  }
+  &--unit input,
+  &--reference input {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    flex: 1;
+    font: inherit;
+    min-width: 0;
+    outline: none;
+    padding: 0;
+  }
+  &__unit {
+    color: $ink-faint;
+    font-size: 0.8125rem;
+    margin-left: auto;
+  }
+  &--unit .edit-control__unit:first-child {
+    margin-left: 0;
+    margin-right: -4px;
+  }
+  &__avatar {
+    background: $rule;
+    border-radius: 50%;
+    flex-shrink: 0;
+    height: 24px;
+    width: 24px;
+  }
+  &__action {
+    background: none;
+    border: 0;
+    color: $ink-faint;
+    font-size: 0.8125rem;
+    margin-left: auto;
+    padding: 0;
+  }
+}
+
+// One row an item: a grip, the text, a remove.
+.edit-list {
+  background: #fff;
+  border: 1px solid #d8cfc0;
+  padding: 2px 14px;
+
+  &__row {
+    align-items: center;
+    border-bottom: 1px solid $rule;
+    display: flex;
+    gap: 10px;
+    min-height: 44px;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+  &__grip {
+    color: $ink-ghost-dark;
+    cursor: grab;
+    font-size: 1rem;
+    letter-spacing: -2px;
+  }
+  &__input {
+    background: transparent;
+    border: 0;
+    flex: 1;
+    font: inherit;
+    font-size: 0.9375rem;
+    min-width: 0;
+    outline: none;
+    padding: 0;
+  }
+  &__remove {
+    background: none;
+    border: 0;
+    color: $ink-faint;
+    font-size: 1.125rem;
+    line-height: 1;
+    margin-left: auto;
+    padding: 0 2px;
+  }
+  &__add {
+    align-self: flex-start;
+    background: none;
+    border: 0;
+    color: $spice;
+    font-size: 0.84375rem;
+    font-weight: 600;
+    padding: 4px 0 0;
+  }
+}
+
+.edit-steps {
+  background: #fff;
+  border: 1px solid #d8cfc0;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 6px 14px;
+
+  &__row {
+    align-items: flex-start;
+    border-bottom: 1px solid $rule;
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+  &__n {
+    color: $spice;
+    flex-shrink: 0;
+    font-family: $serif;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    min-width: 0.75em;
+  }
+  &__input {
+    background: transparent;
+    border: 0;
+    flex: 1;
+    font: inherit;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    min-width: 0;
+    outline: none;
+    padding: 0;
+    resize: vertical;
+  }
+}
+
+.edit-segments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  &__option {
+    background: transparent;
+    border: 1px solid #d8cfc0;
+    color: $ink;
+    font-size: 0.84375rem;
+    height: 40px;
+    padding: 0 14px;
+
+    &.is-on {
+      background: $ink;
+      border-color: $ink;
+      color: $paper;
+    }
+  }
+}
+
+.edit-chips {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d8cfc0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 52px;
+  padding: 8px 10px;
+
+  &:focus-within {
+    border-color: $ink;
+  }
+
+  &__chip {
+    align-items: center;
+    background: $paper;
+    border: 1px solid #d8cfc0;
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 0.8125rem;
+    gap: 6px;
+    height: 32px;
+    padding: 0 6px 0 12px;
+  }
+  &__remove {
+    background: none;
+    border: 0;
+    color: $ink-faint;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0 4px;
+  }
+  &__input {
+    background: transparent;
+    border: 0;
+    flex: 1;
+    font: inherit;
+    font-size: 0.9375rem;
+    min-width: 120px;
+    outline: none;
+    padding: 4px 0;
+  }
+  &__list {
+    background: #fff;
+    border: 1px solid $ink;
+    border-top: 0;
+    list-style: none;
+    margin: -6px 0 0;
+    padding: 0;
+
+    button {
+      background: none;
+      border: 0;
+      border-bottom: 1px solid $rule;
+      display: block;
+      font-size: 0.9375rem;
+      min-height: 44px;
+      padding: 0 14px;
+      text-align: left;
+      width: 100%;
+
+      &.is-create {
+        color: $spice;
+        font-weight: 600;
+      }
+    }
+    li:last-child button {
+      border-bottom: 0;
+    }
+  }
+}
+
+.edit-media {
+  background: #fff;
+  border: 1px solid #d8cfc0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 110px 1fr;
+  padding: 10px;
+
+  @media (min-width: 768px) {
+    gap: 16px;
+    grid-template-columns: 180px 1fr;
+    padding: 12px;
+  }
+
+  &__thumb {
+    aspect-ratio: 4 / 3;
+    background: $paper-warm;
+    overflow: hidden;
+
+    img {
+      display: block;
+      height: 100%;
+      object-fit: cover;
+      width: 100%;
+    }
+  }
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+    min-width: 0;
+  }
+  &__name {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &__actions {
+    display: flex;
+    gap: 14px;
+
+    button {
+      background: none;
+      border: 0;
+      color: $spice;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      padding: 0;
+
+      &.is-remove {
+        color: #8f2f22;
+      }
+    }
+  }
+  &__alt-label {
+    margin-top: 6px;
+  }
+}
+
+.edit-dropzone {
+  align-items: center;
+  background: #fff;
+  border: 1px dashed $ember;
+  color: $ink-faint;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.84375rem;
+  gap: 6px;
+  justify-content: center;
+  min-height: 140px;
+  text-align: center;
+
+  &.is-over {
+    border-color: $ink;
+  }
+  &__icon {
+    color: $ink-ghost-dark;
+    font-size: 1.375rem;
+  }
+  &__choose {
+    background: none;
+    border: 0;
+    color: $spice;
+    font-weight: 600;
+    padding: 0;
+  }
+}
+
+.edit-switch {
+  align-items: center;
+  border-top: 1px solid $rule-faint;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  min-height: 44px;
+
+  &:first-child {
+    border-top: 0;
+  }
+  &__input {
+    appearance: none;
+    background: #d8cfc0;
+    border-radius: 999px;
+    height: 22px;
+    margin: 0;
+    position: relative;
+    width: 40px;
+
+    &::after {
+      background: #fff;
+      border-radius: 50%;
+      content: '';
+      height: 16px;
+      left: 3px;
+      position: absolute;
+      top: 3px;
+      transition: left 0.15s ease;
+      width: 16px;
+    }
+    &:checked {
+      background: $spice;
+      &::after {
+        left: 21px;
+      }
+    }
+  }
+  .edit-field__error {
+    flex-basis: 100%;
+  }
+}
+
+.edit-actions {
+  display: flex;
+  gap: 12px;
+
+  .btn {
+    border-radius: 0;
+    font-size: 0.90625rem;
+    font-weight: 600;
+    min-height: 52px;
+    padding: 0 28px;
+  }
+  &__save.btn-primary {
+    background: $spice;
+    border-color: $spice;
+    width: auto;
+
+    &:disabled {
+      background: $ember;
+      border-color: $ember;
+      opacity: 1;
+    }
+  }
+  &__cancel.btn-outline-secondary {
+    border-color: #d8cfc0;
+    color: $ink-muted;
+    padding: 0 24px;
+
+    &:hover:not(:disabled) {
+      background: $ink;
+      border-color: $ink;
+      color: $paper;
+    }
+  }
+  &__signin {
+    color: $ink-muted;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  @media (max-width: $bp-md) {
+    .btn {
+      flex: 1;
+      padding: 0;
+    }
+    flex-direction: row-reverse;
+  }
+}
+
+.edit-field__sublabel {
+  margin-top: 6px;
+}
+.edit-control--summary {
+  min-height: 64px;
+}

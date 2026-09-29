@@ -1,5 +1,10 @@
 <template>
-  <component :is="wrapper.component" v-bind="wrapper.props">
+  <!-- A form field with no widget, such as a computed one, has nothing to edit. -->
+  <component
+    :is="wrapper.component"
+    v-if="!(isSchemaForm && !schema.type)"
+    v-bind="wrapper.props"
+  >
     <!-- Image fields. -->
     <template v-if="isSchemaView && isTypeImage">
       <DruxtEntity
