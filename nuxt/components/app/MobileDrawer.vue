@@ -8,6 +8,7 @@
     no-header
     shadow
     width="min(330px, 86vw)"
+    @hidden="lockPage(false)"
     @shown="onShown"
   >
     <template #default="{ hide }">
@@ -124,6 +125,7 @@ export default {
 
   beforeDestroy() {
     this.$root.$off('umami::search', this.onSearchRequest)
+    this.lockPage(false)
   },
 
   methods: {
@@ -131,7 +133,30 @@ export default {
       this.focusSearch = true
     },
 
+    /**
+     * Hold the page still behind the open drawer, so a swipe scrolls the
+     * drawer, and put the reader back where they were when it closes.
+     */
+    lockPage(locked) {
+      const body = document.body
+      if (locked) {
+        this.scrollY = window.scrollY
+        Object.assign(body.style, {
+          position: 'fixed',
+          top: `-${this.scrollY}px`,
+          width: '100%',
+        })
+        return
+      }
+      if (body.style.position !== 'fixed') {
+        return
+      }
+      Object.assign(body.style, { position: '', top: '', width: '' })
+      window.scrollTo(0, this.scrollY || 0)
+    },
+
     onShown() {
+      this.lockPage(true)
       if (!this.focusSearch) {
         return
       }
