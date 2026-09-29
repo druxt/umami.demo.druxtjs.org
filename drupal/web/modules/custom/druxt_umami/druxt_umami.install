@@ -101,6 +101,21 @@ function druxt_umami_install() {
     $display->save();
   }
 
+  // The full templates set their own headings, so Drupal's field labels
+  // would print twice.
+  foreach (['node.recipe.full', 'node.article.full'] as $id) {
+    $display = $storage->load($id);
+    if (!$display) {
+      continue;
+    }
+    foreach (array_keys($display->getComponents()) as $field) {
+      $options = $display->getComponent($field);
+      $options['label'] = 'hidden';
+      $display->setComponent($field, $options);
+    }
+    $display->save();
+  }
+
   // The contact module ships the personal form only, and its site-wide form
   // setting points at a `feedback` form that no profile here creates, so
   // /contact fatals and every link to it is filtered out as inaccessible.

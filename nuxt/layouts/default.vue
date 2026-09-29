@@ -58,8 +58,9 @@
               v-if="regions.includes('breadcrumbs')"
               v-bind="props.breadcrumbs"
             />
+            <!-- A node's full template carries its own h1. -->
             <DruxtBlockRegion
-              v-if="regions.includes('page_title')"
+              v-if="regions.includes('page_title') && !isNode"
               v-bind="props.page_title"
             />
           </b-container>
@@ -146,6 +147,11 @@ export default {
     /** The router resolved this path to something in Drupal. */
     isDrupalRoute() {
       return !!this.$store.state.druxtRouter.route.resolvedPath
+    },
+
+    isNode() {
+      const { entity } = this.$store.state.druxtRouter.route
+      return (entity || {}).type === 'node'
     },
 
     isFront() {
