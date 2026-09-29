@@ -49,64 +49,6 @@
             </span>
           </div>
         </div>
-
-        <AppViewModeSwitcher
-          class="mt-4"
-          :modes="['card', 'teaser']"
-          :type="entity.type"
-          :uuid="entity.id"
-        />
-
-        <AppDevRegion
-          class="mt-4"
-          entity
-          label="DruxtEntityForm"
-          source="components/druxt/entity-form/node/Default.vue"
-        >
-          <div
-            style="
-              border: 1px solid #e6ddcd;
-              border-radius: 8px;
-              overflow: hidden;
-            "
-          >
-            <button
-              v-b-toggle.recipe-edit
-              class="d-flex align-items-center justify-content-between w-100 text-left"
-              style="
-                background: #faf4ea;
-                border: 0;
-                padding: 0.875rem 1.125rem;
-                font-size: 0.8438rem;
-                font-weight: 600;
-                color: #55504a;
-              "
-              type="button"
-            >
-              Edit this recipe
-              <span
-                style="
-                  font-family: 'IBM Plex Mono', monospace;
-                  font-size: 0.6875rem;
-                  color: #0678be;
-                "
-              >
-                DruxtEntityForm
-              </span>
-            </button>
-            <b-collapse id="recipe-edit">
-              <div class="p-3">
-                <DruxtEntityForm :type="entity.type" :uuid="entity.id" />
-                <p class="mb-0 mt-2" style="font-size: 0.75rem; color: #8a7f70">
-                  Saving writes back to Drupal over JSON:API. The demo backend
-                  resets nightly.
-                </p>
-              </div>
-            </b-collapse>
-          </div>
-        </AppDevRegion>
-
-        <AppJsonApiDrawer class="mt-3" :path="jsonApiPath" />
       </b-col>
     </b-row>
 
@@ -121,6 +63,18 @@
         <slot name="field_recipe_instruction" />
       </b-col>
     </b-row>
+
+    <!-- The learning layer follows the recipe, so on a phone the ingredients
+         and method come straight after the photograph and the numbers.
+         Editing is the page's Edit tab. -->
+    <AppViewModeSwitcher
+      class="mt-5"
+      :modes="['card', 'teaser']"
+      :type="entity.type"
+      :uuid="entity.id"
+    />
+
+    <AppJsonApiDrawer class="mt-3" :path="jsonApiPath" />
 
     <AppDruxtNote
       class="mt-5"
