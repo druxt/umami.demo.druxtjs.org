@@ -7,9 +7,8 @@
       </b-col>
     </b-row>
 
-    <!-- Three teasers across, a snap scroller below md. The grid lives in
-         .featured-strip, so the results are plain children here. -->
-    <div class="featured-strip">
+    <!-- One column on a phone, three across from lg. -->
+    <div class="article-grid">
       <slot name="results" :wrapper="{ component: 'div' }" />
     </div>
   </div>
