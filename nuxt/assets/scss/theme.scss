@@ -3876,3 +3876,32 @@ h4 {
 .edit-control--summary {
   min-height: 64px;
 }
+
+// Drupal's CKEditor 5 inside the edit form: the frame is ours, the toolbar
+// is whatever the text format is configured with.
+.edit-editor {
+  .ck.ck-toolbar {
+    background: $paper-warm;
+    border: 1px solid #d8cfc0;
+    border-bottom: 0;
+    border-radius: 0;
+  }
+  .ck.ck-editor__editable_inline {
+    background: #fff;
+    border: 1px solid #d8cfc0;
+    border-radius: 0;
+    font-family: $sans;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    min-height: 180px;
+    padding: 0 14px;
+
+    &.ck-focused {
+      border-color: $ink;
+      box-shadow: none;
+    }
+  }
+  .ck.ck-editor__editable_inline > :first-child {
+    margin-top: 14px;
+  }
+}

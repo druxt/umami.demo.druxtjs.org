@@ -1,4 +1,5 @@
 module.exports = {
+  ignoreFiles: ['vendor/**'],
   customSyntax: 'postcss-html',
   extends: [
     'stylelint-config-standard',

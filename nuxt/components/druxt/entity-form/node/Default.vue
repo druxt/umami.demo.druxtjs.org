@@ -10,7 +10,7 @@
 <script>
 import { BOverlay } from 'bootstrap-vue'
 
-/** Every node form: the fields in Drupal's order, the errors summarised. */
+/** Every node form: the fields in Drupal's order, the errors summed up. */
 export default {
   components: { BOverlay },
 
