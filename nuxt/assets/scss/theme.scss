@@ -12,6 +12,7 @@
 $paper: #fdfbf7;
 $paper-warm: #faf4ea;
 $paper-deep: #f6efe4;
+$paper-sand: #f4eee3; // the phone design's warm band ground
 $rule: #e6ddcd;
 $rule-strong: #e0d6c6;
 $rule-faint: #f0e7d8;
@@ -486,6 +487,13 @@ h4 {
     flex-direction: column;
     gap: 0.6875rem;
     padding: 1.125rem;
+  }
+  &__kicker {
+    color: $spice;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
   }
   &__title {
     font-size: 1.1875rem;
@@ -1858,13 +1866,55 @@ h4 {
     font-size: 0.9rem;
   }
 
+  // The field formatters wrap their text in <p>, whose margins open gaps.
+  &__title p,
+  &__summary p {
+    margin: 0;
+  }
+
+  // Below md the cover spans the band, and the text and button follow it.
   @media (max-width: $bp-md) {
+    align-items: stretch;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    gap: 0;
 
     &__cover {
-      width: 140px;
+      background: $paper;
+      height: 180px;
+      margin: 0 -15px;
+      max-width: none;
+      object-fit: contain;
+      width: calc(100% + 30px);
+    }
+
+    &__body {
+      gap: 0.625rem;
+      padding-top: 0.5rem;
+    }
+
+    &__kicker {
+      font-size: 0.59375rem;
+      letter-spacing: 0.16em;
+    }
+
+    &__title {
+      font-size: 1.625rem;
+      line-height: 1.12;
+    }
+
+    &__summary {
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    .btn {
+      border-color: $ink;
+      border-radius: 0;
+      color: $ink;
+      display: block;
+      font-size: 0.875rem;
+      padding: 0.75rem 0;
+      width: 100%;
     }
   }
 }
@@ -1895,9 +1945,36 @@ h4 {
     min-height: $tap;
   }
 
+  // Below md it is its own warm band to the page edges, as in the design.
+  // The region's band pads 2.5rem, so the negative margins reach its edges.
   @media (max-width: $bp-md) {
+    background: $paper-sand;
+    border-top: 1px solid $rule;
+    gap: 0.625rem;
+    margin: 0 -15px -2.5rem;
+    padding: 1.5rem 15px;
+
+    &__title {
+      font-size: 1.5rem;
+    }
+
+    &__copy {
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    code {
+      color: $ink;
+      font-size: 0.78125rem;
+    }
+
+    // The button sits inside DruxtMenu's wrapper, so it is not the flex item.
     .btn {
-      align-self: stretch;
+      border-radius: 0;
+      display: block;
+      font-size: 0.875rem;
+      padding: 0.8125rem 0;
+      width: 100%;
     }
   }
 }
@@ -1927,19 +2004,41 @@ h4 {
 
   @media (max-width: $bp-md) {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     margin: 0 -1rem;
     overflow-x: auto;
     padding: 0 1rem 0.5rem;
+    scroll-padding-left: 1rem;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
 
-    // The attachment's rows arrive inside a display: contents wrapper, so
-    // they are flex items too and need the same width.
-    > *,
-    > .contents > * {
-      flex: 0 0 78%;
+    // Each row sits inside one or more display: contents wrappers, so the
+    // first element under them is the flex item, whatever its depth.
+    > :not(.contents),
+    .contents > :not(.contents) {
+      flex: 0 0 250px;
+      max-width: 80vw;
       scroll-snap-align: start;
+    }
+
+    .teaser {
+      gap: 0.4375rem;
+    }
+
+    .teaser__media img {
+      aspect-ratio: auto;
+      display: block;
+      height: 140px;
+    }
+
+    .teaser__kicker {
+      font-size: 0.5625rem;
+      letter-spacing: 0.16em;
+    }
+
+    .teaser__title {
+      font-size: 1.1875rem;
+      line-height: 1.15;
     }
   }
 }
@@ -1951,6 +2050,13 @@ h4 {
 .band {
   &__label {
     color: $spice;
+
+    @media (max-width: $bp-md) {
+      color: $ink-faint;
+      font-size: 0.59375rem;
+      margin-bottom: 0.75rem;
+    }
+
     display: block;
     font-size: 0.6875rem;
     font-weight: 700;
@@ -2134,5 +2240,302 @@ h4 {
     align-items: center;
     display: flex;
     padding: 0 0.875rem;
+  }
+}
+
+// The brand kicker and More replace the wordmark and the full pill list below
+// md only, in the section after this.
+.site-footer__kicker--brand,
+.collections__more {
+  display: none;
+}
+
+// ── Phone front page ─────────────────────────────────────────────────────────
+// The front page below md, to the phone design's measurements. Each block
+// keeps its wider layout above md; this section only narrows it.
+
+@media (max-width: $bp-md) {
+  .band--warm {
+    background: $paper-sand;
+    padding: 1.5rem 0;
+  }
+
+  .band--paper {
+    padding: 1.75rem 0;
+  }
+
+  // The magazine cover opens the footer band, edge to edge.
+  .band--footer {
+    padding-top: 0;
+  }
+
+  // Recipe of the week: a 300px photograph, the words at its foot.
+  .banner {
+    height: 300px;
+    min-height: 0;
+
+    &__scrim {
+      background: linear-gradient(
+        180deg,
+        rgba(28, 20, 14, 0.15) 0%,
+        rgba(28, 20, 14, 0.88) 72%
+      );
+    }
+
+    &__body {
+      gap: 0.625rem;
+      height: 300px;
+      justify-content: flex-end;
+      min-height: 0;
+      padding: 1.25rem 0;
+    }
+
+    &__kicker {
+      font-size: 0.59375rem;
+      letter-spacing: 0.18em;
+    }
+
+    &__title {
+      font-size: 1.875rem;
+      font-weight: 500;
+      line-height: 1.08;
+    }
+
+    &__summary,
+    &__meta {
+      display: none;
+    }
+
+    .btn {
+      border-radius: 0;
+      flex: 1;
+      font-size: 0.875rem;
+      padding: 0.8125rem 0;
+    }
+  }
+
+  // Explore: two columns of photograph, category and title.
+  .band__title {
+    font-size: 1.5625rem;
+    line-height: 1.18;
+    margin-bottom: 1rem;
+    text-wrap: pretty;
+  }
+
+  .band--paper .row {
+    margin: 0 -6px;
+
+    > [class*='col'] {
+      margin-bottom: 0.75rem !important;
+      padding: 0 6px;
+    }
+  }
+
+  .recipe-card {
+    background: none;
+    border: 0;
+
+    &:hover {
+      transform: none;
+    }
+
+    &__body {
+      gap: 0.4375rem;
+      padding: 0.4375rem 0 0;
+    }
+
+    &__kicker {
+      color: $spice;
+      font-size: 0.53125rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    &__title {
+      font-size: 1.0625rem;
+      line-height: 1.15;
+    }
+
+    &__meta {
+      display: none;
+    }
+  }
+
+  .band__cta {
+    align-items: center;
+    border-color: $ink;
+    border-radius: 0;
+    color: $ink;
+    display: flex;
+    font-size: 0.90625rem;
+    font-weight: 600;
+    height: 52px;
+    justify-content: center;
+    margin-top: 0.25rem;
+  }
+
+  // Recipe collections: square pills, the first eight, then More.
+  .collections {
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    &__list {
+      gap: 0.5rem;
+      justify-content: flex-start;
+    }
+
+    &__link {
+      background: $paper;
+      border-color: #d8cfc0;
+      border-radius: 0;
+      color: $ink;
+      font-size: 0.84375rem;
+      min-height: 40px;
+      padding: 0 0.875rem;
+
+      &:nth-child(n + 9) {
+        display: none;
+      }
+    }
+
+    &__more {
+      align-items: center;
+      background: $ink;
+      color: $paper;
+      display: flex;
+      font-size: 0.84375rem;
+      font-weight: 600;
+      min-height: 40px;
+      padding: 0 0.875rem;
+
+      &:hover {
+        color: $paper;
+        text-decoration: none;
+      }
+    }
+  }
+
+  // Built with DruxtJS: the words and the command, on paper.
+  .druxt-cta {
+    padding: 1.75rem 0;
+
+    [class*='col'] {
+      margin-top: 0 !important;
+    }
+
+    h2 {
+      margin-top: 0.75rem !important;
+    }
+
+    p {
+      margin: 0.75rem 0 !important;
+    }
+
+    h2 {
+      font-size: 1.5625rem;
+      line-height: 1.14;
+    }
+
+    p {
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    &__kicker {
+      color: #a8c2d6;
+      font-size: 0.59375rem;
+      letter-spacing: 0.16em;
+    }
+
+    &__command {
+      background: $paper;
+      border: 0;
+      border-radius: 0;
+      color: $druxt-navy;
+      flex-wrap: nowrap;
+      font-size: 0.78125rem;
+      padding: 0.875rem;
+
+      // One line, as in the design; a long command scrolls sideways.
+      > span {
+        overflow-wrap: normal;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .prompt {
+        color: $druxt-navy;
+      }
+
+      button {
+        border: 0;
+        color: $druxt-navy;
+        font-size: 0.78125rem;
+        padding: 0;
+      }
+    }
+  }
+
+  // Footer: three stacked lists, then the base line.
+  .site-footer {
+    color: #efe4d6;
+    padding: 1.75rem 0;
+
+    &__grid {
+      gap: 1.5rem;
+    }
+
+    &__wordmark {
+      display: none;
+    }
+
+    &__kicker {
+      color: #a49887;
+      font-size: 0.59375rem;
+      letter-spacing: 0.16em;
+    }
+
+    &__kicker--brand {
+      display: block;
+    }
+
+    &__link {
+      color: #efe4d6;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      min-height: 30px;
+    }
+
+    // DruxtMenu wraps its items, so the column's gap would miss the links.
+    &__col--menu > div {
+      display: contents;
+    }
+
+    .disclaimer {
+      font-size: 0.875rem;
+      line-height: 1.6;
+
+      p {
+        margin: 0;
+      }
+
+      strong {
+        font-weight: inherit;
+      }
+    }
+
+    &__base {
+      border-top-color: #3d3630;
+      color: #a49887;
+      font-size: 0.75rem;
+      margin-top: 0;
+      padding-top: 1rem;
+
+      p {
+        margin: 0;
+      }
+    }
   }
 }

@@ -3,10 +3,10 @@
     <slot name="field_media_image" />
 
     <div class="recipe-card__body">
-      <!-- The category kicker is on hold: rendering the reference field puts
-           a second, empty card inside this one, because the referenced
-           entity resolves back to a card. It needs the term's name in the
-           card's own query, not a field slot. -->
+      <!-- The category's name, fetched by the card. Rendering the reference
+           field would put a second card inside this one, because the
+           referenced entity resolves back to a card. -->
+      <span v-if="kicker" class="recipe-card__kicker">{{ kicker }}</span>
 
       <h3 class="recipe-card__title">{{ entity.attributes.title }}</h3>
 
@@ -20,6 +20,7 @@
 
 <script>
 import { DruxtEntityMixin } from 'druxt-entity'
+import { mapActions } from 'vuex'
 
 // Under entity/node/ deliberately. As entity/Card.vue this registered as
 // DruxtEntityCard, the catch-all for anything rendered in card mode: a
@@ -28,6 +29,24 @@ import { DruxtEntityMixin } from 'druxt-entity'
 
 export default {
   mixins: [DruxtEntityMixin],
+
+  data: () => ({
+    kicker: null,
+  }),
+
+  async fetch() {
+    const data =
+      ((this.entity.relationships || {}).field_recipe_category || {}).data || []
+    const term = Array.isArray(data) ? data[0] : data
+    if (!term) {
+      return
+    }
+    const resource = await this.getResource({
+      ...term,
+      query: { fields: { [term.type]: 'name' } },
+    })
+    this.kicker = ((resource || {}).data || {}).attributes?.name || null
+  },
 
   computed: {
     /* @todo - Implement proper multilingual support */
@@ -52,11 +71,23 @@ export default {
     },
   },
 
+  methods: {
+    ...mapActions({
+      getResource: 'druxt/getResource',
+    }),
+  },
+
   druxt: {
     // Attributes only: a relationship here would render its entity, and an
     // entity inside a card resolves to another card.
     query: {
-      fields: ['field_cooking_time', 'field_difficulty', 'path', 'title'],
+      fields: [
+        'field_cooking_time',
+        'field_difficulty',
+        'field_recipe_category',
+        'path',
+        'title',
+      ],
     },
   },
 }
