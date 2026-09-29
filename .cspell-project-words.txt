@@ -6,6 +6,7 @@ crossorigin
 druxt
 druxtjs
 Druxty
+giget
 janked
 janks
 lando
