@@ -535,6 +535,7 @@ h4 {
   background: $paper-warm;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  margin: 0;
 
   &__cell {
     border-bottom: 1px solid $rule;
@@ -562,6 +563,8 @@ h4 {
   &__value {
     font-family: $serif;
     font-size: 1.625rem;
+    line-height: 1.2;
+    margin: 0;
   }
 }
 
@@ -2010,6 +2013,19 @@ h4 {
 
 .contents {
   display: contents;
+}
+
+.article-grid {
+  display: grid;
+  gap: 2rem 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+
+  @media (min-width: 576px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (min-width: 992px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .featured-strip {

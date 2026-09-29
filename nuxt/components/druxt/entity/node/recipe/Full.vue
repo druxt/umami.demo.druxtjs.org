@@ -22,33 +22,12 @@
       </b-col>
 
       <b-col cols="12" md="5" class="mt-4 mt-md-0 pl-md-4">
-        <!-- Prep / cook / servings / difficulty, as a single quiet block. -->
-        <div class="stat-grid">
-          <div class="stat-grid__cell">
-            <span class="stat-grid__label">Preparation</span>
-            <span class="stat-grid__value">
-              <slot name="field_preparation_time" />
-            </span>
+        <dl class="stat-grid">
+          <div v-for="stat of stats" :key="stat.label" class="stat-grid__cell">
+            <dt class="stat-grid__label">{{ stat.label }}</dt>
+            <dd class="stat-grid__value">{{ stat.value }}</dd>
           </div>
-          <div class="stat-grid__cell">
-            <span class="stat-grid__label">Cooking</span>
-            <span class="stat-grid__value">
-              <slot name="field_cooking_time" />
-            </span>
-          </div>
-          <div class="stat-grid__cell">
-            <span class="stat-grid__label">Serves</span>
-            <span class="stat-grid__value">
-              <slot name="field_number_of_servings" />
-            </span>
-          </div>
-          <div class="stat-grid__cell">
-            <span class="stat-grid__label">Difficulty</span>
-            <span class="stat-grid__value">
-              <slot name="field_difficulty" />
-            </span>
-          </div>
-        </div>
+        </dl>
       </b-col>
     </b-row>
 
@@ -97,6 +76,20 @@ export default {
   mixins: [DruxtEntityMixin],
 
   computed: {
+    stats: ({ entity }) => {
+      const a = entity.attributes
+      const level = a.field_difficulty || ''
+      return [
+        { label: 'Preparation', value: `${a.field_preparation_time} min` },
+        { label: 'Cooking', value: `${a.field_cooking_time} min` },
+        { label: 'Serves', value: a.field_number_of_servings },
+        {
+          label: 'Difficulty',
+          value: level.charAt(0).toUpperCase() + level.slice(1),
+        },
+      ]
+    },
+
     jsonApiPath: ({ entity }) =>
       `/en/jsonapi/node/recipe/${entity.id}?include=field_media_image.field_media_image`,
 
