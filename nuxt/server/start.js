@@ -14,6 +14,7 @@ const http = require('http')
 const path = require('path')
 const { spawn } = require('child_process')
 const { createDrupalProxy, isDrupalPath, waitForDrupal } = require('./drupal')
+const { createStartingHandler } = require('./starting')
 
 const rootDir = path.join(__dirname, '..')
 const env = process.env
@@ -50,10 +51,13 @@ const TYPES = {
   '.woff2': 'font/woff2',
 }
 
-const starting = (req, res) => {
-  res.writeHead(503, { 'Content-Type': TYPES['.html'], 'Retry-After': '30' })
-  res.end('<!doctype html><title>Starting</title><p>The demo is starting.</p>')
+// What druxtjs.org's starting page reports until the first build serves.
+const state = { phase: 'waiting', since: new Date().toISOString() }
+const setPhase = (phase) => {
+  state.phase = phase
+  state.since = new Date().toISOString()
 }
+const starting = createStartingHandler(state)
 
 // The generated build being served.
 let distDir = null
@@ -151,18 +155,22 @@ const cycle = async () => {
   running = true
   while (pending) {
     pending = false
+    setPhase('waiting')
     await waitForDrupal(drupalUrl, log)
+    setPhase('building')
     const dir = path.join(rootDir, `dist-${Date.now()}`)
     const started = Date.now()
     try {
       await generate(dir)
     } catch (error) {
+      setPhase('failed')
       log(`${error.message}; trying again in 30s`)
       fs.rmSync(dir, { recursive: true, force: true })
       pending = true
       await new Promise((resolve) => setTimeout(resolve, 30000))
       continue
     }
+    setPhase('starting')
     const previous = distDir
     distDir = dir
     if (previous) fs.rmSync(previous, { recursive: true, force: true })
@@ -187,6 +195,12 @@ const drupal = createDrupalProxy(drupalUrl)
 const server = http.createServer((req, res) => {
   if (isDrupalPath(req.url)) return drupal(req, res)
   if (req.url === '/_regenerate') return regenerate(req, res)
+  // Once a build serves, the starting page's status poll must fail, so the
+  // page reloads into the site instead of reading the fallback page as JSON.
+  if (distDir && req.url.split('?')[0] === '/__status') {
+    res.writeHead(404)
+    return res.end()
+  }
   return (distDir ? serveStatic : starting)(req, res)
 })
 
