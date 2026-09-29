@@ -12,7 +12,7 @@
             straight from Drupal's JSON:API. You override a component only when
             you want to.
           </p>
-          <div class="druxt-cta__links">
+          <div class="druxt-cta__links d-none d-md-flex">
             <a
               href="https://github.com/druxt/umami.demo.druxtjs.org"
               rel="noopener"
@@ -35,14 +35,16 @@
         </b-col>
 
         <b-col cols="12" lg="5" class="mt-4 mt-lg-0">
-          <span class="druxt-cta__kicker">Start your own in one command</span>
+          <span class="druxt-cta__kicker d-none d-md-inline"
+            >Start your own in one command</span
+          >
           <div class="druxt-cta__command mt-2">
             <span><span class="prompt">$</span> {{ command }}</span>
             <button type="button" @click="copy">
               {{ copied ? 'copied' : 'copy' }}
             </button>
           </div>
-          <p class="mt-2 mb-0" style="font-size: 0.7813rem">
+          <p class="d-none d-md-block mt-2 mb-0" style="font-size: 0.7813rem">
             Or open this site in Gitpod, with its backend, frontend and demo
             content.
           </p>
@@ -55,7 +57,8 @@
 <script>
 export default {
   data: () => ({
-    command: 'npx create-druxt-app@latest',
+    // The command druxtjs.org's front page gives for the quickstart.
+    command: 'npx giget@1 gh:druxt/quickstart#develop my-druxt-site --install',
     copied: false,
   }),
 
