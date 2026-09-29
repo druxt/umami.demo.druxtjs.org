@@ -744,6 +744,16 @@ h4 {
 
   // `npx create-druxt-app@latest` in mono plus a button is wider than a small
   // phone, so the row wraps and the string is allowed to break.
+  &__devpod {
+    color: #cfe0ec;
+    font-size: 0.78125rem;
+
+    a {
+      color: #a8c2d6;
+      text-decoration: underline;
+    }
+  }
+
   &__command {
     align-items: center;
     background: $druxt-code;

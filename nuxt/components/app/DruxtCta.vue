@@ -44,9 +44,14 @@
               {{ copied ? 'copied' : 'copy' }}
             </button>
           </div>
-          <p class="d-none d-md-block mt-2 mb-0" style="font-size: 0.7813rem">
-            Or open this site in Gitpod, with its backend, frontend and demo
-            content.
+          <p class="druxt-cta__devpod mt-2 mb-0">
+            Or
+            <a
+              href="https://devpod.sh/open#https://github.com/druxt/umami.demo.druxtjs.org"
+              rel="noopener"
+              target="_blank"
+              >open this site in DevPod</a
+            >, with its backend, frontend and demo content.
           </p>
         </b-col>
       </b-row>
