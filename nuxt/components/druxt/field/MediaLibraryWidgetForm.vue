@@ -17,7 +17,10 @@
           image
         </span>
         <span class="edit-media__actions">
-          <button type="button" @click="choose">Replace</button>
+          <button type="button" @click="$bvModal.show(browserId)">
+            Library
+          </button>
+          <button type="button" @click="choose">Upload</button>
           <button class="is-remove" type="button" @click="remove">
             Remove
           </button>
@@ -36,13 +39,23 @@
     >
       <span class="edit-dropzone__icon" aria-hidden="true">⤓</span>
       <span>
-        Drop a photograph here or
+        Drop a photograph here,
         <button class="edit-dropzone__choose" type="button" @click="choose">
-          choose one
+          upload one
+        </button>
+        or
+        <button
+          class="edit-dropzone__choose"
+          type="button"
+          @click="$bvModal.show(browserId)"
+        >
+          pick one from the library
         </button>
       </span>
       <span class="edit-field__description">JPG or PNG, 4:3 works best</span>
     </div>
+
+    <AppMediaBrowser :id="browserId" :type="mediaType" @select="pick" />
     <p v-if="uploading" class="edit-field__description">Uploading…</p>
 
     <input
@@ -74,7 +87,11 @@
 
 <script>
 import formField from '~/utils/form-field'
-import { referenceItems, relationship } from '~/utils/form-widgets'
+import {
+  referenceItems,
+  referenceTypes,
+  relationship,
+} from '~/utils/form-widgets'
 
 /**
  * Media is two hops from the recipe: the node references a media item, the
@@ -96,6 +113,10 @@ export default {
 
   computed: {
     ref: ({ value }) => referenceItems(value)[0] || null,
+    /** The media type the field points at, which the browser lists. */
+    mediaType: ({ ref, schema }) =>
+      (ref || {}).type || referenceTypes(schema)[0] || 'media--image',
+    browserId: ({ id }) => `media-browser-${id}`,
     fileRef: ({ media }) =>
       (((media || {}).relationships || {}).field_media_image || {}).data ||
       null,
@@ -197,6 +218,11 @@ export default {
       }
       this.uploading = false
       this.$refs.file.value = ''
+    },
+
+    /** A picture chosen from the library becomes the reference. */
+    pick(media) {
+      this.$emit('input', relationship([media], false))
     },
 
     remove() {
