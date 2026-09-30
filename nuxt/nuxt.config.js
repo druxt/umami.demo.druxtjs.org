@@ -64,6 +64,8 @@ export default {
     { src: '~/plugins/vuex-persistedstate.client.js' },
     // Tags every Druxt component for the dev overlay.
     { src: '~/plugins/druxt-inspector.client.js' },
+    // Keeps and previews an editor's unsaved changes.
+    { src: '~/plugins/edit-drafts.client.js' },
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)

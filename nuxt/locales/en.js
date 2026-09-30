@@ -193,6 +193,8 @@ export default {
     sticky: 'Sticky at top of lists',
     copy: 'Send me a copy',
     dragStep: 'Drag to reorder',
+    draftKept:
+      'Unsaved changes stay in this browser, and show on the View tab.',
     author: 'Author',
     authoredOn: 'Authored on',
     title: 'Title',
