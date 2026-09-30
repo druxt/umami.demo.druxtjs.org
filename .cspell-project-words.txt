@@ -3,6 +3,7 @@ aeiou
 amazeeio
 amazeeiolagoon
 Archivo
+catalana
 crawlable
 crossorigin
 dcbdaaf
@@ -33,6 +34,7 @@ Searchbar
 standfirst
 toggleable
 umami
+umamiDrafts
 unscrimmed
 uselagoon
 viewports

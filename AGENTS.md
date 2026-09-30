@@ -10,6 +10,7 @@ Nuxt application.
 | --- | --- |
 | `drupal/` | The Drupal 11 backend, a Composer project with the `druxt_umami` module |
 | `nuxt/` | The Nuxt 2 frontend, with its own Yarn 1 manifest and lint setup |
+| `e2e/` | Playwright browser tests against the generated site and its Drupal: `E2E_BASE_URL`, `E2E_USER`, `E2E_PASS`, then `npm test`. CI runs them in `test:e2e` on the stack |
 | `.docker/`, `docker-compose.yml`, `.lagoon.yml` | The Lagoon stack: one `main` environment for Drupal, the site and Storybook |
 | The root `package.json` | Repository tooling only: commit and markdown lint, the root ESLint config |
 
