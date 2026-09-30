@@ -5,17 +5,19 @@ const { visit } = require('./helpers')
 // the build and be JSON; a page served in its place is a search that finds
 // nothing, and once was.
 test.describe('search', () => {
-  test('the index is in the build', async ({ request }) => {
-    const response = await request.get('/_nuxt/search-index/en.json')
-    expect(response.status()).toBe(200)
-    expect(response.headers()['content-type']).toContain('json')
-    const body = await response.text()
-    expect(body).toContain('brownie')
-  })
-
   test('typing finds recipes with the server switched off', async ({
     page,
   }) => {
+    // The index request must come back as JSON: a page in its place is a
+    // parse error and no results, which is how it once failed.
+    const errors = []
+    page.on('pageerror', (error) => errors.push(String(error)))
+    let index = null
+    page.on('response', (response) => {
+      if (/\/_nuxt\/search-index[^/]*\/\w+\.json$/.test(response.url())) {
+        index = response
+      }
+    })
     await visit(page, '/en')
     // Below lg the icon opens the drawer's field; at lg the pill opens the
     // search panel. One search bar is visible either way.
@@ -27,5 +29,8 @@ test.describe('search', () => {
     const results = bar.locator('.searchbar__results a')
     await expect(results.first()).toBeVisible()
     await expect(results.first()).toContainText(/chili/i)
+    expect(index && index.status()).toBe(200)
+    expect(index.headers()['content-type']).toContain('json')
+    expect(errors).toEqual([])
   })
 })

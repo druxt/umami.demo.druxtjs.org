@@ -1,5 +1,11 @@
 const { test, expect } = require('@playwright/test')
-const { ARTICLE, watchErrors, overlayOn, visit } = require('./helpers')
+const {
+  ARTICLE,
+  watchErrors,
+  overlayOn,
+  visit,
+  hydrated,
+} = require('./helpers')
 
 // The dev overlay is restored after hydration, so a page with it on still
 // re-renders: the Edit tab, the menu and the debug panel keep working. It
@@ -32,6 +38,29 @@ test.describe('dev overlay', () => {
     await expect
       .poll(() => page.locator('[data-druxt="field"]').count())
       .toBeGreaterThan(2)
+  })
+
+  test('the switch turns the overlay on and off, before and after a reload', async ({
+    page,
+  }) => {
+    const on = () => page.locator('html.druxt-inspector')
+    await visit(page, '/en')
+    await expect(on()).toHaveCount(0)
+    await page.click('.demo-bar__toggle')
+    await expect(on()).toHaveCount(1)
+    await expect(page.locator('.druxt-inspector-label').first()).toBeVisible()
+    await page.click('.demo-bar__toggle')
+    await expect(on()).toHaveCount(0)
+    await expect(page.locator('.druxt-inspector-label')).toHaveCount(0)
+
+    // Persisted on, then off again after a reload: the outlines must go too.
+    await page.click('.demo-bar__toggle')
+    await page.reload()
+    await hydrated(page)
+    await expect(on()).toHaveCount(1)
+    await page.click('.demo-bar__toggle')
+    await expect(on()).toHaveCount(0)
+    await expect(page.locator('.druxt-inspector-label')).toHaveCount(0)
   })
 
   test('labels sit above their component, never over the tabs', async ({
