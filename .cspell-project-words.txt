@@ -6,6 +6,7 @@ crawlable
 crossorigin
 dcbdaaf
 defu
+devpod
 druxt
 druxtjs
 Druxty
@@ -15,6 +16,7 @@ janked
 janks
 lando
 langcode
+LANGCODES
 lede
 lintfix
 LOCALDEV

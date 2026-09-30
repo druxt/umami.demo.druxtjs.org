@@ -5,7 +5,7 @@
         v-if="!compact"
         class="d-flex align-items-center justify-content-between mb-3"
       >
-        <h2 class="mb-0">Search</h2>
+        <h2 class="mb-0">{{ $t('nav.search') }}</h2>
         <b-button v-b-toggle.search class="searchbar__close" variant="link">
           ×
         </b-button>
@@ -18,16 +18,18 @@
           v-model="searchText"
           :autofocus="!compact"
           debounce="60"
-          :placeholder="compact ? 'Search recipes' : placeholder"
+          :placeholder="compact ? $t('search.placeholder') : placeholder"
           type="search"
         />
       </div>
 
       <!-- One line in the drawer: 330px does not fit two phrases. -->
       <div class="searchbar__meta">
-        <span v-if="resultsVisible">{{ searchResults.length }} results</span>
-        <span v-else-if="!compact">Results appear as you type</span>
-        <span class="searchbar__engine">lunr · no request</span>
+        <span v-if="resultsVisible"
+          >{{ searchResults.length }} {{ $t('search.results') }}</span
+        >
+        <span v-else-if="!compact">{{ $t('search.hint') }}</span>
+        <span class="searchbar__engine">{{ $t('search.engine') }}</span>
       </div>
     </div>
 
@@ -51,7 +53,7 @@
     </div>
 
     <div v-if="!compact" class="searchbar__note">
-      <span class="druxt-note__kicker">How this works</span>
+      <span class="druxt-note__kicker">{{ $t('note.howThisWorks') }}</span>
       <p class="druxt-note__body mt-1 mb-0">
         Drupal's Search API index is compiled to a Lunr index at build time and
         bundled with the app, so every keystroke searches locally and the site

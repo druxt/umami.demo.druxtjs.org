@@ -4,12 +4,12 @@
  */
 /** Drupal's form display carries no label for a base field. */
 const BASE_LABELS = {
-  created: 'Authored on',
-  langcode: 'Language',
-  path: 'URL alias',
-  status: 'Published',
-  title: 'Title',
-  uid: 'Author',
+  created: 'form.authoredOn',
+  langcode: 'form.language',
+  path: 'form.urlAlias',
+  status: 'form.published',
+  title: 'form.title',
+  uid: 'form.author',
 }
 
 export default {
@@ -27,13 +27,15 @@ export default {
     id: ({ schema }) => schema.id,
 
     /** Drupal's label, or the machine name made readable. */
-    label: ({ schema }) =>
-      ((schema || {}).label || {}).text ||
-      BASE_LABELS[schema.id] ||
-      (schema.id || '')
+    label() {
+      const schema = this.schema || {}
+      if ((schema.label || {}).text) return schema.label.text
+      if (BASE_LABELS[schema.id]) return this.$t(BASE_LABELS[schema.id])
+      return (schema.id || '')
         .replace(/^field_/, '')
         .replace(/_/g, ' ')
-        .replace(/^\w/, (c) => c.toUpperCase()),
+        .replace(/^\w/, (c) => c.toUpperCase())
+    },
 
     description: ({ schema }) => schema.description || '',
     required: ({ schema }) => !!schema.required,

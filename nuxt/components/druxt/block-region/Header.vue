@@ -4,7 +4,7 @@
          (AppMobileDrawer), not a collapse — see REPASS.md §1. -->
     <button
       v-b-toggle.menu
-      aria-label="Open menu"
+      :aria-label="$t('nav.openMenu')"
       class="masthead__toggle"
       type="button"
     >
@@ -21,7 +21,7 @@
     <!-- One search panel, not two: below lg this opens the drawer, which
          holds the field. The #search sidebar belongs to the desktop row. -->
     <button
-      aria-label="Search recipes"
+      :aria-label="$t('nav.searchRecipes')"
       class="masthead__search-icon"
       type="button"
       @click="openSearch"
@@ -35,13 +35,12 @@
 
       <div class="masthead__utils">
         <button v-b-toggle.search class="masthead__search" type="button">
-          <BIconSearch aria-hidden="true" />
-          Search recipes
+          <BIconSearch aria-hidden="true" />{{ $t('nav.searchRecipes') }}
         </button>
 
         <AppAccountLink class="masthead__account" />
 
-        <nav aria-label="Language" class="masthead__lang">
+        <nav :aria-label="$t('nav.language')" class="masthead__lang">
           <nuxt-link
             v-for="code in ['en', 'es']"
             :key="code"

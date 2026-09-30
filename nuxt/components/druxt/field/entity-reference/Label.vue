@@ -18,7 +18,7 @@
       <template #default="{ entity }">
         <NuxtLink
           class="mr-1"
-          :to="`/en${(entity.attributes.path || {}).alias}`"
+          :to="`${prefix}${(entity.attributes.path || {}).alias}`"
         >
           <b-badge variant="info">{{ entity.attributes.name }}</b-badge>
         </NuxtLink>
@@ -29,8 +29,9 @@
 
 <script>
 import { DruxtFieldMixin } from 'druxt-entity'
+import { langMixin } from '~/utils/lang'
 
 export default {
-  mixins: [DruxtFieldMixin],
+  mixins: [langMixin, DruxtFieldMixin],
 }
 </script>

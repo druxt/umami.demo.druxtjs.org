@@ -10,7 +10,7 @@
     <div class="term-head bleed">
       <b-container class="term-head__inner">
         <DruxtBreadcrumb />
-        <span class="term-head__kicker">Collection</span>
+        <span class="term-head__kicker">{{ $t('term.collection') }}</span>
         <h1 class="term-head__title">{{ entity.attributes.name }}</h1>
         <!-- eslint-disable-next-line vue/no-v-html -->
         <div v-if="description" class="term-head__blurb" v-html="description" />
@@ -28,18 +28,15 @@
       />
     </div>
     <p v-else-if="!$fetchState.pending" class="term-page__empty">
-      Nothing is filed under this term yet.
+      {{ $t('term.empty') }}
     </p>
 
     <AppDruxtNote
       class="term-page__note"
       file="entity/taxonomy-term/tags/Default.vue"
-      kicker="How this works"
+      :kicker="$t('note.howThisWorks')"
+      >{{ $t('note.termBody') }}</AppDruxtNote
     >
-      The term page is one entity plus one view, both resolved by the router
-      from the URL alias. Term description, then the referencing content in card
-      view mode.
-    </AppDruxtNote>
   </div>
 </template>
 
@@ -96,8 +93,14 @@ export default {
           total: this.entities.filter((entity) => entity.type === type).length,
         }))
         .filter(({ total }) => total)
-        .map(({ label, total }) => `${total} ${label}${total === 1 ? '' : 's'}`)
-      return parts.length ? parts.join(' and ') : ''
+        .map(({ label, total }) =>
+          this.$tc(
+            label === 'article' ? 'term.countArticles' : 'term.countRecipes',
+            total,
+            { n: total }
+          )
+        )
+      return parts.length ? parts.join(` ${this.$t('term.and')} `) : ''
     },
   },
 

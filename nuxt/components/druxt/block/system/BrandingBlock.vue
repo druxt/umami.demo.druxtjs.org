@@ -1,7 +1,7 @@
 <template>
   <b-navbar-brand class="masthead__brand" to="/">
     <span class="masthead__wordmark">Umami</span>
-    <span class="masthead__tagline">Food magazine</span>
+    <span class="masthead__tagline">{{ $t('site.tagline') }}</span>
   </b-navbar-brand>
 </template>
 

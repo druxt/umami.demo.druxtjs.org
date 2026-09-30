@@ -16,11 +16,11 @@
         <div class="drawer__head">
           <nuxt-link class="drawer__brand" to="/" @click.native="hide">
             <span class="drawer__wordmark">Umami</span>
-            <span class="drawer__tagline">Food magazine</span>
+            <span class="drawer__tagline">{{ $t('site.tagline') }}</span>
           </nuxt-link>
 
           <button
-            aria-label="Close menu"
+            :aria-label="$t('nav.closeMenu')"
             class="drawer__close"
             type="button"
             @click="hide"
@@ -59,7 +59,9 @@
         <!-- The promo layer stays confined to blue. Moving these four links
              here is what lets the demo bar hold one row on a phone. -->
         <div class="drawer__druxt">
-          <span class="drawer__druxt-kicker">Built with Druxt</span>
+          <span class="drawer__druxt-kicker">{{
+            $t('demoBar.builtWith')
+          }}</span>
 
           <a
             v-for="link in links"
@@ -77,7 +79,7 @@
             to="/entity-explorer"
             @click.native="hide"
           >
-            Entity Explorer <span aria-hidden="true">→</span>
+            {{ $t('demoBar.entityExplorer') }} <span aria-hidden="true">→</span>
           </nuxt-link>
 
           <AppAccountLink class="drawer__druxt-link" @click.native="hide" />

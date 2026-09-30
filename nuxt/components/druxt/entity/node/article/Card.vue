@@ -10,9 +10,13 @@ export default {
 
   /** An article has no category to fetch; the kicker names the type. */
   data: () => ({
-    kicker: 'Article',
+    kicker: null,
   }),
 
   fetch() {},
+
+  created() {
+    this.kicker = this.$t('bundle.article')
+  },
 }
 </script>

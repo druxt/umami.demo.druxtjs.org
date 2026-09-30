@@ -18,7 +18,7 @@
       <slot name="field_tags" />
 
       <details class="edit-form__settings">
-        <summary>Settings</summary>
+        <summary>{{ $t('form.settings') }}</summary>
         <div class="edit-form__settings-body">
           <slot name="path" />
           <slot name="status" />

@@ -30,7 +30,7 @@
         </div>
       </div>
       <button class="edit-list__add" type="button" @click="addAfter()">
-        + Add {{ itemName }}
+        {{ $t('form.add', { thing: itemName }) }}
       </button>
     </template>
 

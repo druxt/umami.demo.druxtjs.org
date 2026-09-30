@@ -1,9 +1,10 @@
 <template>
   <!-- Sign in, or the signed-in name and a way out. -->
   <button v-if="loggedIn" type="button" @click="signOut">
-    Sign out<span v-if="name" class="account-link__name"> · {{ name }}</span>
+    {{ $t('nav.signOut')
+    }}<span v-if="name" class="account-link__name"> · {{ name }}</span>
   </button>
-  <nuxt-link v-else :to="to">Sign in</nuxt-link>
+  <nuxt-link v-else :to="to">{{ $t('nav.signIn') }}</nuxt-link>
 </template>
 
 <script>

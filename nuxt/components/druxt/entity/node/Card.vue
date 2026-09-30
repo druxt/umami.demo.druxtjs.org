@@ -21,6 +21,7 @@
 <script>
 import { DruxtEntityMixin } from 'druxt-entity'
 import { mapActions } from 'vuex'
+import { langMixin } from '~/utils/lang'
 
 // Under entity/node/ deliberately. As entity/Card.vue this registered as
 // DruxtEntityCard, the catch-all for anything rendered in card mode: a
@@ -28,7 +29,7 @@ import { mapActions } from 'vuex'
 // a second, image-less card inside the first card's kicker.
 
 export default {
-  mixins: [DruxtEntityMixin],
+  mixins: [langMixin, DruxtEntityMixin],
 
   data: () => ({
     kicker: null,
@@ -50,7 +51,8 @@ export default {
 
   computed: {
     /* @todo - Implement proper multilingual support */
-    to: ({ entity }) => `/en${(entity.attributes.path || {}).alias}`,
+    to: ({ entity, prefix }) =>
+      `${prefix}${(entity.attributes.path || {}).alias}`,
 
     /** "45 min · Medium", or either half on its own. */
     meta() {
@@ -61,11 +63,8 @@ export default {
           ? `${Math.floor(minutes / 60)} hr${
               minutes % 60 ? ` ${minutes % 60}` : ''
             }`
-          : minutes && `${minutes} min`
-      return [
-        time,
-        difficulty && difficulty.charAt(0).toUpperCase() + difficulty.slice(1),
-      ]
+          : minutes && this.$t('recipe.min', { n: minutes })
+      return [time, difficulty && this.$t(`listing.${difficulty}`)]
         .filter(Boolean)
         .join(' · ')
     },

@@ -6,7 +6,7 @@
       name="umami_views_block__promoted_items_block_1"
     />
     <slot
-      v-if="route.resolvedPath === '/en/recipes'"
+      v-if="/^\/(en|es)\/recipes$/.test(route.resolvedPath || '')"
       name="umami_banner_recipes"
     />
   </div>

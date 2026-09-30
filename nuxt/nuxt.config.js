@@ -59,6 +59,8 @@ export default {
   plugins: [
     // First, so it sees every error that follows.
     { src: '~/plugins/error-log.client.js' },
+    // The frontend's own words, in the page's language.
+    { src: '~/plugins/i18n.js' },
     { src: '~/plugins/vuex-persistedstate.client.js' },
     // An entity with an unsaved draft is not refetched on a live update.
     { src: '~/plugins/live-drafts.client.js' },
