@@ -34,6 +34,7 @@ export default {
     viewSource: 'Ver el código',
     docs: 'Documentación',
     discord: 'Discord',
+    devShort: 'Dev',
     devOverlay: 'Capa de desarrollo',
     builtWith: 'Hecho con Druxt',
     entityExplorer: 'Explorador de entidades',
