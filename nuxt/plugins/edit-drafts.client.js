@@ -31,19 +31,50 @@ export default ({ store }, inject) => {
     if (window.$nuxt) visit(window.$nuxt)
   }
 
+  /** The ids a relationship points at, which is all a draft can change. */
+  const pointsAt = (value) => {
+    const data = (value || {}).data
+    return JSON.stringify(
+      (Array.isArray(data) ? data : data ? [data] : []).map((o) => o.id)
+    )
+  }
+
+  /**
+   * Whether the store copy already carries the draft. Field by field, not
+   * the whole document: the store merges into what it holds, so an old
+   * relationship's meta survives under the new id and the documents never
+   * compare equal.
+   */
+  const carries = (data, draft) =>
+    Object.entries(draft.attributes || {}).every(
+      ([f, v]) =>
+        JSON.stringify((data.attributes || {})[f]) === JSON.stringify(v)
+    ) &&
+    Object.entries(draft.relationships || {}).every(
+      ([f, v]) => pointsAt((data.relationships || {})[f]) === pointsAt(v)
+    )
+
+  // Commits made here come back through the subscriber; they are not new.
+  let applying = false
+
   /** Lay `draft` over the entity wherever the Druxt store holds it. */
   const overlay = (type, id, draft) => {
     const byPrefix = ((store.state.druxt || {}).resources || {})[type] || {}
     let shown = null
-    for (const [prefix, doc] of Object.entries(byPrefix[id] || {})) {
-      if (!doc || !doc.data) continue
-      const data = withDraft(doc.data, draft)
-      shown = data
-      if (JSON.stringify(data) === JSON.stringify(doc.data)) continue
-      store.commit('druxt/addResource', {
-        prefix: prefix === 'undefined' ? undefined : prefix,
-        resource: { ...doc, data },
-      })
+    applying = true
+    try {
+      for (const [prefix, doc] of Object.entries(byPrefix[id] || {})) {
+        if (!doc || !doc.data) continue
+        const data = withDraft(doc.data, draft)
+        shown = data
+        if (carries(doc.data, draft)) continue
+        store.commit('druxt/addResource', {
+          prefix: prefix === 'undefined' ? undefined : prefix,
+          resource: { ...doc, data },
+        })
+      }
+    } finally {
+      applying = false
     }
     if (shown) refresh(type, id, shown)
   }
@@ -53,20 +84,28 @@ export default ({ store }, inject) => {
     if (!model || !model.type || !model.id) return
     const byPrefix =
       ((store.state.druxt || {}).resources || {})[model.type] || {}
-    for (const [prefix, doc] of Object.entries(byPrefix[model.id] || {})) {
-      if (!doc || !doc.data) continue
-      const data = {
-        ...doc.data,
-        attributes: model.attributes || {},
-        relationships: model.relationships || {},
+    applying = true
+    try {
+      for (const [prefix, doc] of Object.entries(byPrefix[model.id] || {})) {
+        if (!doc || !doc.data) continue
+        // Plain copies: the store must not share objects with the form.
+        const data = JSON.parse(
+          JSON.stringify({
+            ...doc.data,
+            attributes: model.attributes || {},
+            relationships: model.relationships || {},
+          })
+        )
+        if (carries(doc.data, data)) continue
+        store.commit('druxt/addResource', {
+          prefix: prefix === 'undefined' ? undefined : prefix,
+          resource: { ...doc, data },
+        })
       }
-      if (JSON.stringify(data) === JSON.stringify(doc.data)) continue
-      store.commit('druxt/addResource', {
-        prefix: prefix === 'undefined' ? undefined : prefix,
-        resource: { ...doc, data },
-      })
+    } finally {
+      applying = false
     }
-    refresh(model.type, model.id, model)
+    refresh(model.type, model.id, JSON.parse(JSON.stringify(model)))
   }
 
   inject('drafts', { overlay, mirror, draftFor })
@@ -85,7 +124,7 @@ export default ({ store }, inject) => {
         writeDrafts(store.state.druxtIce.drafts)
       }
       // A fresh copy of a drafted entity arrives: the draft goes back on top.
-      if (type === 'druxt/addResource') {
+      if (type === 'druxt/addResource' && !applying) {
         const data = ((payload || {}).resource || {}).data || {}
         const draft = draftFor(data.type, data.id)
         if (draft) overlay(data.type, data.id, draft)
