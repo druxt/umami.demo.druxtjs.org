@@ -256,7 +256,10 @@ function druxt_umami_install() {
     ->save();
 
   // Simple OAuth 6 refuses every grant until a scope exists that the request
-  // can resolve. One scope, the authenticated role, for both flows.
+  // can resolve. One scope, the authenticated role, for both flows. Simple
+  // OAuth was installed in this same batch, so its entity type is not in the
+  // cached definitions yet.
+  \Drupal::entityTypeManager()->clearCachedDefinitions();
   if (!Oauth2Scope::load('authenticated')) {
     Oauth2Scope::create([
       'id' => 'authenticated',
