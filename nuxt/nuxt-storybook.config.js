@@ -54,4 +54,15 @@ export default {
     '~/layouts/**/*.stories.js',
     '~/pages/**/*.stories.js',
   ],
+
+  /**
+   * The vendored Druxt packages ship their Nuxt module beside their
+   * components in one bundle, and the module reads the file system. Nuxt's
+   * own build leaves that require alone; Storybook's webpack has to be told
+   * the browser has no `fs`.
+   */
+  webpackFinal(config) {
+    config.node = { ...(config.node || {}), fs: 'empty' }
+    return config
+  },
 }
