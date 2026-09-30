@@ -29,9 +29,9 @@ test.describe('dev overlay', () => {
     await expect(
       page.locator('.druxt-inspector-label', { hasText: 'DruxtEntityForm' }),
     ).toBeVisible()
-    expect(await page.locator('[data-druxt="field"]').count()).toBeGreaterThan(
-      2,
-    )
+    await expect
+      .poll(() => page.locator('[data-druxt="field"]').count())
+      .toBeGreaterThan(2)
   })
 
   test('labels sit above their component, never over the tabs', async ({

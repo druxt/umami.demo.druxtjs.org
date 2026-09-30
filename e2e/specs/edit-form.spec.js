@@ -23,8 +23,12 @@ test.describe('edit form', () => {
     page,
   }) => {
     await openEdit(page, RECIPE)
-    expect(await page.locator('.edit-list__input').count()).toBeGreaterThan(3)
-    expect(await page.locator('.edit-steps__input').count()).toBeGreaterThan(2)
+    await expect
+      .poll(() => page.locator('.edit-list__input').count())
+      .toBeGreaterThan(3)
+    await expect
+      .poll(() => page.locator('.edit-steps__input').count())
+      .toBeGreaterThan(2)
     await expect(page.locator('.edit-list__grip').first()).toBeVisible()
     await expect(page.locator('#title')).toHaveValue(/Crema catalana/)
   })
