@@ -416,14 +416,22 @@ test:stack:
       [ "$code" = 302 ] || [ "$code" = 401 ] || [ "$code" = 403 ] || fail "an anonymous reset answered $code"
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/druxt-umami/reset")
       [ "$code" = 202 ] || fail "the reset answered $code"
-      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/druxt-umami/reset")
-      [ "$code" = 429 ] || fail "a second reset within a minute answered $code"
+      sleep 3
       for _ in $(seq 1 30); do
         code=$(curl -s -o /dev/null -w '%{http_code}' -H 'Accept: application/vnd.api+json' "$site/en/jsonapi")
         [ "$code" = 200 ] && break
         sleep 2
       done
       [ "$code" = 200 ] || fail "Drupal did not come back after the reset ($code)"
+      # The restore took every token with it, so the editor signs in again,
+      # and the minute's quiet time still holds.
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/oauth/userinfo")
+      [ "$code" = 401 ] || [ "$code" = 403 ] || fail "the old token survived the reset ($code)"
+      token=$(curl -sS -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"admin"}' "$site/_auth/drupal-password/token")
+      access=$(sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p' <<<"$token")
+      [ -n "$access" ] || fail "no token after the reset: $token"
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/druxt-umami/reset")
+      [ "$code" = 429 ] || fail "a second reset within a minute answered $code"
       echo "All assertions passed."
   artifacts:
     when: always
