@@ -1,3 +1,4 @@
+import { demoLinks } from '~/utils/demo'
 import {
   LOCALES,
   SITE_NAME,
@@ -75,6 +76,7 @@ export function seoHead({
   type = 'website',
   robots,
   graphs = [],
+  twitter,
 }) {
   const langcode = langcodeOf(path)
   const url = canonicalUrl(origin, path)
@@ -119,7 +121,11 @@ export function seoHead({
         name: 'twitter:card',
         content: 'summary_large_image',
       },
-      { hid: 'twitter:site', name: 'twitter:site', content: TWITTER_HANDLE },
+      {
+        hid: 'twitter:site',
+        name: 'twitter:site',
+        content: twitter || TWITTER_HANDLE,
+      },
       { hid: 'twitter:title', name: 'twitter:title', content: shareTitle },
       {
         hid: 'twitter:description',
@@ -221,6 +227,7 @@ const entityGraph = ({
  */
 export function routeHead(vm) {
   const origin = (vm.$config || {}).siteOrigin || ''
+  const twitter = demoLinks(vm).twitter
   const path = vm.$route.path
   const langcode = langcodeOf(path)
   const route =
@@ -236,6 +243,7 @@ export function routeHead(vm) {
       origin,
       path,
       title: route.isHomePath ? undefined : route.label || undefined,
+      twitter,
     })
   }
 
@@ -257,6 +265,7 @@ export function routeHead(vm) {
     title,
     description: summary,
     image,
+    twitter,
     type: article ? 'article' : 'website',
     graphs: article
       ? [entityGraph({ entity, origin, url, title, summary, image, langcode })]

@@ -86,6 +86,8 @@ export default {
     ['@nuxtjs/google-analytics', { id: 'UA-172677199-2' }],
     // https://go.nuxtjs.dev/stylelint
     '@nuxtjs/stylelint-module',
+    // The demo's share links and commands, from Drupal's config page.
+    '@druxt-contrib/config-pages',
     // Custom Search API Lunr module.
     [
       '~/modules/search-api-lunr',
@@ -181,6 +183,8 @@ export default {
 
   // Druxt Configuration
   druxt: {
+    // The config page the share links come from: $druxtConfigPages.get('druxt_demo').
+    configPages: { pages: ['druxt_demo'] },
     baseUrl,
 
     // Druxt Blocks module settings.
