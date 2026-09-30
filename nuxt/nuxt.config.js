@@ -62,11 +62,13 @@ export default {
     // The frontend's own words, in the page's language.
     { src: '~/plugins/i18n.js' },
     { src: '~/plugins/vuex-persistedstate.client.js' },
+    // Tags every Druxt component for the dev overlay.
+    { src: '~/plugins/druxt-inspector.client.js' },
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   // `~/components/app` is flattened so the promo components are usable as
-  // <AppDemoBar />, <AppDruxtNote />, <AppDevRegion /> and so on.
+  // <AppDemoBar />, <AppDruxtNote />, <AppDruxtInspector /> and so on.
   components: [
     '~/components',
     { path: '~/components/app', prefix: 'App', pathPrefix: false },
