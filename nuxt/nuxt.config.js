@@ -57,6 +57,8 @@ export default {
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
+    // First, so it sees every error that follows.
+    { src: '~/plugins/error-log.client.js' },
     { src: '~/plugins/vuex-persistedstate.client.js' },
     // An entity with an unsaved draft is not refetched on a live update.
     { src: '~/plugins/live-drafts.client.js' },
