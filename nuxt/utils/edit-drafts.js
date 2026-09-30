@@ -1,5 +1,8 @@
 import {
   changedFields,
+  diffLines,
+  isLong,
+  stagedDiff,
   withoutComputed,
 } from '@druxt-contrib/inline-content-edit'
 
@@ -59,12 +62,32 @@ export function draftOf(original, model) {
   return { attributes, relationships, files: {}, before }
 }
 
+/**
+ * Text fields as the page renders them. Drupal sends `processed`, the
+ * filtered HTML the page shows, and an edit brings only `value`; the store
+ * merges the two and keeps the old `processed`. The edited value stands in
+ * for it until Drupal has filtered the saved text.
+ */
+export function renderable(attributes) {
+  const out = {}
+  for (const [name, value] of Object.entries(attributes || {})) {
+    out[name] =
+      value && typeof value === 'object' && typeof value.value === 'string'
+        ? { ...value, processed: value.value }
+        : value
+  }
+  return out
+}
+
 /** The entity with a draft laid over it. */
 export function withDraft(data, draft) {
   if (!draft || !data) return data
   return {
     ...data,
-    attributes: { ...(data.attributes || {}), ...(draft.attributes || {}) },
+    attributes: {
+      ...(data.attributes || {}),
+      ...renderable(draft.attributes || {}),
+    },
     relationships: {
       ...(data.relationships || {}),
       ...(draft.relationships || {}),
@@ -75,4 +98,51 @@ export function withDraft(data, draft) {
 /** The entity as Drupal holds it: the draft's before values put back. */
 export function withoutDraft(data, draft) {
   return withDraft(data, (draft || {}).before)
+}
+
+/**
+ * What a draft changed, field by field, in the shape jsonapi_diff would
+ * return for two revisions: `data.attributes.fields[name]` with a status,
+ * both sides as text, and for a long text the changed words with a little
+ * context. Relationships are listed by what they point at.
+ */
+export function diffOf(original, draft) {
+  const document = stagedDiff(
+    { ...original, attributes: (original || {}).attributes || {} },
+    {
+      type: (original || {}).type,
+      id: (original || {}).id,
+      attributes: (draft || {}).attributes || {},
+    }
+  )
+  const fields = Object.values(document.data.attributes.fields).map(
+    (field) => ({
+      ...field,
+      words:
+        field.status === 'changed' &&
+        (isLong(field.left) || isLong(field.right))
+          ? diffLines(field.left, field.right)
+          : null,
+    })
+  )
+  const pointsAt = (value) => {
+    const data = (value || {}).data
+    return (Array.isArray(data) ? data : data ? [data] : [])
+      .map((o) => o.id)
+      .join(', ')
+  }
+  for (const [name, value] of Object.entries(
+    (draft || {}).relationships || {}
+  )) {
+    const before = ((draft || {}).before || {}).relationships || {}
+    fields.push({
+      label: name,
+      status: 'changed',
+      left: pointsAt(before[name]),
+      right: pointsAt(value),
+      ops: [],
+      words: null,
+    })
+  }
+  return { ...document, fields }
 }
