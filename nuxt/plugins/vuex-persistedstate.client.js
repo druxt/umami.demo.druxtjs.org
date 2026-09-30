@@ -8,6 +8,11 @@ import createPersistedState from 'vuex-persistedstate'
  * stale routes and shapes, and on a phone it outgrew localStorage, where a
  * full store makes every commit throw. The old key is removed so a browser
  * that still holds one stops reading it.
+ *
+ * The switch is restored once the page has hydrated. Restored earlier, the
+ * first client render carries the overlay's markup and the server's page
+ * does not, and Vue's recovery from that mismatch leaves the page unable to
+ * re-render: dead tabs, a dead menu, a dead debug panel.
  */
 const STALE_KEY = 'druxtCache'
 
@@ -17,8 +22,10 @@ export default ({ store }) => {
   } catch (e) {
     // Storage may be unavailable; there is nothing to clear then.
   }
-  createPersistedState({
-    key: 'umamiUi',
-    paths: ['ui.devOverlay'],
-  })(store)
+  window.onNuxtReady(() => {
+    createPersistedState({
+      key: 'umamiUi',
+      paths: ['ui.devOverlay'],
+    })(store)
+  })
 }

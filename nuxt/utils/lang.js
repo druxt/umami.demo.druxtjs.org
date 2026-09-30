@@ -20,4 +20,19 @@ export const langMixin = {
     lang: ({ $route }) => langcodeOf(($route || {}).path),
     prefix: ({ lang }) => `/${lang}`,
   },
+
+  methods: {
+    /** A date as the language writes it. Fixed names, so server and browser agree. */
+    formatDate(date, style = 'long') {
+      const d = new Date(date)
+      if (isNaN(d)) return ''
+      const words = (this.$i18n.messages[this.$i18n.locale] || {}).date || {}
+      const names = (style === 'short' ? words.monthsShort : words.months) || []
+      return this.$t(`date.${style}`, {
+        d: d.getUTCDate(),
+        month: names[d.getUTCMonth()],
+        y: d.getUTCFullYear(),
+      })
+    },
+  },
 }
