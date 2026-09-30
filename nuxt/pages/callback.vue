@@ -9,7 +9,6 @@
 <script>
 import { seoHead } from '~/utils/seo'
 export default {
-
   layout: 'plain',
   head() {
     return seoHead({
