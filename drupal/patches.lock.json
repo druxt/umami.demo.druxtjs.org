@@ -28,7 +28,7 @@
                 "package": "drupal/druxt",
                 "description": "#3264181 Node Preview (MR!8, rerolled for 1.2.2)",
                 "url": "patches/druxt-mr8-node-preview.patch",
-                "sha256": "db32433be9f8bbaa389beeac0c23bb6b3f77143d1c9dfe06d44f4990faddf9df",
+                "sha256": "ef3fca6f13cfeae336ac2c063d853b4484499935aec15b3eecd7580f1f0ca1eb",
                 "depth": 1,
                 "extra": {
                     "provenance": "root"
