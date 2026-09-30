@@ -32,7 +32,14 @@ export default function (moduleOptions = {}) {
             ...item,
           }
 
+          // One index per language: a Spanish page searches Spanish content.
+          // The feed carries no langcode, and the path's prefix is Drupal's.
+          const locale =
+            (String(item.url || '').match(/^\/([a-z]{2})(\/|$)/) || [])[1] ||
+            'en'
+
           await this.nuxt.callHook('lunr:document', {
+            locale,
             document,
             meta: {
               href: item.url,
