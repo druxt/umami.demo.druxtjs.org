@@ -19,10 +19,7 @@
               target="_blank"
               >{{ $t('demoBar.discord') }}</a
             >
-            <a
-              href="https://storybook.umami.demo.druxtjs.org"
-              rel="noopener"
-              target="_blank"
+            <a :href="storybookOrigin" rel="noopener" target="_blank"
               >Storybook</a
             >
             <a href="https://druxtjs.org" rel="noopener" target="_blank">{{
@@ -57,7 +54,10 @@
 </template>
 
 <script>
+import { storybookMixin } from '~/utils/storybook'
 export default {
+  mixins: [storybookMixin],
+
   data: () => ({
     // The command druxtjs.org's front page gives for the quickstart.
     command: 'npx giget@1 gh:druxt/quickstart#develop my-druxt-site --install',
