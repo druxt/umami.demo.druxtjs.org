@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - config_pages.type.druxt_demo
+    - field.storage.config_pages.field_quickstart
+id: config_pages.druxt_demo.field_quickstart
+field_name: field_quickstart
+entity_type: config_pages
+bundle: druxt_demo
+label: 'Quickstart command'
+description: 'The command druxtjs.org gives to start a new site.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

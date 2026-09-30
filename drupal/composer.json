@@ -14,6 +14,7 @@
         "composer/installers": "^2.2",
         "cweagans/composer-patches": "^2.0@beta",
         "drupal/anonymous_redirect": "^2.5",
+        "drupal/config_pages": "^4.0",
         "drupal/core-composer-scaffold": "~11",
         "drupal/core-project-message": "~11",
         "drupal/core-recommended": "~11",
