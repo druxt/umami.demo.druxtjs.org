@@ -54,6 +54,7 @@
           @click="toggleDevOverlay"
         >
           <span class="d-none d-md-inline">{{ $t('demoBar.devOverlay') }}</span>
+          <span class="d-md-none">{{ $t('demoBar.devShort') }}</span>
           <span class="demo-bar__switch"><span class="demo-bar__knob" /></span>
         </button>
       </nav>

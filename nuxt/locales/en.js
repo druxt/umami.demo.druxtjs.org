@@ -34,6 +34,7 @@ export default {
     viewSource: 'View source',
     docs: 'Docs',
     discord: 'Discord',
+    devShort: 'Dev',
     devOverlay: 'Dev overlay',
     builtWith: 'Built with Druxt',
     entityExplorer: 'Entity Explorer',

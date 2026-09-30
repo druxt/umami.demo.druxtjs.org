@@ -67,7 +67,11 @@ export default ({ store }, inject) => {
     document.documentElement.classList.toggle(ROOT_CLASS, isOn(store.state))
     schedule()
   }
-  store.watch(isOn, apply)
+  // On every change to the switch. A `store.watch` went quiet once the
+  // persisted state was put back after hydration; a subscription does not.
+  store.subscribe(({ type }) => {
+    if (type.startsWith('ui/')) apply()
+  })
   window.onNuxtReady(apply)
 
   // Hover names the innermost component under the pointer; the layer shows
