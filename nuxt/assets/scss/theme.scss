@@ -4433,6 +4433,117 @@ button.masthead__account {
   }
 }
 
+// ── Draft banner ─────────────────────────────────────────────────────────────
+// Above a node page that shows unsaved changes: the Druxt tint, the switch
+// between the draft and Drupal's version, and the diff on request.
+.draft-banner {
+  background: $druxt-tint;
+  border: 1px solid $druxt-line;
+  border-radius: 6px;
+  color: $druxt-navy;
+  font-size: 0.8125rem;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+
+  &__row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+  &__kicker {
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  &__text {
+    color: $ink-muted;
+    flex: 1 1 18em;
+  }
+  &__switch {
+    border: 1px solid $druxt-line;
+    border-radius: 999px;
+    display: inline-flex;
+    overflow: hidden;
+  }
+  &__option {
+    background: transparent;
+    border: 0;
+    color: $druxt-navy;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 12px;
+
+    &.is-on {
+      background: $druxt-navy;
+      color: #fff;
+    }
+  }
+  &__diff-toggle {
+    background: transparent;
+    border: 0;
+    color: $druxt-blue;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0;
+    text-decoration: underline;
+  }
+  &__diff {
+    border-top: 1px solid $druxt-line;
+    display: grid;
+    gap: 6px 16px;
+    grid-template-columns: max-content 1fr;
+    margin: 10px 0 0;
+    padding-top: 10px;
+
+    dt {
+      align-items: baseline;
+      display: flex;
+      font-family: $mono;
+      font-size: 0.71875rem;
+      font-weight: 400;
+      gap: 8px;
+    }
+    dd {
+      margin: 0;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    del {
+      background: #fbe7e4;
+      color: #7a2418;
+      text-decoration: line-through;
+    }
+    ins {
+      background: #e2f3e6;
+      color: #1d5a2e;
+      margin-left: 6px;
+      text-decoration: none;
+    }
+  }
+  &__status {
+    color: $ink-faint;
+    font-family: $mono;
+    font-size: 0.65625rem;
+
+    &.is-added {
+      color: #1d5a2e;
+    }
+    &.is-removed {
+      color: #7a2418;
+    }
+  }
+
+  @media (max-width: 767px) {
+    &__diff {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
 // ── Basic page ───────────────────────────────────────────────────────────────
 // Screen 12: the term head band, then prose in the article's measure. The
 // About page adds the site's own section and a resource band below it.

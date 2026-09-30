@@ -1,4 +1,11 @@
-import { readDrafts, withDraft, writeDrafts } from '~/utils/edit-drafts'
+import Vue from 'vue'
+import {
+  readDrafts,
+  renderable,
+  withDraft,
+  withoutDraft,
+  writeDrafts,
+} from '~/utils/edit-drafts'
 
 /**
  * An editor's unsaved changes, kept and shown.
@@ -14,6 +21,30 @@ export default ({ store }, inject) => {
   const draftFor = (type, id) =>
     ((store.state.druxtIce || {}).drafts || {})[key(type, id)] || null
 
+  /**
+   * The fields an entity rendered keep the value they were mounted with, so
+   * a new model on the entity is handed down to each of them as well.
+   */
+  const refreshFields = (vm, data) => {
+    for (const child of vm.$children) {
+      if (child.$options.name === 'DruxtEntity') continue
+      const name =
+        child.$options.name === 'DruxtField' && (child.schema || {}).id
+      if (name) {
+        const value = child.relationship
+          ? (data.relationships || {})[name]
+          : (data.attributes || {})[name]
+        if (
+          value !== undefined &&
+          JSON.stringify(child.model) !== JSON.stringify(value)
+        ) {
+          child.model = value
+        }
+      }
+      refreshFields(child, data)
+    }
+  }
+
   /** Every mounted DruxtEntity showing this entity renders `data`. */
   const refresh = (type, id, data) => {
     const visit = (vm) => {
@@ -21,10 +52,10 @@ export default ({ store }, inject) => {
         vm.$options.name === 'DruxtEntity' &&
         vm.uuid === id &&
         vm.model &&
-        vm.model.type === type &&
-        JSON.stringify(vm.model) !== JSON.stringify(data)
+        vm.model.type === type
       ) {
-        vm.model = data
+        if (JSON.stringify(vm.model) !== JSON.stringify(data)) vm.model = data
+        refreshFields(vm, data)
       }
       vm.$children.forEach(visit)
     }
@@ -84,18 +115,21 @@ export default ({ store }, inject) => {
     if (!model || !model.type || !model.id) return
     const byPrefix =
       ((store.state.druxt || {}).resources || {})[model.type] || {}
+    // As the page renders it: the form's text stands in for Drupal's
+    // filtered HTML. Plain copies, one per use: the store, the page and
+    // the form must not share objects.
+    const shown = JSON.stringify({
+      ...model,
+      attributes: renderable(model.attributes || {}),
+      relationships: model.relationships || {},
+    })
+    const copy = () => JSON.parse(shown)
     applying = true
     try {
       for (const [prefix, doc] of Object.entries(byPrefix[model.id] || {})) {
         if (!doc || !doc.data) continue
-        // Plain copies: the store must not share objects with the form.
-        const data = JSON.parse(
-          JSON.stringify({
-            ...doc.data,
-            attributes: model.attributes || {},
-            relationships: model.relationships || {},
-          })
-        )
+        const { attributes, relationships } = copy()
+        const data = { ...doc.data, attributes, relationships }
         if (carries(doc.data, data)) continue
         store.commit('druxt/addResource', {
           prefix: prefix === 'undefined' ? undefined : prefix,
@@ -105,10 +139,38 @@ export default ({ store }, inject) => {
     } finally {
       applying = false
     }
-    refresh(model.type, model.id, JSON.parse(JSON.stringify(model)))
+    refresh(model.type, model.id, copy())
   }
 
-  inject('drafts', { overlay, mirror, draftFor })
+  // Entities an editor asked to see as Drupal holds them, draft kept aside.
+  const real = Vue.observable({ keys: {} })
+  const isReal = (type, id) => !!real.keys[key(type, id)]
+
+  /** Show Drupal's version of an entity, or the draft again. */
+  const showReal = (type, id, on) => {
+    const draft = draftFor(type, id)
+    if (!draft) return
+    Vue.set(real.keys, key(type, id), !!on)
+    const byPrefix = ((store.state.druxt || {}).resources || {})[type] || {}
+    applying = true
+    try {
+      for (const [prefix, doc] of Object.entries(byPrefix[id] || {})) {
+        if (!doc || !doc.data) continue
+        const data = on
+          ? withoutDraft(doc.data, draft)
+          : withDraft(doc.data, draft)
+        store.commit('druxt/addResource', {
+          prefix: prefix === 'undefined' ? undefined : prefix,
+          resource: { ...doc, data },
+        })
+        refresh(type, id, data)
+      }
+    } finally {
+      applying = false
+    }
+  }
+
+  inject('drafts', { overlay, mirror, draftFor, showReal, isReal, real })
 
   window.onNuxtReady(() => {
     for (const [k, draft] of Object.entries(readDrafts())) {
@@ -127,7 +189,13 @@ export default ({ store }, inject) => {
       if (type === 'druxt/addResource' && !applying) {
         const data = ((payload || {}).resource || {}).data || {}
         const draft = draftFor(data.type, data.id)
-        if (draft) overlay(data.type, data.id, draft)
+        if (draft && !isReal(data.type, data.id)) {
+          overlay(data.type, data.id, draft)
+        }
+      }
+      // A draft that is gone leaves nothing to show instead of the page.
+      if (type === 'druxtIce/clearDraft' && real.keys[payload]) {
+        Vue.set(real.keys, payload, false)
       }
     })
   })

@@ -254,6 +254,18 @@ export default {
     source: 'El código de este sitio',
     sourceBlurb: 'Backend Drupal y frontend Nuxt, un solo repositorio.',
   },
+  draft: {
+    showingDraft: 'Borrador sin guardar',
+    showingReal: 'La versión de Drupal',
+    kept: 'Esta página muestra cambios guardados en este navegador, no lo que tiene Drupal.',
+    draft: 'Borrador',
+    real: 'Versión de Drupal',
+    changes: '{n} cambio | {n} cambios',
+    changed: 'cambiado',
+    added: 'añadido',
+    removed: 'eliminado',
+    same: 'sin cambios',
+  },
   contact: {
     kicker: 'Contacto',
     title: 'Cuéntanos qué piensas',

@@ -248,6 +248,18 @@ export default {
     source: "This site's source",
     sourceBlurb: 'Drupal backend and Nuxt frontend, one repository.',
   },
+  draft: {
+    showingDraft: 'Unsaved draft',
+    showingReal: "Drupal's version",
+    kept: 'This page shows changes kept in this browser, not what Drupal holds.',
+    draft: 'Draft',
+    real: "Drupal's version",
+    changes: '{n} change | {n} changes',
+    changed: 'changed',
+    added: 'added',
+    removed: 'removed',
+    same: 'unchanged',
+  },
   contact: {
     kicker: 'Contact',
     title: 'Tell us what you think',
