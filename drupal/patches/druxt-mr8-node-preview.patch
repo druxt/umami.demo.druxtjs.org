@@ -8,7 +8,7 @@ diff -ruN m22-orig/modules/druxt_node_preview/config/schema/druxt_node_preview.s
 --- a/modules/druxt_node_preview/config/schema/druxt_node_preview.schema.yml	1970-01-01 00:00:00.000000000 +0000
 +++ b/modules/druxt_node_preview/config/schema/druxt_node_preview.schema.yml	2026-09-05 05:30:33.802487011 +0000
 @@ -0,0 +1,7 @@
-+jsonapi.settings:
++druxt_node_preview.settings:
 +  type: config_object
 +  label: 'Druxt: Node Preview settings'
 +  mapping:
