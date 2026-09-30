@@ -16,6 +16,7 @@ druxtjs
 Druxty
 Español
 giget
+hrefs
 janked
 janks
 lando
@@ -42,5 +43,7 @@ umamiDrafts
 unscrimmed
 uselagoon
 viewports
+vnode
 vuedraggable
 wordmark
+zanahorias

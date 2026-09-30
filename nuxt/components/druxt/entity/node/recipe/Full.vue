@@ -8,7 +8,11 @@
       <div class="recipe-hero__scrim" />
       <b-container class="node-head recipe-hero__head">
         <DruxtBreadcrumb />
-        <h1 class="node-head__title">{{ entity.attributes.title }}</h1>
+        <h1
+          v-draft-diff="'title'"
+          class="node-head__title"
+          v-text="entity.attributes.title"
+        />
         <div class="node-head__summary field--field-summary">
           <slot name="field_summary" />
         </div>

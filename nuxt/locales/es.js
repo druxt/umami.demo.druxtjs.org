@@ -260,11 +260,8 @@ export default {
     kept: 'Esta página muestra cambios guardados en este navegador, no lo que tiene Drupal.',
     draft: 'Borrador',
     real: 'Versión de Drupal',
-    changes: '{n} cambio | {n} cambios',
-    changed: 'cambiado',
-    added: 'añadido',
-    removed: 'eliminado',
-    same: 'sin cambios',
+    changes: 'Marcar {n} cambio | Marcar {n} cambios',
+    hideMarks: 'Ocultar las marcas',
   },
   contact: {
     kicker: 'Contacto',

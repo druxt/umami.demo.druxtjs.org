@@ -19,7 +19,11 @@
           {{ $t('article.readTime', { n: readTime }) }}
         </span>
 
-        <h1 class="article-page__title">{{ entity.attributes.title }}</h1>
+        <h1
+          v-draft-diff="'title'"
+          class="article-page__title"
+          v-text="entity.attributes.title"
+        />
 
         <p class="article-page__byline">
           {{ $t('article.byline')
