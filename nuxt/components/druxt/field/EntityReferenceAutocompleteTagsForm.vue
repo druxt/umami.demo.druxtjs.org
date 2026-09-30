@@ -1,6 +1,6 @@
 <template>
   <AppFormField
-    :description="description"
+    description="Type to search the vocabulary; Enter adds the first match, or creates the tag."
     :feedback="feedback"
     :label="label"
     :required="required"
@@ -67,25 +67,6 @@ export default {
     createError: '',
   }),
 
-  /** The name of each referenced term. */
-  async fetch() {
-    const found = await Promise.all(
-      this.items.map((ref) =>
-        this.$store
-          .dispatch('druxt/getResource', {
-            type: ref.type,
-            id: ref.id,
-            query: { [`fields[${ref.type}]`]: 'name' },
-          })
-          .then(
-            (r) => [ref.id, (((r || {}).data || {}).attributes || {}).name],
-            () => [ref.id, null]
-          )
-      )
-    )
-    this.names = { ...this.names, ...Object.fromEntries(found) }
-  },
-
   computed: {
     items: ({ value }) => referenceItems(value),
     type: ({ schema }) => referenceTypes(schema)[0],
@@ -103,7 +84,39 @@ export default {
     },
   },
 
+  watch: {
+    /** The form hands the value over after the widget exists on a static
+        page, so the names load whenever the items change. */
+    items: {
+      immediate: true,
+      handler() {
+        this.loadNames()
+      },
+    },
+  },
+
   methods: {
+    /** The name of each referenced term the widget does not know yet. */
+    async loadNames() {
+      const missing = this.items.filter((ref) => !(ref.id in this.names))
+      if (!missing.length) return
+      const found = await Promise.all(
+        missing.map((ref) =>
+          this.$store
+            .dispatch('druxt/getResource', {
+              type: ref.type,
+              id: ref.id,
+              query: { [`fields[${ref.type}]`]: 'name' },
+            })
+            .then(
+              (r) => [ref.id, (((r || {}).data || {}).attributes || {}).name],
+              () => [ref.id, null]
+            )
+        )
+      )
+      this.names = { ...this.names, ...Object.fromEntries(found) }
+    },
+
     /** The vocabulary, filtered the way the field is configured to match. */
     async search() {
       const q = this.query.trim()

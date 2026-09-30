@@ -52,7 +52,7 @@
       <b-col
         v-for="result of filtered"
         :key="result.id"
-        class="mb-4"
+        class="mb-4 card-cell"
         cols="12"
         sm="6"
         md="4"

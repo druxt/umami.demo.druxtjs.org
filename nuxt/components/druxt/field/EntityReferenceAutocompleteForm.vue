@@ -56,15 +56,6 @@ export default {
 
   data: () => ({ name: '', changing: false, query: '', suggestions: [] }),
 
-  async fetch() {
-    const [ref] = this.items
-    if (!ref) return
-    const r = await this.$store
-      .dispatch('druxt/getResource', { type: ref.type, id: ref.id })
-      .catch(() => null)
-    this.name = r && r.data ? labelOf(r.data) : ''
-  },
-
   computed: {
     items: ({ value }) => referenceItems(value),
     /** A base field like uid names no bundles; the value's own type does. */
@@ -76,8 +67,26 @@ export default {
     nouns: ({ type }) => `${(type || '').split('--')[0]}s`,
   },
 
+  watch: {
+    items: {
+      immediate: true,
+      handler() {
+        this.loadName()
+      },
+    },
+  },
+
   methods: {
     labelOf,
+
+    async loadName() {
+      const [ref] = this.items
+      if (!ref) return
+      const r = await this.$store
+        .dispatch('druxt/getResource', { type: ref.type, id: ref.id })
+        .catch(() => null)
+      this.name = r && r.data ? labelOf(r.data) : ''
+    },
 
     async search() {
       const q = this.query.trim()

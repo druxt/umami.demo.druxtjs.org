@@ -52,8 +52,9 @@ export default {
   }),
 
   computed: {
+    /** Only content has a form worth editing here; a term has no display. */
     editable() {
-      return this.route.props.type !== 'contact_form--contact_form'
+      return String(this.route.props.type || '').startsWith('node--')
     },
 
     component() {
@@ -66,8 +67,22 @@ export default {
   watch: {
     /** A new route is a new page: back to the rendered view. */
     'route.props.uuid'() {
-      this.mode = 'view'
+      this.mode = this.$route.hash === '#edit' ? 'edit' : 'view'
     },
+
+    mode(mode) {
+      const hash = mode === 'edit' ? '#edit' : ''
+      if (this.$route.hash !== hash) {
+        this.$router.replace({ path: this.$route.path, hash })
+      }
+    },
+  },
+
+  /** `#edit` on the URL opens the form, so an edit link can be shared. */
+  mounted() {
+    if (this.editable && this.$route.hash === '#edit') {
+      this.mode = 'edit'
+    }
   },
 }
 </script>

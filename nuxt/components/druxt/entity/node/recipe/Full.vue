@@ -40,28 +40,31 @@
       </section>
     </div>
 
-    <!-- The learning layer follows the recipe. Editing is the page's Edit
-         tab. -->
-    <AppViewModeSwitcher
-      class="mt-5"
-      :modes="['card', 'teaser']"
-      :type="entity.type"
-      :uuid="entity.id"
-    />
+    <!-- The learning layer follows the recipe: the view modes on one side,
+         the request and the note on the other from lg. Editing is the
+         page's Edit tab. -->
+    <div class="learn-grid">
+      <AppViewModeSwitcher
+        :modes="['card', 'teaser']"
+        :type="entity.type"
+        :uuid="entity.id"
+      />
 
-    <AppJsonApiDrawer class="mt-3" :path="jsonApiPath" />
+      <div class="learn-grid__aside">
+        <AppJsonApiDrawer :path="jsonApiPath" />
 
-    <AppDruxtNote
-      class="mt-5"
-      title="One component file renders every recipe on this site"
-      cta="Read the Entity guide"
-      href="https://druxtjs.org/modules/entity"
-      :code="code"
-    >
-      Drupal's <em>full</em> display mode maps to this file. Change the layout
-      here and all 24 recipes follow. The field templates, labels and formatters
-      still come from Drupal's display config.
-    </AppDruxtNote>
+        <AppDruxtNote
+          title="One component file renders every recipe on this site"
+          cta="Read the Entity guide"
+          href="https://druxtjs.org/modules/entity"
+          :code="code"
+        >
+          Drupal's <em>full</em> display mode maps to this file. Change the
+          layout here and all 24 recipes follow. The field templates, labels and
+          formatters still come from Drupal's display config.
+        </AppDruxtNote>
+      </div>
+    </div>
   </article>
 </template>
 

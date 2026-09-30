@@ -55,9 +55,10 @@
              path is /node, so the langcode roots are tested here too. -->
         <!-- Drupal has no breadcrumb or title for a route it does not know,
              so on a Nuxt-owned page this band would be an empty stripe. -->
-        <!-- A node's full template draws its own head under its photograph. -->
+        <!-- A node draws its own head under its photograph; a term draws its
+             own band with the kicker and the count. -->
         <div
-          v-if="!isFront && isDrupalRoute && !isNode"
+          v-if="!isFront && isDrupalRoute && !ownsHead"
           class="band band--warm band--head"
         >
           <b-container>
@@ -78,7 +79,8 @@
           label='DruxtBlockRegion name="content"'
           source="layouts/default.vue"
         >
-          <div class="band band--paper">
+          <!-- A page that draws its own head sits closer to the masthead. -->
+          <div class="band band--paper" :class="{ 'band--flush': ownsHead }">
             <b-container>
               <slot v-if="$slots.default" />
               <DruxtBlockRegion
@@ -155,9 +157,9 @@ export default {
       return !!this.$store.state.druxtRouter.route.resolvedPath
     },
 
-    isNode() {
+    ownsHead() {
       const { entity } = this.$store.state.druxtRouter.route
-      return (entity || {}).type === 'node'
+      return ['node', 'taxonomy_term'].includes((entity || {}).type)
     },
 
     isFront() {
