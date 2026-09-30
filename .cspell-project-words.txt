@@ -4,6 +4,7 @@ amazeeio
 amazeeiolagoon
 Archivo
 catalana
+Colecciones
 crawlable
 crossorigin
 dcbdaaf
@@ -29,6 +30,8 @@ persistedstate
 PKCE
 prismeditor
 quickstart
+Recetas
+renderable
 scroller
 Searchbar
 standfirst
