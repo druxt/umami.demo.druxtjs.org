@@ -94,10 +94,6 @@ export default {
     altError: '',
   }),
 
-  async fetch() {
-    await this.load()
-  },
-
   computed: {
     ref: ({ value }) => referenceItems(value)[0] || null,
     fileRef: ({ media }) =>
@@ -116,8 +112,11 @@ export default {
   },
 
   watch: {
-    ref(now, before) {
-      if ((now || {}).id !== (before || {}).id) this.load()
+    ref: {
+      immediate: true,
+      handler(now, before) {
+        if ((now || {}).id !== (before || {}).id) this.load()
+      },
     },
   },
 

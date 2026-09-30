@@ -5,18 +5,34 @@
        resolved; anywhere else this is a name. -->
   <span v-if="!isRoutedTerm">{{ entity.attributes.name }}</span>
 
-  <div v-else-if="!$fetchState.pending" class="term-page">
-    <!-- The page title block above already prints the term's name. -->
-    <span class="term-page__kicker">Collection</span>
-    <p class="term-page__blurb">{{ blurb }}</p>
-
-    <div class="term-page__meta">
-      <span v-for="chip of chips" :key="chip" class="term-page__chip">
-        {{ chip }}
-      </span>
+  <div v-else class="term-page">
+    <!-- The head band: breadcrumb, kicker, name, description and the count. -->
+    <div class="term-head bleed">
+      <b-container class="term-head__inner">
+        <DruxtBreadcrumb />
+        <span class="term-head__kicker">Collection</span>
+        <h1 class="term-head__title">{{ entity.attributes.name }}</h1>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <div v-if="description" class="term-head__blurb" v-html="description" />
+        <span class="term-head__count">{{ count }}</span>
+      </b-container>
     </div>
 
+    <div v-if="entities.length" class="card-grid">
+      <DruxtEntity
+        v-for="item of entities"
+        :key="item.id"
+        mode="card"
+        :type="item.type"
+        :uuid="item.id"
+      />
+    </div>
+    <p v-else-if="!$fetchState.pending" class="term-page__empty">
+      Nothing is filed under this term yet.
+    </p>
+
     <AppDruxtNote
+      class="term-page__note"
       file="entity/taxonomy-term/tags/Default.vue"
       kicker="How this works"
     >
@@ -24,24 +40,6 @@
       from the URL alias. Term description, then the referencing content in card
       view mode.
     </AppDruxtNote>
-
-    <b-row class="align-items-stretch">
-      <b-col
-        v-for="entity of entities"
-        :key="entity.id"
-        class="mb-4"
-        cols="6"
-        md="4"
-        lg="3"
-      >
-        <DruxtEntity
-          class="h-100"
-          :type="entity.type"
-          :uuid="entity.id"
-          mode="card"
-        />
-      </b-col>
-    </b-row>
   </div>
 </template>
 
@@ -87,31 +85,19 @@ export default {
       return ((route.entity || {}).uuid || null) === this.entity.id
     },
 
-    counts() {
-      return this.entityTypes.map((type) => ({
-        label: type.split('--').pop(),
-        total: this.entities.filter((entity) => entity.type === type).length,
-      }))
-    },
+    description: ({ entity }) =>
+      ((entity.attributes || {}).description || {}).processed || '',
 
-    /** "18 recipes and 4 articles filed under this term." */
-    blurb() {
-      const parts = this.counts
+    /** "18 recipes and 4 articles", as the count line under the name. */
+    count() {
+      const parts = this.entityTypes
+        .map((type) => ({
+          label: type.split('--').pop(),
+          total: this.entities.filter((entity) => entity.type === type).length,
+        }))
         .filter(({ total }) => total)
         .map(({ label, total }) => `${total} ${label}${total === 1 ? '' : 's'}`)
-      if (!parts.length) {
-        return 'Nothing is filed under this term yet.'
-      }
-      return `${parts.join(' and ')} filed under this term.`
-    },
-
-    chips() {
-      return this.counts
-        .filter(({ total }) => total)
-        .map(
-          ({ label, total }) =>
-            `${label.charAt(0).toUpperCase()}${label.slice(1)}s ${total}`
-        )
+      return parts.length ? parts.join(' and ') : ''
     },
   },
 
@@ -119,6 +105,12 @@ export default {
     ...mapActions({
       getCollection: 'druxt/getCollection',
     }),
+  },
+
+  druxt: {
+    query: {
+      fields: ['description', 'name', 'path'],
+    },
   },
 }
 </script>

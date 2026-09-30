@@ -1011,7 +1011,8 @@ h4 {
     padding: 2px 8px;
     position: absolute;
     top: -11px;
-    z-index: 20;
+    // Above the sticky masthead, which is its own stacking context at 1020.
+    z-index: 1025;
 
     &:hover {
       color: #fff;
@@ -3934,4 +3935,203 @@ h4 {
       font-weight: 600;
     }
   }
+}
+
+// A card fills its grid cell whatever its neighbours hold, so a row of cards
+// shares one bottom edge. DruxtEntity wraps each card in a div of its own.
+.card-cell > [data-fetch-key] {
+  height: 100%;
+}
+
+// The filter bar's sort control: a fixed-height select clips its text in
+// Safari, so the height comes from the line and the padding.
+.recipe-filters .custom-select {
+  font-size: 0.875rem;
+  height: auto;
+  line-height: 1.25;
+  min-height: 40px;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+}
+
+// The learning layer on a node page: view modes beside the request and the
+// note from lg, stacked below it.
+.learn-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 3rem;
+
+  &__aside {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 992px) {
+    align-items: start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+// ── Term page ────────────────────────────────────────────────────────────────
+// Screen 6: the head band carries the breadcrumb, kicker, name, description
+// and the count; the referencing content follows as cards.
+.term-head {
+  background: $paper-sand;
+  border-bottom: 1px solid $rule;
+  margin-bottom: 16px;
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding-bottom: 20px;
+    padding-top: 20px;
+  }
+  .breadcrumb {
+    font-size: 0.71875rem;
+    margin: 0;
+  }
+  &__kicker {
+    color: $spice;
+    font-size: 0.59375rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  &__title {
+    font-size: 2rem;
+    line-height: 1.06;
+    margin: 0;
+  }
+  &__blurb {
+    color: $ink-muted;
+    font-size: 0.875rem;
+    line-height: 1.65;
+
+    p {
+      margin: 0;
+    }
+  }
+  &__count {
+    color: $ink-faint;
+    font-family: $mono;
+    font-size: 0.71875rem;
+  }
+
+  @media (min-width: 768px) {
+    margin-bottom: 24px;
+
+    &__inner {
+      gap: 10px;
+      padding-bottom: 28px;
+      padding-top: 28px;
+    }
+    &__title {
+      font-size: 2.625rem;
+    }
+    &__blurb {
+      font-size: 0.9375rem;
+      max-width: 640px;
+    }
+  }
+  @media (min-width: 992px) {
+    margin-bottom: 32px;
+
+    &__inner {
+      gap: 12px;
+      padding-bottom: 44px;
+      padding-top: 44px;
+    }
+    &__title {
+      font-size: 3.5rem;
+      line-height: 1.04;
+    }
+  }
+}
+
+// Cards 2 / 3 / 4 across, the grid the design uses on every listing.
+.card-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  @media (min-width: 768px) {
+    gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  @media (min-width: 992px) {
+    gap: 28px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  > [data-fetch-key] {
+    height: 100%;
+  }
+}
+
+.term-page {
+  &__empty {
+    color: $ink-muted;
+  }
+  .druxt-note {
+    margin-top: 2.5rem;
+  }
+}
+
+// The band whose page draws its own head: room for the tab bar, no more.
+.band.band--flush {
+  padding-top: 1.5rem;
+}
+
+// ── JSON:API drawer ──────────────────────────────────────────────────────────
+.jsonapi-drawer {
+  border: 1px solid $rule;
+  border-radius: 8px;
+  overflow: hidden;
+
+  &__toggle {
+    align-items: center;
+    background: $paper-warm;
+    border: 0;
+    color: $ink-soft;
+    display: flex;
+    font-size: 0.84375rem;
+    font-weight: 600;
+    justify-content: space-between;
+    padding: 0.875rem 1.125rem;
+    text-align: left;
+    width: 100%;
+
+    span {
+      color: $ink-ghost-dark;
+    }
+  }
+  &__body {
+    padding: 1rem;
+  }
+  &__tree {
+    background: #fff;
+    border: 1px solid $rule;
+    font-size: 0.75rem;
+    margin-bottom: 0.75rem;
+    max-height: 480px;
+    overflow: auto;
+    padding: 0.75rem;
+
+    .vjs-tree {
+      font-family: $mono;
+      font-size: 0.75rem;
+    }
+  }
+  &__hint {
+    color: $ink-faint;
+    font-size: 0.75rem;
+    margin: 0;
+  }
+}
+
+// The masthead's own label cannot rise above the demo bar from inside the
+// sticky wrapper, so it sits just inside the region instead.
+.masthead-sticky > .dev-region__label {
+  top: 4px;
 }

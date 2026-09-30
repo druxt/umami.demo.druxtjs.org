@@ -1,26 +1,28 @@
 <template>
-  <div style="border: 1px solid #e6ddcd; border-radius: 8px; overflow: hidden">
+  <div class="jsonapi-drawer">
     <button
       v-b-toggle="id"
-      class="d-flex align-items-center justify-content-between w-100 text-left"
-      style="
-        background: #faf4ea;
-        border: 0;
-        padding: 0.875rem 1.125rem;
-        font-size: 0.8438rem;
-        font-weight: 600;
-        color: #55504a;
-      "
+      class="jsonapi-drawer__toggle"
       type="button"
+      @click="load"
     >
       View the JSON:API request
-      <span style="color: #a2988a">⌄</span>
+      <span aria-hidden="true">⌄</span>
     </button>
 
     <b-collapse :id="id">
-      <div class="p-3">
+      <div class="jsonapi-drawer__body">
         <pre class="druxt-code mb-2"><span class="a">GET</span> {{ path }}</pre>
-        <div class="d-flex align-items-center" style="gap: 1rem">
+
+        <!-- The response, folded to its top two levels so the shape reads
+             first and any branch opens on a click. -->
+        <div v-if="response" class="jsonapi-drawer__tree">
+          <VueJsonPretty :data="response" :deep="2" show-length />
+        </div>
+        <p v-else-if="error" class="jsonapi-drawer__hint">{{ error }}</p>
+        <p v-else-if="loading" class="jsonapi-drawer__hint">Loading…</p>
+
+        <div class="d-flex align-items-center flex-wrap" style="gap: 1rem">
           <a
             class="druxt-note__link"
             :href="url"
@@ -29,7 +31,7 @@
           >
             Open the raw response →
           </a>
-          <span style="font-size: 0.75rem; color: #8a7f70">
+          <span class="jsonapi-drawer__hint">
             Every field on this page came from this one request.
           </span>
         </div>
@@ -39,7 +41,12 @@
 </template>
 
 <script>
+import VueJsonPretty from 'vue-json-pretty'
+import 'vue-json-pretty/lib/styles.css'
+
 export default {
+  components: { VueJsonPretty },
+
   props: {
     /** JSON:API path, e.g. `/en/jsonapi/node/recipe/<uuid>?…`. */
     path: {
@@ -47,6 +54,12 @@ export default {
       required: true,
     },
   },
+
+  data: () => ({
+    response: null,
+    loading: false,
+    error: '',
+  }),
 
   computed: {
     // Hash the whole path rather than truncating it. Recipe drawers share a
@@ -62,6 +75,24 @@ export default {
     },
 
     url: ({ $config, path }) => $config.baseUrl + path,
+  },
+
+  methods: {
+    /** Fetched once, on the first open, through the same proxy the page uses. */
+    async load() {
+      if (this.response || this.loading) return
+      this.loading = true
+      try {
+        const { data } = await this.$druxt.axios.get(this.path, {
+          headers: { Accept: 'application/vnd.api+json' },
+        })
+        this.response = data
+      } catch (e) {
+        this.error =
+          'The response could not be loaded here; open the raw response instead.'
+      }
+      this.loading = false
+    },
   },
 }
 </script>
