@@ -395,6 +395,16 @@ test:stack:
       [ "$code" = 401 ] || fail "a wrong cache secret answered $code"
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "X-Druxt-Secret: $DRUXT_CACHE_SECRET" "$site/_druxt/cache/clear")
       [ "$code" = 204 ] || fail "the cache secret answered $code"
+
+      # An editor signs in on the site: the password grant through the
+      # site's own token route, then Drupal's userinfo with the token.
+      token=$(curl -sS -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"admin"}' "$site/_auth/drupal-password/token")
+      grep -q '"access_token"' <<<"$token" || fail "the password grant did not issue a token: $token"
+      access=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])' <<<"$token")
+      who=$(curl -sS -X POST -H "Authorization: Bearer $access" "$site/oauth/userinfo")
+      grep -q '"name":"admin"' <<<"$who" || fail "userinfo did not name the editor: $who"
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"wrong"}' "$site/_auth/drupal-password/token")
+      [ "$code" = 400 ] || [ "$code" = 401 ] || fail "a wrong password answered $code"
       echo "All assertions passed."
   artifacts:
     when: always

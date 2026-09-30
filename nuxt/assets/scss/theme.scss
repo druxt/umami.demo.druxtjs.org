@@ -4229,3 +4229,48 @@ h4 {
     padding-top: 14px;
   }
 }
+
+// The account control is a link when signed out and a button when signed
+// in; the button takes the link's look wherever it sits.
+button.masthead__account,
+button.drawer__druxt-link {
+  background: none;
+  border: 0;
+  font: inherit;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+}
+button.masthead__account {
+  width: auto;
+}
+.account-link__name {
+  color: $ink-faint;
+  font-weight: 400;
+}
+
+// The sign-in page's form: the site's controls, the site's button.
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 1.5rem 0 2rem;
+
+  .btn.auth__submit {
+    background: $spice;
+    border: 0;
+    border-radius: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    min-height: 52px;
+
+    &:hover:not(:disabled),
+    &:focus {
+      background: $spice-dark;
+    }
+    &:disabled {
+      background: $ember;
+      opacity: 1;
+    }
+  }
+}

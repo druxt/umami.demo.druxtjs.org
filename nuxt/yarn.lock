@@ -3001,7 +3001,7 @@
     webpack-node-externals "^3.0.0"
     webpackbar "^5.0.2"
 
-"@nuxtjs/auth-next@5.0.0-1667386184.dfbbb54":
+"@nuxtjs/auth-next@5.0.0-1667386184.dfbbb54", "@nuxtjs/auth-next@^5.0.0-1667386184.dfbbb54":
   version "5.0.0-1667386184.dfbbb54"
   resolved "https://registry.yarnpkg.com/@nuxtjs/auth-next/-/auth-next-5.0.0-1667386184.dfbbb54.tgz#54404436adda39bf2fe751e799551b2cf626b7c1"
   integrity sha512-ODUw/y7oTRGvzOQbtoJg7yqOiJ1XuPecmtdSnZukx1x942HL5dRNIarfjdsANP8B3zsyjZ3qyzmo/dzhsJYD6g==
@@ -8216,6 +8216,14 @@ drupal-jsonapi-params@^2.3.1, drupal-jsonapi-params@^2.3.2:
   integrity sha512-2flOOPT8E8IhxzD4dW8tDToOkzTEzsfbY8k4Nbu11JshRdaJl1jL2lmbB7QLZuMnG77HhjXjEgF8Rw7j/5yB5g==
   dependencies:
     qs "^6.10.3"
+
+druxt-auth@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/druxt-auth/-/druxt-auth-0.5.0.tgz#2a6f3d16b5789c5f7f14d0d4aec39d42303a633f"
+  integrity sha512-dsWDskwlJQik9trMJt+IIUVQkVSJjxi6n77fDr8joGUwGIaxyRp2veS4/9iqFJNTESjbu0bXz3azfewjfgi8dw==
+  dependencies:
+    "@nuxtjs/auth-next" "^5.0.0-1667386184.dfbbb54"
+    http-proxy-middleware "^1.0.6"
 
 druxt-blocks@0.17.4-dev.20260928061526:
   version "0.17.4-dev.20260928061526"
