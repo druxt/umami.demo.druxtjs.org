@@ -115,6 +115,13 @@ export default {
     },
   },
 
+  watch: {
+    /** A link in the drawer opens a new page, which starts at the top. */
+    '$route.path'() {
+      this.scrollY = 0
+    },
+  },
+
   mounted() {
     // The masthead's search button opens this drawer rather than a second
     // panel from the other side, and asks for the field.
