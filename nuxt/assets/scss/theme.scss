@@ -4527,6 +4527,39 @@ del.v-diff-del--trailing {
   margin-top: 0.75rem;
   padding: 0.5rem 0.625rem;
 }
+// A replaced photograph has no words to mark: the field is outlined and a
+// chip in its corner shows what it replaced.
+.v-diff-swapped {
+  outline: 3px solid #0d6b4f;
+  outline-offset: 3px;
+  position: relative;
+}
+.v-diff-swap {
+  align-items: center;
+  background: rgb(250 248 243 / 0.94);
+  border-radius: 6px;
+  bottom: 12px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.18);
+  display: inline-flex;
+  font-family: $sans;
+  font-size: 0.75rem;
+  gap: 8px;
+  left: 12px;
+  padding: 6px 10px 6px 6px;
+  position: absolute;
+  z-index: 2;
+
+  img {
+    border-radius: 4px;
+    height: 44px;
+    object-fit: cover;
+    width: 66px;
+  }
+  ins,
+  del {
+    padding: 0 4px;
+  }
+}
 
 // ── Basic page ───────────────────────────────────────────────────────────────
 // Screen 12: the term head band, then prose in the article's measure. The

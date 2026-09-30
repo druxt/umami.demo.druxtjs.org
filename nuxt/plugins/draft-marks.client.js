@@ -1,5 +1,19 @@
 import Vue from 'vue'
-import { diffFor, sync } from '~/utils/draft-marks'
+import { diffFor, fileOfMedia, sync } from '~/utils/draft-marks'
+
+/** A field's diff with the words and the previous photograph the chip shows. */
+const decorate = (vm, diff) => {
+  if (!diff || !diff.relationship) return diff
+  return {
+    ...diff,
+    words: { replaced: vm.$t('draft.replaced'), was: vm.$t('draft.was') },
+    previousImage: fileOfMedia(
+      vm.$store,
+      diff.previous,
+      (vm.$config || {}).baseUrl || ''
+    ),
+  }
+}
 
 /**
  * Marks a draft's changes in the page, word by word, where the editor asked
@@ -7,13 +21,23 @@ import { diffFor, sync } from '~/utils/draft-marks'
  * template renders itself (`v-draft-diff="'title'"`).
  */
 
-/** A DruxtField wrapper on a View display: it knows its entity and field. */
+/** The entity a field wrapper renders: the nearest DruxtEntity above it. */
+const entityOf = (vm) => {
+  for (let p = vm.$parent; p; p = p.$parent) {
+    if (p.$options.name === 'DruxtEntity' && p.uuid && p.type) {
+      return { type: p.type, id: p.uuid }
+    }
+  }
+  return null
+}
+
+/** A DruxtField wrapper on a View display: it knows its field, and its parents its entity. */
 const isViewField = (vm) =>
   !!(
     vm.schema &&
     vm.schema.id &&
-    vm.entity &&
-    (vm.schema.config || {}).schemaType === 'view'
+    (vm.schema.config || {}).schemaType === 'view' &&
+    entityOf(vm)
   )
 
 export default () => {
@@ -21,7 +45,10 @@ export default () => {
     computed: {
       umamiDraftMark() {
         return isViewField(this)
-          ? diffFor(this.$store, this.$drafts, this.entity, this.schema.id)
+          ? decorate(
+              this,
+              diffFor(this.$store, this.$drafts, entityOf(this), this.schema.id)
+            )
           : null
       },
     },
@@ -41,7 +68,7 @@ export default () => {
   const forElement = (binding, vnode) => {
     const vm = vnode.context
     return vm && vm.entity
-      ? diffFor(vm.$store, vm.$drafts, vm.entity, binding.value)
+      ? decorate(vm, diffFor(vm.$store, vm.$drafts, vm.entity, binding.value))
       : null
   }
   // The binding is a field name, so it never changes: the element watches

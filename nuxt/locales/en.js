@@ -256,6 +256,8 @@ export default {
     real: "Drupal's version",
     changes: 'Mark {n} change | Mark {n} changes',
     hideMarks: 'Hide the marks',
+    replaced: 'Replaced',
+    was: 'was',
   },
   contact: {
     kicker: 'Contact',
