@@ -409,7 +409,7 @@ test:stack:
 
       # The demo resets to its snapshot: not for a visitor, once a minute for
       # an editor, and Drupal is back before the frontend has rebuilt.
-      (cd drupal && .devtools/snapshot >/dev/null) || fail "the snapshot could not be taken"
+      (cd "$CI_PROJECT_DIR/drupal" && .devtools/snapshot) || fail "the snapshot could not be taken"
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/druxt-umami/reset")
       [ "$code" = 302 ] || [ "$code" = 401 ] || [ "$code" = 403 ] || fail "an anonymous reset answered $code"
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/druxt-umami/reset")
