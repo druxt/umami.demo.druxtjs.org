@@ -25,7 +25,9 @@ case "${DRUPAL_DB_URL:-sqlite}" in
   sqlite*)
     # The file itself. A dump cannot come back through the sqlite3 tool,
     # which lacks the NOCASE_UTF8 collation Drupal's driver registers.
-    "$DRUSH" sql:query 'PRAGMA wal_checkpoint(TRUNCATE);' >/dev/null
+    # In-process, through Drupal's own connection: drush sql:query wants the
+    # sqlite3 binary, which CI does not have.
+    "$DRUSH" php:eval '\Drupal::database()->query("PRAGMA wal_checkpoint(TRUNCATE)");' >/dev/null
     cp "$DB" "$DIR/database.sqlite"
     rm -f "$DIR/database.sql"
     ;;
