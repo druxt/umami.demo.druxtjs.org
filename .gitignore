@@ -106,3 +106,7 @@ sw.*
 
 # Vendored packages carry their built dist.
 !nuxt/vendor/*/dist/
+
+# Playwright output
+e2e/results/
+e2e/test-results/
