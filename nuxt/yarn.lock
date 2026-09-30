@@ -2391,6 +2391,9 @@
 "@druxt-contrib/ckeditor@file:vendor/druxt-ckeditor":
   version "0.0.0"
 
+"@druxt-contrib/diff@file:vendor/druxt-diff":
+  version "0.0.0"
+
 "@druxt-contrib/inline-content-edit@file:vendor/inline-content-edit":
   version "0.0.0"
 
