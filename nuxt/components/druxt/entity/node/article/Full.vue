@@ -97,22 +97,11 @@ export default {
 
     created: ({ entity }) => new Date((entity.attributes || {}).created),
 
-    dateLocale: ({ lang }) => (lang === 'es' ? 'es-ES' : 'en-GB'),
-
     longDate() {
-      return this.created.toLocaleDateString(this.dateLocale, {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
+      return this.formatDate(this.created, 'long')
     },
-
     shortDate() {
-      return this.created.toLocaleDateString(this.dateLocale, {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      })
+      return this.formatDate(this.created, 'short')
     },
 
     code: () =>
