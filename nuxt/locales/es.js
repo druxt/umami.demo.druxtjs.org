@@ -262,6 +262,8 @@ export default {
     real: 'Versión de Drupal',
     changes: 'Marcar {n} cambio | Marcar {n} cambios',
     hideMarks: 'Ocultar las marcas',
+    replaced: 'Reemplazada',
+    was: 'antes',
   },
   contact: {
     kicker: 'Contacto',
