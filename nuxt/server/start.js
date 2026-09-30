@@ -118,7 +118,7 @@ const serveStatic = (req, res) => {
   // phone keeps one whose chunks a later build removed. The search index
   // carries no hash, so it is checked too.
   headers['Cache-Control'] =
-    decoded.startsWith('/_nuxt/') && !decoded.startsWith('/_nuxt/search-index/')
+    decoded.startsWith('/_nuxt/') && !decoded.startsWith('/_nuxt/search-index')
       ? 'public, max-age=31536000, immutable'
       : 'no-cache'
   res.writeHead(200, headers)
