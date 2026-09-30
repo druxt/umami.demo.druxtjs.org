@@ -108,9 +108,11 @@ const serveStatic = (req, res) => {
   const headers = {
     'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream',
   }
-  if (decoded.startsWith('/_nuxt/')) {
-    headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-  }
+  // Hashed assets never change; a page must be checked on every visit, or a
+  // phone keeps one whose chunks a later build removed.
+  headers['Cache-Control'] = decoded.startsWith('/_nuxt/')
+    ? 'public, max-age=31536000, immutable'
+    : 'no-cache'
   res.writeHead(200, headers)
   // A build swapped out mid-request loses its files; answer 404, don't crash.
   fs.createReadStream(file)

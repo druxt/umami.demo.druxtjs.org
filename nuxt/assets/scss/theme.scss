@@ -4274,3 +4274,34 @@ button.masthead__account {
     }
   }
 }
+
+// The debug panel: opened by #debug, over everything, plain and readable.
+.debug-panel {
+  background: #fff;
+  border: 2px solid #8f2f22;
+  bottom: 0;
+  color: $ink;
+  font-family: $mono;
+  font-size: 0.75rem;
+  left: 0;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 12px 16px;
+  position: fixed;
+  right: 0;
+  z-index: 2000;
+
+  &__row {
+    margin: 0 0 6px;
+    overflow-wrap: anywhere;
+  }
+  &__row--error {
+    color: #8f2f22;
+  }
+  &__close {
+    background: $ink;
+    border: 0;
+    color: #fff;
+    padding: 6px 12px;
+  }
+}
