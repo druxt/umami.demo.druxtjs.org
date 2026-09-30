@@ -21,8 +21,11 @@ printf 'Require all denied\nDeny from all\n' > "$FILES/private/.htaccess"
 
 echo "==> Snapshot of the database"
 DB="${DRUPAL_SQLITE_PATH:-$PWD/.devtools/db.sqlite}"
-case "${DRUPAL_DB_URL:-sqlite}" in
-  sqlite*)
+# Drupal's own answer, not an environment variable: on Lagoon the database
+# URL is set only where the install runs.
+DRIVER=$("$DRUSH" php:eval 'echo \Drupal::database()->driver();')
+case "$DRIVER" in
+  sqlite)
     # The file itself. A dump cannot come back through the sqlite3 tool,
     # which lacks the NOCASE_UTF8 collation Drupal's driver registers.
     # In-process, through Drupal's own connection: drush sql:query wants the
