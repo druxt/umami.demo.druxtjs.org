@@ -314,7 +314,17 @@ h4 {
   color: $ink;
   font-size: 0.875rem;
   padding: 0.625rem 0.75rem;
+}
 
+// Bootstrap fixes a select's height for its own padding; with this padding
+// the height has to follow the text, or iOS clips it to the top half.
+.custom-select {
+  height: auto;
+  line-height: 1.5;
+}
+
+.form-control,
+.custom-select {
   &:focus {
     border-color: $spice;
     box-shadow: none;
@@ -3985,6 +3995,13 @@ html.druxt-inspector {
   gap: 1.5rem;
   margin-top: 3rem;
 
+  // A grid item is as wide as its widest line unless told otherwise; the
+  // JSON:API drawer's request line pushed the whole page past a phone.
+  > *,
+  &__aside > * {
+    min-width: 0;
+  }
+
   &__aside {
     display: flex;
     flex-direction: column;
@@ -4133,6 +4150,11 @@ html.druxt-inspector {
   }
   &__body {
     padding: 1rem;
+
+    .druxt-code {
+      max-width: 100%;
+      overflow-x: auto;
+    }
   }
   &__tree {
     background: #fff;
@@ -4395,6 +4417,20 @@ button.masthead__account {
 .drawer__reset {
   display: flex;
   margin-top: 12px;
+}
+
+// A display rendered inside a canvas keeps to it: the full-bleed bands a
+// node draws on its own page (hero, term head) would run out to the
+// viewport's edges from inside the Entity Explorer's stage or the
+// view-mode switcher's preview.
+.explorer__mount,
+.view-modes__stage {
+  overflow: hidden;
+
+  .bleed {
+    margin-left: 0;
+    margin-right: 0;
+  }
 }
 
 // ── Basic page ───────────────────────────────────────────────────────────────
