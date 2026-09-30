@@ -152,6 +152,36 @@ const generate = (dir) =>
 let pending = true
 let running = false
 
+/** Every file under a directory, as paths relative to it. */
+const listFiles = (dir, base = dir) => {
+  if (!fs.existsSync(dir)) return []
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const file = path.join(dir, entry.name)
+    return entry.isDirectory()
+      ? listFiles(file, base)
+      : [path.relative(base, file)]
+  })
+}
+
+// The files the current build made itself, so a swap carries one build back
+// and never a growing pile.
+let ownAssets = []
+
+/**
+ * A page opened before a swap still asks for the chunks and payloads of the
+ * build it loaded with, so the previous build's own assets come along until
+ * the next swap.
+ */
+const carryAssets = (from, to) => {
+  for (const rel of ownAssets) {
+    const src = path.join(from, '_nuxt', rel)
+    const dest = path.join(to, '_nuxt', rel)
+    if (fs.existsSync(dest) || !fs.existsSync(src)) continue
+    fs.mkdirSync(path.dirname(dest), { recursive: true })
+    fs.copyFileSync(src, dest)
+  }
+}
+
 /**
  * Generate until no request is pending, swapping each build in once it is
  * complete. A failed build keeps the previous one and tries again.
@@ -178,6 +208,9 @@ const cycle = async () => {
     }
     setPhase('starting')
     const previous = distDir
+    const own = listFiles(path.join(dir, '_nuxt'))
+    if (previous) carryAssets(previous, dir)
+    ownAssets = own
     distDir = dir
     if (previous) fs.rmSync(previous, { recursive: true, force: true })
     // Logged once the swap is complete: the stack test reads this line.
