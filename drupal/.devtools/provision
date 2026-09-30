@@ -65,12 +65,16 @@ chmod -R u+w web/sites/default 2>/dev/null || true
   --yes \
   --no-interaction
 
+# A cache service that outlives the reinstall (Lagoon keeps one) must not
+# hand the new site the old site's discovery caches.
+"$DRUSH" cache:rebuild
+
 echo "==> Enabling the Druxt layer"
 # druxt_umami depends on druxt, druxt_node_preview, jsonapi_hypermedia,
 # search_api_lunr, simple_oauth, gin_login and anonymous_redirect, so Drupal
 # pulls the rest in. jsonapi_views and jsonapi_menu_items are what DruxtView
 # and DruxtMenu read, and are not dependencies of druxt_umami.
-"$DRUSH" pm:install -y \
+"$DRUSH" pm:install -y -vvv \
   druxt_umami \
   jsonapi_menu_items \
   jsonapi_views \
