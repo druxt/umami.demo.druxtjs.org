@@ -2353,7 +2353,8 @@ html.druxt-inspector {
   // b-form-group renders a fieldset with a legend when it has no label-for,
   // and the site's own widgets draw an edit-field label: one rule for all.
   .form-group label,
-  .form-group legend {
+  .form-group legend,
+  .edit-field__label {
     color: $ink-ghost;
     font-size: 0.7rem;
     font-weight: 600;
@@ -3313,6 +3314,7 @@ html.druxt-inspector {
 // two actions. Label above, 52px control, description below, the error takes
 // the description's slot.
 
+// As wide as the tab bar above it: the form is the page, not a column in it.
 .edit-form {
 
   &__content {
@@ -3602,6 +3604,7 @@ html.druxt-inspector {
   }
   &__n {
     color: $spice;
+    cursor: grab;
     flex-shrink: 0;
     font-family: $serif;
     font-size: 1.25rem;
