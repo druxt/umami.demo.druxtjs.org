@@ -7,7 +7,7 @@ export default function (moduleOptions = {}) {
 
   // Fed once every module is in place, not while this one loads: the Lunr
   // module listens for documents only after it has been registered, and it
-  // comes later in the list. Fed unawaited, it was a race the index lost.
+  // comes later in the list. Fed without waiting, it was a race the index lost.
   this.nuxt.hook('build:before', async () => {
     // Load settings data from the Drupal Search API Lunr module.
     const { data } = await axios.get(
