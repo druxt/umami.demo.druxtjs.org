@@ -119,8 +119,11 @@ if [ "$files_only" -eq 0 ]; then
     elif [ -n "${CI_MERGE_REQUEST_DESCRIPTION+x}" ]; then
       description="$CI_MERGE_REQUEST_DESCRIPTION"
       have_description=1
+      # GitLab cuts this variable at 2700 characters. A footer past the cut
+      # would pass unread, so a description that long needs the full text.
       if [ "${#description}" -ge 2700 ]; then
-        echo "[WARN] CI_MERGE_REQUEST_DESCRIPTION is cut at 2700 characters; set GITLAB_API_TOKEN so the full description is read." >&2
+        echo "[ERROR] CI_MERGE_REQUEST_DESCRIPTION is cut at 2700 characters, so the description cannot be checked; set GITLAB_API_TOKEN so the full description is read." >&2
+        exit 2
       fi
     elif [ -n "${CI_MERGE_REQUEST_IID:-}" ]; then
       echo "[ERROR] merge request pipeline, but the description is not available." >&2
