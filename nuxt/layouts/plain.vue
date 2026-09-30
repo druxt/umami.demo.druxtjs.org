@@ -18,7 +18,7 @@
 
     <AppDruxtCta />
 
-    <div class="disclaimer">
+    <div class="site-footer">
       <b-container>
         <DruxtBlockRegion name="bottom" theme="umami" />
       </b-container>
@@ -43,8 +43,8 @@
 <script>
 /**
  * Chrome-light layout for the playground pages (currently the Entity
- * Explorer). It keeps the demo bar, masthead, CTA and disclaimer, and drops
- * the banner, breadcrumb, content and footer regions — the page owns its own
+ * Explorer). It keeps the demo bar, masthead, CTA and site footer, and drops
+ * the banner, breadcrumb, content and footer regions: the page owns its own
  * full-width header instead.
  *
  * This layout previously carried an UNSCOPED <style> block left over from
