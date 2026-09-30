@@ -195,6 +195,8 @@ export default {
     published: 'Publicado',
     promoted: 'Promocionado a la portada',
     sticky: 'Fijo al principio de las listas',
+    copy: 'Enviarme una copia',
+    dragStep: 'Arrastra para reordenar',
     author: 'Autor',
     authoredOn: 'Fecha de creación',
     title: 'Título',
@@ -219,6 +221,16 @@ export default {
     more: '+ Mostrar más',
     use: 'Usar esta fotografía',
     error: 'No se pudo leer la biblioteca.',
+  },
+  contact: {
+    kicker: 'Contacto',
+    title: 'Cuéntanos qué piensas',
+    blurb:
+      'Los campos, las etiquetas, los obligatorios y la validación vienen de la configuración del formulario en Drupal. La demo no envía correos, pero todo lo demás funciona.',
+    thanks: 'Gracias por tu opinión',
+    response: 'Esta es la respuesta que devolvió Drupal:',
+    noteBody:
+      '{component} lee la presentación del formulario {form} y renderiza un componente por tipo de campo. Nada de esto es marcado escrito a mano: sobrescribe un componente de campo solo cuando quieras.',
   },
   login: {
     kicker: 'Editores',
