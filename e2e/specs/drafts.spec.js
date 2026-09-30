@@ -44,9 +44,16 @@ test.describe('drafts', () => {
     await expect(page.locator('.edit-actions__save')).toContainText('1')
     await expect(page.locator('.edit-actions__kept')).toBeVisible()
 
-    // The View tab shows the draft.
+    // The View tab shows the draft, and marking outlines the photograph
+    // with the one it replaced.
     await page.locator('.page-tabs__tab').nth(0).click()
     await expect.poll(hero).toBe(picked)
+    await page.locator('.draft-banner__diff-toggle').click()
+    const swap = page.locator('.page-tabs__pane .v-diff-swap').first()
+    await expect(swap).toBeVisible()
+    await expect(swap.locator('img')).toHaveAttribute('src', new RegExp(before))
+    await page.locator('.draft-banner__diff-toggle').click()
+    await expect(page.locator('.v-diff-swap')).toHaveCount(0)
 
     // A reload finds the draft on both tabs.
     await page.reload()
