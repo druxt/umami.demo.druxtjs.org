@@ -24,6 +24,8 @@
       </b-container>
     </div>
 
+    <AppMobileDrawer />
+
     <b-sidebar
       id="search"
       backdrop
