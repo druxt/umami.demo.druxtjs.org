@@ -83,6 +83,8 @@
           </nuxt-link>
 
           <AppAccountLink class="drawer__druxt-link" @click.native="hide" />
+          <!-- The demo bar has no room for this below md; the drawer does. -->
+          <client-only><AppResetDemo class="drawer__reset" /></client-only>
         </div>
       </div>
     </template>
