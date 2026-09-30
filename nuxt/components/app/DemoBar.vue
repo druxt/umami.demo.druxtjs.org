@@ -39,6 +39,10 @@
           >{{ $t('demoBar.discord') }}</a
         >
 
+        <client-only
+          ><AppResetDemo class="d-none d-md-inline-flex"
+        /></client-only>
+
         <button
           :aria-label="`${$t('demoBar.devOverlay')} ${
             devOverlay ? 'on' : 'off'

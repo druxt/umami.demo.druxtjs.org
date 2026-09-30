@@ -217,6 +217,8 @@ export default {
     '/en/jsonapi': baseUrl,
     '/es/jsonapi': baseUrl,
     '/core/assets': baseUrl,
+    // The demo's reset route, druxt_umami's, called with the editor's token.
+    '/druxt-umami': baseUrl,
   },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
