@@ -102,14 +102,22 @@ const serveStatic = (req, res) => {
     return res.end()
   }
   const file = resolveFile(decoded)
+  // A build asset that is not there is a 404, never the page: a page in its
+  // place is cached as the asset for a year, and the search index was.
+  if (decoded.startsWith('/_nuxt/') && file.endsWith('200.html')) {
+    res.writeHead(404)
+    return res.end()
+  }
   const headers = {
     'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream',
   }
   // Hashed assets never change; a page must be checked on every visit, or a
-  // phone keeps one whose chunks a later build removed.
-  headers['Cache-Control'] = decoded.startsWith('/_nuxt/')
-    ? 'public, max-age=31536000, immutable'
-    : 'no-cache'
+  // phone keeps one whose chunks a later build removed. The search index
+  // carries no hash, so it is checked too.
+  headers['Cache-Control'] =
+    decoded.startsWith('/_nuxt/') && !decoded.startsWith('/_nuxt/search-index/')
+      ? 'public, max-age=31536000, immutable'
+      : 'no-cache'
   res.writeHead(200, headers)
   // A build swapped out mid-request loses its files; answer 404, don't crash.
   fs.createReadStream(file)
