@@ -254,11 +254,8 @@ export default {
     kept: 'This page shows changes kept in this browser, not what Drupal holds.',
     draft: 'Draft',
     real: "Drupal's version",
-    changes: '{n} change | {n} changes',
-    changed: 'changed',
-    added: 'added',
-    removed: 'removed',
-    same: 'unchanged',
+    changes: 'Mark {n} change | Mark {n} changes',
+    hideMarks: 'Hide the marks',
   },
   contact: {
     kicker: 'Contact',

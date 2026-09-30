@@ -66,6 +66,8 @@ export default {
     { src: '~/plugins/druxt-inspector.client.js' },
     // Keeps and previews an editor's unsaved changes.
     { src: '~/plugins/edit-drafts.client.js' },
+    // Marks a draft's changes in the page, word by word.
+    { src: '~/plugins/draft-marks.client.js' },
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
@@ -123,6 +125,8 @@ export default {
     ],
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
+    // The word diff behind the marks on a drafted page.
+    '@druxt-contrib/diff',
     '~/modules/storybook-proxy',
     // Editors sign in on the site: the password grant through the Druxt
     // consumer, with the authorization code flow kept for a browser sent to

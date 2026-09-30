@@ -1,6 +1,6 @@
 <template>
   <!-- Above a page that shows an unsaved draft: says so, switches between
-       the draft and Drupal's version, and lists what changed. -->
+       the draft and Drupal's version, and marks the changes in the page. -->
   <div v-if="draft" class="draft-banner" role="status">
     <div class="draft-banner__row">
       <span class="draft-banner__kicker">{{
@@ -27,49 +27,27 @@
       </span>
       <button
         class="draft-banner__diff-toggle"
-        :aria-expanded="String(open)"
+        :aria-pressed="String(marking)"
+        :disabled="real"
         type="button"
-        @click="open = !open"
+        @click="mark(!marking)"
       >
         {{
-          $tc('draft.changes', diff.fields.length, { n: diff.fields.length })
+          marking
+            ? $t('draft.hideMarks')
+            : $tc('draft.changes', changes, { n: changes })
         }}
       </button>
     </div>
-
-    <dl v-if="open" class="draft-banner__diff">
-      <template v-for="field of diff.fields">
-        <dt :key="`${field.label}-name`">
-          <code>{{ field.label }}</code>
-          <span class="draft-banner__status" :class="`is-${field.status}`">{{
-            $t(`draft.${field.status}`)
-          }}</span>
-        </dt>
-        <dd :key="`${field.label}-value`">
-          <template v-if="field.words">
-            <del v-if="field.words.removed">{{ field.words.removed }}</del>
-            <ins v-if="field.words.added">{{ field.words.added }}</ins>
-          </template>
-          <template v-else>
-            <del v-if="field.left">{{ field.left }}</del>
-            <ins v-if="field.right">{{ field.right }}</ins>
-          </template>
-        </dd>
-      </template>
-    </dl>
   </div>
 </template>
 
 <script>
-import { diffOf, withoutDraft } from '~/utils/edit-drafts'
-
 export default {
   props: {
     type: { type: String, required: true },
     uuid: { type: String, required: true },
   },
-
-  data: () => ({ open: false }),
 
   computed: {
     draft() {
@@ -84,25 +62,28 @@ export default {
       ]
     },
 
-    /** The entity as Drupal holds it: the store copy with the draft undone. */
-    original() {
-      const byPrefix =
-        ((this.$store.state.druxt || {}).resources || {})[this.type] || {}
-      const doc = Object.values(byPrefix[this.uuid] || {}).find(
-        (o) => o && o.data
-      )
-      const data = (doc || {}).data || { type: this.type, id: this.uuid }
-      return this.real ? data : withoutDraft(data, this.draft)
+    marking() {
+      return !!((this.$drafts || {}).real || { marks: {} }).marks[
+        `${this.type}:${this.uuid}`
+      ]
     },
 
-    diff() {
-      return diffOf(this.original, this.draft)
+    /** How many fields the draft changes. */
+    changes() {
+      const draft = this.draft || {}
+      return (
+        Object.keys(draft.attributes || {}).length +
+        Object.keys(draft.relationships || {}).length
+      )
     },
   },
 
   methods: {
     show(real) {
       this.$drafts.showReal(this.type, this.uuid, real)
+    },
+    mark(on) {
+      this.$drafts.showChanges(this.type, this.uuid, on)
     },
   },
 }
