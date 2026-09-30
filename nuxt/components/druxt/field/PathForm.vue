@@ -2,7 +2,7 @@
   <AppFormField
     :description="description"
     :feedback="feedback"
-    label="URL alias"
+    :label="$t('form.urlAlias')"
     :target="id"
   >
     <div class="edit-control edit-control--unit">

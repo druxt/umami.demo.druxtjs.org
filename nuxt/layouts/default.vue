@@ -39,15 +39,12 @@
           <b-container>
             <AppDruxtNote
               :code="blocksSnippet"
-              cta="Read the Blocks guide"
+              :cta="$t('note.blocksCta')"
               href="https://druxtjs.org/modules/blocks"
-              kicker="How this page works"
-              title="The blocks above are Drupal's block layout, placed by an editor"
+              :kicker="$t('note.howThisPageWorks')"
+              :title="$t('note.blocksTitle')"
+              >{{ $t('note.blocksBody') }}</AppDruxtNote
             >
-              Nothing here is hard-coded into the frontend. Druxt reads the
-              region and renders whichever blocks Drupal reports, so an editor
-              moving the promoted items block changes this page with no deploy.
-            </AppDruxtNote>
           </b-container>
         </div>
 

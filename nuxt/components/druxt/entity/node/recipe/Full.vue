@@ -25,12 +25,12 @@
     <!-- Ingredients first, then the method; side by side from md. -->
     <div class="recipe-body">
       <section class="recipe-ingredients">
-        <h2 class="recipe-body__heading">Ingredients</h2>
+        <h2 class="recipe-body__heading">{{ $t('recipe.ingredients') }}</h2>
         <slot name="field_ingredients" />
       </section>
 
       <section class="recipe-method">
-        <h2 class="recipe-body__heading">Method</h2>
+        <h2 class="recipe-body__heading">{{ $t('recipe.method') }}</h2>
         <slot name="field_recipe_instruction" />
 
         <div class="recipe-tags">
@@ -70,27 +70,34 @@
 
 <script>
 import { DruxtEntityMixin } from 'druxt-entity'
+import { langMixin } from '~/utils/lang'
 
 export default {
-  mixins: [DruxtEntityMixin],
+  mixins: [langMixin, DruxtEntityMixin],
 
   computed: {
-    stats: ({ entity }) => {
-      const a = entity.attributes
+    stats() {
+      const a = this.entity.attributes
       const level = a.field_difficulty || ''
       return [
-        { label: 'Prep', value: `${a.field_preparation_time} min` },
-        { label: 'Cook', value: `${a.field_cooking_time} min` },
-        { label: 'Serves', value: a.field_number_of_servings },
         {
-          label: 'Difficulty',
-          value: level.charAt(0).toUpperCase() + level.slice(1),
+          label: this.$t('recipe.prep'),
+          value: this.$t('recipe.min', { n: a.field_preparation_time }),
+        },
+        {
+          label: this.$t('recipe.cook'),
+          value: this.$t('recipe.min', { n: a.field_cooking_time }),
+        },
+        { label: this.$t('recipe.serves'), value: a.field_number_of_servings },
+        {
+          label: this.$t('recipe.difficulty'),
+          value: level && this.$t(`listing.${level}`),
         },
       ]
     },
 
-    jsonApiPath: ({ entity }) =>
-      `/en/jsonapi/node/recipe/${entity.id}?include=field_media_image.field_media_image`,
+    jsonApiPath: ({ entity, prefix }) =>
+      `${prefix}/jsonapi/node/recipe/${entity.id}?include=field_media_image.field_media_image`,
 
     code: () =>
       [

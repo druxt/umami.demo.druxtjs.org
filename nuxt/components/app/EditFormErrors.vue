@@ -3,10 +3,8 @@
     <strong>
       {{
         pointed.length
-          ? `${pointed.length} field${pointed.length === 1 ? '' : 's'} need${
-              pointed.length === 1 ? 's' : ''
-            } attention.`
-          : 'The save did not go through.'
+          ? $tc('form.needsAttention', pointed.length, { n: pointed.length })
+          : $t('form.saveFailed')
       }}
     </strong>
     <template v-for="(id, i) of pointed">

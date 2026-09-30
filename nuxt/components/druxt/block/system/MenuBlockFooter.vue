@@ -1,10 +1,11 @@
 <template>
   <div class="feedback">
-    <h2 class="feedback__title">Tell us what you think</h2>
+    <h2 class="feedback__title">{{ $t('home.feedbackTitle') }}</h2>
 
     <p class="feedback__copy">
-      The form is a Drupal contact form, rendered by
-      <code>DruxtEntityForm</code> and validated against the same field config.
+      <i18n path="home.feedbackBody" tag="span">
+        <template #component><code>DruxtEntityForm</code></template>
+      </i18n>
     </p>
 
     <!-- The menu item is used when it exists; otherwise the contact route is
@@ -20,9 +21,9 @@
         >
           {{ contact(items).title }}
         </b-button>
-        <b-button v-else :to="fallback" variant="primary">
-          Send us feedback
-        </b-button>
+        <b-button v-else :to="fallback" variant="primary">{{
+          $t('home.feedbackButton')
+        }}</b-button>
       </template>
     </DruxtMenu>
   </div>

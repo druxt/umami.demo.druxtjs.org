@@ -30,9 +30,8 @@
       <label
         class="edit-field__label edit-field__sublabel"
         :for="`${id}-summary`"
+        >{{ $t('form.summary') }}</label
       >
-        Summary
-      </label>
       <textarea
         :id="`${id}-summary`"
         class="edit-control edit-control--area edit-control--summary"

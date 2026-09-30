@@ -10,8 +10,8 @@
       >
         {{
           changes
-            ? `Save · ${changes} change${changes === 1 ? '' : 's'}`
-            : 'Save changes'
+            ? $tc('form.saveCount', changes, { n: changes })
+            : $t('form.save')
         }}
       </b-button>
       <b-button
@@ -20,15 +20,14 @@
         type="button"
         variant="outline-secondary"
         @click="cancel"
+        >{{ $t('form.cancel') }}</b-button
       >
-        Cancel
-      </b-button>
     </template>
 
     <!-- Anonymous visitors see the form and this in place of the buttons. -->
     <p v-else class="edit-actions__signin">
-      <nuxt-link to="/login">Sign in</nuxt-link> to save changes. Nothing is
-      written until Drupal says who you are.
+      <nuxt-link to="/login">{{ $t('nav.signIn') }}</nuxt-link>
+      {{ $t('form.signInToSave') }}
     </p>
   </div>
 </template>

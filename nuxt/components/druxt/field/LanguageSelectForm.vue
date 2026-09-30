@@ -1,5 +1,5 @@
 <template>
-  <AppFormField :feedback="feedback" label="Language">
+  <AppFormField :feedback="feedback" :label="$t('form.language')">
     <div class="edit-control edit-control--readonly">{{ name }}</div>
   </AppFormField>
 </template>
