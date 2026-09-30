@@ -1,6 +1,14 @@
 const { test, expect } = require('@playwright/test')
 const { visit } = require('./helpers')
 
+/** Open whichever search control the viewport shows: the icon opens the
+ * drawer's field below lg, the pill opens the panel at lg. */
+const openSearch = (page) =>
+  page
+    .locator('.masthead__search-icon:visible, .masthead__search:visible')
+    .first()
+    .click()
+
 // Search runs on a Lunr index built into the site. The index has to be in
 // the build and be JSON; a page served in its place is a search that finds
 // nothing, and once was.
@@ -19,11 +27,7 @@ test.describe('search', () => {
       }
     })
     await visit(page, '/en')
-    // Below lg the icon opens the drawer's field; at lg the pill opens the
-    // search panel. One search bar is visible either way.
-    const icon = page.locator('.masthead__search-icon')
-    if (await icon.isVisible()) await icon.click()
-    else await page.locator('.masthead__search').click()
+    await openSearch(page)
     const bar = page.locator('.searchbar:visible').first()
     await bar.locator('input').fill('chili')
     const results = bar.locator('.searchbar__results a')
@@ -32,5 +36,25 @@ test.describe('search', () => {
     expect(index && index.status()).toBe(200)
     expect(index.headers()['content-type']).toContain('json')
     expect(errors).toEqual([])
+  })
+
+  test('a Spanish page searches Spanish content only', async ({ page }) => {
+    await visit(page, '/es')
+    await openSearch(page)
+    const bar = page.locator('.searchbar:visible').first()
+    await bar.locator('input').fill('zanahorias')
+    const results = bar.locator('.searchbar__results a')
+    await expect(results.first()).toBeVisible()
+    const hrefs = await results.evaluateAll((links) =>
+      links.map((a) => a.getAttribute('href'))
+    )
+    expect(hrefs.every((href) => href.startsWith('/es/'))).toBe(true)
+
+    // And the English page does not find the Spanish title.
+    await visit(page, '/en')
+    await openSearch(page)
+    const english = page.locator('.searchbar:visible').first()
+    await english.locator('input').fill('zanahorias')
+    await expect(english.locator('.searchbar__results a')).toHaveCount(0)
   })
 })
