@@ -110,6 +110,9 @@ export default {
     [
       '@nuxtjs/lunr-module',
       {
+        // A path of its own per build: the index carries no hash, and a
+        // browser that once cached a page in its place keeps it for a year.
+        path: `search-index-${Date.now().toString(36)}`,
         fields: [
           'title',
           'body',
