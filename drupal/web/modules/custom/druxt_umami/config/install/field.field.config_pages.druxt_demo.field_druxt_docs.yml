@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - config_pages.type.druxt_demo
+    - field.storage.config_pages.field_druxt_docs
+  module:
+    - link
+id: config_pages.druxt_demo.field_druxt_docs
+field_name: field_druxt_docs
+entity_type: config_pages
+bundle: druxt_demo
+label: 'Druxt documentation'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 1
+  link_type: 16
+field_type: link
