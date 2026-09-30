@@ -60,7 +60,7 @@
             <span class="stat-grid__label">Live preview</span>
             <a
               class="druxt-note__link"
-              href="https://storybook.umami.demo.druxtjs.org"
+              :href="storybookOrigin"
               rel="noopener"
               target="_blank"
             >
@@ -106,6 +106,7 @@
 <script>
 import { DrupalJsonApiParams } from 'drupal-jsonapi-params'
 import { mapActions } from 'vuex'
+import { storybookMixin } from '~/utils/storybook'
 
 import 'prismjs/themes/prism-tomorrow.css'
 import 'vue-prism-editor/dist/prismeditor.min.css'
@@ -121,6 +122,7 @@ export default {
     VueLiveEditor: () => import('vue-live').then((m) => m.VueLiveEditor),
     VueLivePreview: () => import('vue-live').then((m) => m.VueLivePreview),
   },
+  mixins: [storybookMixin],
 
   layout: 'plain',
 
