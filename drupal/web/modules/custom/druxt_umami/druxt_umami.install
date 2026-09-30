@@ -133,7 +133,7 @@ function druxt_umami_install() {
     ContactForm::create([
       'id' => 'feedback',
       'label' => 'Website feedback',
-      'recipients' => ['admin@example.com'],
+      'recipients' => ['hello@druxtjs.org'],
       'message' => 'Your message has been sent.',
       'reply' => '',
       'weight' => 0,
