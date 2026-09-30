@@ -4241,11 +4241,24 @@ html.druxt-inspector {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  // Stays in view while the grid scrolls: the choice is made at the bottom
+  // of a long list, and the buttons must be there when it is.
   &__actions {
+    background: $paper;
     border-top: 1px solid $rule;
+    bottom: -20px;
     display: flex;
     gap: 12px;
-    padding-top: 14px;
+    margin: 0 -16px -20px;
+    padding: 14px 16px 16px;
+    position: sticky;
+    z-index: 1;
+
+    @media (min-width: 768px) {
+      bottom: -24px;
+      margin: 0 -24px -24px;
+      padding: 14px 24px 20px;
+    }
   }
 }
 
