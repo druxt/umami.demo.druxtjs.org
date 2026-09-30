@@ -1,11 +1,8 @@
 <template>
   <div class="form-page">
-    <span class="form-page__kicker">Contact</span>
-    <h1 class="form-page__title">Tell us what you think</h1>
-    <p class="form-page__blurb">
-      Fields, labels, required flags and validation all come from Drupal's form
-      config. Emails are not sent from the demo, but everything else runs.
-    </p>
+    <span class="form-page__kicker">{{ $t('contact.kicker') }}</span>
+    <h1 class="form-page__title">{{ $t('contact.title') }}</h1>
+    <p class="form-page__blurb">{{ $t('contact.blurb') }}</p>
 
     <b-overlay :show="submitting">
       <b-form v-if="!(response || {}).data">
@@ -25,19 +22,23 @@
       </b-form>
 
       <div v-else class="form-page__sent">
-        <p><strong>Thank you for your feedback</strong></p>
-        <p>This is the response Drupal sent back:</p>
+        <p>
+          <strong>{{ $t('contact.thanks') }}</strong>
+        </p>
+        <p>{{ $t('contact.response') }}</p>
         <VueJsonPretty :data="response.data" />
       </div>
     </b-overlay>
 
     <AppDruxtNote
+      class="mt-4"
       file="entity-form/contact-message/Feedback.vue"
-      kicker="How this works"
+      :kicker="$t('note.howThisWorks')"
     >
-      <code>DruxtEntityForm</code> reads the <code>contact_message</code> form
-      display and renders a component per field type. None of this is
-      hand-written markup: override a field component only when you want to.
+      <i18n path="contact.noteBody" tag="span">
+        <template #component><code>DruxtEntityForm</code></template>
+        <template #form><code>contact_message</code></template>
+      </i18n>
     </AppDruxtNote>
   </div>
 </template>

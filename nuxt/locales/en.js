@@ -191,6 +191,8 @@ export default {
     published: 'Published',
     promoted: 'Promoted to front page',
     sticky: 'Sticky at top of lists',
+    copy: 'Send me a copy',
+    dragStep: 'Drag to reorder',
     author: 'Author',
     authoredOn: 'Authored on',
     title: 'Title',
@@ -214,6 +216,16 @@ export default {
     more: '+ Show more',
     use: 'Use this photograph',
     error: 'The library could not be read.',
+  },
+  contact: {
+    kicker: 'Contact',
+    title: 'Tell us what you think',
+    blurb:
+      "Fields, labels, required flags and validation all come from Drupal's form config. Emails are not sent from the demo, but everything else runs.",
+    thanks: 'Thank you for your feedback',
+    response: 'This is the response Drupal sent back:',
+    noteBody:
+      '{component} reads the {form} form display and renders a component per field type. None of this is hand-written markup: override a field component only when you want to.',
   },
   login: {
     kicker: 'Editors',

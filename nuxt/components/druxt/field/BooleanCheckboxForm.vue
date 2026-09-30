@@ -29,6 +29,7 @@ export default {
         status: 'form.published',
         promote: 'form.promoted',
         sticky: 'form.sticky',
+        copy: 'form.copy',
       }[this.schema.id]
       return key
         ? this.$t(key)
