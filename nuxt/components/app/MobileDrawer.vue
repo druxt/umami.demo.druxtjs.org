@@ -93,9 +93,15 @@
 
 <script>
 import { BIconX } from 'bootstrap-vue'
+import { langSwitchMixin } from '~/utils/lang'
 
 export default {
   components: { BIconX },
+
+  // The language buttons: each one to that language's version of the page.
+  mixins: [langSwitchMixin],
+
+  fetchKey: 'lang-switch-drawer',
 
   data: () => ({
     focusSearch: false,
@@ -108,12 +114,6 @@ export default {
       { title: 'Discord', href: 'https://discord.druxtjs.org' },
     ],
   }),
-
-  computed: {
-    current() {
-      return (this.$route.path.match(/^\/(en|es)(\/|$)/) || [])[1] || 'en'
-    },
-  },
 
   watch: {
     /** A link in the drawer opens a new page, which starts at the top. */
@@ -167,15 +167,6 @@ export default {
       }
       this.focusSearch = false
       this.$nextTick(() => this.$refs.search && this.$refs.search.focus())
-    },
-
-    /** Swap the language prefix on the current route. */
-    path(langcode) {
-      const path = this.$route.path
-      if (/^\/(en|es)(\/|$)/.test(path)) {
-        return path.replace(/^\/(en|es)/, `/${langcode}`)
-      }
-      return `/${langcode}${path === '/' ? '' : path}`
     },
   },
 }
