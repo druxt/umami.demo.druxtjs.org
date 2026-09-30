@@ -57,36 +57,21 @@
 
 <script>
 import { BIconSearch } from 'bootstrap-vue'
+import { langSwitchMixin } from '~/utils/lang'
 
 export default {
   components: { BIconSearch },
 
-  computed: {
-    current() {
-      return (this.$route.path.match(/^\/(en|es)(\/|$)/) || [])[1] || 'en'
-    },
-  },
+  // The language links: each one to that language's version of the page.
+  mixins: [langSwitchMixin],
+
+  fetchKey: 'lang-switch-header',
 
   methods: {
     /** Open the drawer on its search field. */
     openSearch() {
       this.$root.$emit('umami::search')
       this.$root.$emit('bv::toggle::collapse', 'menu')
-    },
-
-    /**
-     * Swap the language prefix on the current route. Druxt resolves the
-     * translated route client-side, so this is a normal in-app navigation.
-     *
-     * The inactive link used to carry an inline #a2988a — the pre-correction
-     * ghost token at 2.75:1. Contrast now lives in the theme, not here.
-     */
-    path(langcode) {
-      const path = this.$route.path
-      if (/^\/(en|es)(\/|$)/.test(path)) {
-        return path.replace(/^\/(en|es)/, `/${langcode}`)
-      }
-      return `/${langcode}${path === '/' ? '' : path}`
     },
   },
 }
