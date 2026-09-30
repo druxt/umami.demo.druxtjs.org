@@ -4491,57 +4491,41 @@ button.masthead__account {
     padding: 0;
     text-decoration: underline;
   }
-  &__diff {
-    border-top: 1px solid $druxt-line;
-    display: grid;
-    gap: 6px 16px;
-    grid-template-columns: max-content 1fr;
-    margin: 10px 0 0;
-    padding-top: 10px;
-
-    dt {
-      align-items: baseline;
-      display: flex;
-      font-family: $mono;
-      font-size: 0.71875rem;
-      font-weight: 400;
-      gap: 8px;
-    }
-    dd {
-      margin: 0;
-      min-width: 0;
-      overflow-wrap: anywhere;
-    }
-    del {
-      background: #fbe7e4;
-      color: #7a2418;
-      text-decoration: line-through;
-    }
-    ins {
-      background: #e2f3e6;
-      color: #1d5a2e;
-      margin-left: 6px;
-      text-decoration: none;
-    }
+  &__diff-toggle[aria-pressed='true'] {
+    text-decoration: none;
   }
-  &__status {
+  &__diff-toggle:disabled {
     color: $ink-faint;
-    font-family: $mono;
-    font-size: 0.65625rem;
-
-    &.is-added {
-      color: #1d5a2e;
-    }
-    &.is-removed {
-      color: #7a2418;
-    }
+    text-decoration: none;
   }
+}
 
-  @media (max-width: 767px) {
-    &__diff {
-      grid-template-columns: 1fr;
-    }
-  }
+// The marks in the content: the draft's words against Drupal's, in place.
+// Green and orange with an underline and a strike, so colour is not the
+// only signal.
+ins.v-diff-ins {
+  background: #e3f5ee;
+  border-radius: 3px;
+  box-shadow: inset 0 -1.5px 0 rgb(13 107 79 / 0.55);
+  color: #0d6b4f;
+  padding: 0 2px;
+  text-decoration: none;
+}
+del.v-diff-del {
+  background: #fde9e3;
+  border-radius: 3px;
+  color: #a3361a;
+  padding: 0 2px;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+// Words cut from the end of a field have no word after them to sit before,
+// so they are struck at the end of it, as their own paragraph.
+del.v-diff-del--trailing {
+  display: block;
+  line-height: 1.6;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.625rem;
 }
 
 // ── Basic page ───────────────────────────────────────────────────────────────

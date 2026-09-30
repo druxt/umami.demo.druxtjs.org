@@ -142,9 +142,14 @@ export default ({ store }, inject) => {
     refresh(model.type, model.id, copy())
   }
 
-  // Entities an editor asked to see as Drupal holds them, draft kept aside.
-  const real = Vue.observable({ keys: {} })
+  // Entities an editor asked to see as Drupal holds them, draft kept aside,
+  // and entities whose changes are marked in the page.
+  const real = Vue.observable({ keys: {}, marks: {} })
   const isReal = (type, id) => !!real.keys[key(type, id)]
+  const isMarking = (type, id) => !!real.marks[key(type, id)]
+  const showChanges = (type, id, on) => {
+    Vue.set(real.marks, key(type, id), !!on)
+  }
 
   /** Show Drupal's version of an entity, or the draft again. */
   const showReal = (type, id, on) => {
@@ -170,7 +175,16 @@ export default ({ store }, inject) => {
     }
   }
 
-  inject('drafts', { overlay, mirror, draftFor, showReal, isReal, real })
+  inject('drafts', {
+    overlay,
+    mirror,
+    draftFor,
+    showReal,
+    isReal,
+    showChanges,
+    isMarking,
+    real,
+  })
 
   window.onNuxtReady(() => {
     for (const [k, draft] of Object.entries(readDrafts())) {
@@ -194,8 +208,9 @@ export default ({ store }, inject) => {
         }
       }
       // A draft that is gone leaves nothing to show instead of the page.
-      if (type === 'druxtIce/clearDraft' && real.keys[payload]) {
-        Vue.set(real.keys, payload, false)
+      if (type === 'druxtIce/clearDraft') {
+        if (real.keys[payload]) Vue.set(real.keys, payload, false)
+        if (real.marks[payload]) Vue.set(real.marks, payload, false)
       }
     })
   })
