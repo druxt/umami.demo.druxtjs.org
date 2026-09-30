@@ -400,7 +400,8 @@ test:stack:
       # site's own token route, then Drupal's userinfo with the token.
       token=$(curl -sS -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"admin"}' "$site/_auth/drupal-password/token")
       grep -q '"access_token"' <<<"$token" || fail "the password grant did not issue a token: $token"
-      access=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])' <<<"$token")
+      access=$(sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p' <<<"$token")
+      [ -n "$access" ] || fail "no access token in the grant's answer"
       who=$(curl -sS -X POST -H "Authorization: Bearer $access" "$site/oauth/userinfo")
       grep -q '"name":"admin"' <<<"$who" || fail "userinfo did not name the editor: $who"
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"wrong"}' "$site/_auth/drupal-password/token")
