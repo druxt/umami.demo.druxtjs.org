@@ -70,7 +70,7 @@
       v-else-if="more"
       class="edit-list__add"
       type="button"
-      @click="load(items.length)"
+      @click="load(page + 1)"
     >
       {{ $t('browser.more') }}
     </button>
@@ -95,7 +95,6 @@
 
 <script>
 import { langMixin } from '~/utils/lang'
-const PAGE = 24
 
 /**
  * The media library as a browser: the image media, newest first, searched by
@@ -113,6 +112,7 @@ export default {
   data: () => ({
     query: '',
     items: [],
+    page: 0,
     selected: null,
     loading: false,
     more: false,
@@ -135,34 +135,38 @@ export default {
     },
 
     /** One page of the library, appended when `offset` is given. */
-    async load(offset = 0) {
+    /**
+     * A page of the library, from Drupal's own media library View: the
+     * `widget` display of `media_library`, the one Drupal's media library
+     * dialog uses. Its exposed name filter, media type argument, published
+     * filter, newest-first sort and 24-a-page pager are the View's, read
+     * through JSON:API Views by the Druxt client.
+     */
+    async load(page = 0) {
       this.loading = true
       this.error = ''
-      const [entity, bundle] = this.type.split('--')
+      const bundle = this.type.split('--')[1]
       const q = this.query.trim()
       const params = new URLSearchParams({
+        'views-argument[0]': bundle,
         include: 'thumbnail',
         [`fields[${this.type}]`]: 'name,thumbnail',
         'fields[file--file]': 'uri',
-        sort: '-changed',
-        'page[limit]': String(PAGE),
-        'page[offset]': String(offset),
       })
-      if (q) {
-        params.set('filter[name][operator]', 'CONTAINS')
-        params.set('filter[name][value]', q)
-      }
+      if (q) params.set('views-filter[name]', q)
+      if (page) params.set('page', String(page))
       try {
-        const response = await this.$druxt.axios.get(
-          `${this.prefix}/jsonapi/${entity}/${bundle}?${params}`,
-          { headers: { Accept: 'application/vnd.api+json' } }
+        const doc = await this.$druxt.getResource(
+          'views--media_library',
+          'widget',
+          params.toString(),
+          this.lang
         )
         if (this.query.trim() !== q) return
-        const doc = response.data || {}
         const files = Object.fromEntries(
           (doc.included || []).map((o) => [o.id, o.attributes.uri.url])
         )
-        const page = (doc.data || []).map((o) => {
+        const items = (doc.data || []).map((o) => {
           const thumb = ((o.relationships || {}).thumbnail || {}).data || {}
           return {
             id: o.id,
@@ -172,8 +176,10 @@ export default {
             src: files[thumb.id] ? this.$config.baseUrl + files[thumb.id] : '',
           }
         })
-        this.items = offset ? [...this.items, ...page] : page
-        this.more = !!((doc.links || {}).next || {}).href
+        this.items = page ? [...this.items, ...items] : items
+        this.page = page
+        // The View counts every match; the pager shows 24 of them a page.
+        this.more = this.items.length < ((doc.meta || {}).count || 0)
       } catch (e) {
         this.error = this.$t('browser.error')
       }
