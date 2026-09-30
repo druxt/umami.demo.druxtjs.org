@@ -63,6 +63,14 @@ test.describe('dev overlay', () => {
     await expect(page.locator('.druxt-inspector-label')).toHaveCount(0)
   })
 
+  test('the phone menu opens on the Entity Explorer too', async ({ page }) => {
+    await visit(page, '/entity-explorer')
+    const menu = page.locator('button[aria-label="Open menu"]')
+    if (!(await menu.isVisible())) return
+    await menu.click()
+    await expect(page.locator('#menu')).toBeVisible()
+  })
+
   test('labels sit above their component, never over the tabs', async ({
     page,
   }) => {

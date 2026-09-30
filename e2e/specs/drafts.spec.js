@@ -87,6 +87,52 @@ test.describe('drafts', () => {
     await expect(page.locator('#title')).toHaveValue(original)
   })
 
+  test('a draft is announced, switchable and listed as a diff', async ({
+    page,
+  }) => {
+    await signIn(page)
+    await openEdit(page, RECIPE)
+    await expect(page.locator('.draft-banner')).toHaveCount(0)
+    const original = await page.locator('#title').inputValue()
+    await page.fill('#title', `${original} banner`)
+    await expect(page.locator('.draft-banner')).toBeVisible()
+    await expect(page.locator('.draft-banner__kicker')).toContainText(/draft/i)
+
+    // View shows the draft; Drupal's version puts the real title back.
+    await page.locator('.page-tabs__tab').nth(0).click()
+    await expect(page.locator('h1').first()).toContainText(`${original} banner`)
+    await page.locator('.draft-banner__option').nth(1).click()
+    await expect(page.locator('h1').first()).not.toContainText('banner')
+    await page.locator('.draft-banner__option').nth(0).click()
+    await expect(page.locator('h1').first()).toContainText(`${original} banner`)
+
+    // The diff names the field with both sides.
+    await page.locator('.draft-banner__diff-toggle').click()
+    const diff = page.locator('.draft-banner__diff')
+    await expect(diff).toContainText('title')
+    await expect(diff.locator('ins')).toContainText('banner')
+
+    await page.locator('.page-tabs__tab').nth(1).click()
+    await page.click('.edit-actions__cancel')
+    await expect(page.locator('.draft-banner')).toHaveCount(0)
+  })
+
+  test('rich text typed in the editor previews on View', async ({ page }) => {
+    await signIn(page)
+    await openEdit(page, RECIPE)
+    const editor = page.locator('.ck-editor__editable').first()
+    await editor.waitFor()
+    await editor.click()
+    await page.keyboard.press('End')
+    await page.keyboard.type(' Typed in the editor.')
+    await page.locator('.page-tabs__tab').nth(0).click()
+    await expect(page.locator('.page-tabs__pane').first()).toContainText(
+      'Typed in the editor.',
+    )
+    await page.locator('.page-tabs__tab').nth(1).click()
+    await page.click('.edit-actions__cancel')
+  })
+
   test('a signed-in editor sees the reset control, a visitor does not', async ({
     page,
   }) => {
