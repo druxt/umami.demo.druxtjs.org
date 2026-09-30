@@ -6,9 +6,18 @@
     :required="required"
     :target="id"
   >
-    <!-- A multi-value string is a list: one row per item, Enter adds the next. -->
+    <!-- A multi-value string is a list: one row per item, Enter adds the next,
+         the grip drags a row to its place. -->
     <template v-if="multiple">
-      <div class="edit-list">
+      <draggable
+        :animation="150"
+        :fallback-tolerance="3"
+        :force-fallback="true"
+        class="edit-list"
+        handle=".edit-list__grip"
+        :value="items"
+        @input="$emit('input', $event)"
+      >
         <div v-for="(item, index) of items" :key="index" class="edit-list__row">
           <span class="edit-list__grip" aria-hidden="true">⋮⋮</span>
           <input
@@ -28,7 +37,7 @@
             ×
           </button>
         </div>
-      </div>
+      </draggable>
       <button class="edit-list__add" type="button" @click="addAfter()">
         {{ $t('form.add', { thing: itemName }) }}
       </button>
@@ -50,9 +59,12 @@
 </template>
 
 <script>
+import draggable from 'vuedraggable'
 import formField from '~/utils/form-field'
 
 export default {
+  components: { draggable },
+
   mixins: [formField],
 
   computed: {
