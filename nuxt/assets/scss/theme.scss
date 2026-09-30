@@ -1679,6 +1679,11 @@ html.druxt-inspector {
     gap: 1rem;
     padding: 1rem;
 
+    > * {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
     &:hover {
       background: $paper-warm;
       color: inherit;
