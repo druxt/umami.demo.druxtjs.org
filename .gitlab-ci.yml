@@ -394,6 +394,7 @@ test:stack:
       # asset that is missing is a 404, never a page cached as the asset.
       index_file=$(find "$CI_PROJECT_DIR/nuxt" -path '*/_nuxt/search-index*/en.json' | head -1)
       [ -n "$index_file" ] || fail "no search index in the build"
+      [ -f "$(dirname "$index_file")/es.json" ] || fail "no Spanish search index in the build"
       index=$(curl -sS "$site/_nuxt/$(basename "$(dirname "$index_file")")/en.json")
       grep -q '"documentStore"\|"fields"\|"index"' <<<"$index" || fail "the search index is not served as JSON: $(head -c 120 <<<"$index")"
       grep -q 'brownie\|quiche' <<<"$index" || fail "the search index has no recipes in it"
