@@ -3,16 +3,11 @@
     <template #default="{ props, regions }">
       <div>
         <AppDemoBar />
-        <client-only><AppDebugPanel /></client-only>
+        <client-only><AppDebugPanel /><AppDruxtInspector /></client-only>
 
         <!-- The wrapper is what sticks: a sticky element can only stay
              within its parent's box, and this parent is the page. -->
-        <AppDevRegion
-          v-if="regions.includes('header')"
-          class="masthead-sticky"
-          label='DruxtBlockRegion name="header"'
-          source="components/druxt/block-region/Header.vue"
-        >
+        <div v-if="regions.includes('header')" class="masthead-sticky">
           <!-- toggleable: false — the phone menu is a drawer now, so the
                navbar no longer owns a collapse. -->
           <DruxtBlockRegion
@@ -23,15 +18,12 @@
               propsData: { sticky: true, toggleable: false },
             }"
           />
-        </AppDevRegion>
+        </div>
 
-        <AppDevRegion
+        <DruxtBlockRegion
           v-if="regions.includes('banner_top')"
-          label='DruxtBlockRegion name="banner_top"'
-          source="components/druxt/block-region/BannerTop.vue"
-        >
-          <DruxtBlockRegion v-bind="props.banner_top" />
-        </AppDevRegion>
+          v-bind="props.banner_top"
+        />
 
         <!-- The one note in the editorial flow, and the front page is where
              it earns its place: the bands above are Drupal's block layout. -->
@@ -73,21 +65,16 @@
 
         <!-- Every band is full-bleed with its own ground; the content inside
              every band sits in the same b-container. See REPASS.md §2. -->
-        <AppDevRegion
-          label='DruxtBlockRegion name="content"'
-          source="layouts/default.vue"
-        >
-          <!-- A page that draws its own head sits closer to the masthead. -->
-          <div class="band band--paper" :class="{ 'band--flush': ownsHead }">
-            <b-container>
-              <slot v-if="$slots.default" />
-              <DruxtBlockRegion
-                v-else-if="regions.includes('content')"
-                v-bind="props.content"
-              />
-            </b-container>
-          </div>
-        </AppDevRegion>
+        <!-- A page that draws its own head sits closer to the masthead. -->
+        <div class="band band--paper" :class="{ 'band--flush': ownsHead }">
+          <b-container>
+            <slot v-if="$slots.default" />
+            <DruxtBlockRegion
+              v-else-if="regions.includes('content')"
+              v-bind="props.content"
+            />
+          </b-container>
+        </div>
 
         <!-- Each block in this region brings its own band: the region holds
              the articles grid and the collection pills, on different

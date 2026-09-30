@@ -153,10 +153,10 @@ h4 {
   }
 }
 
-// The masthead's dev-region wrapper is the sticky element: the navbar inside
-// it could only stick within the wrapper's own height, which scrolled away.
-// The demo bar is sticky at top: 0, so the masthead starts below it.
-.dev-region.masthead-sticky {
+// The masthead's wrapper is the sticky element: the navbar inside it could
+// only stick within the wrapper's own height, which scrolled away. The demo
+// bar is sticky at top: 0, so the masthead starts below it.
+.masthead-sticky {
   position: sticky;
   top: $demo-bar-height;
   z-index: 1020;
@@ -990,41 +990,76 @@ h4 {
 
 // ---------------------------------------------------------------- dev overlay
 
-.dev-region {
-  position: relative;
+// ── Dev overlay ──────────────────────────────────────────────────────────────
+// plugins/druxt-inspector.client.js tags every Druxt component with
+// data-druxt="<kind>" once mounted; the switch adds the class on <html>.
+// Outlines live on the elements, labels in AppDruxtInspector's layer.
+$inspector-colors: (
+  router: #6f42c1,
+  region: $druxt-blue,
+  block: #3f8fd0,
+  menu: #3f8fd0,
+  view: #6f42c1,
+  entity: $druxt-teal,
+  form: #c2410c,
+  field: #8a7f70,
+);
 
-  &--on {
-    outline: 1px dashed $druxt-blue;
-    outline-offset: -1px;
-  }
-  &--on.dev-region--entity {
-    outline-color: $druxt-teal;
-  }
-
-  &__label {
-    background: $druxt-blue;
-    border-radius: 3px;
-    color: #fff;
-    font-family: $mono;
-    font-size: 0.6875rem;
-    left: 12px;
-    padding: 2px 8px;
-    position: absolute;
-    top: -11px;
-    // Above the sticky masthead, which is its own stacking context at 1020.
-    z-index: 1025;
-
-    &:hover {
-      color: #fff;
-      text-decoration: none;
+html.druxt-inspector {
+  @each $kind, $color in $inspector-colors {
+    [data-druxt='#{$kind}'] {
+      outline: 1px dashed $color;
+      outline-offset: -1px;
     }
   }
 
-  &--entity &__label {
-    background: $druxt-teal;
-    font-size: 0.625rem;
-    left: 8px;
-    top: -10px;
+  [data-druxt='field'] {
+    outline-style: dotted;
+  }
+}
+
+.druxt-inspector-layer {
+  height: 0;
+  left: 0;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  // Above the sticky masthead, which is its own stacking context at 1020.
+  z-index: 1025;
+}
+
+.druxt-inspector-label {
+  background: $druxt-blue;
+  border-radius: 0 0 3px;
+  color: #fff;
+  display: block;
+  font-family: $mono;
+  font-size: 0.6875rem;
+  line-height: 18px;
+  overflow: hidden;
+  padding: 0 6px;
+  pointer-events: auto;
+  position: fixed;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    color: #fff;
+    max-width: none !important;
+    text-decoration: none;
+    z-index: 1;
+  }
+
+  &__detail {
+    margin-left: 0.5em;
+    opacity: 0.8;
+  }
+
+  @each $kind, $color in $inspector-colors {
+    &.is-#{$kind} {
+      background: $color;
+    }
   }
 }
 
@@ -1146,17 +1181,6 @@ h4 {
   // 3rem of padding around a 320px card leaves it 230px to render in.
   .explorer__stage {
     padding: 1.25rem 1rem;
-  }
-
-  // The dev overlay label holds a component signature such as
-  // `DruxtBlockRegion name="banner_top"`. Unconstrained it is wider than a
-  // phone and becomes a source of horizontal scroll itself.
-  .dev-region__label {
-    left: 4px;
-    line-height: 1.4;
-    max-width: calc(100% - 8px);
-    overflow-wrap: anywhere;
-    white-space: normal;
   }
 
   // The filter bar's four groups each take a line at this width, and the
@@ -2327,7 +2351,7 @@ h4 {
   }
 
   // b-form-group renders a fieldset with a legend when it has no label-for,
-  // so the label rule has to cover both.
+  // and the site's own widgets draw an edit-field label: one rule for all.
   .form-group label,
   .form-group legend {
     color: $ink-ghost;
@@ -3290,8 +3314,6 @@ h4 {
 // the description's slot.
 
 .edit-form {
-  margin: 0 auto;
-  max-width: 640px;
 
   &__content {
     display: flex;
@@ -4128,12 +4150,6 @@ h4 {
     font-size: 0.75rem;
     margin: 0;
   }
-}
-
-// The masthead's own label cannot rise above the demo bar from inside the
-// sticky wrapper, so it sits just inside the region instead.
-.masthead-sticky > .dev-region__label {
-  top: 4px;
 }
 
 // ── Media browser ────────────────────────────────────────────────────────────
