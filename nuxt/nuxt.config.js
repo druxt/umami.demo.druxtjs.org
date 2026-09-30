@@ -56,7 +56,11 @@ export default {
   css: ['~/assets/scss/theme.scss'],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: [{ src: '~/plugins/vuex-persistedstate.client.js' }],
+  plugins: [
+    // First, so it sees every error that follows.
+    { src: '~/plugins/error-log.client.js' },
+    { src: '~/plugins/vuex-persistedstate.client.js' },
+  ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   // `~/components/app` is flattened so the promo components are usable as
