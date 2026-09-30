@@ -408,6 +408,22 @@ test:stack:
       grep -q '"name":"admin"' <<<"$who" || fail "userinfo did not name the editor: $who"
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"wrong"}' "$site/_auth/drupal-password/token")
       [ "$code" = 400 ] || [ "$code" = 401 ] || fail "a wrong password answered $code"
+
+      # The demo resets to its snapshot: not for a visitor, once a minute for
+      # an editor, and Drupal is back before the frontend has rebuilt.
+      (cd drupal && .devtools/snapshot >/dev/null) || fail "the snapshot could not be taken"
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/druxt-umami/reset")
+      [ "$code" = 302 ] || [ "$code" = 401 ] || [ "$code" = 403 ] || fail "an anonymous reset answered $code"
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/druxt-umami/reset")
+      [ "$code" = 202 ] || fail "the reset answered $code"
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/druxt-umami/reset")
+      [ "$code" = 429 ] || fail "a second reset within a minute answered $code"
+      for _ in $(seq 1 30); do
+        code=$(curl -s -o /dev/null -w '%{http_code}' -H 'Accept: application/vnd.api+json' "$site/en/jsonapi")
+        [ "$code" = 200 ] && break
+        sleep 2
+      done
+      [ "$code" = 200 ] || fail "Drupal did not come back after the reset ($code)"
       echo "All assertions passed."
   artifacts:
     when: always

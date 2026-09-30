@@ -1,0 +1,4 @@
+reset the druxt umami demo:
+  title: 'Reset the demo'
+  description: 'Put every content item, file and setting back to the fresh demo.'
+  restrict access: true

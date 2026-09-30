@@ -1,0 +1,10 @@
+druxt_umami.reset:
+  path: '/druxt-umami/reset'
+  defaults:
+    _controller: '\Drupal\druxt_umami\Controller\ResetController::reset'
+  methods: [POST]
+  requirements:
+    _permission: 'reset the druxt umami demo'
+  options:
+    _auth: ['oauth2']
+    no_cache: TRUE

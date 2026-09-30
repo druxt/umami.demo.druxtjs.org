@@ -16,6 +16,16 @@ export default {
     view: 'Ver',
     edit: 'Editar',
   },
+  reset: {
+    button: 'Reiniciar la demo',
+    confirm:
+      '¿Devolver cada receta, artículo, imagen y ajuste a la demo original, para todo el mundo?',
+    yes: 'Sí, reiniciar',
+    no: 'Dejarlo',
+    busy: 'Reiniciando…',
+    done: 'Hecho. Drupal vuelve a estar como nuevo, este sitio se reconstruye en un minuto y todo el mundo queda desconectado.',
+    failed: 'El reinicio fue rechazado: {message}',
+  },
   demoBar: {
     long: 'Una demo de DruxtJS con el contenido Umami de Drupal, renderizada con Nuxt',
     mid: 'Una demo de DruxtJS de Umami con Nuxt',

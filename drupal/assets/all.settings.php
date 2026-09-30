@@ -36,6 +36,14 @@ if (PHP_SAPI !== 'cli' && file_exists(__DIR__ . '/files/.provisioning')) {
   exit;
 }
 
+// Where the reset snapshot lives, and where uploads that must not be served
+// go. Lagoon keeps this directory on the shared files volume.
+$settings['file_private_path'] = __DIR__ . '/files/private';
+
+// The demo resets itself on request (druxt_umami's reset route, admins only,
+// one a minute). DRUXT_UMAMI_RESET=0 switches that off for an environment.
+$settings['druxt_umami.reset'] = getenv('DRUXT_UMAMI_RESET') !== '0';
+
 // The frontend's Druxt cache clear endpoint, which Purge calls when content
 // changes: the app service on Lagoon, overridden for local runs and CI. The
 // secret is the one the frontend holds as DRUXT_CACHE_SECRET.
