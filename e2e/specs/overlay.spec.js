@@ -71,6 +71,15 @@ test.describe('dev overlay', () => {
     await expect(page.locator('#menu')).toBeVisible()
   })
 
+  test('the Entity Explorer ends in the site footer', async ({ page }) => {
+    // The plain layout once wrapped the bottom region in nothing: pale
+    // links on paper, unreadable.
+    await visit(page, '/entity-explorer')
+    const footer = page.locator('.site-footer')
+    await expect(footer).toBeVisible()
+    await expect(footer.locator('a').first()).toBeVisible()
+  })
+
   test('labels sit above their component, never over the tabs', async ({
     page,
   }) => {
