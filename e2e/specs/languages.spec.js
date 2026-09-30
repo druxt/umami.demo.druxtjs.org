@@ -10,10 +10,10 @@ test.describe('languages', () => {
   }) => {
     await visit(page, '/es/node')
     await expect(
-      page.locator('.collections h2', { hasText: 'Colecciones' }),
+      page.locator('.collections h2', { hasText: 'Colecciones' })
     ).toBeVisible()
     await expect(
-      page.locator('a', { hasText: 'Sin alcohol' }).first(),
+      page.locator('a', { hasText: 'Sin alcohol' }).first()
     ).toBeVisible()
     await expect(page.locator('a', { hasText: 'Alcohol free' })).toHaveCount(0)
     const footer = page.locator('.site-footer')
@@ -37,14 +37,33 @@ test.describe('languages', () => {
     }
     await page.waitForURL(/\/es/)
     await expect(
-      page.locator('a', { hasText: 'Sin alcohol' }).first(),
+      page.locator('a', { hasText: 'Sin alcohol' }).first()
     ).toBeVisible()
+  })
+
+  test('the language switch on a recipe leads to its translation', async ({
+    page,
+  }) => {
+    // Each translation has an alias of its own: a prefix swap on the
+    // English alias is a path Drupal cannot resolve.
+    await visit(page, '/en/recipes/gluten-free-pizza')
+    const masthead = page.locator('.masthead__lang a', { hasText: 'ES' })
+    let link = masthead.first()
+    if (!(await link.isVisible())) {
+      await page.click('button[aria-label="Open menu"]')
+      link = page.locator('.drawer__lang-btn', { hasText: 'ES' })
+    }
+    await expect(link).toHaveAttribute('href', '/es/recipes/pizza-sin-gluten')
+    await link.click()
+    await page.waitForURL(/\/es\/recipes\/pizza-sin-gluten$/)
+    await expect(page.locator('h1').first()).toContainText('Pizza sin gluten')
+    await expect(page.locator('h1', { hasText: '404' })).toHaveCount(0)
   })
 
   test('the English home stays English', async ({ page }) => {
     await visit(page, '/en')
     await expect(
-      page.locator('a', { hasText: 'Alcohol free' }).first(),
+      page.locator('a', { hasText: 'Alcohol free' }).first()
     ).toBeVisible()
     await expect(page.locator('.site-footer')).toContainText('Recipes')
   })

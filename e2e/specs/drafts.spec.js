@@ -87,7 +87,7 @@ test.describe('drafts', () => {
     await expect(page.locator('#title')).toHaveValue(original)
   })
 
-  test('a draft is announced, switchable and listed as a diff', async ({
+  test('a draft is announced, switchable and marked in the page', async ({
     page,
   }) => {
     await signIn(page)
@@ -106,11 +106,17 @@ test.describe('drafts', () => {
     await page.locator('.draft-banner__option').nth(0).click()
     await expect(page.locator('h1').first()).toContainText(`${original} banner`)
 
-    // The diff names the field with both sides.
+    // The marks: the new word is underlined in the title itself, and the
+    // switch to Drupal's version takes the marks with it.
     await page.locator('.draft-banner__diff-toggle').click()
-    const diff = page.locator('.draft-banner__diff')
-    await expect(diff).toContainText('title')
-    await expect(diff.locator('ins')).toContainText('banner')
+    const marks = page.locator('.page-tabs__pane ins.v-diff-ins')
+    await expect(marks.first()).toContainText('banner')
+    await page.locator('.draft-banner__option').nth(1).click()
+    await expect(marks).toHaveCount(0)
+    await page.locator('.draft-banner__option').nth(0).click()
+    await expect(marks.first()).toContainText('banner')
+    await page.locator('.draft-banner__diff-toggle').click()
+    await expect(marks).toHaveCount(0)
 
     await page.locator('.page-tabs__tab').nth(1).click()
     await page.click('.edit-actions__cancel')
