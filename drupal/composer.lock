@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "68a55faddd4d1aa741370aef6883fb63",
+    "content-hash": "3db787cf4d276d293d196ba947f765de",
     "packages": [
         {
             "name": "amazeeio/drupal_integrations",
@@ -2962,6 +2962,64 @@
             "homepage": "https://www.drupal.org/project/simple_oauth",
             "support": {
                 "source": "https://git.drupalcode.org/project/simple_oauth"
+            }
+        },
+        {
+            "name": "drupal/simple_oauth_password_grant",
+            "version": "2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/simple_oauth_password_grant.git",
+                "reference": "2.1.0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/simple_oauth_password_grant-2.1.0.zip",
+                "reference": "2.1.0",
+                "shasum": "5b6ebaac868b7b4090f6d809261ce9e7e184c576"
+            },
+            "require": {
+                "drupal/core": "^10.3 || ^11",
+                "drupal/simple_oauth": "^6",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "drupal/consumers": "1.x-dev#c6d64f1b",
+                "drupal/simple_oauth": "^6.0@beta"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "2.1.0",
+                    "datestamp": "1741335351",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "chfoidl",
+                    "homepage": "https://www.drupal.org/user/3686637"
+                },
+                {
+                    "name": "nimoatwoodway",
+                    "homepage": "https://www.drupal.org/user/2683961"
+                },
+                {
+                    "name": "Unsupported Projects",
+                    "homepage": "https://www.drupal.org/user/291168"
+                }
+            ],
+            "description": "Provides the password grant for the simple_oauth module",
+            "homepage": "https://www.drupal.org/project/simple_oauth_password_grant",
+            "support": {
+                "source": "https://git.drupalcode.org/project/simple_oauth_password_grant"
             }
         },
         {

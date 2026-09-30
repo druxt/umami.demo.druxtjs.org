@@ -32,6 +32,7 @@
     "core-js": "3.32.1",
     "css-loader": "5.2.7",
     "drupal-jsonapi-params": "^2.3.1",
+    "druxt-auth": "0.5.0",
     "druxt-search": "0.1.1",
     "druxt-site": "0.14.4-dev.20260928061526",
     "jsonapi-serializer": "3.6.7",

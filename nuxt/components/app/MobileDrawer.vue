@@ -80,13 +80,7 @@
             Entity Explorer <span aria-hidden="true">→</span>
           </nuxt-link>
 
-          <nuxt-link
-            class="drawer__druxt-link"
-            to="/login"
-            @click.native="hide"
-          >
-            Sign in <span aria-hidden="true">→</span>
-          </nuxt-link>
+          <AppAccountLink class="drawer__druxt-link" @click.native="hide" />
         </div>
       </div>
     </template>

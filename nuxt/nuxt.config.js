@@ -118,6 +118,11 @@ export default {
     // Live updates on /_live: open pages refresh when Drupal purges. It
     // attaches under `nuxt dev`; start.js attaches it in production.
     '@druxt-contrib/sockets',
+    // Editors sign in on the site: the password grant through the Druxt
+    // consumer, with the authorization code flow kept for a browser sent to
+    // Drupal. The token route the grant posts to is the module's own under
+    // `nuxt dev`, and server/start.js's on the generated site.
+    ['druxt-auth', { clientId: process.env.OAUTH_CLIENT_ID || 'umami_druxt' }],
   ],
 
   sockets: {
@@ -130,15 +135,6 @@ export default {
       logout: '/',
     },
     strategies: {
-      drupal: {
-        scheme: 'oauth2',
-        endpoints: {
-          authorization: baseUrl + '/oauth/authorize',
-          token: baseUrl + '/oauth/token',
-          userInfo: baseUrl + '/oauth/userinfo',
-        },
-        clientId: process.env.OAUTH_CLIENT_ID,
-      },
       github: {
         clientId: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
@@ -226,8 +222,19 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
+    transpile: ['defu'],
+
     extend(config) {
       config.resolve.alias.vue$ = 'vue/dist/vue.esm.js'
+      // The server bundle leaves node_modules to Node, so auth-next's
+      // runtime, an ES module the bundle does carry, was handed Nuxt's own
+      // defu 6 as a CommonJS external, which has no default export. Bundled
+      // (see `transpile`) and pointed at the ES build, both the default and
+      // the named import every importer here uses are there.
+      config.resolve.alias.defu$ = require('path').join(
+        require('path').dirname(require.resolve('defu')),
+        'defu.mjs'
+      )
     },
 
     extractCSS: true,
