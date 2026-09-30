@@ -34,11 +34,7 @@
           <slot name="field_tags" />
         </div>
 
-        <AppDevRegion
-          class="article-page__more"
-          label='DruxtView view-id="articles_aside"'
-          source="components/druxt/entity/node/article/Full.vue"
-        >
+        <div class="article-page__more">
           <DruxtView
             :arguments="[entity.attributes.drupal_internal__nid]"
             display-id="block_1"
@@ -60,7 +56,7 @@
               </div>
             </template>
           </DruxtView>
-        </AppDevRegion>
+        </div>
 
         <AppDruxtNote
           class="mt-4"
