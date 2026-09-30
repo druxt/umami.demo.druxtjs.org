@@ -34,22 +34,27 @@
     </div>
 
     <div class="searchbar__results">
-      <nuxt-link
-        v-for="(item, key) of searchResults"
-        :key="key"
-        class="searchbar__result"
-        :to="searchMeta[item.ref].href"
-      >
-        <!-- The drawer is 330px wide: a title per row, not a teaser card. -->
-        <span v-if="compact">{{ searchMeta[item.ref].title }}</span>
-        <Druxt
-          v-else
-          module="entity"
-          mode="teaser"
-          :type="searchMeta[item.ref].type"
-          :uuid="searchMeta[item.ref].uuid"
-        />
-      </nuxt-link>
+      <!-- The drawer is 330px wide: a title per row, not a teaser card. The
+           panel shows the teaser, which is a link of its own, so the row is
+           not one: a link inside a link is invalid markup. -->
+      <template v-for="(item, key) of searchResults">
+        <nuxt-link
+          v-if="compact"
+          :key="key"
+          class="searchbar__result"
+          :to="searchMeta[item.ref].href"
+        >
+          {{ searchMeta[item.ref].title }}
+        </nuxt-link>
+        <div v-else :key="key" class="searchbar__result">
+          <Druxt
+            module="entity"
+            mode="teaser"
+            :type="searchMeta[item.ref].type"
+            :uuid="searchMeta[item.ref].uuid"
+          />
+        </div>
+      </template>
     </div>
 
     <div v-if="!compact" class="searchbar__note">
