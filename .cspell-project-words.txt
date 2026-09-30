@@ -2,7 +2,9 @@ acerca
 aeiou
 amazeeio
 amazeeiolagoon
+apos
 Archivo
+artefacts
 catalana
 Colecciones
 crawlable
@@ -24,6 +26,7 @@ langcode
 LANGCODES
 lede
 lintfix
+llms
 LOCALDEV
 nuxtjs
 opencode
