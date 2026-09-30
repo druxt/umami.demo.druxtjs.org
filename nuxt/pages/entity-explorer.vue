@@ -113,7 +113,6 @@ import 'prismjs/themes/prism-tomorrow.css'
 import 'vue-prism-editor/dist/prismeditor.min.css'
 
 export default {
-
   name: 'EntityExplorer',
 
   // vue-live is not SSR-safe: it reads a browser global at module scope and
