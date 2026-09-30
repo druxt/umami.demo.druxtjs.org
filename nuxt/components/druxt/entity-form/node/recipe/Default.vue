@@ -43,20 +43,11 @@
 
 <script>
 import { BOverlay } from 'bootstrap-vue'
+import editForm from '~/utils/edit-form'
 
 export default {
   components: { BOverlay },
 
-  computed: {
-    errors: ({ $parent }) => $parent.errors || [],
-    submitting: ({ $parent }) => $parent.submitting,
-    fieldLabels: ({ $parent }) =>
-      Object.fromEntries(
-        (($parent.schema || {}).fields || []).map((f) => [
-          f.id,
-          (f.label || {}).text || f.id,
-        ])
-      ),
-  },
+  mixins: [editForm],
 }
 </script>

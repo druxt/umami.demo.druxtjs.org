@@ -9,21 +9,12 @@
 
 <script>
 import { BOverlay } from 'bootstrap-vue'
+import editForm from '~/utils/edit-form'
 
 /** Every node form: the fields in Drupal's order, the errors summed up. */
 export default {
   components: { BOverlay },
 
-  computed: {
-    errors: ({ $parent }) => $parent.errors || [],
-    submitting: ({ $parent }) => $parent.submitting,
-    fieldLabels: ({ $parent }) =>
-      Object.fromEntries(
-        (($parent.schema || {}).fields || []).map((f) => [
-          f.id,
-          (f.label || {}).text || f.id,
-        ])
-      ),
-  },
+  mixins: [editForm],
 }
 </script>
