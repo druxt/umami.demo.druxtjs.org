@@ -34,4 +34,5 @@ umami
 unscrimmed
 uselagoon
 viewports
+vuedraggable
 wordmark
