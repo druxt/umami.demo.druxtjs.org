@@ -197,6 +197,8 @@ export default {
     sticky: 'Fijo al principio de las listas',
     copy: 'Enviarme una copia',
     dragStep: 'Arrastra para reordenar',
+    draftKept:
+      'Los cambios sin guardar se quedan en este navegador y se ven en la pestaña Ver.',
     author: 'Autor',
     authoredOn: 'Fecha de creación',
     title: 'Título',

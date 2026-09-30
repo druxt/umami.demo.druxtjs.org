@@ -3854,6 +3854,7 @@ html.druxt-inspector {
 
 .edit-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
 
   .btn {
@@ -4322,6 +4323,16 @@ button.masthead__account {
     color: #fff;
     padding: 6px 12px;
   }
+}
+
+// The draft note beside Save and Cancel.
+.edit-actions__kept {
+  color: $ink-faint;
+  display: block;
+  font-size: 0.78125rem;
+  line-height: 1.5;
+  margin-top: 10px;
+  width: 100%;
 }
 
 // ── Basic page ───────────────────────────────────────────────────────────────

@@ -22,6 +22,9 @@
         @click="cancel"
         >{{ $t('form.cancel') }}</b-button
       >
+      <span v-if="changes" class="edit-actions__kept">{{
+        $t('form.draftKept')
+      }}</span>
     </template>
 
     <!-- Anonymous visitors see the form and this in place of the buttons. -->
@@ -33,12 +36,15 @@
 </template>
 
 <script>
+import { withoutDraft } from '~/utils/edit-drafts'
+
 /**
- * Save counts the fields that differ from the entity as it was when the
- * form opened, and is off until there is one; Cancel puts that back.
+ * Save counts the fields that differ from the entity as Drupal holds it, and
+ * is off until there is one; Cancel puts that back.
  *
  * DruxtEntityForm's `entity` is a view of its `model`, so the pristine copy
- * has to be kept here, and it moves on after a save goes through.
+ * has to be kept here, and it moves on after a save goes through. A form
+ * that opens on a draft counts the draft's fields as changes.
  */
 export default {
   data: () => ({
@@ -84,8 +90,19 @@ export default {
   },
 
   methods: {
-    snapshot() {
-      this.pristine = this.form ? JSON.stringify(this.form.model) : ''
+    /** After a save the model is what Drupal holds; before one, the draft is not. */
+    snapshot(saved) {
+      const form = this.form
+      if (!form) {
+        this.pristine = ''
+        return
+      }
+      const model = form.model
+      const draft =
+        this.$drafts && !saved
+          ? this.$drafts.draftFor(model.type, model.id)
+          : null
+      this.pristine = JSON.stringify(withoutDraft(model, draft))
     },
 
     /** Back to the entity as the form found it. */
