@@ -16,6 +16,16 @@ export default {
     view: 'View',
     edit: 'Edit',
   },
+  reset: {
+    button: 'Reset demo',
+    confirm:
+      'Put every recipe, article, image and setting back to the fresh demo, for everyone?',
+    yes: 'Yes, reset',
+    no: 'Keep it',
+    busy: 'Resetting…',
+    done: 'Reset. Drupal is fresh again, this site rebuilds in a minute, and everyone is signed out.',
+    failed: 'The reset was refused: {message}',
+  },
   demoBar: {
     long: 'A DruxtJS demo of Drupal Umami content, rendered by Nuxt',
     mid: 'A DruxtJS demo of Umami by Nuxt',
