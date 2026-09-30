@@ -1,7 +1,39 @@
 {
-  "extends": ["@nuxtjs"],
-  "labels": ["dependencies"],
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "@nuxtjs"
+  ],
+  "labels": [
+    "dependencies"
+  ],
   "ignoreDeps": [
     "drupal/gin_toolbar"
+  ],
+  "packageRules": [
+    {
+      "description": "The root tooling is held at the last versions that run on Node 16, the Node Nuxt 2 builds with. Move it with the Node upgrade, not before.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "package.json"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Majors need a human. An automated major lands a breaking change on a branch nobody chose to upgrade.",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "One pull request for everything else. Ungrouped updates produce a pull request per dependency, and the whole set gets ignored together.",
+      "matchPackageNames": [
+        "*"
+      ],
+      "groupName": "all dependencies",
+      "groupSlug": "all"
+    }
   ]
 }

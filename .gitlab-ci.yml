@@ -58,13 +58,34 @@ default:
   before_script:
     - !reference [default, before_script]
     - section_start "install" "Installing dependencies (Yarn 1)"
-    # package.json pins packageManager to yarn@1.22.22, so corepack provisions
-    # Yarn 1 rather than hijacking to Yarn 3, which cannot read a v1 lockfile.
+    # nuxt/package.json pins packageManager to yarn@1.22.22, so corepack
+    # provisions Yarn 1 there, rather than Yarn 3, which cannot read a v1
+    # lockfile. The root pins npm, so yarn only runs inside nuxt/.
     - corepack enable
-    - yarn --version
     - cd nuxt
+    - yarn --version
     - yarn config set cache-folder "$CI_PROJECT_DIR/.yarn-cache"
     - yarn install --frozen-lockfile --network-timeout 600000
+    - section_end "install"
+
+# The root tooling: commitlint, the root eslint config and markdownlint, on
+# the npm the root package.json pins. It runs on the app's Node 16, which the
+# tooling versions are held to.
+.root:
+  image: $NODE_IMAGE
+  interruptible: true
+  needs: []
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - .npm/
+  before_script:
+    - !reference [default, before_script]
+    - section_start "install" "Installing the root tooling"
+    - corepack enable
+    - npm ci --cache .npm --prefer-offline --no-audit --no-fund
     - section_end "install"
 
 #
@@ -84,6 +105,49 @@ lint:
     - section_start "prettier" "Prettier"
     - npx --no-install prettier --check .
     - section_end "prettier"
+
+# The root ESLint config: the tooling's own config files and scripts.
+lint:root:
+  extends: .root
+  stage: lint
+  script:
+    - npm run lint:js
+
+# No AI tool credited in the merge request's commits, its description or any
+# tracked file.
+lint:attribution:
+  image: $TOOLS_IMAGE
+  stage: lint
+  interruptible: true
+  needs: []
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - bash .gitlab/scripts/check-attribution.sh
+
+# Vale with the ai-tells style: the markdown a change touches, its commit
+# messages and the merge request description, then the text every Vue
+# template shows. The code of conduct is the Contributor Covenant, quoted.
+lint:prose:
+  image: $TOOLS_IMAGE
+  stage: lint
+  interruptible: true
+  needs: []
+  variables:
+    GIT_DEPTH: 0
+    PROSE_LINT_GLOB: '!CODE_OF_CONDUCT.md'
+  cache:
+    key: vale-3.17.1
+    paths:
+      - .vale/
+  script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - section_start "prose" "Linting prose with Vale"
+    - bash .gitlab/scripts/install-vale.sh .vale/bin .vale/styles
+    - bash .gitlab/scripts/lint-prose.sh
+    - bash .gitlab/scripts/lint-prose-templates.sh
+    - section_end "prose"
 
 lint:json:
   stage: lint
@@ -151,23 +215,15 @@ lint:cspell:
     - section_end "cspell"
 
 commitlint:
-  extends: .node
+  extends: .root
   stage: lint
-  interruptible: true
-  needs: []
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   script:
-    # commitlint is already a devDependency here (@commitlint/cli 17.7.1), so
-    # run the installed binary rather than npx. npx cannot work: commitlint
-    # resolves `extends` from the working directory, not from its own install
-    # prefix, so the config package is never found however it is passed.
-    #
     # git-raw-commits shells out to `git log`, which refuses to run when the
-    # checkout's owning UID differs from the container's. Not specific to this
-    # job; commitlint is just the one that invokes git directly.
+    # checkout's owning UID differs from the container's.
     - git config --global --add safe.directory "$CI_PROJECT_DIR"
-    - yarn commitlint --from "$CI_MERGE_REQUEST_DIFF_BASE_SHA" --to "$CI_COMMIT_SHA" --verbose
+    - npm run lint:commit -- --from "$CI_MERGE_REQUEST_DIFF_BASE_SHA" --to "$CI_COMMIT_SHA" --verbose
 
 #
 # --- Preview ---

@@ -7,9 +7,9 @@ on:
       - main
       - develop
   pull_request:
-    branches:
-      - main
-      - develop
+    # No branch filter on purpose. The filter matches the pull request's base,
+    # so a stacked pull request based on anything unlisted ran no jobs at all,
+    # and showed no checks rather than failing ones.
 
 jobs:
   test_preview:

@@ -90,17 +90,12 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 16
-          cache: yarn
-          cache-dependency-path: nuxt/yarn.lock
-      - run: yarn install --frozen-lockfile
-        working-directory: nuxt
-      # Run the installed binary. npx cannot work here: commitlint resolves
-      # `extends` from the working directory, not its own install prefix.
+          cache: npm
+      - run: npm ci
       - run: >-
-          yarn commitlint
+          npm run lint:commit --
           --from "${{ github.event.pull_request.base.sha }}"
           --to "${{ github.event.pull_request.head.sha }}" --verbose
-        working-directory: nuxt
 
   secret-detection:
     name: Secret detection
