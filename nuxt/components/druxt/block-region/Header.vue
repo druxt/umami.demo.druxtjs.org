@@ -39,7 +39,7 @@
           Search recipes
         </button>
 
-        <nuxt-link class="masthead__account" to="/login">Sign in</nuxt-link>
+        <AppAccountLink class="masthead__account" />
 
         <nav aria-label="Language" class="masthead__lang">
           <nuxt-link

@@ -9,6 +9,7 @@ use Drupal\consumers\Entity\Consumer;
 use Drupal\contact\Entity\ContactForm;
 use Drupal\Core\Field\Entity\BaseFieldOverride;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\simple_oauth\Entity\Oauth2Scope;
 use Drupal\purge_purger_http\Entity\HttpPurgerSettings;
 use Drupal\user\RoleInterface;
 
@@ -254,11 +255,31 @@ function druxt_umami_install() {
     ->set('use_implicit', TRUE)
     ->save();
 
+  // Simple OAuth 6 refuses every grant until a scope exists that the request
+  // can resolve. One scope, the authenticated role, for both flows.
+  if (!Oauth2Scope::load('authenticated')) {
+    Oauth2Scope::create([
+      'id' => 'authenticated',
+      'name' => 'authenticated',
+      'description' => 'A signed-in account.',
+      'grant_types' => [
+        'authorization_code' => ['status' => TRUE, 'description' => ''],
+        'password' => ['status' => TRUE, 'description' => ''],
+        'refresh_token' => ['status' => TRUE, 'description' => ''],
+      ],
+      'umbrella' => FALSE,
+      'granularity_id' => 'role',
+      'granularity_configuration' => ['role' => RoleInterface::AUTHENTICATED_ID],
+    ])->save();
+  }
+
   // Create consumer client.
   // Simple OAuth 6 resolves the client by the consumer's client_id field, not
   // by its uuid the way Simple OAuth 5 did. An empty client_id matches nothing
   // and every token request answers invalid_client.
-  $client_id = getenv('OAUTH_CLIENT_ID') ?: \Drupal::service('uuid')->generate();
+  // A public client with PKCE needs no secret, so the id can be a known one
+  // that the frontend and its server default to as well.
+  $client_id = getenv('OAUTH_CLIENT_ID') ?: 'umami_druxt';
   $consumer = Consumer::create([
     'owner_id'     => 1,
     'uuid'         => $client_id,
@@ -268,10 +289,11 @@ function druxt_umami_install() {
     'confidential' => FALSE,
     'pkce'         => TRUE,
     // Simple OAuth 6 gates every grant on this field, and an empty one means
-    // the token endpoint answers invalid_client for all of them. The frontend
-    // uses the authorization code flow with a refresh token; the password
-    // grant no longer exists in Simple OAuth 6.
-    'grant_types'  => ['authorization_code', 'refresh_token'],
+    // the token endpoint answers invalid_client for all of them. The site's
+    // own form uses the password grant; the authorization code flow stays
+    // for a browser that is sent to Drupal.
+    'grant_types'  => ['authorization_code', 'password', 'refresh_token'],
+    'scopes'       => [['scope_id' => 'authenticated']],
     'redirect'     => getenv('OAUTH_CALLBACK') ?: 'http://localhost:3000/callback',
     'image_styles' => [],
   ]);
