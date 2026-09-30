@@ -4391,6 +4391,12 @@ button.masthead__account {
   }
 }
 
+// The reset control at the foot of the drawer's Druxt block.
+.drawer__reset {
+  display: flex;
+  margin-top: 12px;
+}
+
 // ── Basic page ───────────────────────────────────────────────────────────────
 // Screen 12: the term head band, then prose in the article's measure. The
 // About page adds the site's own section and a resource band below it.
