@@ -392,8 +392,10 @@ test:stack:
 
       # The search index is in the build and is JSON, not a page; a build
       # asset that is missing is a 404, never a page cached as the asset.
-      index=$(curl -sS "$site/_nuxt/search-index/en.json")
-      grep -q '"documentStore"\|"fields"\|"index"' <<<"$index" || fail "the search index is not in the build: $(head -c 120 <<<"$index")"
+      index_file=$(find "$CI_PROJECT_DIR/nuxt" -path '*/_nuxt/search-index*/en.json' | head -1)
+      [ -n "$index_file" ] || fail "no search index in the build"
+      index=$(curl -sS "$site/_nuxt/$(basename "$(dirname "$index_file")")/en.json")
+      grep -q '"documentStore"\|"fields"\|"index"' <<<"$index" || fail "the search index is not served as JSON: $(head -c 120 <<<"$index")"
       grep -q 'brownie\|quiche' <<<"$index" || fail "the search index has no recipes in it"
       code=$(curl -s -o /dev/null -w '%{http_code}' "$site/_nuxt/not-a-real-asset.js")
       [ "$code" = 404 ] || fail "a missing build asset answered $code"
