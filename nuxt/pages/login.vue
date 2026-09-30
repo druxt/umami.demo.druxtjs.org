@@ -1,19 +1,16 @@
 <template>
   <div class="auth">
-    <span class="auth__kicker">Editors</span>
-    <h1 class="auth__title">Sign in</h1>
-    <p class="auth__blurb">
-      Your account is in Drupal. Sign in here and every Druxt component on this
-      site can write as well as read.
-    </p>
+    <span class="auth__kicker">{{ $t('login.kicker') }}</span>
+    <h1 class="auth__title">{{ $t('login.title') }}</h1>
+    <p class="auth__blurb">{{ $t('login.blurb') }}</p>
 
     <form class="auth__form" novalidate @submit.prevent="submit">
       <div v-if="error" class="edit-form__alert" role="alert">{{ error }}</div>
 
       <div class="edit-field">
-        <label class="edit-field__label" for="login-name"
-          >Username or email</label
-        >
+        <label class="edit-field__label" for="login-name">{{
+          $t('login.username')
+        }}</label>
         <input
           id="login-name"
           v-model="username"
@@ -26,7 +23,9 @@
       </div>
 
       <div class="edit-field">
-        <label class="edit-field__label" for="login-pass">Password</label>
+        <label class="edit-field__label" for="login-pass">{{
+          $t('login.password')
+        }}</label>
         <input
           id="login-pass"
           v-model="password"
@@ -44,20 +43,23 @@
         type="submit"
         variant="primary"
       >
-        {{ busy ? 'Signing in…' : 'Sign in' }}
+        {{ busy ? $t('login.busy') : $t('login.submit') }}
       </b-button>
     </form>
 
-    <AppDruxtNote file="pages/login.vue" kicker="How this works">
-      <code>druxt-auth</code> exchanges these for a token with Drupal's password
-      grant, on this origin, with no redirect. The token lets every Druxt
-      component write as well as read, and renews on its own.
+    <AppDruxtNote file="pages/login.vue" :kicker="$t('note.howThisWorks')">
+      <i18n path="login.noteBody" tag="span">
+        <template #module><code>druxt-auth</code></template>
+      </i18n>
     </AppDruxtNote>
   </div>
 </template>
 
 <script>
+import { langMixin } from '~/utils/lang'
 export default {
+  mixins: [langMixin],
+
   data: () => ({
     username: '',
     password: '',
@@ -68,7 +70,7 @@ export default {
 
   computed: {
     /** Where to go afterwards: where the visitor came from, else home. */
-    redirect: ({ $route }) => String($route.query.redirect || '/en'),
+    redirect: ({ $route, prefix }) => String($route.query.redirect || prefix),
   },
 
   mounted() {

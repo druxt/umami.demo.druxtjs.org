@@ -8,20 +8,22 @@
          and the column holds at 680px. -->
     <div class="article-page__grid">
       <aside class="article-page__rail">
-        Article<br />{{ readTime }} min read<br />{{ shortDate }}
+        {{ $t('bundle.article') }}<br />{{
+          $t('article.readTime', { n: readTime })
+        }}<br />{{ shortDate }}
       </aside>
 
       <div class="article-page__column">
         <span class="article-page__kicker">
-          Article · {{ readTime }} min read
+          {{ $t('bundle.article') }} ·
+          {{ $t('article.readTime', { n: readTime }) }}
         </span>
 
         <h1 class="article-page__title">{{ entity.attributes.title }}</h1>
 
         <p class="article-page__byline">
-          By the Umami kitchen<span class="article-page__date">
-            · {{ longDate }}</span
-          >
+          {{ $t('article.byline')
+          }}<span class="article-page__date"> · {{ longDate }}</span>
         </p>
 
         <div class="field--body article-page__body">
@@ -62,15 +64,12 @@
 
         <AppDruxtNote
           class="mt-4"
-          title="Those related articles are a Drupal view"
-          cta="Views guide"
+          :title="$t('note.articleTitle')"
+          :cta="$t('note.articleCta')"
           href="https://druxtjs.org/modules/views"
           :code="code"
+          >{{ $t('note.articleBody') }}</AppDruxtNote
         >
-          Filtered by this article's node ID and rendered with two lines of
-          markup. Editors change the filter or the sort in Drupal; the front end
-          does not redeploy.
-        </AppDruxtNote>
       </div>
     </div>
   </article>
@@ -78,9 +77,10 @@
 
 <script>
 import { DruxtEntityMixin } from 'druxt-entity'
+import { langMixin } from '~/utils/lang'
 
 export default {
-  mixins: [DruxtEntityMixin],
+  mixins: [langMixin, DruxtEntityMixin],
 
   computed: {
     theme: () => 'umami',
@@ -97,8 +97,10 @@ export default {
 
     created: ({ entity }) => new Date((entity.attributes || {}).created),
 
+    dateLocale: ({ lang }) => (lang === 'es' ? 'es-ES' : 'en-GB'),
+
     longDate() {
-      return this.created.toLocaleDateString('en-GB', {
+      return this.created.toLocaleDateString(this.dateLocale, {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
@@ -106,7 +108,7 @@ export default {
     },
 
     shortDate() {
-      return this.created.toLocaleDateString('en-GB', {
+      return this.created.toLocaleDateString(this.dateLocale, {
         day: 'numeric',
         month: 'short',
         year: 'numeric',

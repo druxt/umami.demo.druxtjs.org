@@ -20,8 +20,19 @@
       />
     </b-row>
 
-    <b-button class="band__cta" to="/en/recipes" variant="outline-secondary">
-      All recipes
-    </b-button>
+    <b-button
+      class="band__cta"
+      :to="`${prefix}/recipes`"
+      variant="outline-secondary"
+      >{{ $t('home.allRecipes') }}</b-button
+    >
   </div>
 </template>
+
+<script>
+import { langMixin } from '~/utils/lang'
+
+export default {
+  mixins: [langMixin],
+}
+</script>

@@ -21,9 +21,10 @@
 <script>
 import { DruxtEntityMixin } from 'druxt-entity'
 import { mapActions } from 'vuex'
+import { langMixin } from '~/utils/lang'
 
 export default {
-  mixins: [DruxtEntityMixin],
+  mixins: [langMixin, DruxtEntityMixin],
 
   data: () => ({
     category: null,
@@ -46,7 +47,8 @@ export default {
 
   computed: {
     /* @todo - Implement proper multilingual support */
-    to: ({ entity }) => `/en${(entity.attributes.path || {}).alias}`,
+    to: ({ entity, prefix }) =>
+      `${prefix}${(entity.attributes.path || {}).alias}`,
 
     isRecipe: ({ entity }) => entity.type === 'node--recipe',
 
@@ -56,7 +58,7 @@ export default {
         return this.category
       }
       const bundle = (this.entity.type || '').split('--').pop() || ''
-      return bundle.charAt(0).toUpperCase() + bundle.slice(1)
+      return this.$te(`bundle.${bundle}`) ? this.$t(`bundle.${bundle}`) : bundle
     },
 
     /** "40 min · Medium" for a recipe, "4 min read" for an article. */
@@ -65,9 +67,9 @@ export default {
       if (this.isRecipe) {
         const difficulty = a.field_difficulty || ''
         return [
-          a.field_cooking_time && `${a.field_cooking_time} min`,
-          difficulty &&
-            difficulty.charAt(0).toUpperCase() + difficulty.slice(1),
+          a.field_cooking_time &&
+            this.$t('recipe.min', { n: a.field_cooking_time }),
+          difficulty && this.$t(`listing.${difficulty}`),
         ]
           .filter(Boolean)
           .join(' · ')
@@ -80,7 +82,9 @@ export default {
         .replace(/<[^>]+>/g, ' ')
         .split(/\s+/)
         .filter(Boolean)
-      return `${Math.max(1, Math.round(words.length / 200))} min read`
+      return this.$t('article.readTime', {
+        n: Math.max(1, Math.round(words.length / 200)),
+      })
     },
   },
 

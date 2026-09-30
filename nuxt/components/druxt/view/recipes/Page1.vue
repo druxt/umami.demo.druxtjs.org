@@ -11,12 +11,12 @@
         v-model="query"
         class="recipe-filters__field masthead__search"
         debounce="120"
-        placeholder="Filter by ingredient"
+        :placeholder="$t('listing.filterByIngredient')"
         type="search"
       />
 
       <div class="recipe-filters__group recipe-filters__group--scroll">
-        <span class="stat-grid__label">Difficulty</span>
+        <span class="stat-grid__label">{{ $t('listing.difficulty') }}</span>
         <b-button
           v-for="option of difficulties"
           :key="option"
@@ -25,13 +25,13 @@
           :variant="difficulty === option ? 'primary' : 'outline-secondary'"
           @click="difficulty = difficulty === option ? null : option"
         >
-          {{ option }}
+          {{ $t(`listing.${option}`) }}
         </b-button>
       </div>
 
       <div class="recipe-filters__row">
         <div class="recipe-filters__group">
-          <span class="stat-grid__label">Sort</span>
+          <span class="stat-grid__label">{{ $t('listing.sort') }}</span>
           <b-form-select
             v-model="sort"
             :options="sortOptions"
@@ -41,7 +41,12 @@
         </div>
 
         <span class="recipe-filters__count">
-          {{ filtered.length }} of {{ results.length }} · client-side
+          {{
+            $t('listing.count', {
+              shown: filtered.length,
+              total: results.length,
+            })
+          }}
         </span>
       </div>
     </div>
@@ -63,19 +68,16 @@
     </b-row>
 
     <p v-if="!filtered.length" class="text-center py-5" style="color: #8a7f70">
-      Nothing matches those filters yet.
+      {{ $t('listing.nothingMatches') }}
     </p>
 
     <AppDruxtNote
       class="mt-4"
-      title="Drupal's Recipes view, filtered without a page load"
-      cta="Read the Views guide"
+      :title="$t('note.recipesTitle')"
+      :cta="$t('note.recipesCta')"
       href="https://druxtjs.org/modules/views"
+      >{{ $t('note.recipesBody') }}</AppDruxtNote
     >
-      Druxt fetches the view's result set once, then sorting and filtering
-      happen in the browser. In a traditional Drupal theme each of these
-      controls is an exposed filter and a full round trip.
-    </AppDruxtNote>
   </div>
 </template>
 
@@ -88,17 +90,20 @@ export default {
   mixins: [DruxtViewsViewMixin],
 
   data: () => ({
-    difficulties: ['Easy', 'Medium', 'Hard'],
+    difficulties: ['easy', 'medium', 'hard'],
     difficulty: null,
     query: '',
     sort: 'title',
-    sortOptions: [
-      { value: 'title', text: 'A–Z' },
-      { value: 'time', text: 'Quickest first' },
-    ],
   }),
 
   computed: {
+    sortOptions() {
+      return [
+        { value: 'title', text: this.$t('listing.sortAz') },
+        { value: 'time', text: this.$t('listing.sortQuickest') },
+      ]
+    },
+
     filtered() {
       const query = this.query.trim().toLowerCase()
 

@@ -21,7 +21,7 @@
 
       <!-- Everything that is not the recipe, closed by default. -->
       <details class="edit-form__settings">
-        <summary>Settings</summary>
+        <summary>{{ $t('form.settings') }}</summary>
         <div class="edit-form__settings-body">
           <slot name="path" />
           <slot name="status" />

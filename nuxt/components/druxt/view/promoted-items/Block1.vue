@@ -1,7 +1,7 @@
 <template>
   <div class="band band--warm">
     <b-container>
-      <span class="band__label">This week</span>
+      <span class="band__label">{{ $t('home.thisWeek') }}</span>
 
       <!-- Image, kicker, headline. A snap scroller below md, with the next
            card cut at the edge so it says swipe. Both wrappers are

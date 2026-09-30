@@ -1,8 +1,6 @@
 <template>
   <AppFormField
-    :description="
-      description || 'Each step becomes a numbered step on the page.'
-    "
+    :description="description || $t('form.stepsHint')"
     :feedback="feedback"
     :label="label"
     :required="required"
@@ -29,7 +27,7 @@
       </li>
     </ol>
     <button class="edit-list__add" type="button" @click="add()">
-      + Add a step
+      {{ $t('form.addStep') }}
     </button>
     <span v-if="item.format" class="edit-field__format">{{ item.format }}</span>
   </AppFormField>
