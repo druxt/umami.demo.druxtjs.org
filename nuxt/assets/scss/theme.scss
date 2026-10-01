@@ -723,11 +723,18 @@ h4 {
     max-width: 230px;
   }
 
+  // The sort control and its count read as one line.
+  &__row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5625rem 1rem;
+  }
+
   &__count {
     color: $druxt-blue-ink;
     font-family: $mono;
     font-size: 0.75rem;
-    margin-left: auto;
   }
 
   .btn-sm {
@@ -3992,12 +3999,6 @@ html.druxt-inspector {
   }
 }
 
-// A card fills its grid cell whatever its neighbours hold, so a row of cards
-// shares one bottom edge. DruxtEntity wraps each card in a div of its own.
-.card-cell > [data-fetch-key] {
-  height: 100%;
-}
-
 // The filter bar's sort control: a fixed-height select clips its text in
 // Safari, so the height comes from the line and the padding.
 .recipe-filters .custom-select {
@@ -4112,6 +4113,17 @@ html.druxt-inspector {
 }
 
 // Cards 2 / 3 / 4 across, the grid the design uses on every listing.
+// A listing cell fills its row, so a title that wraps does not leave its
+// card shorter than the rest.
+.card-cell {
+  display: flex;
+  flex-direction: column;
+
+  > * {
+    flex: 1 1 auto;
+  }
+}
+
 .card-grid {
   display: grid;
   gap: 12px;
