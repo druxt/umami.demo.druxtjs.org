@@ -139,6 +139,21 @@ export default {
     countRecipes: '{n} recipe | {n} recipes',
     and: 'and',
   },
+  error: {
+    kicker: 'Something went wrong',
+    title: 'Error {status}',
+    text: 'The page could not be shown.',
+    notFoundKicker: 'Not found',
+    notFound: 'There is no page here',
+    notFoundText:
+      'The address may have changed, or the page may have been removed.',
+    resettingKicker: 'One moment',
+    resetting: 'The demo is being reset',
+    resettingText:
+      'Drupal is reinstalling its sample content. This takes about two minutes; the page loads itself as soon as Drupal answers.',
+    retrying: 'Checking again… ({n})',
+    home: 'Back to the home page',
+  },
   note: {
     howThisWorks: 'How this works',
     howThisPageWorks: 'How this page works',
@@ -257,6 +272,7 @@ export default {
     changes: 'Mark {n} change | Mark {n} changes',
     hideMarks: 'Hide the marks',
     replaced: 'Replaced',
+    removed: 'Removed',
     was: 'was',
   },
   contact: {

@@ -784,8 +784,10 @@ h4 {
   font-family: $mono;
   font-size: 0.78125rem;
   line-height: 1.75;
+  max-width: 100%;
   overflow-x: auto;
   padding: 1.125rem 1.25rem;
+  white-space: pre;
 
   .t {
     color: #7fb3d5;
@@ -3820,6 +3822,9 @@ html.druxt-inspector {
     border: 0;
     color: $spice;
     font-weight: 600;
+    // The buttons sit inside a sentence; the template's whitespace between
+    // the words and them is condensed away, so the gap is theirs to make.
+    margin: 0 0.3em;
     padding: 0;
   }
 }
@@ -3954,6 +3959,9 @@ html.druxt-inspector {
 
 // The View / Edit bar on a node page.
 .page-tabs {
+  // Scrolled into view (a tab click, a focus), the tabs clear the sticky
+  // masthead instead of landing under it.
+  scroll-margin-top: 7rem;
   border-bottom: 1px solid $rule;
   display: flex;
   gap: 4px;
@@ -4503,6 +4511,31 @@ button.masthead__account {
     color: $ink-faint;
     text-decoration: none;
   }
+  &__removed {
+    border-top: 1px solid $druxt-line;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 10px 0 0;
+
+    li {
+      align-items: center;
+      display: inline-flex;
+      gap: 8px;
+    }
+    img {
+      border-radius: 4px;
+      height: 44px;
+      object-fit: cover;
+      width: 66px;
+    }
+  }
+  &__removed-name {
+    font-family: $mono;
+    font-size: 0.71875rem;
+  }
 }
 
 // The marks in the content: the draft's words against Drupal's, in place.
@@ -4735,5 +4768,46 @@ del.v-diff-del--trailing {
     &__grid {
       grid-template-columns: repeat(3, 1fr);
     }
+  }
+}
+
+// ── Error page ───────────────────────────────────────────────────────────────
+// A reinstalling demo says so and retries; anything else gets a way home.
+.error-page {
+  padding: 4rem 0 5rem;
+
+  &__kicker {
+    color: $ink-muted;
+    display: block;
+    font-family: $sans;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  &__title {
+    font-family: $serif;
+    font-size: 2.5rem;
+    margin: 0.5rem 0 1rem;
+  }
+  &__text,
+  &__detail {
+    color: $ink-muted;
+    max-width: 40rem;
+  }
+  &__detail {
+    font-family: $mono;
+    font-size: 0.8125rem;
+    overflow-wrap: anywhere;
+  }
+  &__status {
+    color: $ink-faint;
+    font-family: $mono;
+    font-size: 0.8125rem;
+  }
+  &__home {
+    display: inline-block;
+    font-weight: 600;
+    margin-top: 1rem;
   }
 }
