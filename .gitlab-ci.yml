@@ -49,13 +49,14 @@ default:
 .node:
   image: $NODE_IMAGE
   interruptible: true
+  # The downloads only: a cached node_modules keeps the patches it was built
+  # with, and patch-package cannot lay a changed patch over an applied one.
   cache:
     key:
       files:
         - nuxt/yarn.lock
     paths:
       - .yarn-cache/
-      - nuxt/node_modules/
   before_script:
     - !reference [default, before_script]
     - section_start "install" "Installing dependencies (Yarn 1)"
