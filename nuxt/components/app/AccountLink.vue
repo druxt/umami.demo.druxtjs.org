@@ -13,9 +13,19 @@ export default {
     to: { type: String, default: '/login' },
   },
 
+  // The generated page is a visitor's. Rendered signed in from the start, the
+  // link no longer matched that markup, and the mismatch put every component
+  // after it out of step with its hydration data: the banner took another's
+  // and lost its photograph. It changes once mounted, as the page's does.
+  data: () => ({ mounted: false }),
+
   computed: {
-    loggedIn: ({ $auth }) => !!($auth && $auth.loggedIn),
+    loggedIn: ({ $auth, mounted }) => mounted && !!($auth && $auth.loggedIn),
     name: ({ $auth }) => (($auth || {}).user || {}).name || '',
+  },
+
+  mounted() {
+    this.mounted = true
   },
 
   methods: {
