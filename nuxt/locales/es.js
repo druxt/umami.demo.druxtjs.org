@@ -288,6 +288,10 @@ export default {
     replaced: 'Reemplazada',
     removed: 'Eliminada',
     was: 'antes',
+    discard: 'Descartar borrador',
+    discardAsk: '¿Tirar este borrador?',
+    discardYes: 'Descartar',
+    discardNo: 'Conservarlo',
   },
   contact: {
     kicker: 'Contacto',
