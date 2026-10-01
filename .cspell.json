@@ -30,6 +30,8 @@
     "*.gif",
     "*.ico",
     "*.min.*",
-    "e2e/test-results/"
+    "e2e/test-results/",
+    "e2e/lighthouse/",
+    "e2e/.lighthouseci/"
   ]
 }
