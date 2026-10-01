@@ -17,9 +17,19 @@ import {
  * page has hydrated.
  */
 export default ({ store }, inject) => {
-  const key = (type, id) => `${type}:${id}`
-  const draftFor = (type, id) =>
-    ((store.state.druxtIce || {}).drafts || {})[key(type, id)] || null
+  // One draft per translation: the English draft stays off the Spanish page.
+  const key = (type, id, langcode) => `${type}:${id}:${langcode}`
+  const draftFor = (type, id, langcode) =>
+    ((store.state.druxtIce || {}).drafts || {})[key(type, id, langcode)] || null
+  /**
+   * The language a store copy is in: its prefix, or the site's default for
+   * a copy fetched without one (keyed 'undefined' in the store).
+   */
+  const langOfPrefix = (prefix) => {
+    const p = String(prefix || '').replace(/^\//, '')
+    return p && p !== 'undefined' ? p : 'en'
+  }
+  const langOf = (data) => ((data || {}).attributes || {}).langcode || 'en'
 
   /**
    * The fields an entity rendered keep the value they were mounted with, so
@@ -46,13 +56,14 @@ export default ({ store }, inject) => {
   }
 
   /** Every mounted DruxtEntity showing this entity renders `data`. */
-  const refresh = (type, id, data) => {
+  const refresh = (type, id, data, langcode) => {
     const visit = (vm) => {
       if (
         vm.$options.name === 'DruxtEntity' &&
         vm.uuid === id &&
         vm.model &&
-        vm.model.type === type
+        vm.model.type === type &&
+        (vm.lang || 'en') === langcode
       ) {
         if (JSON.stringify(vm.model) !== JSON.stringify(data)) vm.model = data
         refreshFields(vm, data)
@@ -89,13 +100,13 @@ export default ({ store }, inject) => {
   let applying = false
 
   /** Lay `draft` over the entity wherever the Druxt store holds it. */
-  const overlay = (type, id, draft) => {
+  const overlay = (type, id, langcode, draft) => {
     const byPrefix = ((store.state.druxt || {}).resources || {})[type] || {}
     let shown = null
     applying = true
     try {
       for (const [prefix, doc] of Object.entries(byPrefix[id] || {})) {
-        if (!doc || !doc.data) continue
+        if (!doc || !doc.data || langOfPrefix(prefix) !== langcode) continue
         const data = withDraft(doc.data, draft)
         shown = data
         if (carries(doc.data, draft)) continue
@@ -107,7 +118,7 @@ export default ({ store }, inject) => {
     } finally {
       applying = false
     }
-    if (shown) refresh(type, id, shown)
+    if (shown) refresh(type, id, shown, langcode)
   }
 
   /** The store mirrors the form: `model` is what the entity is now. */
@@ -124,10 +135,11 @@ export default ({ store }, inject) => {
       relationships: model.relationships || {},
     })
     const copy = () => JSON.parse(shown)
+    const langcode = langOf(model)
     applying = true
     try {
       for (const [prefix, doc] of Object.entries(byPrefix[model.id] || {})) {
-        if (!doc || !doc.data) continue
+        if (!doc || !doc.data || langOfPrefix(prefix) !== langcode) continue
         const { attributes, relationships } = copy()
         const data = { ...doc.data, attributes, relationships }
         if (carries(doc.data, data)) continue
@@ -139,28 +151,29 @@ export default ({ store }, inject) => {
     } finally {
       applying = false
     }
-    refresh(model.type, model.id, copy())
+    refresh(model.type, model.id, copy(), langcode)
   }
 
   // Entities an editor asked to see as Drupal holds them, draft kept aside,
   // and entities whose changes are marked in the page.
   const real = Vue.observable({ keys: {}, marks: {} })
-  const isReal = (type, id) => !!real.keys[key(type, id)]
-  const isMarking = (type, id) => !!real.marks[key(type, id)]
-  const showChanges = (type, id, on) => {
-    Vue.set(real.marks, key(type, id), !!on)
+  const isReal = (type, id, langcode) => !!real.keys[key(type, id, langcode)]
+  const isMarking = (type, id, langcode) =>
+    !!real.marks[key(type, id, langcode)]
+  const showChanges = (type, id, langcode, on) => {
+    Vue.set(real.marks, key(type, id, langcode), !!on)
   }
 
   /** Show Drupal's version of an entity, or the draft again. */
-  const showReal = (type, id, on) => {
-    const draft = draftFor(type, id)
+  const showReal = (type, id, langcode, on) => {
+    const draft = draftFor(type, id, langcode)
     if (!draft) return
-    Vue.set(real.keys, key(type, id), !!on)
+    Vue.set(real.keys, key(type, id, langcode), !!on)
     const byPrefix = ((store.state.druxt || {}).resources || {})[type] || {}
     applying = true
     try {
       for (const [prefix, doc] of Object.entries(byPrefix[id] || {})) {
-        if (!doc || !doc.data) continue
+        if (!doc || !doc.data || langOfPrefix(prefix) !== langcode) continue
         const data = on
           ? withoutDraft(doc.data, draft)
           : withDraft(doc.data, draft)
@@ -168,7 +181,7 @@ export default ({ store }, inject) => {
           prefix: prefix === 'undefined' ? undefined : prefix,
           resource: { ...doc, data },
         })
-        refresh(type, id, data)
+        refresh(type, id, data, langcode)
       }
     } finally {
       applying = false
@@ -191,8 +204,10 @@ export default ({ store }, inject) => {
       store.commit('druxtIce/setDraft', { key: k, draft })
     }
     for (const k of Object.keys((store.state.druxtIce || {}).drafts || {})) {
-      const [type, id] = k.split(':')
-      overlay(type, id, draftFor(type, id))
+      const [type, id, langcode] = k.split(':')
+      // A draft from before drafts carried a language is dropped.
+      if (!langcode) store.commit('druxtIce/clearDraft', k)
+      else overlay(type, id, langcode, draftFor(type, id, langcode))
     }
 
     store.subscribe(({ type, payload }) => {
@@ -202,9 +217,10 @@ export default ({ store }, inject) => {
       // A fresh copy of a drafted entity arrives: the draft goes back on top.
       if (type === 'druxt/addResource' && !applying) {
         const data = ((payload || {}).resource || {}).data || {}
-        const draft = draftFor(data.type, data.id)
-        if (draft && !isReal(data.type, data.id)) {
-          overlay(data.type, data.id, draft)
+        const langcode = langOf(data)
+        const draft = draftFor(data.type, data.id, langcode)
+        if (draft && !isReal(data.type, data.id, langcode)) {
+          overlay(data.type, data.id, langcode, draft)
         }
       }
       // A draft that is gone leaves nothing to show instead of the page.
