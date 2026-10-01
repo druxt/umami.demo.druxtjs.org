@@ -25,17 +25,23 @@ const decorate = (vm, diff) => {
 const entityOf = (vm) => {
   for (let p = vm.$parent; p; p = p.$parent) {
     if (p.$options.name === 'DruxtEntity' && p.uuid && p.type) {
-      return { type: p.type, id: p.uuid }
+      return { type: p.type, id: p.uuid, langcode: p.lang || 'en' }
     }
   }
   return null
 }
 
-/** A DruxtField wrapper on a View display: it knows its field, and its parents its entity. */
+/**
+ * The component that renders a field on a View display: it knows its field,
+ * and its parents its entity. Not druxt-entity's own DruxtField around it,
+ * which carries the same schema: two hosts for one field mark it twice,
+ * and the outer one's saved original holds the inner one's marks.
+ */
 const isViewField = (vm) =>
   !!(
     vm.schema &&
     vm.schema.id &&
+    vm.$options.name !== 'DruxtField' &&
     (vm.schema.config || {}).schemaType === 'view' &&
     entityOf(vm)
   )
@@ -68,7 +74,15 @@ export default () => {
   const forElement = (binding, vnode) => {
     const vm = vnode.context
     return vm && vm.entity
-      ? decorate(vm, diffFor(vm.$store, vm.$drafts, vm.entity, binding.value))
+      ? decorate(
+          vm,
+          diffFor(
+            vm.$store,
+            vm.$drafts,
+            { ...vm.entity, langcode: vm.langcode || vm.lang || 'en' },
+            binding.value
+          )
+        )
       : null
   }
   // The binding is a field name, so it never changes: the element watches

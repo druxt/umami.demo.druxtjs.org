@@ -61,8 +61,14 @@ export function fileOfMedia(store, value, baseUrl = '') {
 export function diffFor(store, drafts, entity, name) {
   if (!entity || !entity.type || !entity.id || !name || !drafts) return null
   const { type, id } = entity
-  if (!drafts.isMarking(type, id) || drafts.isReal(type, id)) return null
-  const draft = drafts.draftFor(type, id)
+  const langcode = entity.langcode || 'en'
+  if (
+    !drafts.isMarking(type, id, langcode) ||
+    drafts.isReal(type, id, langcode)
+  ) {
+    return null
+  }
+  const draft = drafts.draftFor(type, id, langcode)
   if (!draft) return null
   const before = draft.before || {}
   if (name in (draft.relationships || {})) {
@@ -86,6 +92,24 @@ export function diffFor(store, drafts, entity, name) {
 const KEY = '__umamiDraftMark'
 const ORIGINAL = '__umamiDraftOriginal'
 const SWAPPED = 'v-diff-swapped'
+
+/** The marked host a mark belongs to: the nearest ancestor this file synced. */
+const hostOf = (mark) => {
+  for (let p = mark.parentElement; p; p = p.parentElement) {
+    if (Object.prototype.hasOwnProperty.call(p, KEY)) return p
+  }
+  return null
+}
+
+/**
+ * Whether `el` carries marks of its own. A field inside a field (an entity
+ * reference renders the entity's fields) carries the inner field's marks
+ * too, and those are not this element's to restore.
+ */
+const hasOwnMarks = (el) =>
+  Array.from(el.querySelectorAll('.v-diff-ins, .v-diff-del')).some(
+    (mark) => hostOf(mark) === el
+  )
 
 /** The chip on a replaced field: what it was, and that it was replaced. */
 const swapChip = ({ words = {}, previousImage }) => {
@@ -117,9 +141,9 @@ export function sync(el, diff) {
   if (!el || el.nodeType !== 1) return
   const key = diff ? `${diff.left}\u0000${diff.right}` : ''
   if (!key && !el[KEY]) return
-  const marked = !!el.querySelector('.v-diff-ins, .v-diff-del')
+  const marked = hasOwnMarks(el)
   if (marked && el[KEY] === key) return
-  if (marked) el.innerHTML = el[ORIGINAL]
+  if (marked && el[ORIGINAL] != null) el.innerHTML = el[ORIGINAL]
   el.classList.remove(SWAPPED)
   el[KEY] = key
   if (!diff) return
