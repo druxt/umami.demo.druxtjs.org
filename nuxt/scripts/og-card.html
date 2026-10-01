@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500&family=Archivo:wght@500;600&display=swap"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+      }
+      body {
+        background: #faf8f3;
+        color: #1f1b17;
+        font-family: Archivo, sans-serif;
+        height: 630px;
+        overflow: hidden;
+        position: relative;
+        width: 1200px;
+      }
+      .rule {
+        background: #2b3a4a;
+        height: 14px;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+      .wm {
+        font-family: Newsreader, serif;
+        font-size: 168px;
+        font-weight: 500;
+        left: 96px;
+        letter-spacing: -0.02em;
+        line-height: 1;
+        position: absolute;
+        top: 150px;
+      }
+      .tag {
+        color: #6b625a;
+        font-size: 30px;
+        font-weight: 500;
+        left: 100px;
+        letter-spacing: 0.32em;
+        position: absolute;
+        text-transform: uppercase;
+        top: 352px;
+      }
+      .foot {
+        align-items: flex-end;
+        border-top: 2px solid #e3dccf;
+        bottom: 72px;
+        display: flex;
+        justify-content: space-between;
+        left: 96px;
+        padding-top: 28px;
+        position: absolute;
+        right: 96px;
+      }
+      .foot .a {
+        align-items: center;
+        color: #2b3a4a;
+        display: flex;
+        font-size: 30px;
+        font-weight: 600;
+        gap: 14px;
+      }
+      .foot .b {
+        color: #6b625a;
+        font-size: 26px;
+      }
+      .mark {
+        height: 30px;
+        width: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rule"></div>
+    <div class="wm">Umami</div>
+    <div class="tag">Food magazine</div>
+    <div class="foot">
+      <div class="a">
+        <svg
+          class="mark"
+          viewBox="0 0 452 342"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            fill="#3498DB"
+            d="M139 330l-1-2c-2-4-2-8-1-13H29L189 31l67 121 22-16-67-121c-1-2-9-14-22-14-6 0-15 2-22 15L5 303c-1 3-8 16-2 27 4 6 10 12 24 12h136c-14 0-21-6-24-12z"
+          />
+          <path
+            fill="#108775"
+            d="M447 304L317 70c-2-2-9-15-22-15-6 0-15 3-22 15l-17 28v54l39-67 129 230h-49a23 23 0 0 1-2 14l-1 1c-6 11-21 12-23 12h76c3 0 17-1 24-12 3-5 5-14-2-26z"
+          />
+          <path
+            fill="#2F495E"
+            d="M376 330v-1l1-2c1-4 2-8 1-12l-4-12-102-178-15-27h-1l-15 27-102 178-4 12a24 24 0 0 0 2 15c4 6 10 12 24 12h190c3 0 18-1 25-12zM256 152l93 163H163l93-163z"
+          />
+        </svg>
+        Built with DruxtJS
+      </div>
+      <div class="b">
+        Drupal + Nuxt, fully decoupled · umami.demo.druxtjs.org
+      </div>
+    </div>
+  </body>
+</html>
