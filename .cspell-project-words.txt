@@ -12,6 +12,7 @@ crossorigin
 dcbdaaf
 defu
 devpod
+diffable
 drush
 druxt
 druxtjs
