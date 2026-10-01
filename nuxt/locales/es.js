@@ -49,7 +49,7 @@ export default {
     thisWeek: 'Esta semana',
     allRecipes: 'Todas las recetas',
     collections: 'Colecciones de recetas',
-    more: 'Más →',
+    more: 'Todas las colecciones →',
     inPrint: 'En papel',
     feedbackTitle: 'Cuéntanos qué te parece',
     feedbackBody:
