@@ -115,6 +115,34 @@ test.describe('drafts', () => {
     await expect(page.locator('#title')).toHaveValue(original)
   })
 
+  test('a draft can be thrown away from the banner', async ({ page }) => {
+    await signIn(page)
+    await openEdit(page, RECIPE)
+    const original = await page.locator('#title').inputValue()
+    await page.fill('#title', `${original} to discard`)
+    await expect(page.locator('.draft-banner')).toBeVisible()
+    // It asks once; keeping it changes nothing.
+    await page.click('.draft-banner__discard')
+    await page.click('.draft-banner__discard-no')
+    await expect(page.locator('.draft-banner')).toBeVisible()
+    // From the keyboard: focus moves to the question, Escape hands it back.
+    await page.focus('.draft-banner__discard')
+    await page.keyboard.press('Enter')
+    await expect(page.locator('.draft-banner__discard-no')).toBeFocused()
+    await page.keyboard.press('Escape')
+    await expect(page.locator('.draft-banner__confirm')).toHaveCount(0)
+    await expect(page.locator('.draft-banner__discard')).toBeFocused()
+    await page.click('.draft-banner__discard')
+    await page.click('.draft-banner__discard-yes')
+    await expect(page.locator('.draft-banner')).toHaveCount(0)
+    // The open form shows Drupal's title again, and a reload finds no draft.
+    await expect(page.locator('#title')).toHaveValue(original)
+    await page.reload()
+    await hydrated(page)
+    await expect(page.locator('.draft-banner')).toHaveCount(0)
+    await expect(page.locator('h1').first()).toContainText(original)
+  })
+
   test('a draft on the English page stays off the Spanish one', async ({
     page,
   }) => {
