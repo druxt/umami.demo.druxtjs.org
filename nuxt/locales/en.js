@@ -283,6 +283,10 @@ export default {
     replaced: 'Replaced',
     removed: 'Removed',
     was: 'was',
+    discard: 'Discard draft',
+    discardAsk: 'Throw this draft away?',
+    discardYes: 'Discard',
+    discardNo: 'Keep it',
   },
   contact: {
     kicker: 'Contact',

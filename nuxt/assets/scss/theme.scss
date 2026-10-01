@@ -4596,10 +4596,81 @@ button.masthead__account {
       color: #fff;
     }
   }
+  // The cross that throws the draft away: quiet until the pointer finds
+  // it, then red; it asks before it acts.
+  &__discard {
+    align-items: center;
+    background: transparent;
+    border: 1px solid $rule;
+    border-radius: 50%;
+    color: $ink-muted;
+    display: inline-flex;
+    font-size: 1.125rem;
+    height: 1.75rem;
+    justify-content: center;
+    margin-left: auto;
+    padding: 0;
+    width: 1.75rem;
+
+    &:hover,
+    &:focus-visible {
+      border-color: #a3361a;
+      color: #a3361a;
+    }
+  }
+
+  &__confirm {
+    align-items: center;
+    display: inline-flex;
+    font-size: 0.8125rem;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+
+  &__discard-yes,
+  &__discard-no {
+    background: transparent;
+    border: 1px solid $rule;
+    border-radius: 999px;
+    color: $ink-muted;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.7rem;
+
+    &:hover,
+    &:focus-visible {
+      border-color: $ink;
+      color: $ink;
+    }
+  }
+
+  &__discard-no {
+    border-color: $druxt-navy;
+    color: $druxt-navy;
+
+    &:hover,
+    &:focus-visible {
+      background: $druxt-navy;
+      border-color: $druxt-navy;
+      color: #fff;
+    }
+  }
+
+  &__discard-yes {
+    border-color: #a3361a;
+    color: #a3361a;
+
+    &:hover,
+    &:focus-visible {
+      background: #a3361a;
+      color: #fff;
+    }
+  }
+
   &__diff-toggle {
     background: transparent;
     border: 0;
-    color: $druxt-blue;
+    color: $druxt-blue-ink;
     font: inherit;
     font-size: 0.75rem;
     font-weight: 600;

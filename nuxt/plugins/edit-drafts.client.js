@@ -188,6 +188,16 @@ export default ({ store }, inject) => {
     }
   }
 
+  /** Drops a draft: Drupal's version is back in the page and nothing is kept. */
+  const discard = (type, id, langcode) => {
+    if (!draftFor(type, id, langcode)) return
+    showReal(type, id, langcode, true)
+    store.commit('drafts/clearDraft', key(type, id, langcode))
+    // An open form holds the draft's values still; it puts Drupal's back.
+    if (window.$nuxt)
+      window.$nuxt.$emit('drafts:discarded', key(type, id, langcode))
+  }
+
   inject('drafts', {
     overlay,
     mirror,
@@ -196,6 +206,7 @@ export default ({ store }, inject) => {
     isReal,
     showChanges,
     isMarking,
+    discard,
     real,
   })
 
