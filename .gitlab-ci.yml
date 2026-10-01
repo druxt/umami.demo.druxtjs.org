@@ -239,7 +239,7 @@ commitlint:
 #   * ROUTER_BASE tells Nuxt the site is served from a subdirectory. Without
 #     it every /_nuxt/ asset 404s under the prefix.
 #   * API_PROXY=0 makes Druxt call the backend absolutely. There is no proxy
-#     layer on Pages the way netlify.toml provides one in production, and the
+#     layer on Pages the way the start script provides one on Lagoon, and the
 #     backend does send permissive CORS headers, so direct calls work.
 # The demo as Lagoon runs it: a fresh Drupal 11, and the site's start script
 # generating against it and serving the result with Drupal's paths proxied.
