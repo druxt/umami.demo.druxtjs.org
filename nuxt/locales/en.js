@@ -49,7 +49,7 @@ export default {
     thisWeek: 'This week',
     allRecipes: 'All recipes',
     collections: 'Recipe collections',
-    more: 'More →',
+    more: 'All collections →',
     inPrint: 'In print',
     feedbackTitle: 'Tell us what you think',
     feedbackBody:
