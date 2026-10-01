@@ -27,17 +27,18 @@
             $t('cta.startKicker')
           }}</span>
           <div class="druxt-cta__command mt-2">
-            <span><span class="prompt">$</span> {{ command }}</span>
+            <!-- One line on a phone, scrolled sideways: the keyboard reaches
+                 it as well. -->
+            <span tabindex="0"
+              ><span class="prompt">$</span> {{ command }}</span
+            >
             <button
               class="druxt-cta__copy-btn"
               :data-state="copied ? 'copied' : null"
               type="button"
               @click="copy"
             >
-              <span>{{ copied ? $t('cta.copied') : $t('cta.copy') }}</span>
-              <span class="druxt-cta__copy-reserve" aria-hidden="true">{{
-                $t('cta.copied')
-              }}</span>
+              {{ copied ? $t('cta.copied') : $t('cta.copy') }}
             </button>
           </div>
           <p class="druxt-cta__devpod mt-2 mb-0">

@@ -20,7 +20,7 @@ $rule-faint: #f0e7d8;
 $ink: #241f1a;
 $ink-soft: #55504a;
 $ink-muted: #6b625a;
-$ink-faint: #776c5e; // 4.97:1 on $paper — was #8a7f70 at 3.80:1
+$ink-faint: #6f6454; // 5.40:1 on $paper, 4.97:1 on $paper-warm; was #776c5e at 4.44:1 on warm
 $ink-ghost: #6f6454; // 4.97:1 on $paper-warm, 5.40:1 on $paper
 $ink-ghost-dark: #b3a894; // for ghost text on the $ink band — 6.9:1
 
@@ -886,28 +886,24 @@ h4 {
 
     // The copy button, as druxtjs.org draws it over a code block: a shade
     // lighter than the block, lighter again under the pointer, and green
-    // once it has copied. The wider label's width is reserved so the swap
-    // to "Copied" moves nothing.
+    // once it has copied. Wide enough for the longer label, so the swap to
+    // "Copied" moves nothing.
     button {
-      background: color-mix(in srgb, $druxt-code, #fff 8%);
+      background: #223443; // $druxt-code lifted 8% towards white
       border: 1px solid rgb(255 255 255 / 0.15);
       border-radius: 6px;
       color: rgb(229 236 241 / 0.85);
-      display: inline-grid;
       font-size: 0.6875rem;
       font-weight: 500;
       line-height: 1.5;
+      min-width: 5.5em;
       padding: 4px 10px;
       text-align: center;
       transition: background-color 150ms, border-color 150ms, color 150ms;
 
-      > span {
-        grid-area: 1 / 1;
-      }
-
       &:hover,
       &:focus-visible {
-        background: color-mix(in srgb, $druxt-code, #fff 15%);
+        background: #334352; // 15% towards white
         color: #fff;
       }
 
@@ -916,10 +912,6 @@ h4 {
         color: #9fd2a0;
       }
     }
-  }
-
-  &__copy-reserve {
-    visibility: hidden;
   }
 }
 
@@ -1463,7 +1455,10 @@ html.druxt-inspector {
   width: 100%;
 
   // The main menu, at lg and up. Below that the drawer owns these links.
-  .nav-link {
+  // Bootstrap's navbar-light rule outranks a plain .nav-link and paints
+  // them half-black, 3.9:1 on paper, so this selector outweighs it.
+  .nav-link,
+  .navbar-nav .nav-item .nav-link {
     color: $ink-soft;
     font-size: 0.90625rem;
     font-weight: 500;
@@ -2706,10 +2701,17 @@ html.druxt-inspector {
       }
 
       button {
+        background: transparent;
         border: 0;
         color: $druxt-navy;
         font-size: 0.78125rem;
         padding: 0;
+
+        &:hover,
+        &:focus-visible {
+          background: transparent;
+          color: $druxt-blue;
+        }
       }
     }
   }

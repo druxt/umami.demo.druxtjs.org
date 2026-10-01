@@ -81,17 +81,24 @@
     <b-form-group
       v-else
       :id="schema.id"
+      :label-for="`${schema.id}-field`"
       :description="schema.description || ''"
       :invalid-feedback="stateFeedback"
       :label="label"
       :state="state"
     >
       <!-- Checkboxes -->
-      <b-form-checkbox v-if="isTypeCheckbox" v-model="model" v-bind="props" />
+      <b-form-checkbox
+        v-if="isTypeCheckbox"
+        :id="`${schema.id}-field`"
+        v-model="model"
+        v-bind="props"
+      />
 
       <!-- Input fields -->
       <b-input
         v-else-if="isTypeInput"
+        :id="`${schema.id}-field`"
         v-model="model"
         :type="inputType"
         v-bind="props"
@@ -100,6 +107,7 @@
       <!-- Textarea -->
       <b-textarea
         v-else
+        :id="`${schema.id}-field`"
         v-model="model"
         v-bind="{
           rows: schema.settings.display.rows || undefined,
