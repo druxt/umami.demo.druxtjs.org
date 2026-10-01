@@ -128,9 +128,10 @@
 import { isFront } from '~/utils/front'
 
 const SNIPPET = [
-  "<span class='t'>DruxtBlockRegion</span>",
+  "<span class='t'>&lt;DruxtBlockRegion</span>",
   "  <span class='a'>name</span>=<span class='v'>\"banner_top\"</span>",
   "  <span class='a'>theme</span>=<span class='v'>\"umami\"</span>",
+  "<span class='t'>/&gt;</span>",
 ].join('\n')
 
 export default {
