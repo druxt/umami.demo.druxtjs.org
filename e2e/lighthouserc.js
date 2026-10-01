@@ -19,7 +19,8 @@ module.exports = {
         `${base}/en/articles/give-your-oatmeal-the-ultimate-makeover`,
         `${base}/en/about-umami`,
       ],
-      numberOfRuns: 1,
+      // Three runs a page: one CI sample swings by twenty points.
+      numberOfRuns: 3,
       settings: {
         // The flags a container needs: no sandbox, no /dev/shm, no GPU.
         chromeFlags:
@@ -38,7 +39,10 @@ module.exports = {
       assertions: {
         // Mobile performance sits in the sixties while the demo's photographs
         // go out at full size; the floor rises with each step that lifts it.
-        'categories:performance': ['error', { minScore: 0.6 }],
+        'categories:performance': [
+          'error',
+          { aggregationMethod: 'median-run', minScore: 0.6 },
+        ],
         'categories:accessibility': ['error', { minScore: 0.95 }],
         'categories:best-practices': ['error', { minScore: 0.9 }],
         'categories:seo': ['error', { minScore: 0.9 }],
