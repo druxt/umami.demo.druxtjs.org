@@ -47,6 +47,7 @@ export default {
   },
   home: {
     thisWeek: 'Esta semana',
+    recipeOfWeek: 'Receta de la semana',
     allRecipes: 'Todas las recetas',
     collections: 'Colecciones de recetas',
     more: 'Todas las colecciones →',
