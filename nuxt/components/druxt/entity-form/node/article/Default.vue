@@ -11,30 +11,34 @@
 
     <AppEditFormErrors :errors="errors" :fields="fieldLabels" />
 
-    <b-overlay :show="submitting" class="edit-form__content">
-      <slot name="title" />
-      <slot name="field_media_image" />
-      <slot name="field_body" />
-      <slot name="field_tags" />
+    <b-overlay :show="submitting" class="edit-form__layout">
+      <div class="edit-form__content">
+        <slot name="title" />
+        <slot name="field_media_image" />
+        <slot name="field_body" />
+        <slot name="field_tags" />
 
-      <details class="edit-form__settings">
-        <summary>{{ $t('form.settings') }}</summary>
-        <div class="edit-form__settings-body">
-          <slot name="path" />
-          <slot name="status" />
-          <slot name="promote" />
-          <slot name="sticky" />
-          <slot name="uid" />
-          <slot name="created" />
-          <slot name="moderation_state" />
-          <slot name="langcode" />
+        <div class="edit-form__actions">
+          <slot name="buttons" />
         </div>
-      </details>
-    </b-overlay>
+      </div>
 
-    <div class="edit-form__actions">
-      <slot name="buttons" />
-    </div>
+      <aside class="edit-form__aside">
+        <details class="edit-form__settings" :open="wide">
+          <summary>{{ $t('form.settings') }}</summary>
+          <div class="edit-form__settings-body">
+            <slot name="path" />
+            <slot name="status" />
+            <slot name="promote" />
+            <slot name="sticky" />
+            <slot name="uid" />
+            <slot name="created" />
+            <slot name="moderation_state" />
+            <slot name="langcode" />
+          </div>
+        </details>
+      </aside>
+    </b-overlay>
 
     <AppDruxtNote
       v-if="creating"
