@@ -1,5 +1,21 @@
 import axios from 'axios'
 
+// The export carries field values as stored, markup and all: words only, so
+// "<li>Preheat" indexes as "preheat" and a comment is not content.
+const plain = (value) =>
+  typeof value === 'string'
+    ? value
+        .replace(/<!--[\s\S]*?-->/g, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&#0?39;|&apos;/g, "'")
+        .replace(/&quot;/g, '"')
+        .replace(/,/g, ', ')
+        .replace(/\s+/g, ' ')
+        .trim()
+    : value
+
 export default function (moduleOptions = {}) {
   // Default settings.
   const server = moduleOptions.server || 'default'
@@ -27,9 +43,9 @@ export default function (moduleOptions = {}) {
         // Iterate over documents and add to Nuxt.js Lunr module.
         for (const item of Object.values(file.data)) {
           // @TODO - Make document format smart or configurable.
-          const document = {
-            id: item._id,
-            ...item,
+          const document = { id: item._id }
+          for (const [key, value] of Object.entries(item)) {
+            document[key] = plain(value)
           }
 
           // One index per language: a Spanish page searches Spanish content.
