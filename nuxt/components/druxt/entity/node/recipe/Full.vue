@@ -2,14 +2,22 @@
   <article class="recipe-page">
     <!-- The photograph leads at every width. At lg the title sits on it. -->
     <div class="recipe-hero bleed">
-      <div class="node-hero node-hero--recipe">
+      <div
+        class="node-hero node-hero--recipe"
+        :class="{ 'v-diff-swapped': fieldDiff('field_media_image') }"
+      >
         <slot name="field_media_image" />
+        <AppDraftSwap
+          :entity="draftEntity"
+          :field="fieldDiff('field_media_image')"
+          name="field_media_image"
+        />
       </div>
       <div class="recipe-hero__scrim" />
       <b-container class="node-head recipe-hero__head">
         <DruxtBreadcrumb />
         <h1
-          v-draft-diff="'title'"
+          v-diff="fieldDiff('title')"
           class="node-head__title"
           v-text="entity.attributes.title"
         />
@@ -73,13 +81,19 @@
 </template>
 
 <script>
+import { diffable } from '@druxt-contrib/diff'
 import { DruxtEntityMixin } from 'druxt-entity'
 import { langMixin } from '~/utils/lang'
 
 export default {
-  mixins: [langMixin, DruxtEntityMixin],
+  mixins: [langMixin, DruxtEntityMixin, diffable],
 
   computed: {
+    /** This entity as the draft helpers name it. */
+    draftEntity() {
+      return { type: this.entity.type, id: this.entity.id, langcode: this.lang }
+    },
+
     stats() {
       const a = this.entity.attributes
       const level = a.field_difficulty || ''

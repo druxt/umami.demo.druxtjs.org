@@ -11,7 +11,7 @@
     <!-- Items -->
     <b-list-group>
       <b-list-group-item v-for="(item, key) of items" :key="key">
-        {{ item }}
+        <span v-diff="textDiff(schema.id)" v-text="item" />
       </b-list-group-item>
     </b-list-group>
   </component>
@@ -19,8 +19,9 @@
 
 <script>
 import { DruxtFieldMixin } from 'druxt-entity'
+import { draftDiffable } from '~/utils/draft-diff'
 
 export default {
-  mixins: [DruxtFieldMixin],
+  mixins: [draftDiffable, DruxtFieldMixin],
 }
 </script>

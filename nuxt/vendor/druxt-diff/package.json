@@ -23,6 +23,42 @@
     "dist",
     "templates"
   ],
+  "scripts": {
+    "build": "siroc build && node scripts/finish-dist.mjs",
+    "build:watch": "siroc build --watch",
+    "changeset": "changeset",
+    "hooks:install": "git config core.hooksPath .githooks",
+    "lint": "npm run lint:js && npm run lint:format && npm run lint:md && npm run lint:cspell && npm run lint:private && npm run lint:attribution && npm run lint:knip",
+    "lint:attribution": "bash .gitlab/scripts/check-attribution.sh",
+    "lint:audit": "npm audit --omit=dev --audit-level=high",
+    "lint:commit": "commitlint",
+    "lint:cspell": "cspell lint --no-progress --no-must-find-files --gitignore --dot \"**/*.{js,mjs,vue,json,jsonc,md,yml,yaml}\"",
+    "lint:format": "prettier --check \"**/*.{js,mjs,vue,json,jsonc,md,yml,yaml}\"",
+    "lint:format:fix": "prettier --write \"**/*.{js,mjs,vue,json,jsonc,md,yml,yaml}\"",
+    "lint:js": "eslint --ext .js,.mjs,.vue src test scripts",
+    "lint:knip": "knip --include dependencies,unlisted --no-config-hints",
+    "lint:md": "markdownlint-cli2 \"**/*.md\"",
+    "lint:private": "node scripts/lint-private-refs.mjs",
+    "lint:prose": "PROSE_LINT_GLOB='!.changeset/**' bash .gitlab/scripts/lint-prose.sh --all",
+    "lint:prose:install": "bash .gitlab/scripts/install-vale.sh .vale/bin .vale/styles",
+    "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "@changesets/cli": "2.25.2",
+    "@commitlint/cli": "17.8.1",
+    "@commitlint/config-conventional": "17.8.1",
+    "cspell": "7.3.9",
+    "eslint": "8.28.0",
+    "eslint-config-prettier": "8.10.0",
+    "eslint-plugin-vue": "9.32.0",
+    "jsdom": "^22.1.0",
+    "knip": "2.43.0",
+    "markdownlint-cli2": "0.10.0",
+    "prettier": "3.3.3",
+    "siroc": "0.16.0",
+    "vue": "2.7.16",
+    "vue-template-compiler": "2.7.16"
+  },
   "peerDependencies": {
     "vue": "^2.7.0"
   },

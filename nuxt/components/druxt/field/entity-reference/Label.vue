@@ -30,8 +30,9 @@
 <script>
 import { DruxtFieldMixin } from 'druxt-entity'
 import { langMixin } from '~/utils/lang'
+import { draftDiffable } from '~/utils/draft-diff'
 
 export default {
-  mixins: [langMixin, DruxtFieldMixin],
+  mixins: [draftDiffable, langMixin, DruxtFieldMixin],
 }
 </script>

@@ -68,7 +68,6 @@ export default {
     // Keeps and previews an editor's unsaved changes.
     { src: '~/plugins/edit-drafts.client.js' },
     // Marks a draft's changes in the page, word by word.
-    { src: '~/plugins/draft-marks.client.js' },
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
