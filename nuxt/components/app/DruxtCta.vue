@@ -28,8 +28,16 @@
           }}</span>
           <div class="druxt-cta__command mt-2">
             <span><span class="prompt">$</span> {{ command }}</span>
-            <button type="button" @click="copy">
-              {{ copied ? $t('cta.copied') : $t('cta.copy') }}
+            <button
+              class="druxt-cta__copy-btn"
+              :data-state="copied ? 'copied' : null"
+              type="button"
+              @click="copy"
+            >
+              <span>{{ copied ? $t('cta.copied') : $t('cta.copy') }}</span>
+              <span class="druxt-cta__copy-reserve" aria-hidden="true">{{
+                $t('cta.copied')
+              }}</span>
             </button>
           </div>
           <p class="druxt-cta__devpod mt-2 mb-0">
