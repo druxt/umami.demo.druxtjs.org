@@ -37,10 +37,14 @@
         </div>
 
         <DruxtMenu class="drawer__menu" component="nav" name="main">
+          <!-- The slot replaces the menu's own list item, so it keeps one:
+               a list holds nothing but items. -->
           <template #item="{ item: { entity }, to }">
-            <nuxt-link class="drawer__link" :to="to" @click.native="hide">
-              {{ entity.attributes.title }}
-            </nuxt-link>
+            <li class="drawer__item">
+              <nuxt-link class="drawer__link" :to="to" @click.native="hide">
+                {{ entity.attributes.title }}
+              </nuxt-link>
+            </li>
           </template>
         </DruxtMenu>
 

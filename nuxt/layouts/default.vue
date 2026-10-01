@@ -127,6 +127,7 @@
 
 <script>
 import { isFront } from '~/utils/front'
+import { langcodeOf } from '~/utils/lang'
 
 const SNIPPET = [
   "<span class='t'>&lt;DruxtBlockRegion</span>",
@@ -137,6 +138,11 @@ const SNIPPET = [
 
 export default {
   data: () => ({ blocksSnippet: SNIPPET }),
+
+  /** The page's language on the html element, whichever page set the head. */
+  head() {
+    return { htmlAttrs: { lang: langcodeOf(this.$route.path) } }
+  },
 
   computed: {
     /** The router resolved this path to something in Drupal. */

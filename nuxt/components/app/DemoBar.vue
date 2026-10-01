@@ -44,10 +44,8 @@
         /></client-only>
 
         <button
-          :aria-label="`${$t('demoBar.devOverlay')} ${
-            devOverlay ? 'on' : 'off'
-          }`"
-          :aria-pressed="devOverlay ? 'true' : 'false'"
+          :aria-checked="devOverlay ? 'true' : 'false'"
+          role="switch"
           class="demo-bar__toggle"
           :class="{ 'is-on': devOverlay }"
           type="button"
