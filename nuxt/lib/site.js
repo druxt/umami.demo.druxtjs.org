@@ -44,6 +44,30 @@ const siteOrigin = (env = process.env) =>
       'https://umami.demo.druxtjs.org'
   ).replace(/\/$/, '')
 
+/**
+ * Drupal's public origin, for the links that hand through to its admin.
+ * Named outright, read from the environment's routes on Lagoon, or the
+ * backend the build talks to when that is not the site itself.
+ */
+const drupalOrigin = (env = process.env) => {
+  const own = siteOrigin(env)
+  const named = env.DRUPAL_PUBLIC_URL
+  const route = String(env.LAGOON_ROUTES || '')
+    .split(',')
+    .map((r) => r.trim())
+    .find((r) => /^https?:\/\/(nginx|api)\./.test(r))
+  const backend = env.BASE_URL && env.BASE_URL !== own ? env.BASE_URL : ''
+  // The start script's backend, when a browser can reach it: a bare
+  // container name (nginx on Lagoon) is internal, a loopback address is not.
+  const proxied =
+    /^https?:\/\/(localhost|127\.0\.0\.1|[^/:]+\.[^/:]+)(:|\/|$)/.test(
+      env.DRUPAL_URL || ''
+    )
+      ? env.DRUPAL_URL
+      : ''
+  return String(named || route || backend || proxied || '').replace(/\/+$/, '')
+}
+
 /** The language a path is in, from its prefix; English when there is none. */
 const langcodeOf = (path) =>
   (String(path || '').match(/^\/(en|es)(\/|$)/) || [])[1] || 'en'
@@ -73,6 +97,7 @@ module.exports = {
   SITE_CARD,
   TWITTER_HANDLE,
   siteOrigin,
+  drupalOrigin,
   langcodeOf,
   canonicalPath,
   canonicalUrl,

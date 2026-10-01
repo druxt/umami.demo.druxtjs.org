@@ -140,6 +140,13 @@ export default {
     countRecipes: '{n} receta | {n} recetas',
     and: 'y',
   },
+  admin: {
+    kicker: 'Drupal',
+    title: 'Esta página vive en Drupal',
+    text: 'El contenido, los medios, los usuarios y la configuración se gestionan en el backend de Drupal. Esta dirección abre la misma ruta allí.',
+    none: 'Esta compilación no tiene backend donde abrirla.',
+    open: 'Abrir en Drupal',
+  },
   error: {
     kicker: 'Algo salió mal',
     title: 'Error {status}',
