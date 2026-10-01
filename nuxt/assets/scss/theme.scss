@@ -2403,7 +2403,7 @@ html.druxt-inspector {
 .auth,
 .form-page,
 .term-page {
-  margin: 0 auto;
+  // A reading width from the container's edge, where every page starts.
   max-width: 640px;
 
   &__kicker {
@@ -3109,7 +3109,6 @@ html.druxt-inspector {
   @media (min-width: 768px) {
     &__column {
       gap: 14px;
-      margin: 0 auto;
       max-width: 640px;
       padding: 36px 0;
       width: 100%;
@@ -3132,7 +3131,9 @@ html.druxt-inspector {
   @media (min-width: 992px) {
     &__grid {
       gap: 32px;
-      grid-template-columns: 1fr 680px 1fr;
+      // The rail from the container's edge, as every page starts; the
+      // column beside it keeps its measure.
+      grid-template-columns: 160px minmax(0, 680px);
       padding: 56px 0;
     }
     &__rail {
@@ -3140,7 +3141,6 @@ html.druxt-inspector {
       display: block;
       font-size: 0.78125rem;
       line-height: 1.7;
-      text-align: right;
     }
     &__column {
       gap: 16px;
@@ -4803,8 +4803,8 @@ h3 del.v-diff-del--trailing {
 // Screen 12: the term head band, then prose in the article's measure. The
 // About page adds the site's own section and a resource band below it.
 .page-node {
+  // The reading width from the container's edge, under the title band.
   &__measure {
-    margin: 0 auto;
     max-width: 680px;
     padding-bottom: 32px;
   }
