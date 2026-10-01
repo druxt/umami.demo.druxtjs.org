@@ -64,6 +64,20 @@ test.describe('drafts', () => {
     await expect(page.locator('.edit-actions__save')).toHaveCount(1)
     await expect(page.locator('.edit-actions__save')).toContainText('1')
 
+    // Removing the photograph leaves the page nothing to mark: the banner
+    // lists it with the one it was.
+    await page.click('.edit-media .is-remove')
+    await page.locator('.page-tabs__tab').nth(0).click()
+    await page.locator('.draft-banner__diff-toggle').click()
+    const removed = page.locator('.draft-banner__removed li').first()
+    await expect(removed).toContainText('Removed')
+    await expect(removed.locator('img')).toHaveAttribute(
+      'src',
+      new RegExp(before),
+    )
+    await page.locator('.draft-banner__diff-toggle').click()
+    await page.locator('.page-tabs__tab').nth(1).click()
+
     // Cancel puts Drupal's photograph back, on both tabs, and drops the draft.
     await page.click('.edit-actions__cancel')
     await expect.poll(widget).toBe(before)
@@ -92,6 +106,24 @@ test.describe('drafts', () => {
     await expect(page.locator('#title')).toHaveValue(`${original} draft`)
     await page.click('.edit-actions__cancel')
     await expect(page.locator('#title')).toHaveValue(original)
+  })
+
+  test('a draft on the English page stays off the Spanish one', async ({
+    page,
+  }) => {
+    await signIn(page)
+    await openEdit(page, RECIPE)
+    const original = await page.locator('#title').inputValue()
+    await page.fill('#title', `${original} only in English`)
+    await expect(page.locator('.draft-banner')).toBeVisible()
+    await visit(page, '/es/recipes/crema-catalana')
+    await expect(page.locator('.draft-banner')).toHaveCount(0)
+    await expect(page.locator('h1').first()).not.toContainText(
+      'only in English',
+    )
+    await openEdit(page, RECIPE)
+    await page.click('.edit-actions__cancel')
+    await expect(page.locator('.draft-banner')).toHaveCount(0)
   })
 
   test('a draft is announced, switchable and marked in the page', async ({
