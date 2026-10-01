@@ -39,11 +39,43 @@
         }}
       </button>
     </div>
+
+    <!-- A removed field renders nothing, so the page has nowhere to mark
+         it: the banner shows what went, and what it was. -->
+    <ul v-if="marking && removed.length" class="draft-banner__removed">
+      <li v-for="item of removed" :key="item.name">
+        <span class="draft-banner__removed-name">{{ item.label }}</span>
+        <ins class="v-diff-ins">{{ $t('draft.removed') }}</ins>
+        <del class="v-diff-del">
+          <img v-if="item.image" alt="" :src="item.image" />
+          <template v-else>{{ item.text }}</template>
+        </del>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
+import { fileOfMedia, plain } from '~/utils/draft-marks'
+import { langMixin } from '~/utils/lang'
+
+/** A field name as a word or two: `field_media_image` is "media image". */
+const labelOf = (name) =>
+  String(name)
+    .replace(/^field_/, '')
+    .replace(/_/g, ' ')
+
+const isEmpty = (value) =>
+  value == null ||
+  value === '' ||
+  (Array.isArray(value) && !value.length) ||
+  (typeof value === 'object' &&
+    'data' in value &&
+    (value.data == null || (Array.isArray(value.data) && !value.data.length)))
+
 export default {
+  mixins: [langMixin],
+
   props: {
     type: { type: String, required: true },
     uuid: { type: String, required: true },
@@ -52,20 +84,54 @@ export default {
   computed: {
     draft() {
       return ((this.$store.state.druxtIce || {}).drafts || {})[
-        `${this.type}:${this.uuid}`
+        `${this.type}:${this.uuid}:${this.lang}`
       ]
     },
 
     real() {
       return !!((this.$drafts || {}).real || { keys: {} }).keys[
-        `${this.type}:${this.uuid}`
+        `${this.type}:${this.uuid}:${this.lang}`
       ]
     },
 
     marking() {
       return !!((this.$drafts || {}).real || { marks: {} }).marks[
-        `${this.type}:${this.uuid}`
+        `${this.type}:${this.uuid}:${this.lang}`
       ]
+    },
+
+    /** The fields the draft empties, each with what it held. */
+    removed() {
+      const draft = this.draft || {}
+      const before = draft.before || {}
+      const out = []
+      for (const [name, value] of Object.entries(draft.relationships || {})) {
+        if (!isEmpty(value) || isEmpty((before.relationships || {})[name])) {
+          continue
+        }
+        out.push({
+          name,
+          label: labelOf(name),
+          image: fileOfMedia(
+            this.$store,
+            before.relationships[name],
+            (this.$config || {}).baseUrl || ''
+          ),
+          text: '',
+        })
+      }
+      for (const [name, value] of Object.entries(draft.attributes || {})) {
+        if (!isEmpty(value) || isEmpty((before.attributes || {})[name])) {
+          continue
+        }
+        out.push({
+          name,
+          label: labelOf(name),
+          image: null,
+          text: plain(before.attributes[name]).slice(0, 160),
+        })
+      }
+      return out
     },
 
     /** How many fields the draft changes. */
@@ -80,10 +146,10 @@ export default {
 
   methods: {
     show(real) {
-      this.$drafts.showReal(this.type, this.uuid, real)
+      this.$drafts.showReal(this.type, this.uuid, this.lang, real)
     },
     mark(on) {
-      this.$drafts.showChanges(this.type, this.uuid, on)
+      this.$drafts.showChanges(this.type, this.uuid, this.lang, on)
     },
   },
 }
