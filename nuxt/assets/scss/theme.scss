@@ -1719,6 +1719,21 @@ html.druxt-inspector {
     font-size: 0.71875rem;
   }
 
+  // The suggestion reads as a link in the hint and fills the field.
+  &__example {
+    background: none;
+    border: 0;
+    color: $spice;
+    font: inherit;
+    padding: 0;
+    text-decoration: underline;
+
+    &:hover,
+    &:focus-visible {
+      color: $ink;
+    }
+  }
+
   &__results {
     flex: 1;
     overflow-y: auto;

@@ -18,17 +18,28 @@
           v-model="searchText"
           :autofocus="!compact"
           debounce="60"
-          :placeholder="compact ? $t('search.placeholder') : placeholder"
+          :placeholder="$t('search.placeholder')"
           type="search"
+          @focus="select"
+          @keydown.esc.prevent
         />
       </div>
 
       <!-- One line in the drawer: 330px does not fit two phrases. -->
       <div class="searchbar__meta">
-        <span v-if="resultsVisible"
-          >{{ searchResults.length }} {{ $t('search.results') }}</span
+        <span v-if="resultsVisible && searchResults.length"
+          >{{ searchResults.length }}
+          {{ $tc('search.results', searchResults.length) }}</span
         >
-        <span v-else-if="!compact">{{ $t('search.hint') }}</span>
+        <!-- Nothing found, or nothing typed yet: a query that finds plenty. -->
+        <span v-else>
+          {{
+            searchText ? $t('search.none') : compact ? '' : $t('search.hint')
+          }}
+          <button class="searchbar__example" type="button" @click="tryExample">
+            {{ $t('search.try', { example: $t('search.example') }) }}
+          </button>
+        </span>
         <span class="searchbar__engine">{{ $t('search.engine') }}</span>
       </div>
     </div>
@@ -37,16 +48,18 @@
       <!-- The drawer is 330px wide: a title per row, not a teaser card. The
            panel shows the teaser, which is a link of its own, so the row is
            not one: a link inside a link is invalid markup. -->
-      <template v-for="(item, key) of searchResults">
+      <!-- Keyed by the result, not its position: a row reused for another
+           result kept the last one's link while the new one loaded. -->
+      <template v-for="item of searchResults">
         <nuxt-link
           v-if="compact"
-          :key="key"
+          :key="item.ref"
           class="searchbar__result"
           :to="searchMeta[item.ref].href"
         >
           {{ searchMeta[item.ref].title }}
         </nuxt-link>
-        <div v-else :key="key" class="searchbar__result">
+        <div v-else :key="item.ref" class="searchbar__result">
           <Druxt
             module="entity"
             mode="teaser"
@@ -70,8 +83,12 @@
 
 <script>
 import { BIconSearch } from 'bootstrap-vue'
+import lunr from 'lunr'
 import LunrSearch from 'lunr-module/search'
 import { langcodeOf } from '~/utils/lang'
+
+// The last query, so the panel and the drawer open on it again.
+let lastQuery = ''
 
 export default {
   components: { BIconSearch },
@@ -90,16 +107,69 @@ export default {
     },
   },
 
-  data: () => ({
-    placeholder: 'Try “brownie”, “quiche”, “mushroom”',
-  }),
-
   computed: {
     /** The page's language picks the index: a Spanish page finds Spanish content. */
     language: ({ $route }) => langcodeOf(($route || {}).path),
   },
 
+  watch: {
+    searchText(value) {
+      lastQuery = value || ''
+    },
+  },
+
+  created() {
+    if (lastQuery) this.searchText = lastQuery
+  },
+
   methods: {
+    // cspell:ignore tomatos
+    /**
+     * Each word as typed, as the start of a longer word, and within one
+     * letter for longer words, so "choc" and "tomatos" find their recipes.
+     * Typed text is never Lunr query syntax: a stray ":" or "~" stays text.
+     */
+    async search(text) {
+      // loadIndex answers undefined when its cache serves the index, as it
+      // does for a panel opened again, so test the index itself.
+      if (!this.searchIndex) await this.loadIndex()
+      if (!this.searchIndex) return
+      const words = lunr
+        .tokenizer(text)
+        .map((token) => token.toString().replace(/[^\p{L}\p{N}]/gu, ''))
+        .filter(Boolean)
+      this.searchResults = words.length
+        ? this.searchIndex.query((query) => {
+            for (const word of words) {
+              query.term(word, { boost: 10 })
+              query.term(word, {
+                boost: 3,
+                usePipeline: false,
+                wildcard: lunr.Query.wildcard.TRAILING,
+              })
+              if (word.length > 4) {
+                query.term(word, {
+                  boost: 1,
+                  editDistance: 1,
+                  usePipeline: false,
+                })
+              }
+            }
+          })
+        : []
+      this.openResults()
+    },
+
+    /** Reopened on a query: selected, so typing replaces it. */
+    select(event) {
+      if (event && event.target && event.target.select) event.target.select()
+    },
+
+    tryExample() {
+      this.searchText = this.$t('search.example')
+      this.focus()
+    },
+
     /** Called by the drawer when the masthead's search button opened it. */
     focus() {
       const input = this.$refs.input

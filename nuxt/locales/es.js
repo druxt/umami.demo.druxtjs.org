@@ -41,8 +41,11 @@ export default {
   },
   search: {
     placeholder: 'Buscar recetas',
-    hint: 'Los resultados aparecen mientras escribes',
-    results: 'resultados',
+    hint: 'Los resultados aparecen mientras escribes.',
+    none: 'Sin resultados.',
+    try: 'Prueba “{example}”',
+    example: 'azúcar',
+    results: 'resultado | resultados',
     engine: 'lunr · sin petición',
   },
   home: {

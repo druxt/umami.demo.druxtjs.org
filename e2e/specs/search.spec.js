@@ -1,6 +1,8 @@
 const { test, expect } = require('@playwright/test')
 const { openSearch, visit } = require('./helpers')
 
+// cspell:ignore mocktails tomatos
+
 /** Open whichever search control the viewport shows: the icon opens the
  * drawer's field below lg, the pill opens the panel at lg. */
 // Search runs on a Lunr index built into the site. The index has to be in
@@ -36,6 +38,57 @@ test.describe('search', () => {
     expect(index && index.status()).toBe(200)
     expect(index.headers()['content-type']).toContain('json')
     expect(errors).toEqual([])
+  })
+
+  // What a reader types is rarely the exact word in the text: a tag, the
+  // start of a word, a slip of one letter.
+  test('a tag, the start of a word and a near miss all find content', async ({
+    page,
+  }) => {
+    await visit(page, '/en')
+    await openSearch(page)
+    const bar = page.locator('.searchbar:visible').first()
+    const input = bar.locator('input')
+    const results = bar.locator('.searchbar__results a')
+    for (const [query, expected] of [
+      ['drink', /mocktails/i],
+      ['choc', /chocolate/i],
+      ['tomatos', /.+/],
+    ]) {
+      await input.fill(query)
+      await expect(results.first(), query).toBeVisible()
+      await expect(results.filter({ hasText: expected }).first()).toBeVisible()
+    }
+    // Lunr's own syntax is not the reader's: a stray colon is just text.
+    await input.fill('title:')
+    await expect(bar.locator('.searchbar__meta')).toBeVisible()
+  })
+
+  test('the suggestion fills the field and finds plenty', async ({ page }) => {
+    await visit(page, '/en')
+    await openSearch(page)
+    const bar = page.locator('.searchbar:visible').first()
+    await bar.locator('.searchbar__example').click()
+    await expect(bar.locator('input')).toHaveValue('sugar')
+    await expect
+      .poll(() => bar.locator('.searchbar__results a').count())
+      .toBeGreaterThanOrEqual(8)
+  })
+
+  test('closing and reopening keeps the query and its results', async ({
+    page,
+  }) => {
+    await visit(page, '/en')
+    await openSearch(page)
+    let bar = page.locator('.searchbar:visible').first()
+    await bar.locator('input').fill('chili')
+    await expect(bar.locator('.searchbar__results a').first()).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(page.locator('.searchbar:visible')).toHaveCount(0)
+    await openSearch(page)
+    bar = page.locator('.searchbar:visible').first()
+    await expect(bar.locator('input')).toHaveValue('chili')
+    await expect(bar.locator('.searchbar__results a').first()).toBeVisible()
   })
 
   test('a Spanish page searches Spanish content only', async ({ page }) => {
