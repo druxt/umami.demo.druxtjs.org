@@ -1,6 +1,8 @@
 <template>
+  <!-- The code sample keeps its own width and the prose wraps around what is
+       left: a fixed split squeezed the sample inside a narrow measure. -->
   <b-row class="druxt-note" no-gutters>
-    <b-col cols="12" :lg="code ? 7 : 12">
+    <b-col cols="12" :lg="code ? true : 12">
       <span class="druxt-note__kicker">{{ kicker }}</span>
       <h3 v-if="title" class="druxt-note__title">{{ title }}</h3>
       <p class="druxt-note__body"><slot /></p>
@@ -25,7 +27,7 @@
       </a>
     </b-col>
 
-    <b-col v-if="code" cols="12" lg="5" class="pl-lg-4 mt-3 mt-lg-0">
+    <b-col v-if="code" cols="12" lg="auto" class="pl-lg-4 mt-3 mt-lg-0">
       <!-- eslint-disable-next-line vue/no-v-html -->
       <pre class="druxt-code mb-0" v-html="code" />
     </b-col>
