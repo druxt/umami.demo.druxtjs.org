@@ -6,7 +6,9 @@
       <span class="draft-banner__kicker">{{
         real ? $t('draft.showingReal') : $t('draft.showingDraft')
       }}</span>
-      <span class="draft-banner__text">{{ $t('draft.kept') }}</span>
+      <span class="draft-banner__text">{{
+        real ? $t('draft.keptReal') : $t('draft.kept')
+      }}</span>
       <span class="draft-banner__switch" role="group">
         <button
           class="draft-banner__option"
@@ -83,7 +85,7 @@ export default {
 
   computed: {
     draft() {
-      return ((this.$store.state.druxtIce || {}).drafts || {})[
+      return ((this.$store.state.drafts || {}).drafts || {})[
         `${this.type}:${this.uuid}:${this.lang}`
       ]
     },
