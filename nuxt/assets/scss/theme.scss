@@ -870,14 +870,43 @@ h4 {
     .prompt {
       color: #9fd2a0;
     }
+
+    // The copy button, as druxtjs.org draws it over a code block: a shade
+    // lighter than the block, lighter again under the pointer, and green
+    // once it has copied. The wider label's width is reserved so the swap
+    // to "Copied" moves nothing.
     button {
-      background: transparent;
-      border: 1px solid #3f5f78;
-      border-radius: 3px;
-      color: #8fbfe0;
+      background: color-mix(in srgb, $druxt-code, #fff 8%);
+      border: 1px solid rgb(255 255 255 / 0.15);
+      border-radius: 6px;
+      color: rgb(229 236 241 / 0.85);
+      display: inline-grid;
       font-size: 0.6875rem;
-      padding: 3px 8px;
+      font-weight: 500;
+      line-height: 1.5;
+      padding: 4px 10px;
+      text-align: center;
+      transition: background-color 150ms, border-color 150ms, color 150ms;
+
+      > span {
+        grid-area: 1 / 1;
+      }
+
+      &:hover,
+      &:focus-visible {
+        background: color-mix(in srgb, $druxt-code, #fff 15%);
+        color: #fff;
+      }
+
+      &[data-state='copied'] {
+        border-color: rgb(159 210 160 / 0.5);
+        color: #9fd2a0;
+      }
     }
+  }
+
+  &__copy-reserve {
+    visibility: hidden;
   }
 }
 
