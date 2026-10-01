@@ -1455,10 +1455,7 @@ html.druxt-inspector {
   width: 100%;
 
   // The main menu, at lg and up. Below that the drawer owns these links.
-  // Bootstrap's navbar-light rule outranks a plain .nav-link and paints
-  // them half-black, 3.9:1 on paper, so this selector outweighs it.
-  .nav-link,
-  .navbar-nav .nav-item .nav-link {
+  .nav-link {
     color: $ink-soft;
     font-size: 0.90625rem;
     font-weight: 500;
@@ -1473,6 +1470,18 @@ html.druxt-inspector {
       border-bottom: 2px solid $spice;
       color: $ink;
       padding-bottom: 2px;
+    }
+  }
+
+  // Bootstrap's navbar-light colours outrank a plain .nav-link and paint the
+  // links half-black, 3.9:1 on paper. Only the colours take the heavier
+  // selector: its padding is what spaces the menu.
+  .navbar-nav .nav-item .nav-link {
+    color: $ink-soft;
+
+    &:hover,
+    &.nuxt-link-exact-active {
+      color: $ink;
     }
   }
 
