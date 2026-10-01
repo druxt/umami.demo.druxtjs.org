@@ -10,7 +10,7 @@ import {
 /**
  * An editor's unsaved changes, kept and shown.
  *
- * The edit form writes what changed into the `druxtIce` drafts. This keeps
+ * The edit form writes what changed into the `drafts` store. This keeps
  * those drafts across reloads, lays each one over its entity in the Druxt
  * store, and refreshes whatever is showing that entity, so the View tab
  * previews the draft and the form finds it again. Nothing runs before the
@@ -20,7 +20,7 @@ export default ({ store }, inject) => {
   // One draft per translation: the English draft stays off the Spanish page.
   const key = (type, id, langcode) => `${type}:${id}:${langcode}`
   const draftFor = (type, id, langcode) =>
-    ((store.state.druxtIce || {}).drafts || {})[key(type, id, langcode)] || null
+    ((store.state.drafts || {}).drafts || {})[key(type, id, langcode)] || null
   /**
    * The language a store copy is in: its prefix, or the site's default for
    * a copy fetched without one (keyed 'undefined' in the store).
@@ -201,18 +201,18 @@ export default ({ store }, inject) => {
 
   window.onNuxtReady(() => {
     for (const [k, draft] of Object.entries(readDrafts())) {
-      store.commit('druxtIce/setDraft', { key: k, draft })
+      store.commit('drafts/setDraft', { key: k, draft })
     }
-    for (const k of Object.keys((store.state.druxtIce || {}).drafts || {})) {
+    for (const k of Object.keys((store.state.drafts || {}).drafts || {})) {
       const [type, id, langcode] = k.split(':')
       // A draft from before drafts carried a language is dropped.
-      if (!langcode) store.commit('druxtIce/clearDraft', k)
+      if (!langcode) store.commit('drafts/clearDraft', k)
       else overlay(type, id, langcode, draftFor(type, id, langcode))
     }
 
     store.subscribe(({ type, payload }) => {
-      if (type === 'druxtIce/setDraft' || type === 'druxtIce/clearDraft') {
-        writeDrafts(store.state.druxtIce.drafts)
+      if (type === 'drafts/setDraft' || type === 'drafts/clearDraft') {
+        writeDrafts(store.state.drafts.drafts)
       }
       // A fresh copy of a drafted entity arrives: the draft goes back on top.
       if (type === 'druxt/addResource' && !applying) {
@@ -224,7 +224,7 @@ export default ({ store }, inject) => {
         }
       }
       // A draft that is gone leaves nothing to show instead of the page.
-      if (type === 'druxtIce/clearDraft') {
+      if (type === 'drafts/clearDraft') {
         if (real.keys[payload]) Vue.set(real.keys, payload, false)
         if (real.marks[payload]) Vue.set(real.marks, payload, false)
       }
