@@ -104,13 +104,12 @@
 
         <AppMobileDrawer />
 
-        <!-- lazy, so only one DruxtSearchbar is mounted at a time: the
-             drawer holds the other one, and two mounted panels fought over
-             the autofocus. -->
+        <!-- Mounted once and kept: closing the panel hides it, so the query,
+             the results and where they were scrolled to are there on the
+             next open. The field takes focus when the panel is shown. -->
         <b-sidebar
           id="search"
           backdrop
-          lazy
           no-close-on-route-change
           no-header
           right

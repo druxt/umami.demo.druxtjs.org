@@ -75,20 +75,40 @@ test.describe('search', () => {
       .toBeGreaterThanOrEqual(8)
   })
 
-  test('closing and reopening keeps the query and its results', async ({
+  // The panel is a layout component: closing hides it, it is not torn down,
+  // so it opens again as it was left, scrolled down the results included.
+  test('closing and reopening keeps the query, results and scroll', async ({
     page,
   }) => {
     await visit(page, '/en')
     await openSearch(page)
     let bar = page.locator('.searchbar:visible').first()
-    await bar.locator('input').fill('chili')
-    await expect(bar.locator('.searchbar__results a').first()).toBeVisible()
+    await bar.locator('input').fill('sugar')
+    await expect(bar.locator('.searchbar__results a').nth(5)).toBeVisible()
+    const body = page.locator('.searchbar:visible .searchbar__results')
+    await body.evaluate((el) => el.scrollTo(0, 200))
+    const scrolled = await body.evaluate((el) => el.scrollTop)
+    // The browser reports a scroll on its next frame, as it would a reader's.
+    await page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        ),
+    )
+    expect(scrolled).toBeGreaterThan(50)
     await page.keyboard.press('Escape')
     await expect(page.locator('.searchbar:visible')).toHaveCount(0)
     await openSearch(page)
     bar = page.locator('.searchbar:visible').first()
-    await expect(bar.locator('input')).toHaveValue('chili')
-    await expect(bar.locator('.searchbar__results a').first()).toBeVisible()
+    await expect(bar.locator('input')).toHaveValue('sugar')
+    await expect(bar.locator('.searchbar__results a').first()).toBeAttached()
+    await expect
+      .poll(() =>
+        page
+          .locator('.searchbar:visible .searchbar__results')
+          .evaluate((el) => el.scrollTop),
+      )
+      .toBe(scrolled)
   })
 
   test('a Spanish page searches Spanish content only', async ({ page }) => {
