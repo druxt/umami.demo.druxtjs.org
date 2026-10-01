@@ -61,9 +61,9 @@ export default {
       }
       const draft = draftOf(this.original, model)
       if (draft) {
-        this.$store.commit('druxtIce/setDraft', { key, draft })
+        this.$store.commit('drafts/setDraft', { key, draft })
       } else if (this.$drafts.draftFor(model.type, model.id, langcode)) {
-        this.$store.commit('druxtIce/clearDraft', key)
+        this.$store.commit('drafts/clearDraft', key)
       }
       this.$drafts.mirror(model)
     },
@@ -74,7 +74,7 @@ export default {
       if (!resource || !model) return
       this.original = JSON.parse(JSON.stringify(model))
       this.$store.commit(
-        'druxtIce/clearDraft',
+        'drafts/clearDraft',
         `${resource.type}:${resource.id}:${
           (model.attributes || {}).langcode || 'en'
         }`

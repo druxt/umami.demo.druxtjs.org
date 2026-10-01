@@ -57,7 +57,7 @@ export default {
         } catch (e) {
           // No storage, nothing kept.
         }
-        this.$store.dispatch('druxtIce/discardAll')
+        this.$store.commit('drafts/discardAll')
         this.message = this.$t('reset.done')
         // Drupal is back within seconds; a fresh page reads the fresh demo,
         // and finds the session gone with it.
