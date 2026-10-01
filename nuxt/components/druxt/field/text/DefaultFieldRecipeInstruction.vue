@@ -6,21 +6,23 @@
     <ol v-if="list" class="method-steps">
       <li v-for="(item, key) of list" :key="key" class="method-step">
         <span class="method-step__n">{{ key + 1 }}</span>
-        <!-- eslint-disable-next-line vue/no-v-html -->
+        <!-- eslint-disable vue/no-v-html -->
         <span
           v-diff="textDiff(schema.id)"
           class="method-step__text"
           v-html="item"
         />
+        <!-- eslint-enable vue/no-v-html -->
       </li>
     </ol>
-    <!-- eslint-disable-next-line vue/no-v-html -->
+    <!-- eslint-disable vue/no-v-html -->
     <div
       v-else
       v-diff="textDiff(schema.id)"
       class="method-prose"
       v-html="items[0].processed"
     />
+    <!-- eslint-enable vue/no-v-html -->
   </component>
 </template>
 

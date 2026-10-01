@@ -1,11 +1,12 @@
 <template>
   <b-form-group
     :id="schema.id"
+    :label-for="`${schema.id}-field`"
     :invalid-feedback="stateFeedback"
     label="Your name"
     :state="state"
   >
-    <b-input v-model="model" :state="state" />
+    <b-input :id="`${schema.id}-field`" v-model="model" :state="state" />
   </b-form-group>
 </template>
 
