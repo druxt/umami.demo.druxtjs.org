@@ -11,6 +11,8 @@ const PRIVATE = [
   /^\/callback$/,
   // Drupal's own account paths, reached through the sign-in link.
   /^\/(en\/|es\/)?user(\/|$)/,
+  // Drupal's admin paths: the site hands them through to the backend.
+  /^\/(admin|node\/add|media\/add)(\/|$)/,
 ]
 
 const escapeXml = (value) =>
