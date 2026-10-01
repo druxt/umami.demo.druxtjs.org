@@ -29,6 +29,16 @@ test.describe('learning layer', () => {
     expect(scroll).toBeLessThanOrEqual(client)
   })
 
+  test('the explorer opens the story of the display it previews', async ({
+    page,
+  }) => {
+    await visit(page, '/entity-explorer')
+    await expect(page.locator('.explorer__storybook')).toHaveAttribute(
+      'href',
+      /\/\?path=\/story\/druxt-entity-node-recipe-view-displays--card$/
+    )
+  })
+
   test('the Storybook link points at this site’s own Storybook', async ({
     page,
     baseURL,
