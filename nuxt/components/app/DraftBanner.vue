@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { fileOfMedia, plain } from '~/utils/draft-marks'
+import { fileOfMedia, plain } from '~/utils/draft-diff'
 import { langMixin } from '~/utils/lang'
 
 /** A field name as a word or two: `field_media_image` is "media image". */

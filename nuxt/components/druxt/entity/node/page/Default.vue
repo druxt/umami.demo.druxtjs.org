@@ -5,7 +5,7 @@
       <b-container class="term-head__inner">
         <DruxtBreadcrumb />
         <h1
-          v-draft-diff="'title'"
+          v-diff="fieldDiff('title')"
           class="term-head__title"
           v-text="entity.attributes.title"
         />
@@ -60,6 +60,7 @@
 </template>
 
 <script>
+import { diffable } from '@druxt-contrib/diff'
 import { DruxtEntityMixin } from 'druxt-entity'
 import { demoMixin, hostOf } from '~/utils/demo'
 
@@ -67,7 +68,7 @@ import { demoMixin, hostOf } from '~/utils/demo'
 const ABOUT = ['/about-umami', '/acerca-de-umami']
 
 export default {
-  mixins: [demoMixin, DruxtEntityMixin],
+  mixins: [demoMixin, DruxtEntityMixin, diffable],
 
   computed: {
     /** The resource cards, from Drupal's config page. */

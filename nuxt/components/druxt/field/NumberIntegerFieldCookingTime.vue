@@ -5,7 +5,7 @@
       <span v-if="$scopedSlots['label-above']">
         {{ schema.label.text }}<br />
       </span>
-      {{ items[0] }} minutes
+      <span v-diff="textDiff(schema.id)" v-text="items[0]" /> minutes
     </p>
   </component>
 </template>
@@ -13,6 +13,7 @@
 <script>
 import { BIcon, BIconStopwatch } from 'bootstrap-vue'
 import { DruxtFieldMixin } from 'druxt-entity'
+import { draftDiffable } from '~/utils/draft-diff'
 
 export default {
   components: {
@@ -20,6 +21,6 @@ export default {
     BIconStopwatch,
   },
 
-  mixins: [DruxtFieldMixin],
+  mixins: [draftDiffable, DruxtFieldMixin],
 }
 </script>

@@ -55,7 +55,7 @@
          its own paragraphs, and a p inside a p is re-parsed by the browser
          into markup the server never sent. -->
     <!-- eslint-disable-next-line -->
-    <div v-else-if="isSchemaView" v-html="html" />
+    <div v-else-if="isSchemaView" v-diff="textDiff(schema.id)" v-html="html" />
 
     <!-- Entity reference forms. -->
     <b-card v-else-if="relationship" class="mb-3" no-body>
@@ -114,11 +114,12 @@
 import { BFormCheckbox } from 'bootstrap-vue'
 import { DruxtFieldMixin } from 'druxt-entity'
 import DruxtEntity from 'druxt-entity/dist/components/DruxtEntity.vue'
+import { draftDiffable } from '~/utils/draft-diff'
 
 export default {
   components: { BFormCheckbox, DruxtEntity },
 
-  mixins: [DruxtFieldMixin],
+  mixins: [draftDiffable, DruxtFieldMixin],
 
   data: ({ relationship, schema, value }) => ({
     model:

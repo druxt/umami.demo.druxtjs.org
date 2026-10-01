@@ -67,10 +67,9 @@ export default {
     { src: '~/plugins/druxt-inspector.client.js' },
     // Keeps and previews an editor's unsaved changes.
     { src: '~/plugins/edit-drafts.client.js' },
-    // Marks a draft's changes in the page, word by word.
-    { src: '~/plugins/draft-marks.client.js' },
     // An entity with an unsaved draft is not refetched on a live update.
     { src: '~/plugins/live-drafts.client.js' },
+    // Marks a draft's changes in the page, word by word.
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
