@@ -14,6 +14,23 @@ test.describe('navigation', () => {
     expect(response.headers().location).toBe('/en')
   })
 
+  test('the main menu keeps space between its links', async ({ page }) => {
+    await visit(page, '/en')
+    const links = page.locator('.masthead .navbar-nav .nav-link:visible')
+    test.skip((await links.count()) < 2, 'the drawer holds the menu here')
+    // The words, not the boxes: a link's padding is what spaces them.
+    const boxes = await links.evaluateAll((els) =>
+      els.map((el) => {
+        const range = document.createRange()
+        range.selectNodeContents(el)
+        return range.getBoundingClientRect().toJSON()
+      }),
+    )
+    for (let i = 1; i < boxes.length; i++) {
+      expect(boxes[i].left - boxes[i - 1].right).toBeGreaterThanOrEqual(8)
+    }
+  })
+
   const scrollY = (page) => () => page.evaluate(() => window.scrollY)
 
   test('a card opens its page at the top', async ({ page }) => {
