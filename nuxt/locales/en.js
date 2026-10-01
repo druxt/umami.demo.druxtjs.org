@@ -139,6 +139,13 @@ export default {
     countRecipes: '{n} recipe | {n} recipes',
     and: 'and',
   },
+  admin: {
+    kicker: 'Drupal',
+    title: 'This page lives in Drupal',
+    text: 'Content, media, users and settings are managed in the Drupal backend. This address opens the same path there.',
+    none: 'This build has no backend to open it on.',
+    open: 'Open in Drupal',
+  },
   error: {
     kicker: 'Something went wrong',
     title: 'Error {status}',

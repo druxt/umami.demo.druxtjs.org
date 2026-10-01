@@ -1,5 +1,5 @@
 import storybook from './nuxt-storybook.config'
-import { siteOrigin } from './lib/site'
+import { drupalOrigin, siteOrigin } from './lib/site'
 
 const baseUrl = process.env.BASE_URL || 'http://druxt-js-demo-umami.ddev.site'
 
@@ -103,6 +103,8 @@ export default {
     'druxt-site',
     // Drupal's own CKEditor 5, mounted on the edit form's text fields.
     '@druxt-contrib/ckeditor',
+    // Drupal's admin paths hand through to the backend.
+    '@druxt-contrib/admin',
   ],
 
   publicRuntimeConfig: {
@@ -112,6 +114,8 @@ export default {
     baseUrl: process.env.PUBLIC_BASE_URL ?? baseUrl,
     // The origin the head names in canonical links and share tags.
     siteOrigin: siteOrigin(),
+    // Drupal's public origin: where the admin paths hand through to.
+    drupalOrigin: drupalOrigin(),
   },
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -149,6 +153,7 @@ export default {
     // Last: it puts the site's page on the router's routes, which exist
     // once the modules above have added them. It also writes robots.txt,
     // sitemap.xml, llms.txt and llms-full.txt into the export.
+    '~/modules/admin-routes',
     '~/modules/seo-files',
   ],
 
