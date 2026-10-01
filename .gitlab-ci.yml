@@ -67,6 +67,9 @@ default:
     - cd nuxt
     - yarn --version
     - yarn config set cache-folder "$CI_PROJECT_DIR/.yarn-cache"
+    # Yarn 1 keys a file: package by its version, which the vendored copies
+    # never change, so a cached one outlives edits to vendor/. Drop them.
+    - yarn cache clean @druxt-contrib/admin @druxt-contrib/ckeditor @druxt-contrib/diff
     - yarn install --frozen-lockfile --network-timeout 600000
     - section_end "install"
 
@@ -309,6 +312,9 @@ commitlint:
     - cd nuxt
     - yarn --version
     - yarn config set cache-folder "$CI_PROJECT_DIR/.yarn-cache"
+    # Yarn 1 keys a file: package by its version, which the vendored copies
+    # never change, so a cached one outlives edits to vendor/. Drop them.
+    - yarn cache clean @druxt-contrib/admin @druxt-contrib/ckeditor @druxt-contrib/diff
     - yarn install --frozen-lockfile --network-timeout 600000
     - section_end "install"
 
