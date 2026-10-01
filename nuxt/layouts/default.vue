@@ -116,8 +116,9 @@
           right
           shadow
           width="min(520px, 100vw)"
+          @shown="focusSearch"
         >
-          <DruxtSearchbar />
+          <DruxtSearchbar ref="searchbar" />
         </b-sidebar>
       </div>
     </template>
@@ -150,6 +151,13 @@ export default {
 
     isFront() {
       return isFront(this.$store.state.druxtRouter.route, this.$route.path)
+    },
+  },
+
+  methods: {
+    /** The panel is open: the cursor goes to the field, ready to type. */
+    focusSearch() {
+      this.$nextTick(() => this.$refs.searchbar && this.$refs.searchbar.focus())
     },
   },
 }
