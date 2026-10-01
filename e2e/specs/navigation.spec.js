@@ -31,6 +31,54 @@ test.describe('navigation', () => {
     }
   })
 
+  // One left edge on every page: the container's, where the title band,
+  // the reading column, the forms and the article's rail all start.
+  for (const path of [
+    '/en/about-umami',
+    '/en/contact',
+    '/login',
+    '/en/recipes/crema-catalana',
+    '/en/articles/give-your-oatmeal-the-ultimate-makeover',
+    '/en/tags/vegan',
+  ]) {
+    test(`${path} starts its content at the container edge`, async ({
+      page,
+    }) => {
+      await visit(page, path)
+      const edges = await page.evaluate(() => {
+        const box = (el) => el && Math.round(el.getBoundingClientRect().left)
+        const container = document.querySelector('.band--paper > .container')
+        const style = getComputedStyle(container)
+        const edge =
+          box(container) +
+          parseFloat(style.paddingLeft) +
+          parseFloat(style.borderLeftWidth)
+        const parts = [
+          'h1',
+          '.page-node__measure',
+          '.form-page',
+          '.auth',
+          '.article-page__rail',
+        ]
+          .map((s) => [...document.querySelectorAll(s)])
+          .flat()
+          // An article's title sits beside its rail, when the rail shows.
+          .filter(
+            (el) =>
+              !el.matches('.article-page__title') ||
+              !document.querySelector('.article-page__rail').offsetWidth,
+          )
+          .filter((el) => el.getBoundingClientRect().width > 0)
+          .map((el) => [el.className || el.tagName, box(el)])
+        return { edge: Math.round(edge), parts }
+      })
+      expect(edges.parts.length).toBeGreaterThan(0)
+      for (const [name, left] of edges.parts) {
+        expect(left, name).toBe(edges.edge)
+      }
+    })
+  }
+
   const scrollY = (page) => () => page.evaluate(() => window.scrollY)
 
   test('a card opens its page at the top', async ({ page }) => {
