@@ -16,7 +16,6 @@
         <b-form-input
           ref="input"
           v-model="searchText"
-          :autofocus="!compact"
           debounce="60"
           :placeholder="$t('search.placeholder')"
           type="search"
@@ -44,7 +43,7 @@
       </div>
     </div>
 
-    <div class="searchbar__results">
+    <div ref="results" class="searchbar__results" @scroll.passive="onScroll">
       <!-- The drawer is 330px wide: a title per row, not a teaser card. The
            panel shows the teaser, which is a link of its own, so the row is
            not one: a link inside a link is invalid markup. -->
@@ -87,9 +86,6 @@ import lunr from 'lunr'
 import LunrSearch from 'lunr-module/search'
 import { langcodeOf } from '~/utils/lang'
 
-// The last query, so the panel and the drawer open on it again.
-let lastQuery = ''
-
 export default {
   components: { BIconSearch },
 
@@ -107,19 +103,41 @@ export default {
     },
   },
 
+  data: () => ({
+    /** How far down the results were read, kept while the panel is closed. */
+    scrolled: 0,
+  }),
+
   computed: {
     /** The page's language picks the index: a Spanish page finds Spanish content. */
     language: ({ $route }) => langcodeOf(($route || {}).path),
   },
 
   watch: {
-    searchText(value) {
-      lastQuery = value || ''
+    /** A new query is read from its first result. */
+    searchText() {
+      this.scrolled = 0
     },
   },
 
-  created() {
-    if (lastQuery) this.searchText = lastQuery
+  /**
+   * A closed panel is display: none, and the browser drops a hidden box's
+   * scroll offset. When the list has a size again, it goes back to where the
+   * reader left it.
+   */
+  mounted() {
+    if (typeof ResizeObserver === 'undefined') return
+    this.resizes = new ResizeObserver(() => {
+      const list = this.$refs.results
+      if (list && list.clientHeight && list.scrollTop !== this.scrolled) {
+        list.scrollTop = this.scrolled
+      }
+    })
+    this.resizes.observe(this.$refs.results)
+  },
+
+  beforeDestroy() {
+    if (this.resizes) this.resizes.disconnect()
   },
 
   methods: {
@@ -131,7 +149,7 @@ export default {
      */
     async search(text) {
       // loadIndex answers undefined when its cache serves the index, as it
-      // does for a panel opened again, so test the index itself.
+      // does for the second search bar, so test the index itself.
       if (!this.searchIndex) await this.loadIndex()
       if (!this.searchIndex) return
       const words = lunr
@@ -160,7 +178,12 @@ export default {
       this.openResults()
     },
 
-    /** Reopened on a query: selected, so typing replaces it. */
+    /** A hidden list reports 0 as it closes; only a visible one counts. */
+    onScroll({ target }) {
+      if (target.clientHeight) this.scrolled = target.scrollTop
+    },
+
+    /** Back in a field that holds a query: selected, so typing replaces it. */
     select(event) {
       if (event && event.target && event.target.select) event.target.select()
     },
