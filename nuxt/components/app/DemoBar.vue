@@ -2,7 +2,7 @@
   <div class="demo-bar">
     <div class="demo-bar__inner">
       <span class="demo-bar__id">
-        <span class="demo-bar__dot" />
+        <AppDruxtLogo class="demo-bar__logo" mono />
         <!-- Three lengths of the same sentence, switched by Bootstrap's own
              display utilities so the row never wraps. -->
         <span class="d-none d-lg-inline">{{ $t('demoBar.long') }}</span>

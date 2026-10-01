@@ -59,9 +59,10 @@
         <!-- The promo layer stays confined to blue. Moving these four links
              here is what lets the demo bar hold one row on a phone. -->
         <div class="drawer__druxt">
-          <span class="drawer__druxt-kicker">{{
-            $t('demoBar.builtWith')
-          }}</span>
+          <span class="drawer__druxt-kicker">
+            <AppDruxtLogo class="drawer__druxt-logo" />
+            {{ $t('demoBar.builtWith') }}
+          </span>
 
           <a
             v-for="link in links"
