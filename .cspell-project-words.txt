@@ -5,6 +5,7 @@ amazeeiolagoon
 apos
 Archivo
 artefacts
+autorun
 catalana
 Colecciones
 crawlable
@@ -29,6 +30,8 @@ lando
 langcode
 LANGCODES
 lede
+lhci
+lighthouserc
 lintfix
 llms
 LOCALDEV
