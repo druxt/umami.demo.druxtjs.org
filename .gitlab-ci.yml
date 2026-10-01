@@ -55,6 +55,8 @@ default:
     key:
       files:
         - nuxt/yarn.lock
+      # A new prefix, so no job restores an archive that held node_modules.
+      prefix: yarn-only
     paths:
       - .yarn-cache/
   before_script:
@@ -69,7 +71,7 @@ default:
     - yarn config set cache-folder "$CI_PROJECT_DIR/.yarn-cache"
     # Yarn 1 keys a file: package by its version, which the vendored copies
     # never change, so a cached one outlives edits to vendor/. Drop them.
-    - yarn cache clean @druxt-contrib/admin @druxt-contrib/ckeditor @druxt-contrib/diff
+    - for p in admin ckeditor diff; do yarn cache clean "@druxt-contrib/$p"; done
     - yarn install --frozen-lockfile --network-timeout 600000
     - section_end "install"
 
@@ -269,6 +271,7 @@ commitlint:
     - key:
         files:
           - nuxt/yarn.lock
+        prefix: yarn-only
       paths:
         - .yarn-cache/
   before_script:
@@ -314,7 +317,7 @@ commitlint:
     - yarn config set cache-folder "$CI_PROJECT_DIR/.yarn-cache"
     # Yarn 1 keys a file: package by its version, which the vendored copies
     # never change, so a cached one outlives edits to vendor/. Drop them.
-    - yarn cache clean @druxt-contrib/admin @druxt-contrib/ckeditor @druxt-contrib/diff
+    - for p in admin ckeditor diff; do yarn cache clean "@druxt-contrib/$p"; done
     - yarn install --frozen-lockfile --network-timeout 600000
     - section_end "install"
 
