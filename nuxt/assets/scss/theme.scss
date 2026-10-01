@@ -3399,6 +3399,29 @@ html.druxt-inspector {
     }
   }
 
+  // Beside each other from lg: the content holds the design's 640 measure
+  // and the settings take the column on its right, open and in reach while
+  // the page scrolls. Below lg the settings follow the content as a drawer.
+  &__layout {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    @media (min-width: 992px) {
+      align-items: start;
+      display: grid;
+      gap: 44px 64px;
+      grid-template-columns: minmax(0, 640px) minmax(240px, 1fr);
+    }
+  }
+
+  &__aside {
+    @media (min-width: 992px) {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+
   &__numbers {
     display: grid;
     gap: 12px;
@@ -3442,6 +3465,22 @@ html.druxt-inspector {
     flex-direction: column;
     gap: 14px;
     padding: 4px 0 20px;
+  }
+
+  // In its own column the drawer is a panel: framed, open, no rules.
+  @media (min-width: 992px) {
+    &__settings {
+      border: 1px solid $rule;
+      padding: 0 18px;
+
+      > summary {
+        pointer-events: none;
+
+        &::after {
+          display: none;
+        }
+      }
+    }
   }
 
   &__alert {
