@@ -10,12 +10,23 @@ test.describe('learning layer', () => {
     await visit(page, RECIPE)
     const fits = () =>
       page.evaluate(
-        () => document.documentElement.scrollWidth <= window.innerWidth + 1,
+        () => document.documentElement.scrollWidth <= window.innerWidth + 1
       )
     expect(await fits()).toBe(true)
     await page.locator('.jsonapi-drawer__toggle').click()
     await expect(page.locator('.jsonapi-drawer__tree')).toBeVisible()
     expect(await fits()).toBe(true)
+  })
+
+  test('the code sample in a note is not clipped', async ({ page }) => {
+    await visit(page, RECIPE)
+    const sample = page.locator('.druxt-note .druxt-code').first()
+    await expect(sample).toBeVisible()
+    const [scroll, client] = await sample.evaluate((el) => [
+      el.scrollWidth,
+      el.clientWidth,
+    ])
+    expect(scroll).toBeLessThanOrEqual(client)
   })
 
   test('the Storybook link points at this site’s own Storybook', async ({
