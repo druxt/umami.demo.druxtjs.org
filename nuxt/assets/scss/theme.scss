@@ -4572,6 +4572,24 @@ del.v-diff-del--trailing {
   margin-top: 0.75rem;
   padding: 0.5rem 0.625rem;
 }
+
+// A removed paragraph or bullet is struck as a block where it stood.
+del.v-diff-del--block {
+  display: block;
+  line-height: 1.6;
+  margin: 0.75rem 0;
+  padding: 0.5rem 0.625rem;
+}
+
+// A title's struck tail reads on from the words kept, not as a block below.
+h1 del.v-diff-del--trailing,
+h2 del.v-diff-del--trailing,
+h3 del.v-diff-del--trailing {
+  display: inline;
+  line-height: inherit;
+  margin: 0;
+  padding: 0 0.1em;
+}
 // A replaced photograph has no words to mark: the field is outlined and a
 // chip in its corner shows what it replaced.
 .v-diff-swapped {

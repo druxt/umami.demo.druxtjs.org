@@ -27,12 +27,18 @@
       </button>
     </div>
 
-    <component
-      :is="component"
+    <!-- The diff host marks a draft's changes in the rendered view: each
+         field wrapper reads its own diff through it. -->
+    <DiffHost
       v-show="mode === 'view'"
-      v-bind="route.props"
-      class="page-tabs__pane"
-    />
+      :document="draftDiff"
+      :active="!!draftDiff"
+      :resolve="resolveEntity"
+      :minimap="false"
+      :labels="{ removed: $t('draft.removed') }"
+    >
+      <component :is="component" v-bind="route.props" class="page-tabs__pane" />
+    </DiffHost>
 
     <DruxtEntityForm
       v-if="editable && mode === 'edit'"
@@ -45,11 +51,13 @@
 <script>
 import DruxtEntityForm from 'druxt-entity/dist/components/DruxtEntityForm.vue'
 import { DruxtRouterMixin } from 'druxt-router'
+import { draftDocument } from '~/utils/draft-diff'
+import { langMixin } from '~/utils/lang'
 
 export default {
   components: { DruxtEntityForm },
 
-  mixins: [DruxtRouterMixin],
+  mixins: [DruxtRouterMixin, langMixin],
 
   data: () => ({
     mode: 'view',
@@ -69,6 +77,38 @@ export default {
       return this.route.props.type !== 'contact_form--contact_form'
         ? 'druxt-entity'
         : 'druxt-contact'
+    },
+
+    /** The page's draft as a diff, while the editor wants it marked. */
+    draftDiff() {
+      if (!process.client || !this.$drafts || !this.editable) return null
+      return draftDocument(this.$drafts, {
+        type: this.route.props.type,
+        id: this.route.props.uuid,
+        langcode: this.lang,
+      })
+    },
+  },
+
+  methods: {
+    /** The element rendering an entity on this page, for the diff host. */
+    resolveEntity(uuid) {
+      let found = null
+      const visit = (vm) => {
+        if (found) return
+        if (
+          vm.$options.name === 'DruxtEntity' &&
+          vm.uuid === uuid &&
+          vm.$el &&
+          vm.$el.nodeType === 1
+        ) {
+          found = vm.$el
+          return
+        }
+        vm.$children.forEach(visit)
+      }
+      visit(this)
+      return found
     },
   },
 
