@@ -54,6 +54,13 @@ test.describe('drafts', () => {
     await expect(swap.locator('img')).toHaveAttribute('src', new RegExp(before))
     await page.locator('.draft-banner__diff-toggle').click()
     await expect(page.locator('.v-diff-swap')).toHaveCount(0)
+    // Marks off, the photograph is still the draft's; Drupal's version shows
+    // the old one, and the draft comes back whole.
+    await expect.poll(hero).toBe(picked)
+    await page.locator('.draft-banner__option').nth(1).click()
+    await expect.poll(hero).toBe(before)
+    await page.locator('.draft-banner__option').nth(0).click()
+    await expect.poll(hero).toBe(picked)
 
     // A reload finds the draft on both tabs.
     await page.reload()
