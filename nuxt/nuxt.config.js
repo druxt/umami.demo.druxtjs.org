@@ -149,11 +149,15 @@ export default {
         path: `search-index-${Date.now().toString(36)}`,
         // An index per language, stemmed for it.
         languages: ['en', 'es'],
+        // Drupal's field names, as the Search API export sends them; the tag
+        // and category names let "drinks" find what is tagged Drinks.
         fields: [
           'title',
-          'body',
+          'field_body',
           'field_ingredients',
           'field_recipe_instruction',
+          'field_tags',
+          'field_recipe_category',
         ],
       },
     ],
