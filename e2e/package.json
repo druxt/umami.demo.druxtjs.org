@@ -3,9 +3,13 @@
   "private": true,
   "description": "Browser tests against the generated site and its Drupal.",
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "test:a11y": "playwright test specs/a11y.spec.js",
+    "lighthouse": "lhci autorun --config=lighthouserc.js"
   },
   "devDependencies": {
-    "@playwright/test": "1.63.0"
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "1.63.0",
+    "@lhci/cli": "^0.15.1"
   }
 }
