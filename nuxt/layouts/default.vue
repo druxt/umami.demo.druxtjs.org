@@ -125,7 +125,7 @@
 </template>
 
 <script>
-const FRONT = /^\/(en|es)?\/?$/
+import { isFront } from '~/utils/front'
 
 const SNIPPET = [
   "<span class='t'>DruxtBlockRegion</span>",
@@ -148,8 +148,7 @@ export default {
     },
 
     isFront() {
-      const route = this.$store.state.druxtRouter.route
-      return !!route.isHomePath || FRONT.test(this.$route.path)
+      return isFront(this.$store.state.druxtRouter.route, this.$route.path)
     },
   },
 }
