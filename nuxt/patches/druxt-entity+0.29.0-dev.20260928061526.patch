@@ -1,0 +1,20 @@
+diff --git a/node_modules/druxt-entity/dist/components/DruxtEntity.vue b/node_modules/druxt-entity/dist/components/DruxtEntity.vue
+index 577accc..7f01b1c 100644
+--- a/node_modules/druxt-entity/dist/components/DruxtEntity.vue
++++ b/node_modules/druxt-entity/dist/components/DruxtEntity.vue
+@@ -196,6 +196,15 @@ export default {
+   },
+ 
+   watch: {
++    /**
++     * An entity belongs to a language: a new prefix is its translation. Nuxt's
++     * $fetch hands back a running fetch, so wait that one out and fetch again.
++     */
++    async lang() {
++      if (this._fetchPromise) await this._fetchPromise
++      return this.$fetch()
++    },
++
+     mode() {
+       this.$fetch()
+     },
