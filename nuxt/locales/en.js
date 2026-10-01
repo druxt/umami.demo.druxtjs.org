@@ -41,8 +41,11 @@ export default {
   },
   search: {
     placeholder: 'Search recipes',
-    hint: 'Results appear as you type',
-    results: 'results',
+    hint: 'Results appear as you type.',
+    none: 'Nothing found.',
+    try: 'Try “{example}”',
+    example: 'sugar',
+    results: 'result | results',
     engine: 'lunr · no request',
   },
   home: {
