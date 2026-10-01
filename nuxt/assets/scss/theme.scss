@@ -770,6 +770,10 @@ h4 {
     font-size: 0.90625rem;
     margin: 0.5rem 0 0;
     max-width: 60ch;
+
+    code {
+      color: $druxt-blue-ink;
+    }
   }
   &__link {
     color: $druxt-blue-ink;
@@ -804,6 +808,15 @@ h4 {
   }
   .v {
     color: #e8b98f;
+  }
+  // Beside a note's prose: as tall as the card, the sample centred in it.
+  &--fill {
+    align-items: flex-start;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
   }
 }
 

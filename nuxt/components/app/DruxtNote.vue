@@ -1,8 +1,9 @@
 <template>
-  <!-- The code sample keeps its own width and the prose wraps around what is
-       left: a fixed split squeezed the sample inside a narrow measure. -->
-  <b-row class="druxt-note" no-gutters>
-    <b-col cols="12" :lg="code ? true : 12">
+  <!-- Two thirds prose, one third sample, and the sample stands as tall as
+       the card so the row reads as one piece. The split follows the note's
+       own width (a container query), so a note in a narrow column stacks. -->
+  <div class="druxt-note" :class="{ 'druxt-note--code': code }">
+    <div class="druxt-note__prose">
       <span class="druxt-note__kicker">{{ kicker }}</span>
       <h3 v-if="title" class="druxt-note__title">{{ title }}</h3>
       <p class="druxt-note__body"><slot /></p>
@@ -25,13 +26,16 @@
       >
         {{ cta }} →
       </a>
-    </b-col>
+    </div>
 
-    <b-col v-if="code" cols="12" lg="auto" class="pl-lg-4 mt-3 mt-lg-0">
-      <!-- eslint-disable-next-line vue/no-v-html -->
-      <pre class="druxt-code mb-0" v-html="code" />
-    </b-col>
-  </b-row>
+    <div v-if="code" class="druxt-note__sample d-flex">
+      <!-- One child, so the block can centre the sample without laying its
+           spans out one per line. -->
+      <pre class="druxt-code druxt-code--fill mb-0">
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <code v-html="code" /></pre>
+    </div>
+  </div>
 </template>
 
 <script>
