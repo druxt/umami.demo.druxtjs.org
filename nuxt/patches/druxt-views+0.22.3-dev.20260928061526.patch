@@ -1,0 +1,16 @@
+diff --git a/node_modules/druxt-views/dist/components/DruxtView.vue b/node_modules/druxt-views/dist/components/DruxtView.vue
+index 3230678..704839c 100644
+--- a/node_modules/druxt-views/dist/components/DruxtView.vue
++++ b/node_modules/druxt-views/dist/components/DruxtView.vue
+@@ -294,6 +294,11 @@ export default {
+   },
+ 
+   watch: {
++    /** A view belongs to a language: a new prefix is a new result set. */
++    lang() {
++      this.$fetch()
++    },
++
+     '$route.query'(to) {
+       if (!Object.entries(to || {}).length) {
+         this.model = {
