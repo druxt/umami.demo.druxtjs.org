@@ -172,15 +172,24 @@ export function draftDocument(drafts, entity, labelOf = (name) => name) {
  * marks only the rows it touched rather than every row against the whole list.
  *
  * @param {{left: string, right: string}|null} diff - The field's diff.
- * @param {string[]} items - The list as the page renders it.
- * @returns {{text: string, diff: object|null, removed: boolean}[]} Rows.
+ * @param {Array} items - The list as the page renders it.
+ * @param {Function} [textOf] - An item's words, for an item that is markup.
+ * @returns {{text: string, item: *, diff: object|null, removed: boolean}[]}
+ *   Rows; a removed row has its old line as `text` and no item.
  */
-export function listRows(diff, items) {
-  const right = items.map((item) => String(item))
-  if (!diff) return right.map((text) => ({ text, diff: null, removed: false }))
+export function listRows(diff, items, textOf = (item) => String(item)) {
+  const right = items.map((item) => String(textOf(item)).trim())
+  const row = (j, change) => ({
+    text: right[j],
+    item: items[j],
+    diff: change || null,
+    removed: false,
+  })
+  if (!diff) return right.map((_, j) => row(j))
   const left = String(diff.left || '')
     .split('\n')
-    .filter((l) => l !== '')
+    .map((line) => line.trim())
+    .filter((line) => line !== '')
   // Longest common subsequence of whole lines.
   const n = left.length
   const m = right.length
@@ -199,23 +208,12 @@ export function listRows(diff, items) {
   // A gap between matched lines: its removed and added lines pair in order,
   // and whatever is left over stands alone.
   const flush = () => {
-    const pairs = Math.min(removed.length, added.length)
-    for (let k = 0; k < pairs; k++) {
-      rows.push({
-        text: added[k],
-        diff: { ...diff, left: removed[k], right: added[k] },
-        removed: false,
-      })
-    }
-    for (const text of removed.slice(pairs)) {
-      rows.push({ text, diff: null, removed: true })
-    }
-    for (const text of added.slice(pairs)) {
-      rows.push({
-        text,
-        diff: { ...diff, left: '', right: text },
-        removed: false,
-      })
+    added.forEach((j, k) => {
+      const before = k < removed.length ? removed[k] : ''
+      rows.push(row(j, { ...diff, left: before, right: right[j] }))
+    })
+    for (const text of removed.slice(added.length)) {
+      rows.push({ text, item: null, diff: null, removed: true })
     }
     removed = []
     added = []
@@ -225,11 +223,11 @@ export function listRows(diff, items) {
   while (i < n || j < m) {
     if (i < n && j < m && left[i] === right[j]) {
       flush()
-      rows.push({ text: right[j], diff: null, removed: false })
+      rows.push(row(j))
       i++
       j++
     } else if (j < m && (i === n || lcs[i][j + 1] >= lcs[i + 1][j])) {
-      added.push(right[j++])
+      added.push(j++)
     } else {
       removed.push(left[i++])
     }
