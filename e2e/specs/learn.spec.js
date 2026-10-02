@@ -10,12 +10,34 @@ test.describe('learning layer', () => {
     await visit(page, RECIPE)
     const fits = () =>
       page.evaluate(
-        () => document.documentElement.scrollWidth <= window.innerWidth + 1
+        () => document.documentElement.scrollWidth <= window.innerWidth + 1,
       )
     expect(await fits()).toBe(true)
     await page.locator('.jsonapi-drawer__toggle').click()
     await expect(page.locator('.jsonapi-drawer__tree')).toBeVisible()
     expect(await fits()).toBe(true)
+  })
+
+  // A view mode switch swaps the preview without collapsing it first, so the
+  // page below holds still.
+  test('switching view mode does not collapse the preview', async ({
+    page,
+  }) => {
+    await visit(page, RECIPE)
+    const stage = page.locator('.view-modes__stage')
+    await expect(stage.locator('.recipe-card, .teaser').first()).toBeVisible()
+    const before = (await stage.boundingBox()).height
+    await page.locator('.view-modes button', { hasText: 'teaser' }).click()
+    const heights = []
+    for (let i = 0; i < 15; i++) {
+      heights.push((await stage.boundingBox()).height)
+      await page.waitForTimeout(40)
+    }
+    await expect(stage.locator('.teaser').first()).toBeVisible()
+    const after = (await stage.boundingBox()).height
+    expect(Math.min(...heights)).toBeGreaterThanOrEqual(
+      Math.min(before, after) * 0.9,
+    )
   })
 
   test('the code sample in a note is not clipped', async ({ page }) => {
@@ -35,7 +57,7 @@ test.describe('learning layer', () => {
     await visit(page, '/entity-explorer')
     await expect(page.locator('.explorer__storybook')).toHaveAttribute(
       'href',
-      /\/\?path=\/story\/druxt-entity-node-recipe-view-displays--card$/
+      /\/\?path=\/story\/druxt-entity-node-recipe-view-displays--card$/,
     )
   })
 
