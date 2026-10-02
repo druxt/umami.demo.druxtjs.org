@@ -4,7 +4,8 @@
     {{ $t('nav.signOut')
     }}<span v-if="name" class="account-link__name"> · {{ name }}</span>
   </button>
-  <nuxt-link v-else :to="to">{{ $t('nav.signIn') }}</nuxt-link>
+  <!-- The page is the fallback: a plain click opens the dialog in place. -->
+  <a v-else :href="to" @click="openDialog">{{ $t('nav.signIn') }}</a>
 </template>
 
 <script>
@@ -29,6 +30,15 @@ export default {
   },
 
   methods: {
+    openDialog(event) {
+      // A modified or middle click still opens the page, as a link does.
+      if (event.button || event.metaKey || event.ctrlKey || event.shiftKey) {
+        return
+      }
+      event.preventDefault()
+      this.$store.commit('ui/setSignIn', true)
+    },
+
     async signOut() {
       await this.$auth.logout()
       // The store keeps what the session read; a fresh load forgets it.

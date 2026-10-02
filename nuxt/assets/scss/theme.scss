@@ -2415,6 +2415,44 @@ html.druxt-inspector {
 // Screens that already exist in the repo and were rendering as raw
 // bootstrap-vue. See REPASS.md §4.
 
+// The sign-in dialog: the auth screen's form on paper, a sheet from the
+// bottom on a phone, where the keyboard takes the top of the screen.
+.sign-in__dialog {
+  max-width: 420px;
+
+  .modal-content {
+    background: $paper;
+    border: 1px solid $rule;
+    border-radius: 12px;
+  }
+
+  .modal-header {
+    border-bottom: 0;
+    padding: 1.25rem 1.5rem 0;
+  }
+
+  .sign-in__title {
+    font-family: $serif;
+    font-size: 1.75rem;
+    font-weight: 400;
+  }
+
+  .sign-in__body {
+    padding: 0.5rem 1.5rem 1.5rem;
+  }
+
+  @media (max-width: 575.98px) {
+    align-items: flex-end;
+    margin: 0;
+    max-width: none;
+    min-height: 100%;
+
+    .modal-content {
+      border-radius: 16px 16px 0 0;
+    }
+  }
+}
+
 .auth,
 .form-page,
 .term-page {

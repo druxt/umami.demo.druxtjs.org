@@ -103,6 +103,7 @@
         </div>
 
         <AppMobileDrawer />
+        <AppSignInDialog />
 
         <!-- Mounted once and kept: closing the panel hides it, so the query,
              the results and where they were scrolled to are there on the
