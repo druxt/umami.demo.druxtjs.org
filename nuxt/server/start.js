@@ -15,6 +15,7 @@ const fs = require('fs')
 const http = require('http')
 const path = require('path')
 const zlib = require('zlib')
+const { pipeline } = require('stream')
 const { spawn } = require('child_process')
 const { createDrupalProxy, isDrupalPath, waitForDrupal } = require('./drupal')
 const { createStartingHandler } = require('./starting')
@@ -121,37 +122,35 @@ const serveStatic = (req, res) => {
       ? 'public, max-age=31536000, immutable'
       : 'no-cache'
   // Text goes out compressed: the scripts are the bulk of a page's bytes.
-  const encoding = compressionFor(req, headers['Content-Type'])
-  if (encoding) {
-    headers['Content-Encoding'] = encoding
+  // Every compressible response varies by encoding, compressed or not, so a
+  // cache never hands brotli to a client that asked for none.
+  if (COMPRESSIBLE.test(headers['Content-Type'])) {
     headers.Vary = 'Accept-Encoding'
   }
-  res.writeHead(200, headers)
-  // A build swapped out mid-request loses its files; answer 404, don't crash.
-  const stream = fs.createReadStream(file).on('error', () => {
-    if (!res.headersSent) res.writeHead(404)
-    res.end()
-  })
+  const encoding = compressionFor(req, headers['Content-Type'])
+  if (encoding) headers['Content-Encoding'] = encoding
+  const steps = [fs.createReadStream(file)]
   if (encoding === 'br') {
-    stream
-      .pipe(
-        zlib.createBrotliCompress({
-          params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 5 },
-        })
-      )
-      .pipe(res)
+    steps.push(
+      zlib.createBrotliCompress({
+        params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 5 },
+      })
+    )
   } else if (encoding === 'gzip') {
-    stream.pipe(zlib.createGzip({ level: 6 })).pipe(res)
-  } else {
-    stream.pipe(res)
+    steps.push(zlib.createGzip({ level: 6 }))
   }
+  res.writeHead(200, headers)
+  // A build swapped out mid-request loses its files: pipeline ends the
+  // response, and a compressor's error with it, rather than crash.
+  pipeline(...steps, res, () => {})
 }
+
+/** The types worth compressing: text, scripts, data and SVG. */
+const COMPRESSIBLE = /^(text\/|application\/(javascript|json|xml)|image\/svg)/
 
 /** The encoding a browser takes for a text response, or nothing. */
 const compressionFor = (req, type) => {
-  if (!/^(text\/|application\/(javascript|json|xml)|image\/svg)/.test(type)) {
-    return ''
-  }
+  if (!COMPRESSIBLE.test(type)) return ''
   const accept = String(req.headers['accept-encoding'] || '')
   if (/\bbr\b/.test(accept)) return 'br'
   if (/\bgzip\b/.test(accept)) return 'gzip'

@@ -68,6 +68,10 @@ export default {
         as: 'style',
         href: 'https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap',
         onload: "this.onload=null;this.rel='stylesheet'",
+        // Once its rel has changed the tag no longer matches its definition,
+        // and vue-meta would swap in a fresh preload on every navigation,
+        // dropping the fonts until it loads again.
+        once: true,
       },
       {
         rel: 'stylesheet',
