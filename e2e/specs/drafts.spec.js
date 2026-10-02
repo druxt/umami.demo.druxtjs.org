@@ -80,7 +80,7 @@ test.describe('drafts', () => {
     await expect(removed).toContainText('Removed')
     await expect(removed.locator('img')).toHaveAttribute(
       'src',
-      new RegExp(before),
+      new RegExp(before)
     )
     await page.locator('.draft-banner__diff-toggle').click()
     await page.locator('.page-tabs__tab').nth(1).click()
@@ -92,7 +92,7 @@ test.describe('drafts', () => {
     await page.locator('.page-tabs__tab').nth(0).click()
     await expect.poll(hero).toBe(before)
     expect(
-      await page.evaluate(() => window.localStorage.getItem('umamiDrafts')),
+      await page.evaluate(() => window.localStorage.getItem('umamiDrafts'))
     ).toBeNull()
     expect(errors).toEqual([])
   })
@@ -138,7 +138,7 @@ test.describe('drafts', () => {
     // Focus lands on the page's heading, not back at the top.
     await expect(page.locator(':focus')).toHaveCount(1)
     expect(
-      await page.evaluate(() => /^H[12]$/.test(document.activeElement.tagName)),
+      await page.evaluate(() => /^H[12]$/.test(document.activeElement.tagName))
     ).toBe(true)
     // The open form shows Drupal's title again, and a reload finds no draft.
     await expect(page.locator('#title')).toHaveValue(original)
@@ -159,7 +159,7 @@ test.describe('drafts', () => {
     await visit(page, '/es/recipes/crema-catalana')
     await expect(page.locator('.draft-banner')).toHaveCount(0)
     await expect(page.locator('h1').first()).not.toContainText(
-      'only in English',
+      'only in English'
     )
     await openEdit(page, RECIPE)
     await page.click('.edit-actions__cancel')
@@ -210,6 +210,32 @@ test.describe('drafts', () => {
     await expect(page.locator('.draft-banner')).toHaveCount(0)
   })
 
+  // A list marks the rows a change touched, each against the line it
+  // replaced, not every row against the whole list.
+  test('an edited ingredient is marked on its own row', async ({ page }) => {
+    await signIn(page)
+    await openEdit(page, RECIPE)
+    const second = page.locator('.edit-list__input').nth(1)
+    const original = await second.inputValue()
+    await second.fill(`${original} extra`)
+    await page.locator('.page-tabs__tab').nth(0).click()
+    await page.locator('.draft-banner__diff-toggle').click()
+
+    const rows = page.locator('.recipe-ingredients .list-group-item')
+    await expect(rows.nth(1).locator('ins.v-diff-ins')).toContainText('extra')
+    await expect(
+      page.locator('.recipe-ingredients ins.v-diff-ins')
+    ).toHaveCount(1)
+    await expect(
+      page.locator('.recipe-ingredients del.v-diff-del')
+    ).toHaveCount(0)
+
+    await page.locator('.draft-banner__diff-toggle').click()
+    await page.locator('.page-tabs__tab').nth(1).click()
+    await page.click('.edit-actions__cancel')
+    await expect(page.locator('.draft-banner')).toHaveCount(0)
+  })
+
   test('rich text typed in the editor previews on View', async ({ page }) => {
     await signIn(page)
     await openEdit(page, RECIPE)
@@ -220,7 +246,7 @@ test.describe('drafts', () => {
     await page.keyboard.type(' Typed in the editor.')
     await page.locator('.page-tabs__tab').nth(0).click()
     await expect(page.locator('.page-tabs__pane').first()).toContainText(
-      'Typed in the editor.',
+      'Typed in the editor.'
     )
     await page.locator('.page-tabs__tab').nth(1).click()
     await page.click('.edit-actions__cancel')
