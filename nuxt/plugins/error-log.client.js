@@ -5,8 +5,10 @@
  */
 export default () => {
   const log = (window.__umamiErrors = window.__umamiErrors || [])
+  // The newest errors only: a render loop must not grow the log for ever.
   const push = (kind, detail) => {
     log.push({ kind, detail: String(detail).slice(0, 300), at: Date.now() })
+    if (log.length > 50) log.splice(0, log.length - 50)
   }
   window.addEventListener(
     'error',

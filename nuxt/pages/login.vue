@@ -30,8 +30,14 @@ export default {
   },
 
   computed: {
-    /** Where to go afterwards: where the visitor came from, else home. */
-    redirect: ({ $route, prefix }) => String($route.query.redirect || prefix),
+    /**
+     * Where to go afterwards: where the visitor came from, else home. Only a
+     * path on this site: `//host` or `/\\host` would leave it.
+     */
+    redirect: ({ $route, prefix }) => {
+      const to = String($route.query.redirect || '')
+      return /^\/(?![/\\])/.test(to) ? to : prefix
+    },
   },
 
   mounted() {

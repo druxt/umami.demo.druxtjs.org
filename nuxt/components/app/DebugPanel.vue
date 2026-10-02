@@ -55,12 +55,14 @@ export default {
       }
     }
     check()
+    this.check = check
     window.addEventListener('hashchange', check)
     this.timer = setInterval(check, 2000)
   },
 
   beforeDestroy() {
     clearInterval(this.timer)
+    window.removeEventListener('hashchange', this.check)
   },
 }
 </script>
