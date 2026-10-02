@@ -58,7 +58,7 @@ const main = async () => {
   log(`Drupal is ready at ${drupalUrl}`)
   setPhase('building')
 
-  const child = spawn(
+  child = spawn(
     'yarn',
     ['storybook', '-p', String(inner), '-h', '127.0.0.1', '--ci'],
     { cwd: path.join(__dirname, '..'), stdio: 'inherit' }
@@ -69,6 +69,8 @@ const main = async () => {
     process.exit(1)
   })
   child.on('exit', (code, signal) => {
+    // Stopped on purpose, with the server: not a failure.
+    if (stopping) return
     setPhase('failed')
     log(`Storybook exited with ${signal || code}`)
     process.exit(code || 1)
@@ -80,8 +82,15 @@ const main = async () => {
   log(`serving Storybook from port ${inner}`)
 }
 
+// Storybook runs in a child, which a signal to this process does not reach:
+// it is passed on, so the child stops with the server, not after it.
+let child = null
+let stopping = false
+
 for (const signal of ['SIGINT', 'SIGTERM']) {
   process.on(signal, () => {
+    stopping = true
+    if (child && child.exitCode === null) child.kill(signal)
     server.close(() => process.exit(0))
     setTimeout(() => process.exit(0), 10000).unref()
   })
