@@ -32,8 +32,10 @@
       <client-only>
         <AppDrupalLinks
           v-if="signedIn"
+          :label="route.label || ''"
           :langcode="(route.entity || {}).langcode || route.props.langcode"
-          :nid="(route.entity || {}).id"
+          :type="route.props.type"
+          :uuid="route.props.uuid"
         />
       </client-only>
     </div>
