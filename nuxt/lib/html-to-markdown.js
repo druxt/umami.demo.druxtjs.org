@@ -65,9 +65,9 @@ const decodeEntities = (text) =>
   text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (entity, name) => {
     if (name.startsWith('#')) {
       const hex = name[1] === 'x' || name[1] === 'X'
-      return String.fromCodePoint(
-        Number.parseInt(name.slice(hex ? 2 : 1), hex ? 16 : 10)
-      )
+      const point = Number.parseInt(name.slice(hex ? 2 : 1), hex ? 16 : 10)
+      // An invalid reference is left as written, not a failed build.
+      return point <= 0x10ffff ? String.fromCodePoint(point) : entity
     }
     return NAMED_ENTITIES[name.toLowerCase()] || entity
   })
@@ -108,6 +108,15 @@ function parse(html) {
   return root.children
 }
 
+/**
+ * Emphasis with its edge spaces outside the markers: `**Tip:**Use` cannot
+ * close, so `<strong>Tip: </strong>Use` keeps its space as `**Tip:** Use`.
+ */
+const emphasis = (inner, marker) => {
+  const [, before, text, after] = /^(\s*)([\s\S]*?)(\s*)$/.exec(inner)
+  return text ? `${before}${marker}${text}${marker}${after}` : inner
+}
+
 /** Nodes as inline Markdown, whitespace collapsed as a browser would. */
 function renderInline(nodes, options) {
   return nodes
@@ -117,10 +126,10 @@ function renderInline(nodes, options) {
       switch (node.tag) {
         case 'strong':
         case 'b':
-          return `**${inner.trim()}**`
+          return emphasis(inner, '**')
         case 'em':
         case 'i':
-          return `*${inner.trim()}*`
+          return emphasis(inner, '*')
         case 'code': {
           // A code span's fence outruns any backtick run inside it.
           const longest = Math.max(
