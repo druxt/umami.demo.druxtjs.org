@@ -16,6 +16,13 @@ const plain = (value) =>
         .trim()
     : value
 
+/** A multi-value field's export, one value per entry. */
+const listOf = (value) =>
+  String(value || '')
+    .split(',')
+    .map((part) => plain(part))
+    .filter(Boolean)
+
 export default function (moduleOptions = {}) {
   // Default settings.
   const server = moduleOptions.server || 'default'
@@ -64,11 +71,9 @@ export default function (moduleOptions = {}) {
               uuid: item.uuid,
               type: `node--${item.type}`,
               bundle: item.type,
-              category: plain(item.field_recipe_category || '') || null,
-              tags: String(item.field_tags || '')
-                .split(',')
-                .map((tag) => plain(tag))
-                .filter(Boolean),
+              // Both can hold several values, which the export joins with commas.
+              categories: listOf(item.field_recipe_category),
+              tags: listOf(item.field_tags),
             },
           })
           count++

@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test')
 const { openSearch, visit } = require('./helpers')
 
-// cspell:ignore mocktails tomatos
+// cspell:ignore garlik
 
 /** Open whichever search control the viewport shows: the icon opens the
  * drawer's field below lg, the pill opens the panel at lg. */
@@ -45,6 +45,8 @@ test.describe('search', () => {
   test('a tag, the start of a word and a near miss all find content', async ({
     page,
   }) => {
+    const errors = []
+    page.on('pageerror', (error) => errors.push(String(error)))
     await visit(page, '/en')
     await openSearch(page)
     const bar = page.locator('.searchbar:visible').first()
@@ -53,15 +55,20 @@ test.describe('search', () => {
     for (const [query, expected] of [
       ['drink', /mocktails/i],
       ['choc', /chocolate/i],
-      ['tomatos', /.+/],
+      // One letter out, and no stem or prefix that would find it anyway.
+      ['garlik', /.+/],
     ]) {
       await input.fill(query)
       await expect(results.first(), query).toBeVisible()
       await expect(results.filter({ hasText: expected }).first()).toBeVisible()
     }
-    // Lunr's own syntax is not the reader's: a stray colon is just text.
+    // Lunr's own syntax is not the reader's: a stray colon is just text,
+    // searched as such, and nothing throws.
     await input.fill('title:')
-    await expect(bar.locator('.searchbar__meta')).toBeVisible()
+    await expect(bar.locator('.searchbar__meta')).toContainText(
+      /result|Nothing/,
+    )
+    expect(errors).toEqual([])
   })
 
   test('the suggestion fills the field and finds plenty', async ({ page }) => {
@@ -121,6 +128,20 @@ test.describe('search', () => {
     const results = bar.locator('.searchbar__results a')
     await expect.poll(() => results.count()).toBeGreaterThanOrEqual(8)
     const all = await results.count()
+    // Facets are named for readers: a category or a tag by its name, never
+    // the term ID an index can hold in its place.
+    const labels = await bar
+      .locator('.searchbar__chip')
+      .evaluateAll((chips) => chips.map((c) => c.firstChild.textContent.trim()))
+    expect(labels.filter((label) => /^\d+$/.test(label))).toEqual([])
+    if (!(await page.locator('button[aria-label="Open menu"]').isVisible())) {
+      await expect(
+        bar.locator('.searchbar__chip', { hasText: 'Desserts' }),
+      ).toBeVisible()
+      await expect(
+        bar.locator('.searchbar__chip', { hasText: 'Vegetarian' }),
+      ).toBeVisible()
+    }
     const article = bar.locator('.searchbar__chip', { hasText: 'Article' })
     const count = Number(await article.locator('.searchbar__count').innerText())
     await article.click()
@@ -171,6 +192,10 @@ test.describe('search', () => {
     await openSearch(page)
     const english = page.locator('.searchbar:visible').first()
     await english.locator('input').fill('zanahorias')
+    // Searched, not merely not yet: the status says so before the count.
+    await expect(english.locator('.searchbar__meta')).toContainText(
+      'Nothing found',
+    )
     await expect(english.locator('.searchbar__results a')).toHaveCount(0)
   })
 })
