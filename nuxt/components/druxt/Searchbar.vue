@@ -25,8 +25,11 @@
       </div>
 
       <!-- One line in the drawer: 330px does not fit two phrases. -->
-      <div class="searchbar__meta">
-        <span v-if="resultsVisible && searchResults.length"
+      <!-- A status: the count, nothing found or the index unavailable is read
+           out as it changes. -->
+      <div class="searchbar__meta" role="status">
+        <span v-if="failed">{{ $t('search.unavailable') }}</span>
+        <span v-else-if="resultsVisible && searchResults.length"
           >{{ shownResults.length }}
           {{ $tc('search.results', shownResults.length) }}</span
         >
@@ -95,11 +98,7 @@
 
     <div v-if="!compact" class="searchbar__note">
       <span class="druxt-note__kicker">{{ $t('note.howThisWorks') }}</span>
-      <p class="druxt-note__body mt-1 mb-0">
-        Drupal's Search API index is compiled to a Lunr index at build time and
-        bundled with the app, so every keystroke searches locally and the site
-        stays static.
-      </p>
+      <p class="druxt-note__body mt-1 mb-0">{{ $t('note.searchBody') }}</p>
     </div>
   </div>
 </template>
@@ -132,6 +131,8 @@ export default {
     scrolled: 0,
     /** The chosen value of each facet; null shows every result. */
     filters: { bundle: null, category: null, tag: null },
+    /** The index could not be fetched: say so, not "nothing found". */
+    failed: false,
   }),
 
   computed: {
@@ -142,7 +143,7 @@ export default {
         const meta = (searchMeta || {})[item.ref] || {}
         return {
           bundle: meta.bundle ? [meta.bundle] : [],
-          category: meta.category ? [meta.category] : [],
+          category: meta.categories || [],
           tag: meta.tags || [],
         }
       },
@@ -197,10 +198,22 @@ export default {
   },
 
   watch: {
-    /** A new query is read from its first result, every facet open. */
-    searchText() {
-      this.scrolled = 0
-      this.filters = { bundle: null, category: null, tag: null }
+    /**
+     * A new query is read from its first result, every facet open. An empty
+     * field shows nothing: the base leaves the last results, and a search
+     * still waiting on its timer.
+     */
+    searchText(value) {
+      this.reset()
+      if (!value) {
+        clearTimeout(this.searchTimeout)
+        this.searchResults = []
+      }
+    },
+
+    /** Another language is another index: its names fit no chosen facet. */
+    language() {
+      this.reset()
     },
   },
 
@@ -225,19 +238,21 @@ export default {
   },
 
   methods: {
-    // cspell:ignore tomatos
+    // cspell:ignore garlik
     /**
      * Each word as typed, as the start of a longer word, and within one
-     * letter for longer words, so "choc" and "tomatos" find their recipes.
+     * letter for longer words, so "choc" and "garlik" find their recipes.
      * Typed text is never Lunr query syntax: a stray ":" or "~" stays text.
      */
     async search(text) {
       // loadIndex answers undefined when its cache serves the index, as it
       // does for the second search bar, so test the index itself.
       if (!this.searchIndex) await this.loadIndex()
+      this.failed = !this.searchIndex
       if (!this.searchIndex) return
+      // The field as it is now: typing went on while the index loaded.
       const words = lunr
-        .tokenizer(text)
+        .tokenizer(this.searchText || '')
         .map((token) => token.toString().replace(/[^\p{L}\p{N}]/gu, ''))
         .filter(Boolean)
       this.searchResults = words.length
@@ -260,6 +275,13 @@ export default {
           })
         : []
       this.openResults()
+    },
+
+    /** Every facet open and the list at its top. */
+    reset() {
+      this.filters = { bundle: null, category: null, tag: null }
+      this.scrolled = 0
+      if (this.$refs.results) this.$refs.results.scrollTop = 0
     },
 
     /** A chip chooses its value, or clears it when chosen already. */

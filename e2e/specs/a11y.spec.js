@@ -65,6 +65,9 @@ test.describe('accessibility', () => {
   test('the search panel has no accessibility failures', async ({ page }) => {
     await visit(page, '/en')
     await openSearch(page)
+    // With results and facets in it, not the empty panel.
+    await page.locator('.searchbar:visible input').fill('sugar')
+    await page.locator('.searchbar:visible .searchbar__chip').first().waitFor()
     const { violations } = await audit(page)
     if (violations.length) console.log(`search\n${describe(violations)}`)
     expect(
