@@ -4,11 +4,11 @@
     <div v-if="error" class="edit-form__alert" role="alert">{{ error }}</div>
 
     <div class="edit-field">
-      <label class="edit-field__label" for="login-name">{{
+      <label class="edit-field__label" :for="`${idPrefix}-name`">{{
         $t('login.username')
       }}</label>
       <input
-        id="login-name"
+        :id="`${idPrefix}-name`"
         ref="name"
         v-model="username"
         autocapitalize="off"
@@ -20,11 +20,11 @@
     </div>
 
     <div class="edit-field">
-      <label class="edit-field__label" for="login-pass">{{
+      <label class="edit-field__label" :for="`${idPrefix}-pass`">{{
         $t('login.password')
       }}</label>
       <input
-        id="login-pass"
+        :id="`${idPrefix}-pass`"
         v-model="password"
         autocomplete="current-password"
         class="edit-control"
@@ -48,6 +48,9 @@
 <script>
 export default {
   props: {
+    /** The fields' ids: the dialog's form can open over the /login page's. */
+    idPrefix: { type: String, default: 'login' },
+
     /** Where to go once signed in; unset, the reader stays on this page. */
     destination: { type: String, default: null },
   },
