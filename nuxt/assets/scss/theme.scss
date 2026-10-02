@@ -4229,6 +4229,34 @@ html.druxt-inspector {
       font-weight: 600;
     }
   }
+
+  &__list {
+    display: flex;
+    gap: 4px;
+  }
+}
+
+// Drupal's own screens for the node, at the tab bar's far end.
+.drupal-links {
+  align-self: center;
+  margin-left: auto;
+
+  &__toggle {
+    color: $ink-soft;
+    font-size: 0.875rem;
+    min-height: $tap;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      color: $ink;
+      text-decoration: underline;
+    }
+  }
+
+  &__item {
+    font-size: 0.875rem;
+  }
 }
 
 // The filter bar's sort control: a fixed-height select clips its text in
