@@ -31,8 +31,9 @@ const listItem = (title, url, notes) =>
 /**
  * Render `/llms.txt`.
  *
- * English content is listed in full. The Spanish translations go under
- * `## Optional`, the heading the format reserves for what a reader can skip.
+ * English content is listed in full. The full-text companion and the
+ * Spanish translations go under `## Optional`, the heading the format
+ * reserves for what a reader can skip.
  *
  * @param {object[]} docs - Documents from readContent().
  * @param {object} options - { origin }.
@@ -56,16 +57,21 @@ function buildLlmsTxt(docs, { origin }) {
     if (list.length) lines.push('', '## ' + label, '', ...list)
   }
 
+  // The full text stays bare: an assistant reads it and
+  // nobody lands on it, and the Source: links inside carry their own tags.
+  lines.push(
+    '',
+    '## Optional',
+    '',
+    listItem(
+      'Full text',
+      origin + '/llms-full.txt',
+      'Every recipe, article and page in full, as one Markdown file.'
+    )
+  )
   const spanish = SECTIONS.flatMap(({ bundle }) => items('es', bundle))
   if (spanish.length) {
-    lines.push(
-      '',
-      '## Optional',
-      '',
-      'The same content in Spanish.',
-      '',
-      ...spanish
-    )
+    lines.push('', 'The same content in Spanish:', '', ...spanish)
   }
 
   return lines.join('\n') + '\n'
