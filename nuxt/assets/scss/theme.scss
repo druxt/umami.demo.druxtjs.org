@@ -153,6 +153,20 @@ h4 {
   }
 }
 
+// Whatever is scrolled into view, by a focus, an anchor or a script, clears
+// the sticky demo bar and masthead: 40px and 60, 64 or 84px, plus a gap.
+html {
+  scroll-padding-top: calc(#{$demo-bar-height} + 76px);
+
+  @media (min-width: 768px) {
+    scroll-padding-top: calc(#{$demo-bar-height} + 80px);
+  }
+
+  @media (min-width: 992px) {
+    scroll-padding-top: calc(#{$demo-bar-height} + 100px);
+  }
+}
+
 // The masthead's wrapper is the sticky element: the navbar inside it could
 // only stick within the wrapper's own height, which scrolled away. The demo
 // bar is sticky at top: 0, so the masthead starts below it.
@@ -4180,9 +4194,6 @@ html.druxt-inspector {
 
 // The View / Edit bar on a node page.
 .page-tabs {
-  // Scrolled into view (a tab click, a focus), the tabs clear the sticky
-  // masthead instead of landing under it.
-  scroll-margin-top: 7rem;
   border-bottom: 1px solid $rule;
   display: flex;
   gap: 4px;
