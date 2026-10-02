@@ -20,6 +20,8 @@ The demo is a site without releases, so changes are grouped by date.
   when the pages catch up, and the tabs link to Drupal's own screens for the
   node.
 - Sign in from any page, in a dialog, with `/login` as the page behind it.
+  Signing in also opens a Drupal session, so the tabs' Drupal screens, served
+  on this origin, open signed in.
 - Search matches tags, categories, the start of a word and near misses, keeps
   its query and scroll position, and narrows results by type, category and
   tag.

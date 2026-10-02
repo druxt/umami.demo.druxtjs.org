@@ -41,10 +41,10 @@ export default {
   },
   drupal: {
     menu: 'Drupal',
-    edit: 'Editar en Drupal',
-    revisions: 'Revisiones',
-    translations: 'Traducciones',
-    newTab: '(se abre en una pestaña nueva)',
+    'edit-form': 'Editar en Drupal',
+    'version-history': 'Revisiones',
+    'drupal-content-translation-overview': 'Traducciones',
+    'delete-form': 'Eliminar…',
   },
   search: {
     unavailable: 'La búsqueda no está disponible ahora mismo.',

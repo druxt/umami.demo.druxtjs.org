@@ -2302,6 +2302,8 @@
 
 "@druxt-contrib/admin@file:vendor/druxt-admin":
   version "0.0.0"
+  dependencies:
+    http-proxy-middleware "^2.0.10"
 
 "@druxt-contrib/ckeditor@file:vendor/druxt-ckeditor":
   version "0.0.0"
@@ -7517,10 +7519,8 @@ drupal-jsonapi-params@^2.3.1, drupal-jsonapi-params@^2.3.2:
   dependencies:
     qs "^6.10.3"
 
-druxt-auth@0.5.0:
+"druxt-auth@file:vendor/druxt-auth":
   version "0.5.0"
-  resolved "https://registry.yarnpkg.com/druxt-auth/-/druxt-auth-0.5.0.tgz#2a6f3d16b5789c5f7f14d0d4aec39d42303a633f"
-  integrity sha512-dsWDskwlJQik9trMJt+IIUVQkVSJjxi6n77fDr8joGUwGIaxyRp2veS4/9iqFJNTESjbu0bXz3azfewjfgi8dw==
   dependencies:
     "@nuxtjs/auth-next" "^5.0.0-1667386184.dfbbb54"
     http-proxy-middleware "^1.0.6"
@@ -9631,6 +9631,17 @@ http-proxy-middleware@^1.0.6:
   integrity sha512-13eVVDYS4z79w7f1+NPllJtOQFx/FdUW4btIvVRMaRlUY9VGstAbo5MOhLEuUgZFRHn3x50ufn25zkj/boZnEg==
   dependencies:
     "@types/http-proxy" "^1.17.5"
+    http-proxy "^1.18.1"
+    is-glob "^4.0.1"
+    is-plain-obj "^3.0.0"
+    micromatch "^4.0.2"
+
+http-proxy-middleware@^2.0.10:
+  version "2.0.10"
+  resolved "https://registry.yarnpkg.com/http-proxy-middleware/-/http-proxy-middleware-2.0.10.tgz#b2df7b705203d7a8c269ac8450cf96b00c532f94"
+  integrity sha512-RKzRWNPxUZqbuk3BC5mGVJbBnWgr+diEnjJexIOytFbBzDy88Fbh/YvBr3DsNrl1jYAfjWfpATEv0NO35FDuPQ==
+  dependencies:
+    "@types/http-proxy" "^1.17.8"
     http-proxy "^1.18.1"
     is-glob "^4.0.1"
     is-plain-obj "^3.0.0"
