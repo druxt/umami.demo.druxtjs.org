@@ -1734,6 +1734,46 @@ html.druxt-inspector {
     }
   }
 
+  // The facets sit above the list and stay put while it scrolls.
+  &__facets {
+    border-bottom: 1px solid $rule;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+  }
+
+  &__facet {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  &__chip {
+    background: transparent;
+    border: 1px solid $rule;
+    border-radius: 999px;
+    color: $ink-soft;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.65rem;
+
+    &:hover,
+    &:focus-visible {
+      border-color: $ink;
+      color: $ink;
+    }
+
+    &[aria-pressed='true'] {
+      background: $ink;
+      border-color: $ink;
+      color: $paper;
+    }
+  }
+
+  &__count {
+    opacity: 0.75;
+  }
+
   &__results {
     flex: 1;
     overflow-y: auto;
@@ -1813,9 +1853,20 @@ html.druxt-inspector {
   &__search {
     border-bottom: 1px solid $rule;
 
+    // Its own height in the drawer, not the panel's full one, or the facets
+    // push the list over the menu below.
+    .searchbar {
+      height: auto;
+    }
+
     .searchbar__head {
       border-bottom: 0;
       padding: 1rem 1.25rem;
+    }
+
+    .searchbar__facets {
+      border-bottom: 0;
+      padding: 0 1.25rem 0.75rem;
     }
 
     .searchbar__results {

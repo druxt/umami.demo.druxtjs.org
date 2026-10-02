@@ -40,6 +40,7 @@ export default {
     entityExplorer: 'Entity Explorer',
   },
   search: {
+    facet: { bundle: 'Type', category: 'Category', tag: 'Tags' },
     placeholder: 'Search recipes',
     hint: 'Results appear as you type.',
     none: 'Nothing found.',
