@@ -90,5 +90,8 @@
   "jest-junit": {
     "outputDirectory": "reports/junit",
     "outputName": "junit.xml"
+  },
+  "dependencies": {
+    "http-proxy-middleware": "^2.0.10"
   }
 }

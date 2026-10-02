@@ -180,7 +180,15 @@ export default {
     // consumer, with the authorization code flow kept for a browser sent to
     // Drupal. The token route the grant posts to is the module's own under
     // `nuxt dev`, and server/start.js's on the generated site.
-    ['druxt-auth', { clientId: process.env.OAUTH_CLIENT_ID || 'umami_druxt' }],
+    // The password grant also opens a Drupal session, through the proxied
+    // /user/login on this origin, so Drupal's own screens open signed in.
+    [
+      'druxt-auth',
+      {
+        clientId: process.env.OAUTH_CLIENT_ID || 'umami_druxt',
+        passwordSession: true,
+      },
+    ],
     // Last: it puts the site's page on the router's routes, which exist
     // once the modules above have added them. It also writes robots.txt,
     // sitemap.xml, llms.txt and llms-full.txt into the export.
@@ -234,6 +242,10 @@ export default {
 
   // Druxt Configuration
   druxt: {
+    // Drupal's admin is served on this origin, by server/start.js through
+    // druxt-admin's proxy, so its links stay here.
+    admin: { mode: 'proxy' },
+
     // The config page the share links come from: $druxtConfigPages.get('druxt_demo').
     configPages: { pages: ['druxt_demo'] },
     baseUrl,
@@ -294,7 +306,9 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
-    transpile: ['defu'],
+    // druxt-admin's operations helper is an ES module, which the server
+    // bundle would otherwise hand to Node's require().
+    transpile: ['defu', '@druxt-contrib/admin'],
 
     extend(config) {
       config.resolve.alias.vue$ = 'vue/dist/vue.esm.js'

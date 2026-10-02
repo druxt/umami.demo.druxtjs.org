@@ -4236,26 +4236,64 @@ html.druxt-inspector {
   }
 }
 
-// Drupal's own screens for the node, at the tab bar's far end.
+// Drupal's own screens for the node, at the tab bar's far end: the
+// operations druxt-admin reads from Drupal, as a small menu.
 .drupal-links {
   align-self: center;
   margin-left: auto;
 
+  &__menu {
+    position: relative;
+  }
+
   &__toggle {
+    background: none;
+    border: 0;
     color: $ink-soft;
     font-size: 0.875rem;
     min-height: $tap;
-    text-decoration: none;
+    padding: 0 8px;
 
     &:hover,
-    &:focus-visible {
+    &:focus-visible,
+    &[aria-expanded='true'] {
       color: $ink;
       text-decoration: underline;
     }
   }
 
+  &__list {
+    background: $paper;
+    border: 1px solid $rule;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(36, 31, 26, 0.12);
+    list-style: none;
+    margin: 4px 0 0;
+    min-width: 200px;
+    padding: 6px;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 30;
+  }
+
   &__item {
+    border-radius: 4px;
+    color: $ink;
+    display: block;
     font-size: 0.875rem;
+    padding: 8px 10px;
+
+    &:hover,
+    &:focus-visible {
+      background: $paper-warm;
+      color: $ink;
+      text-decoration: none;
+    }
+
+    &--destructive {
+      color: #a3361a;
+    }
   }
 }
 

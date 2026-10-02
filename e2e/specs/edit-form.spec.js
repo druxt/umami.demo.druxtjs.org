@@ -55,24 +55,30 @@ test.describe('edit form', () => {
     }
   })
 
-  // Beside the frontend's Edit tab, an editor reaches the same node on
-  // Drupal's own screens, in the page's language.
-  test('an editor has Drupal’s own screens beside the tabs', async ({
+  // Beside the frontend's Edit tab, the operations Drupal offers this editor,
+  // in the page's language, open Drupal's own screens on this origin. The
+  // sign-in opened a Drupal session too, so they open signed in.
+  test('an editor opens Drupal’s own screens from the tabs, signed in', async ({
     page,
   }) => {
     await page.goto(RECIPE)
-    await expect(page.locator('.drupal-links')).toHaveCount(0)
+    await expect(page.locator('.drupal-links__toggle')).toHaveCount(0)
     await signIn(page)
     await page.goto('/es/recipes/crema-catalana')
     await page.locator('.drupal-links__toggle').click()
     const items = page.locator('.drupal-links__item')
-    await expect(items).toHaveCount(3)
+    await expect(items).toHaveCount(4)
     await expect(items.first()).toHaveAttribute(
       'href',
-      /\/es\/node\/\d+\/edit$/,
+      /^\/es\/node\/\d+\/edit$/,
     )
-    await expect(items.first()).toHaveAttribute('target', '_blank')
     await expect(page.locator('.page-tabs__tab')).toHaveCount(2)
+    // Drupal's edit form, not its login form.
+    await page.goto(await items.first().getAttribute('href'))
+    await expect(
+      page.locator('form.node-form, form[id^="node-"]').first(),
+    ).toBeVisible()
+    await expect(page.locator('#user-login-form')).toHaveCount(0)
   })
 
   test('a visitor is asked to sign in rather than shown Save', async ({

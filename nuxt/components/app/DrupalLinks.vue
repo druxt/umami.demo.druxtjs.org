@@ -1,57 +1,130 @@
 <template>
-  <!-- Behind the curtain: the same node on Drupal's own screens. An editor
-       signed in here may still be asked by Drupal to sign in there; it sends
-       them on to the screen they asked for. -->
-  <b-dropdown
-    v-if="links.length"
+  <!-- Behind the curtain: the operations Drupal offers this editor on the
+       node, from druxt-admin, opening Drupal's own screens on this origin,
+       where the session opened at sign-in has them signed in already. -->
+  <DruxtAdminOperations
+    v-slot="{ operations: offered, open, toggle, close, active, run }"
     class="drupal-links"
-    no-caret
-    right
-    size="sm"
-    toggle-class="drupal-links__toggle"
-    variant="link"
+    :label="label"
+    :operations="operations"
   >
-    <template #button-content>
-      {{ $t('drupal.menu') }} <span aria-hidden="true">↗</span>
-    </template>
-    <b-dropdown-item
-      v-for="link of links"
-      :key="link.key"
-      :href="link.href"
-      link-class="drupal-links__item"
-      rel="noopener"
-      target="_blank"
-    >
-      {{ $t(`drupal.${link.key}`) }}
-      <span class="sr-only">{{ $t('drupal.newTab') }}</span>
-    </b-dropdown-item>
-  </b-dropdown>
+    <div v-click-outside="close" class="drupal-links__menu">
+      <button
+        :aria-expanded="String(open)"
+        aria-haspopup="menu"
+        class="drupal-links__toggle"
+        type="button"
+        @click="toggle()"
+      >
+        {{ $t('drupal.menu') }} <span aria-hidden="true">▾</span>
+      </button>
+      <ul v-if="open" class="drupal-links__list" role="menu">
+        <li
+          v-for="(operation, index) of offered"
+          :key="operation.key"
+          role="none"
+        >
+          <a
+            v-focus-when="active === index"
+            class="drupal-links__item"
+            :class="{
+              'drupal-links__item--destructive': operation.destructive,
+            }"
+            :href="operation.href"
+            role="menuitem"
+            @click="run(operation, $event)"
+          >
+            {{ titleOf(operation) }}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </DruxtAdminOperations>
 </template>
 
 <script>
-/** Drupal's screens for a node, in the order an editor reaches for them. */
-const SCREENS = [
-  { key: 'edit', path: 'edit' },
-  { key: 'revisions', path: 'revisions' },
-  { key: 'translations', path: 'translations' },
+// The library, not the package index: that carries the proxy, and Node's
+// http with it, into the reader's bundle.
+import { operationsFromLinks } from '@druxt-contrib/admin/dist/lib/operations.mjs'
+
+/**
+ * The links Drupal publishes for the operations an editor may use, in menu
+ * order. druxt_umami's link provider publishes the translation overview as
+ * `drupal-content-translation-overview`: a JSON:API member name holds no colon.
+ */
+const OPERATIONS = [
+  'edit-form',
+  'version-history',
+  'drupal-content-translation-overview',
+  'delete-form',
 ]
 
 export default {
-  props: {
-    /** The node's ID, as Drupal numbers it. */
-    nid: { type: [String, Number], default: null },
-    /** The language the page is in: its translation is the one edited. */
-    langcode: { type: String, default: 'en' },
+  directives: {
+    /** Focus follows the menu's active item, as its keys move it. */
+    focusWhen: {
+      update(el, { value, oldValue }) {
+        if (value && !oldValue) el.focus()
+      },
+    },
+    /** A click anywhere else closes the menu. */
+    clickOutside: {
+      bind(el, { value }) {
+        el.__outside = (event) => !el.contains(event.target) && value()
+        document.addEventListener('click', el.__outside)
+      },
+      unbind(el) {
+        document.removeEventListener('click', el.__outside)
+      },
+    },
   },
 
-  computed: {
-    links() {
-      const origin = this.$config.drupalOrigin
-      if (!origin || !this.nid) return []
-      return SCREENS.map(({ key, path }) => ({
-        key,
-        href: `${origin}/${this.langcode}/node/${this.nid}/${path}`,
-      }))
+  props: {
+    /** The resource: `node--recipe` and its UUID. */
+    type: { type: String, required: true },
+    uuid: { type: String, required: true },
+    /** The translation shown: its operations are the ones offered. */
+    langcode: { type: String, default: 'en' },
+    /** What the operations act on, for the labels a reader hears. */
+    label: { type: String, default: '' },
+  },
+
+  data: () => ({ operations: [] }),
+
+  watch: {
+    langcode: 'load',
+    uuid: 'load',
+  },
+
+  mounted() {
+    this.load()
+  },
+
+  methods: {
+    /** Drupal says what this editor may do; a reader is sent nothing. */
+    async load() {
+      const token = this.$auth && this.$auth.strategy.token.get()
+      if (!token) return (this.operations = [])
+      try {
+        const path = `/${this.langcode}/jsonapi/${this.type.replace(
+          '--',
+          '/'
+        )}/${this.uuid}`
+        const response = await fetch(`${path}?fields[${this.type}]=`, {
+          headers: { Accept: 'application/vnd.api+json', Authorization: token },
+        })
+        if (!response.ok) return (this.operations = [])
+        const { data } = await response.json()
+        this.operations = operationsFromLinks(data, { operations: OPERATIONS })
+      } catch (e) {
+        // An editor's convenience, never a reason for the page to break.
+        this.operations = []
+      }
+    },
+
+    titleOf(operation) {
+      const key = `drupal.${operation.key}`
+      return this.$te(key) ? this.$t(key) : operation.title
     },
   },
 }
