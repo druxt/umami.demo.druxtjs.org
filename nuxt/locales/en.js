@@ -39,6 +39,13 @@ export default {
     builtWith: 'Built with Druxt',
     entityExplorer: 'Entity Explorer',
   },
+  drupal: {
+    menu: 'Drupal',
+    edit: 'Edit in Drupal',
+    revisions: 'Revisions',
+    translations: 'Translations',
+    newTab: '(opens in a new tab)',
+  },
   search: {
     unavailable: 'Search is unavailable right now.',
     facet: { bundle: 'Type', category: 'Category', tag: 'Tags' },
