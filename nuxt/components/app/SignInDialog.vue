@@ -14,7 +14,7 @@
     @shown="$refs.form && $refs.form.focus()"
   >
     <p class="auth__blurb">{{ $t('login.blurb') }}</p>
-    <AppSignInForm ref="form" />
+    <AppSignInForm ref="form" id-prefix="sign-in" />
   </b-modal>
 </template>
 
