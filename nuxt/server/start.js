@@ -411,6 +411,8 @@ const passwordToken = async (req, res) => {
   upstream.end(form)
 }
 
+const LLMS_LINK = '</llms.txt>; rel="describedby"; type="text/markdown"'
+
 const drupal = createDrupalProxy(drupalUrl)
 const server = http.createServer((req, res) => {
   if (isDrupalPath(req.url)) return drupal(req, res)
@@ -423,6 +425,10 @@ const server = http.createServer((req, res) => {
     res.writeHead(404)
     return res.end()
   }
+  // llms.txt discovery (https://llmstxt.org): every
+  // response the site serves points at the index that covers it, which
+  // reaches a client that never parses the page's own <link>.
+  res.setHeader('Link', LLMS_LINK)
   return (distDir ? serveStatic : starting)(req, res)
 })
 

@@ -50,6 +50,9 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      // llms.txt discovery (https://llmstxt.org): every page points at the
+      // index that covers it. The server sends the same as a Link header.
+      { rel: 'describedby', type: 'text/markdown', href: '/llms.txt' },
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
       {
         rel: 'preconnect',
