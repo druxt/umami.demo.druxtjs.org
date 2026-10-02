@@ -410,6 +410,8 @@ test:stack:
       grep -q 'brownie\|quiche' <<<"$index" || fail "the search index has no recipes in it"
       code=$(curl -s -o /dev/null -w '%{http_code}' "$site/_nuxt/not-a-real-asset.js")
       [ "$code" = 404 ] || fail "a missing build asset answered $code"
+      code=$(curl -s -o /dev/null -w '%{http_code}' "$site/en/recipes/no-such-recipe")
+      [ "$code" = 404 ] || fail "a path with no page answered $code"
 
       # Purge's cache clear: refused without the secret, accepted with it.
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'X-Druxt-Secret: wrong' "$site/_druxt/cache/clear")
