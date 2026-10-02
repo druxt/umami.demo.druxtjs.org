@@ -42,6 +42,8 @@ The demo is a site without releases, so changes are grouped by date.
   rebuild the site through Purge.
 - The site's text is compressed, its images cached and its fonts load beside
   the first paint.
+- A path with no page answers 404, with the site's not-found page, so a dead
+  link or stale redirect shows up as one.
 
 ### Fixed
 
