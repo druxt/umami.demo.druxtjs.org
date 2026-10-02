@@ -2929,6 +2929,13 @@ html.druxt-inspector {
     &--article img {
       height: 440px;
     }
+    // The recipe's head sits on this frame at lg: with no photograph, a
+    // draft that removed it, the frame keeps its height and a dark ground,
+    // or the title would float up over the page tabs on bare paper.
+    &--recipe {
+      background: $night;
+      min-height: 460px;
+    }
   }
 }
 
@@ -3024,6 +3031,10 @@ html.druxt-inspector {
         font-size: 3.5rem;
         line-height: 1.02;
       }
+      // The summary as a block: Drupal hands it over in a <p> or, for a
+      // draft and the saved version beside it, a <div>, and either sits on
+      // the photograph.
+      .node-head__summary,
       .node-head__summary p {
         color: #efe4d6;
         font-size: 1.0625rem;
