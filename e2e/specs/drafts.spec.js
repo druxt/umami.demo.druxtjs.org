@@ -211,24 +211,44 @@ test.describe('drafts', () => {
   })
 
   // A list marks the rows a change touched, each against the line it
-  // replaced, not every row against the whole list.
-  test('an edited ingredient is marked on its own row', async ({ page }) => {
+  // replaced, not every row against the whole list. Swapping two ingredients
+  // moves one line: it reads as removed where it was and added where it went.
+  test('a moved ingredient is marked on its own rows', async ({ page }) => {
     await signIn(page)
     await openEdit(page, RECIPE)
-    const second = page.locator('.edit-list__input').nth(1)
+    const inputs = page.locator('.edit-list__input')
+    const count = await inputs.count()
+    const first = await inputs.nth(0).inputValue()
+    const second = await inputs.nth(1).inputValue()
+    await inputs.nth(0).fill(second)
+    await inputs.nth(1).fill(first)
+    await page.locator('.page-tabs__tab').nth(0).click()
+    await page.locator('.draft-banner__diff-toggle').click()
+
+    const list = page.locator('.recipe-ingredients')
+    await expect(list.locator('del.v-diff-del')).toHaveCount(1)
+    await expect(list.locator('ins.v-diff-ins')).toHaveCount(1)
+    await expect(list.locator('.list-group-item')).toHaveCount(count + 1)
+
+    await page.locator('.draft-banner__diff-toggle').click()
+    await page.locator('.page-tabs__tab').nth(1).click()
+    await page.click('.edit-actions__cancel')
+    await expect(page.locator('.draft-banner')).toHaveCount(0)
+  })
+
+  test('an edited method step is marked on its own step', async ({ page }) => {
+    await signIn(page)
+    await openEdit(page, RECIPE)
+    const second = page.locator('.edit-steps__input').nth(1)
     const original = await second.inputValue()
     await second.fill(`${original} extra`)
     await page.locator('.page-tabs__tab').nth(0).click()
     await page.locator('.draft-banner__diff-toggle').click()
 
-    const rows = page.locator('.recipe-ingredients .list-group-item')
-    await expect(rows.nth(1).locator('ins.v-diff-ins')).toContainText('extra')
-    await expect(
-      page.locator('.recipe-ingredients ins.v-diff-ins')
-    ).toHaveCount(1)
-    await expect(
-      page.locator('.recipe-ingredients del.v-diff-del')
-    ).toHaveCount(0)
+    const steps = page.locator('.method-step')
+    await expect(steps.nth(1).locator('ins.v-diff-ins')).toContainText('extra')
+    await expect(page.locator('.method-steps ins.v-diff-ins')).toHaveCount(1)
+    await expect(page.locator('.method-steps del.v-diff-del')).toHaveCount(0)
 
     await page.locator('.draft-banner__diff-toggle').click()
     await page.locator('.page-tabs__tab').nth(1).click()
