@@ -135,6 +135,11 @@ test.describe('drafts', () => {
     await page.click('.draft-banner__discard')
     await page.click('.draft-banner__discard-yes')
     await expect(page.locator('.draft-banner')).toHaveCount(0)
+    // Focus lands on the page's heading, not back at the top.
+    await expect(page.locator(':focus')).toHaveCount(1)
+    expect(
+      await page.evaluate(() => /^H[12]$/.test(document.activeElement.tagName)),
+    ).toBe(true)
     // The open form shows Drupal's title again, and a reload finds no draft.
     await expect(page.locator('#title')).toHaveValue(original)
     await page.reload()
@@ -175,8 +180,16 @@ test.describe('drafts', () => {
     // View shows the draft; Drupal's version puts the real title back.
     await page.locator('.page-tabs__tab').nth(0).click()
     await expect(page.locator('h1').first()).toContainText(`${original} banner`)
+    // The summary reads the same in either version: light where it sits on
+    // the photograph, from lg up, and ink on paper below it.
+    const summary = page.locator('.node-head__summary').first()
+    const color = await summary.evaluate((el) => getComputedStyle(el).color)
+    if ((page.viewportSize() || {}).width >= 992) {
+      expect(color).toBe('rgb(239, 228, 214)')
+    }
     await page.locator('.draft-banner__option').nth(1).click()
     await expect(page.locator('h1').first()).not.toContainText('banner')
+    await expect(summary).toHaveCSS('color', color)
     await page.locator('.draft-banner__option').nth(0).click()
     await expect(page.locator('h1').first()).toContainText(`${original} banner`)
 

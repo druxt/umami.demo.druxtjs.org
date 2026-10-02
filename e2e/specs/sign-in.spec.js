@@ -12,9 +12,9 @@ test.describe('sign in', () => {
     await openSignIn(page)
     await expect(page).toHaveURL(/\/en\/recipes$/)
     const dialog = page.locator('.sign-in__dialog')
-    await expect(dialog.locator('#login-name')).toBeFocused()
-    await dialog.locator('#login-name').fill(process.env.E2E_USER || 'admin')
-    await dialog.locator('#login-pass').fill(process.env.E2E_PASS || 'admin')
+    await expect(dialog.locator('#sign-in-name')).toBeFocused()
+    await dialog.locator('#sign-in-name').fill(process.env.E2E_USER || 'admin')
+    await dialog.locator('#sign-in-pass').fill(process.env.E2E_PASS || 'admin')
     await dialog.locator('.auth__submit').click()
     await expect(dialog).toBeHidden()
     await expect(page).toHaveURL(/\/en\/recipes$/)
@@ -27,8 +27,8 @@ test.describe('sign in', () => {
     await visit(page, '/en')
     await openSignIn(page)
     const dialog = page.locator('.sign-in__dialog')
-    await dialog.locator('#login-name').fill('admin')
-    await dialog.locator('#login-pass').fill('not the password')
+    await dialog.locator('#sign-in-name').fill('admin')
+    await dialog.locator('#sign-in-pass').fill('not the password')
     await dialog.locator('.auth__submit').click()
     await expect(dialog.locator('[role="alert"]')).toBeVisible()
   })
@@ -38,6 +38,10 @@ test.describe('sign in', () => {
     await openSignIn(page)
     await page.keyboard.press('Escape')
     await expect(page.locator('.sign-in__dialog')).toBeHidden()
+    // From md up the link that opened it has focus again; on a phone that
+    // link was in the drawer, which closed with the click.
+    const link = page.locator('.masthead__account')
+    if (await link.isVisible()) await expect(link).toBeFocused()
   })
 
   test('the link is still a link to the page', async ({ page }) => {

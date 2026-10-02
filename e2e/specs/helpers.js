@@ -65,7 +65,7 @@ async function openSignIn(page) {
     await page.locator('.drawer__druxt-link', { hasText: 'Sign in' }).click()
   }
   // Shown, not still fading in: the field takes focus once it is.
-  await page.locator('.sign-in__dialog #login-name:focus').waitFor()
+  await page.locator('.sign-in__dialog #sign-in-name:focus').waitFor()
 }
 
 /** Open the search panel from the masthead, whichever control the width shows. */
