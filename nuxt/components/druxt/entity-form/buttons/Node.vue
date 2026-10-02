@@ -29,7 +29,7 @@
 
     <!-- Anonymous visitors see the form and this in place of the buttons. -->
     <p v-else class="edit-actions__signin">
-      <nuxt-link to="/login">{{ $t('nav.signIn') }}</nuxt-link>
+      <AppAccountLink />
       {{ $t('form.signInToSave') }}
     </p>
   </div>
