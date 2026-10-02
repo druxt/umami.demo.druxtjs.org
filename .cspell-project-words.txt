@@ -41,6 +41,7 @@ nuxtjs
 opencode
 persistedstate
 PKCE
+Postres
 prismeditor
 quickstart
 Receta

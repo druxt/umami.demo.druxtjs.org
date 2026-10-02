@@ -38,8 +38,10 @@ export default {
     if (!term) {
       return
     }
+    // In the page's language: a Spanish card names its category in Spanish.
     const resource = await this.getResource({
       ...term,
+      prefix: this.lang,
       query: { fields: { [term.type]: 'name' } },
     })
     this.category = ((resource || {}).data || {}).attributes?.name || null
