@@ -218,6 +218,8 @@ export default {
       'NavbarPlugin',
       'SidebarPlugin',
       'SpinnerPlugin',
+      // The save confirmation.
+      'ToastPlugin',
     ],
   },
 
