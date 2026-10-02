@@ -8,7 +8,7 @@ import the package by name.
 | Directory        | Package                         | Source                                                          |
 | ---------------- | ------------------------------- | --------------------------------------------------------------- |
 | `druxt-admin`    | `@druxt-contrib/admin` 0.0.0    | druxt-admin, branch `feature/operations-menu` at `f9b9c4a`      |
-| `druxt-auth`     | `druxt-auth` 0.5.0 | druxt-auth, branch `feature/static-server` at `a72295c`         |
+| `druxt-auth`     | `druxt-auth` 0.5.0              | druxt-auth, branch `feature/static-server` at `a72295c`         |
 | `druxt-ckeditor` | `@druxt-contrib/ckeditor` 0.0.0 | druxt-ckeditor, branch `feature/1-ckeditor-module` at `dcbdaaf` |
 | `druxt-diff`     | `@druxt-contrib/diff` 0.0.0     | druxt-diff, branch `feature/diff-host` at `740afdc`             |
 | `druxt-sockets`  | `@druxt-contrib/sockets` 0.0.0  | a prerelease build, ahead of its first npm release              |
