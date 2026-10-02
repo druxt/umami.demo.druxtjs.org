@@ -429,7 +429,8 @@ test:stack:
       [ -n "$access" ] || fail "no access token in the grant's answer"
       who=$(curl -sS -X POST -H "Authorization: Bearer $access" "$site/oauth/userinfo")
       grep -q '"name":"admin"' <<<"$who" || fail "userinfo did not name the editor: $who"
-      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"wrong"}' "$site/_auth/drupal-password/token")
+      wrong='{"grant_type":"password","username":"admin","password":"wrong"}'
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d "$wrong" "$site/_auth/drupal-password/token")
       [ "$code" = 400 ] || [ "$code" = 401 ] || fail "a wrong password answered $code"
 
       # The demo resets to its snapshot: not for a visitor, once a minute for
