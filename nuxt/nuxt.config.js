@@ -188,6 +188,9 @@ export default {
   auth: {
     redirect: {
       callback: '/callback',
+      // Signing in leaves the reader where they are: the dialog stays on the
+      // page, and /login sends them on itself.
+      home: false,
       logout: '/',
     },
     strategies: {

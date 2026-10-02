@@ -1,6 +1,13 @@
 const { test, expect } = require('@playwright/test')
 const AxeBuilder = require('@axe-core/playwright').default
-const { visit, signIn, openEdit, openSearch, RECIPE } = require('./helpers')
+const {
+  visit,
+  signIn,
+  openEdit,
+  openSearch,
+  openSignIn,
+  RECIPE,
+} = require('./helpers')
 
 // The pages a visitor and an editor meet, checked with axe-core against
 // WCAG 2.1 A and AA. Any finding fails: the list is the work to do.
@@ -43,6 +50,17 @@ test.describe('accessibility', () => {
       ).toEqual([])
     })
   }
+
+  test('the sign-in dialog has no accessibility failures', async ({ page }) => {
+    await visit(page, '/en')
+    await openSignIn(page)
+    const { violations } = await audit(page)
+    if (violations.length) console.log(`sign in\n${describe(violations)}`)
+    expect(
+      violations.map((v) => v.id),
+      describe(violations),
+    ).toEqual([])
+  })
 
   test('the search panel has no accessibility failures', async ({ page }) => {
     await visit(page, '/en')

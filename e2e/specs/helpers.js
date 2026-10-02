@@ -55,6 +55,19 @@ async function openEdit(page, path) {
   await page.locator('.edit-form').waitFor()
 }
 
+/** Open the sign-in dialog: the masthead's link from md up, the drawer's below. */
+async function openSignIn(page) {
+  const masthead = page.locator('.masthead__account')
+  if (await masthead.isVisible()) {
+    await masthead.click()
+  } else {
+    await page.click('button[aria-label="Open menu"]')
+    await page.locator('.drawer__druxt-link', { hasText: 'Sign in' }).click()
+  }
+  // Shown, not still fading in: the field takes focus once it is.
+  await page.locator('.sign-in__dialog #login-name:focus').waitFor()
+}
+
 /** Open the search panel from the masthead, whichever control the width shows. */
 const openSearch = (page) =>
   page
@@ -64,6 +77,7 @@ const openSearch = (page) =>
 
 module.exports = {
   openSearch,
+  openSignIn,
   ARTICLE,
   RECIPE,
   watchErrors,
