@@ -111,6 +111,49 @@ test.describe('search', () => {
       .toBe(scrolled)
   })
 
+  // Facets narrow the results to a type, a category or a tag, and say how
+  // many of each there are.
+  test('a facet narrows the results and gives them back', async ({ page }) => {
+    await visit(page, '/en')
+    await openSearch(page)
+    const bar = page.locator('.searchbar:visible').first()
+    await bar.locator('input').fill('sugar')
+    const results = bar.locator('.searchbar__results a')
+    await expect.poll(() => results.count()).toBeGreaterThanOrEqual(8)
+    const all = await results.count()
+    const article = bar.locator('.searchbar__chip', { hasText: 'Article' })
+    const count = Number(await article.locator('.searchbar__count').innerText())
+    await article.click()
+    await expect(article).toHaveAttribute('aria-pressed', 'true')
+    await expect(results).toHaveCount(count)
+    const hrefs = await results.evaluateAll((links) =>
+      links.map((a) => a.getAttribute('href')),
+    )
+    expect(hrefs.every((href) => href.includes('/articles/'))).toBe(true)
+    await article.click()
+    await expect(results).toHaveCount(all)
+  })
+
+  test('in the phone drawer the results end above the menu', async ({
+    page,
+  }) => {
+    await visit(page, '/en')
+    const menu = page.locator('button[aria-label="Open menu"]')
+    test.skip(!(await menu.isVisible()), 'the drawer is the phone layout')
+    await openSearch(page)
+    await page.locator('.searchbar:visible input').fill('sugar')
+    await expect(page.locator('.searchbar__chip:visible').first()).toBeVisible()
+    const [list, nav] = await Promise.all([
+      page.locator('.drawer__search').boundingBox(),
+      page.locator('.drawer__menu').boundingBox(),
+    ])
+    expect(list.y + list.height).toBeLessThanOrEqual(nav.y + 1)
+    const results = await page
+      .locator('.searchbar:visible .searchbar__results')
+      .boundingBox()
+    expect(results.y + results.height).toBeLessThanOrEqual(nav.y + 1)
+  })
+
   test('a Spanish page searches Spanish content only', async ({ page }) => {
     await visit(page, '/es')
     await openSearch(page)

@@ -27,8 +27,8 @@
       <!-- One line in the drawer: 330px does not fit two phrases. -->
       <div class="searchbar__meta">
         <span v-if="resultsVisible && searchResults.length"
-          >{{ searchResults.length }}
-          {{ $tc('search.results', searchResults.length) }}</span
+          >{{ shownResults.length }}
+          {{ $tc('search.results', shownResults.length) }}</span
         >
         <!-- Nothing found, or nothing typed yet: a query that finds plenty. -->
         <span v-else>
@@ -43,13 +43,37 @@
       </div>
     </div>
 
+    <!-- Facets of the results: what they are, their category, their tags.
+         The drawer is too narrow for more than what they are. -->
+    <div v-if="facets.length" class="searchbar__facets">
+      <div
+        v-for="facet of facets"
+        :key="facet.key"
+        :aria-label="$t(`search.facet.${facet.key}`)"
+        class="searchbar__facet"
+        role="group"
+      >
+        <button
+          v-for="option of facet.options"
+          :key="option.value"
+          :aria-pressed="String(filters[facet.key] === option.value)"
+          class="searchbar__chip"
+          type="button"
+          @click="toggle(facet.key, option.value)"
+        >
+          {{ option.label }}
+          <span class="searchbar__count">{{ option.count }}</span>
+        </button>
+      </div>
+    </div>
+
     <div ref="results" class="searchbar__results" @scroll.passive="onScroll">
       <!-- The drawer is 330px wide: a title per row, not a teaser card. The
            panel shows the teaser, which is a link of its own, so the row is
            not one: a link inside a link is invalid markup. -->
       <!-- Keyed by the result, not its position: a row reused for another
            result kept the last one's link while the new one loaded. -->
-      <template v-for="item of searchResults">
+      <template v-for="item of shownResults">
         <nuxt-link
           v-if="compact"
           :key="item.ref"
@@ -106,17 +130,77 @@ export default {
   data: () => ({
     /** How far down the results were read, kept while the panel is closed. */
     scrolled: 0,
+    /** The chosen value of each facet; null shows every result. */
+    filters: { bundle: null, category: null, tag: null },
   }),
 
   computed: {
+    /** Each result's facet values, from the meta the index carries. */
+    valuesOf:
+      ({ searchMeta }) =>
+      (item) => {
+        const meta = (searchMeta || {})[item.ref] || {}
+        return {
+          bundle: meta.bundle ? [meta.bundle] : [],
+          category: meta.category ? [meta.category] : [],
+          tag: meta.tags || [],
+        }
+      },
+
+    /** The results under every chosen facet value. */
+    shownResults: ({ searchResults, filters, valuesOf }) =>
+      (searchResults || []).filter((item) => {
+        const values = valuesOf(item)
+        return Object.entries(filters).every(
+          ([key, chosen]) => !chosen || values[key].includes(chosen)
+        )
+      }),
+
+    /**
+     * The facets worth showing: each value counted across the results, and a
+     * facet only when it tells results apart. Tags are many: the six most
+     * frequent, and any chosen one.
+     */
+    facets() {
+      if (!this.searchResults || this.searchResults.length < 2) return []
+      const keys = this.compact ? ['bundle'] : ['bundle', 'category', 'tag']
+      return keys
+        .map((key) => {
+          const counts = {}
+          for (const item of this.searchResults) {
+            for (const value of this.valuesOf(item)[key]) {
+              counts[value] = (counts[value] || 0) + 1
+            }
+          }
+          let options = Object.entries(counts)
+            .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+            .map(([value, count]) => ({
+              value,
+              count,
+              label: key === 'bundle' ? this.$t(`bundle.${value}`) : value,
+            }))
+          if (key === 'tag') {
+            options = options.filter(
+              (option, index) => index < 6 || option.value === this.filters.tag
+            )
+          }
+          const tellsApart =
+            options.length > 1 ||
+            (options[0] && options[0].count < this.searchResults.length)
+          return { key, options: tellsApart ? options : [] }
+        })
+        .filter((facet) => facet.options.length)
+    },
+
     /** The page's language picks the index: a Spanish page finds Spanish content. */
     language: ({ $route }) => langcodeOf(($route || {}).path),
   },
 
   watch: {
-    /** A new query is read from its first result. */
+    /** A new query is read from its first result, every facet open. */
     searchText() {
       this.scrolled = 0
+      this.filters = { bundle: null, category: null, tag: null }
     },
   },
 
@@ -176,6 +260,16 @@ export default {
           })
         : []
       this.openResults()
+    },
+
+    /** A chip chooses its value, or clears it when chosen already. */
+    toggle(key, value) {
+      this.filters = {
+        ...this.filters,
+        [key]: this.filters[key] === value ? null : value,
+      }
+      this.scrolled = 0
+      if (this.$refs.results) this.$refs.results.scrollTop = 0
     },
 
     /** A hidden list reports 0 as it closes; only a visible one counts. */

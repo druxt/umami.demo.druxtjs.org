@@ -57,11 +57,18 @@ export default function (moduleOptions = {}) {
           await this.nuxt.callHook('lunr:document', {
             locale,
             document,
+            // The facets: what a result is, its category and its tags.
             meta: {
               href: item.url,
               title: document.title,
               uuid: item.uuid,
               type: `node--${item.type}`,
+              bundle: item.type,
+              category: plain(item.field_recipe_category || '') || null,
+              tags: String(item.field_tags || '')
+                .split(',')
+                .map((tag) => plain(tag))
+                .filter(Boolean),
             },
           })
           count++

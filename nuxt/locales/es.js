@@ -40,6 +40,7 @@ export default {
     entityExplorer: 'Explorador de entidades',
   },
   search: {
+    facet: { bundle: 'Tipo', category: 'Categoría', tag: 'Etiquetas' },
     placeholder: 'Buscar recetas',
     hint: 'Los resultados aparecen mientras escribes.',
     none: 'Sin resultados.',
