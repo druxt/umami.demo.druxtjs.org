@@ -21,9 +21,9 @@ View the site @ https://umami.demo.druxtjs.org
 
 ## Contributing
 
-This repository is set up to be used with Gitpod:
+Open the whole demo, its Drupal backend, Nuxt frontend and demo content, in a dev container:
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/druxt/umami.demo.druxtjs.org)
+[![Open in DevPod!](https://devpod.sh/assets/open-in-devpod.svg)](https://devpod.sh/open#https://github.com/druxt/umami.demo.druxtjs.org)
 
 ---
 

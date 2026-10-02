@@ -1,0 +1,45 @@
+{
+  "name": "umami.demo.druxtjs.org",
+  "image": "mcr.microsoft.com/devcontainers/base:trixie",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "16.20.2"
+    },
+    "ghcr.io/devcontainers/features/php:1": {
+      "version": "8.3",
+      "installComposer": true
+    }
+  },
+  "containerEnv": {
+    "DRUPAL_PORT": "8888",
+    "DRUPAL_URL": "http://127.0.0.1:8888",
+    "PORT": "3000"
+  },
+  "forwardPorts": [8888, 3000],
+  "portsAttributes": {
+    "8888": {
+      "label": "Drupal backend (drupal/.devtools/start)",
+      "onAutoForward": "silent"
+    },
+    "3000": {
+      "label": "Nuxt frontend (nuxt/server/start.js)",
+      "onAutoForward": "notify"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "davidanson.vscode-markdownlint",
+        "streetsidesoftware.code-spell-checker",
+        "EditorConfig.EditorConfig",
+        "redhat.vscode-yaml",
+        "bmewburn.vscode-intelephense-client",
+        "octref.vetur",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "bash .devcontainer/post-start.sh",
+  "remoteUser": "vscode"
+}

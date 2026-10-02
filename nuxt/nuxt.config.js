@@ -63,7 +63,10 @@ export default {
   ],
 
   publicRuntimeConfig: {
-    baseUrl,
+    // The browser builds file and logo URLs from this. A preview generated
+    // against a throwaway backend sets PUBLIC_BASE_URL to a host that outlives
+    // the build.
+    baseUrl: process.env.PUBLIC_BASE_URL || baseUrl,
   },
 
   // Modules (https://go.nuxtjs.dev/config-modules)

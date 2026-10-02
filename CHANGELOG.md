@@ -11,3 +11,9 @@ The demo is a site without releases, so changes are grouped by date.
 
 - Repository tooling at the root: commit message lint, commit hooks, prose
   lint, and the documents the Druxt repository standard asks for.
+
+### Changed
+
+- The backend moves to Drupal 11, and runs without Docker for development
+  and CI.
+- Drupal 11.4.8 and `drupal/druxt` 1.3.1.

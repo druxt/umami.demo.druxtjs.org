@@ -20,14 +20,31 @@ npm run hooks:install
 ```
 
 `npm install` installs the root tooling, and `hooks:install` turns on the
-commit hooks. The [README](README.md) covers running the backend and the
-frontend.
+commit hooks.
+
+The backend runs without Docker:
+
+```bash
+cd drupal
+composer install
+.devtools/provision
+.devtools/start
+```
+
+The frontend runs against it from `nuxt/`, with Yarn 1:
+
+```bash
+cd nuxt
+yarn install
+BASE_URL=http://127.0.0.1:8888 yarn dev
+```
 
 ## Before you push
 
 ```bash
 npm run lint              # root ESLint and markdownlint
 (cd nuxt && yarn lint)    # the frontend's ESLint and stylelint
+(cd drupal && .devtools/test)
 ```
 
 The pipeline also runs cspell, YAML and JSON lint, a secret scan and commit

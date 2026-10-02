@@ -1,10 +1,12 @@
 <?php
 
 /**
+ * @file
  * Install functions for the DruxtJS Umami module.
  */
 
 use Drupal\consumers\Entity\Consumer;
+use Drupal\user\RoleInterface;
 
 /**
  * Implements hook_install().
@@ -28,6 +30,42 @@ function druxt_umami_install() {
   // JSON:API settings.
   \Drupal::service('config.factory')->getEditable('jsonapi.settings')->set('read_only', FALSE)->save();
 
+  // Remove the taxonomy term view displays druxt_install() auto-creates.
+  //
+  // druxt_ensure_entity_view_displays() creates one per bundle so DruxtSchema
+  // always has a display to read. For a term that display holds only
+  // `description`, because a term's name is its label and its path is not a
+  // display component at all. DruxtEntity's schema-filtered query then asks
+  // for terms without `name` or `path`, so a tag reference renders as an empty
+  // badge linking to `/en` plus undefined, and every tag page stops being
+  // linked and so stops being generated. A site with no term display has no
+  // schema to filter by and works, which is why this never showed up before.
+  //
+  // Workaround, not a fix. The fix belongs upstream in the schema-filtered
+  // query, which should always carry the entity's label and path.
+  $displays = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+  foreach ($displays->loadByProperties(['targetEntityType' => 'taxonomy_term']) as $display) {
+    $display->delete();
+  }
+
+  // Skip the two recipes the banner already shows.
+  //
+  // The promoted_items attachment and the frontpage grid both list promoted
+  // recipes newest first. Since Drupal 11 (core #3399970) every demo node has
+  // its own created date, so the grid's first two cards repeat the banner.
+  $view = \Drupal::entityTypeManager()->getStorage('view')->load('frontpage');
+  $display = &$view->getDisplay('default');
+  $display['display_options']['pager']['options']['offset'] = 2;
+  $view->save();
+
+  // Druxt JSON:API resource access.
+  // druxt_entity_access() gates view--view, menu--menu and the display config
+  // the frontend builds its components from on this permission, so without it
+  // an anonymous DruxtView cannot read the view it is rendering.
+  foreach ([RoleInterface::ANONYMOUS_ID, RoleInterface::AUTHENTICATED_ID] as $role_id) {
+    user_role_grant_permissions($role_id, ['access druxt resources']);
+  }
+
   // Simple Oauth settings.
   \Drupal::service('config.factory')
     ->getEditable('simple_oauth.settings')
@@ -37,16 +75,25 @@ function druxt_umami_install() {
     ->save();
 
   // Create consumer client.
+  // Simple OAuth 6 resolves the client by the consumer's client_id field, not
+  // by its uuid the way Simple OAuth 5 did. An empty client_id matches nothing
+  // and every token request answers invalid_client.
+  $client_id = getenv('OAUTH_CLIENT_ID') ?: \Drupal::service('uuid')->generate();
   $consumer = Consumer::create([
     'owner_id'     => 1,
-    'uuid'         => getenv('OAUTH_CLIENT_ID') ?: \Drupal::service('uuid')->generate(),
+    'uuid'         => $client_id,
+    'client_id'    => $client_id,
     'label'        => 'Druxt',
     'description'  => "DruxtJS is a bridge between frameworks, Drupal in the back, Nuxt in the front.\n\nhttps://druxtjs.org",
     'confidential' => FALSE,
     'pkce'         => TRUE,
+    // Simple OAuth 6 gates every grant on this field, and an empty one means
+    // the token endpoint answers invalid_client for all of them. The frontend
+    // uses the authorization code flow with a refresh token; the password
+    // grant no longer exists in Simple OAuth 6.
+    'grant_types'  => ['authorization_code', 'refresh_token'],
     'redirect'     => getenv('OAUTH_CALLBACK') ?: 'http://localhost:3000/callback',
     'image_styles' => [],
-    'roles'        => [],
   ]);
   $consumer->save();
 }

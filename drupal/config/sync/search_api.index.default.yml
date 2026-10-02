@@ -3,7 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.body
+    - field.storage.node.field_body
     - field.storage.node.field_ingredients
     - field.storage.node.field_recipe_category
     - field.storage.node.field_recipe_instruction
@@ -19,14 +19,14 @@ name: Default
 description: ''
 read_only: false
 field_settings:
-  body:
+  field_body:
     label: Body
     datasource_id: 'entity:node'
-    property_path: body
+    property_path: field_body
     type: text
     dependencies:
       config:
-        - field.storage.node.body
+        - field.storage.node.field_body
   field_ingredients:
     label: Ingredients
     datasource_id: 'entity:node'
