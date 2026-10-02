@@ -142,7 +142,9 @@ const serveStatic = (req, res) => {
   } else if (encoding === 'gzip') {
     steps.push(zlib.createGzip({ level: 6 }))
   }
-  res.writeHead(200, headers)
+  // A path with no generated page still gets the app, which renders what it
+  // can, but as a 404: a dead link or stale redirect must not read as a page.
+  res.writeHead(file.endsWith('200.html') ? 404 : 200, headers)
   // A build swapped out mid-request loses its files: pipeline ends the
   // response, and a compressor's error with it, rather than crash.
   pipeline(...steps, res, () => {})
