@@ -4192,6 +4192,20 @@ html.druxt-inspector {
   }
 }
 
+// A swap in place (components/app/SteadyBox.vue): the box eases from the old
+// height to the new, and the content dips while the new one arrives.
+.steady {
+  transition: min-height 0.25s ease;
+
+  &__inner {
+    transition: opacity 0.2s ease;
+  }
+
+  &--changing &__inner {
+    opacity: 0.4;
+  }
+}
+
 // The View / Edit bar on a node page.
 .page-tabs {
   border-bottom: 1px solid $rule;
