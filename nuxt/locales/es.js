@@ -209,6 +209,10 @@ export default {
   form: {
     save: 'Guardar cambios',
     saveCount: 'Guardar · {n} cambio | Guardar · {n} cambios',
+    saving: 'Guardando…',
+    saved: 'Guardado en Drupal',
+    savedBody:
+      'El sitio se reconstruye con tu cambio en unos dos minutos. Hasta entonces, al recargar se ve la última versión.',
     cancel: 'Cancelar',
     signInToSave:
       'para guardar cambios. No se escribe nada hasta que Drupal sepa quién eres.',
