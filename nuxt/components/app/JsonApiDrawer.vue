@@ -97,9 +97,7 @@ export default {
         })
         if (path === this.path) this.response = data
       } catch (e) {
-        if (path === this.path)
-          this.error =
-            'The response could not be loaded here; open the raw response instead.'
+        if (path === this.path) this.error = this.$t('note.jsonapiError')
       } finally {
         if (path === this.path) this.loading = false
       }
