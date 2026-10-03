@@ -9,7 +9,8 @@ COPY --from=builder /app/node_modules /app/node_modules
 COPY ./nuxt/ /app/
 RUN fix-permissions /app
 
-# Stories read Drupal from the browser, so they need its public address.
+# Stories read Drupal from the browser, through this service's own proxy at
+# its storybook route. BASE_URL is the fallback where no such route is listed.
 ENV HOST=0.0.0.0 PORT=3000 DRUPAL_URL=http://nginx:8080 \
   BASE_URL=https://api.umami.demo.druxtjs.org
 EXPOSE 3000
