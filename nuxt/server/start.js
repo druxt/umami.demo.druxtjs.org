@@ -7,8 +7,10 @@
  * runs here rather than in the image, where the environment's own Drupal does
  * not exist yet. Each deploy reinstalls Drupal, so the post-rollout task asks
  * for a fresh build with `POST /_regenerate`; the old build serves until the
- * new one is complete.
+ * new one is complete. Content changes arrive from Drupal's Purge as Druxt's
+ * `POST /_druxt/cache/clear`, and rebuild once saves stop arriving.
  */
+const crypto = require('crypto')
 const fs = require('fs')
 const http = require('http')
 const path = require('path')
@@ -34,6 +36,10 @@ const loopback = path.join(__dirname, 'loopback.js')
 const internalHosts = (env.REGENERATE_HOSTS || 'app,localhost,127.0.0.1')
   .split(',')
   .map((name) => name.trim())
+// The secret Drupal's purger sends; without one the endpoint is off.
+const cacheSecret = env.DRUXT_CACHE_SECRET || ''
+// Seconds without a further clear before the rebuild starts.
+const quietPeriod = (Number(env.DRUXT_CACHE_QUIET) || 10) * 1000
 const log = (message) => process.stdout.write(`start: ${message}\n`)
 
 const TYPES = {
@@ -146,6 +152,36 @@ const generate = (dir) =>
 let pending = true
 let running = false
 
+/** Every file under a directory, as paths relative to it. */
+const listFiles = (dir, base = dir) => {
+  if (!fs.existsSync(dir)) return []
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const file = path.join(dir, entry.name)
+    return entry.isDirectory()
+      ? listFiles(file, base)
+      : [path.relative(base, file)]
+  })
+}
+
+// The files the current build made itself, so a swap carries one build back
+// and never a growing pile.
+let ownAssets = []
+
+/**
+ * A page opened before a swap still asks for the chunks and payloads of the
+ * build it loaded with, so the previous build's own assets come along until
+ * the next swap.
+ */
+const carryAssets = (from, to) => {
+  for (const rel of ownAssets) {
+    const src = path.join(from, '_nuxt', rel)
+    const dest = path.join(to, '_nuxt', rel)
+    if (fs.existsSync(dest) || !fs.existsSync(src)) continue
+    fs.mkdirSync(path.dirname(dest), { recursive: true })
+    fs.copyFileSync(src, dest)
+  }
+}
+
 /**
  * Generate until no request is pending, swapping each build in once it is
  * complete. A failed build keeps the previous one and tries again.
@@ -172,6 +208,9 @@ const cycle = async () => {
     }
     setPhase('starting')
     const previous = distDir
+    const own = listFiles(path.join(dir, '_nuxt'))
+    if (previous) carryAssets(previous, dir)
+    ownAssets = own
     distDir = dir
     if (previous) fs.rmSync(previous, { recursive: true, force: true })
     // Logged once the swap is complete: the stack test reads this line.
@@ -185,9 +224,38 @@ const regenerate = (req, res) => {
   if (req.method !== 'POST' || !internalHosts.includes(hostname)) {
     return (distDir ? serveStatic : starting)(req, res)
   }
+  log('regenerate requested')
   pending = true
   cycle()
   res.writeHead(202)
+  res.end()
+}
+
+const sameSecret = (given) => {
+  const a = Buffer.from(String(given || ''))
+  const b = Buffer.from(cacheSecret)
+  return a.length === b.length && crypto.timingSafeEqual(a, b)
+}
+
+let quiet = null
+const clearCache = (req, res) => {
+  if (!cacheSecret || req.method !== 'POST') {
+    return (distDir ? serveStatic : starting)(req, res)
+  }
+  req.resume()
+  if (!sameSecret(req.headers['x-druxt-secret'])) {
+    res.writeHead(401)
+    return res.end()
+  }
+  // Purge sends one request per batch; an editor saving again restarts the
+  // wait, so a run of saves costs one build.
+  clearTimeout(quiet)
+  quiet = setTimeout(() => {
+    log('content changed; rebuilding')
+    pending = true
+    cycle()
+  }, quietPeriod)
+  res.writeHead(204)
   res.end()
 }
 
@@ -195,6 +263,7 @@ const drupal = createDrupalProxy(drupalUrl)
 const server = http.createServer((req, res) => {
   if (isDrupalPath(req.url)) return drupal(req, res)
   if (req.url === '/_regenerate') return regenerate(req, res)
+  if (req.url === '/_druxt/cache/clear') return clearCache(req, res)
   // Once a build serves, the starting page's status poll must fail, so the
   // page reloads into the site instead of reading the fallback page as JSON.
   if (distDir && req.url.split('?')[0] === '/__status') {

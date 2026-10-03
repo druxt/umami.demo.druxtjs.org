@@ -9,6 +9,7 @@ use Drupal\consumers\Entity\Consumer;
 use Drupal\contact\Entity\ContactForm;
 use Drupal\Core\Field\Entity\BaseFieldOverride;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\purge_purger_http\Entity\HttpPurgerSettings;
 use Drupal\user\RoleInterface;
 
 /**
@@ -275,4 +276,38 @@ function druxt_umami_install() {
     'image_styles' => [],
   ]);
   $consumer->save();
+  // Drupal's responses may be cached for five minutes, and Druxt's cache
+  // takes its lifetime from them. At the default 0 nothing is cached.
+  \Drupal::configFactory()
+    ->getEditable('system.performance')
+    ->set('cache.page.max_age', 300)
+    ->save();
+
+  // Content changes send their cache tags through Purge to the frontend's
+  // Druxt cache clear endpoint, one request per batch, and the frontend
+  // rebuilds. all.settings.php sets the address and the secret.
+  $purger = 'druxt_frontend';
+  HttpPurgerSettings::load($purger)
+    ->set('name', 'Druxt frontend')
+    ->set('invalidationtype', 'tag')
+    ->set('hostname', 'app')
+    ->set('port', 3000)
+    ->set('path', '/_druxt/cache/clear')
+    ->set('request_method', 'POST')
+    ->set('scheme', 'http')
+    ->set('headers', [['field' => 'X-Druxt-Secret', 'value' => '']])
+    ->set('body', '')
+    ->set('timeout', 3.0)
+    ->set('connect_timeout', 1.0)
+    ->set('max_requests', 100)
+    // A refused secret counts as a failure, so Purge keeps and retries it.
+    ->set('http_errors', TRUE)
+    ->save();
+  \Drupal::service('purge.purgers')->setPluginsEnabled([$purger => 'httpbundled']);
+  \Drupal::service('purge.queuers')->setPluginsEnabled(['coretags']);
+  \Drupal::service('purge.processors')->setPluginsEnabled([
+    'drush_purge_queue_work',
+    'drush_purge_invalidate',
+    'lateruntime',
+  ]);
 }

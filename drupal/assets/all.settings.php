@@ -35,3 +35,12 @@ if (PHP_SAPI !== 'cli' && file_exists(__DIR__ . '/files/.provisioning')) {
   header('Retry-After: 30');
   exit;
 }
+
+// The frontend's Druxt cache clear endpoint, which Purge calls when content
+// changes: the app service on Lagoon, overridden for local runs and CI. The
+// secret is the one the frontend holds as DRUXT_CACHE_SECRET.
+$purger = 'purge_purger_http.settings.druxt_frontend';
+$config[$purger]['hostname'] = getenv('DRUXT_CACHE_CLEAR_HOST') ?: 'app';
+$config[$purger]['port'] = (int) (getenv('DRUXT_CACHE_CLEAR_PORT') ?: 3000);
+$config[$purger]['headers'][0]['field'] = 'X-Druxt-Secret';
+$config[$purger]['headers'][0]['value'] = getenv('DRUXT_CACHE_SECRET') ?: '';
