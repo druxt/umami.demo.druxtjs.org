@@ -256,6 +256,32 @@ test.describe('drafts', () => {
     await expect(page.locator('.draft-banner')).toHaveCount(0)
   })
 
+  // A method closes with prose, not a step: it shows on the page, and an
+  // edited step leaves it unmarked rather than struck out as a removed step.
+  test('the method keeps its closing prose out of the step marks', async ({
+    page,
+  }) => {
+    const path = '/en/recipes/borscht-with-pork-ribs'
+    await visit(page, path)
+    const prose = page.locator('.method-prose', {
+      hasText: 'Serve the borscht',
+    })
+    await expect(prose).toBeVisible()
+    await signIn(page)
+    await openEdit(page, path)
+    const first = page.locator('.edit-steps__input').first()
+    await first.fill(`${await first.inputValue()} extra`)
+    await page.locator('.page-tabs__tab').nth(0).click()
+    await page.locator('.draft-banner__diff-toggle').click()
+    await expect(page.locator('.method-steps ins.v-diff-ins')).toHaveCount(1)
+    await expect(page.locator('.method-steps del.v-diff-del')).toHaveCount(0)
+    await expect(prose).toBeVisible()
+    await page.locator('.draft-banner__diff-toggle').click()
+    await page.locator('.page-tabs__tab').nth(1).click()
+    await page.click('.edit-actions__cancel')
+    await expect(page.locator('.draft-banner')).toHaveCount(0)
+  })
+
   test('rich text typed in the editor previews on View', async ({ page }) => {
     await signIn(page)
     await openEdit(page, RECIPE)
