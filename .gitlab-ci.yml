@@ -498,13 +498,16 @@ test:e2e:
   extends: .stack
   stage: test
   script:
+    # The site on localhost, Drupal on 127.0.0.1: two hosts, as on Lagoon,
+    # where a proxy that sends Drupal the wrong one loses the session.
+    - export SITE_ORIGIN="http://localhost:$SITE_PORT"
     - !reference [.start-site, script]
     - !reference [.node20, script]
     - section_start "e2e" "Running the browser tests"
     - |
       export PATH="/opt/node20/bin:$PATH"
       cd "$CI_PROJECT_DIR/e2e"
-      CI=1 E2E_BASE_URL="http://127.0.0.1:$SITE_PORT" E2E_USER=admin E2E_PASS=admin npx playwright test
+      CI=1 E2E_BASE_URL="$SITE_ORIGIN" E2E_USER=admin E2E_PASS=admin npx playwright test
     - section_end "e2e"
   artifacts:
     when: always
