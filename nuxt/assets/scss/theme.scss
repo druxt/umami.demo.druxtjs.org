@@ -2572,10 +2572,42 @@ html.druxt-inspector {
     min-height: 92px;
   }
 
+  // A field drawn by the site's own widget sits in the column like a
+  // b-form-group: the same gap under its label, below it and around its box.
+  .edit-field {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .edit-control {
+    border: 1px solid $rule-strong;
+    border-radius: 3px;
+  }
+
   .btn-primary {
     min-height: 48px;
     width: 100%;
   }
+
+  // The answer Drupal sent back, as code: each line whole, the box scrolls.
+  &__sent .vjs-tree {
+    background: #fff;
+    border: 1px solid $rule;
+    font-family: $mono;
+    font-size: 0.75rem;
+    overflow-x: auto;
+    padding: 0.75rem;
+  }
+}
+
+// A JSON tree reads as code: a row keeps its value on its own line instead
+// of wrapping it in a narrow column beside the key, and its box scrolls.
+.vjs-tree-node {
+  white-space: nowrap;
+}
+
+.vjs-value {
+  word-break: normal;
 }
 
 .term-page {
