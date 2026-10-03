@@ -15,6 +15,13 @@ export default {
 
   fetch() {},
 
+  watch: {
+    // A card the router keeps across a language switch names the type anew.
+    '$i18n.locale'() {
+      this.kicker = this.$t('bundle.article')
+    },
+  },
+
   created() {
     this.kicker = this.$t('bundle.article')
   },
