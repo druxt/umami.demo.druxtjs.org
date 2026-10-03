@@ -72,7 +72,7 @@ function createServerMiddleware(options = {}) {
     tokenEndpoint: options.tokenEndpoint || `${baseUrl}/oauth/token`
   });
   const proxies = options.proxy === false ? [] : proxyEntries(baseUrl).map(([context, entry]) => httpProxyMiddleware.createProxyMiddleware(context, {
-    changeOrigin: true,
+    changeOrigin: false,
     ws: false,
     logLevel: "warn",
     ...entry
