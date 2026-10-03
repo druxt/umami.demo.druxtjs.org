@@ -9,6 +9,10 @@ export default {
   generate: {
     // The start script builds beside the served copy, then swaps it in.
     dir: process.env.GENERATE_DIR || 'dist',
+    // Builds sit beside the source, so the change check skips them: one
+    // counted as a source change would rebuild webpack for every content
+    // change instead of only rendering the pages again.
+    cache: { ignore: ['dist-*/**', 'dist/**'] },
     routes: [
       // Drupal names each language's front page /node; a visit there is a
       // page, not a client-side render.
@@ -50,6 +54,9 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      // llms.txt discovery (https://llmstxt.org): every page points at the
+      // index that covers it. The server sends the same as a Link header.
+      { rel: 'describedby', type: 'text/markdown', href: '/llms.txt' },
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
       {
         rel: 'preconnect',
@@ -65,6 +72,10 @@ export default {
         as: 'style',
         href: 'https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap',
         onload: "this.onload=null;this.rel='stylesheet'",
+        // Once its rel has changed the tag no longer matches its definition,
+        // and vue-meta would swap in a fresh preload on every navigation,
+        // dropping the fonts until it loads again.
+        once: true,
       },
       {
         rel: 'stylesheet',
@@ -147,11 +158,15 @@ export default {
         path: `search-index-${Date.now().toString(36)}`,
         // An index per language, stemmed for it.
         languages: ['en', 'es'],
+        // Drupal's field names, as the Search API export sends them; the tag
+        // and category names let "drinks" find what is tagged Drinks.
         fields: [
           'title',
-          'body',
+          'field_body',
           'field_ingredients',
           'field_recipe_instruction',
+          'field_tags',
+          'field_recipe_category',
         ],
       },
     ],
@@ -164,7 +179,15 @@ export default {
     // consumer, with the authorization code flow kept for a browser sent to
     // Drupal. The token route the grant posts to is the module's own under
     // `nuxt dev`, and server/start.js's on the generated site.
-    ['druxt-auth', { clientId: process.env.OAUTH_CLIENT_ID || 'umami_druxt' }],
+    // The password grant also opens a Drupal session, through the proxied
+    // /user/login on this origin, so Drupal's own screens open signed in.
+    [
+      'druxt-auth',
+      {
+        clientId: process.env.OAUTH_CLIENT_ID || 'umami_druxt',
+        passwordSession: true,
+      },
+    ],
     // Last: it puts the site's page on the router's routes, which exist
     // once the modules above have added them. It also writes robots.txt,
     // sitemap.xml, llms.txt and llms-full.txt into the export.
@@ -175,9 +198,22 @@ export default {
   auth: {
     redirect: {
       callback: '/callback',
+      // Signing in leaves the reader where they are: the dialog stays on the
+      // page, and /login sends them on itself.
+      home: false,
       logout: '/',
     },
     strategies: {
+      // A Drupal session already open in the browser, from Drupal's own
+      // login form, is ended by druxt_umami's route rather than refusing a
+      // sign-in with the right password.
+      'drupal-password': {
+        endpoints: {
+          sessionLogout: '/druxt-umami/session/end',
+          sessionLogoutMethod: 'post',
+          csrfToken: '/session/token',
+        },
+      },
       github: {
         clientId: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
@@ -204,11 +240,17 @@ export default {
       'NavbarPlugin',
       'SidebarPlugin',
       'SpinnerPlugin',
+      // The save confirmation.
+      'ToastPlugin',
     ],
   },
 
   // Druxt Configuration
   druxt: {
+    // Drupal's admin is served on this origin, by server/start.js through
+    // druxt-admin's proxy, so its links stay here.
+    admin: { mode: 'proxy' },
+
     // The config page the share links come from: $druxtConfigPages.get('druxt_demo').
     configPages: { pages: ['druxt_demo'] },
     baseUrl,
@@ -269,7 +311,9 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
-    transpile: ['defu'],
+    // druxt-admin's operations helper is an ES module, which the server
+    // bundle would otherwise hand to Node's require().
+    transpile: ['defu', '@druxt-contrib/admin'],
 
     extend(config) {
       config.resolve.alias.vue$ = 'vue/dist/vue.esm.js'

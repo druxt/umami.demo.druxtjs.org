@@ -17,6 +17,7 @@ export default {
     edit: 'Edit',
   },
   reset: {
+    title: 'Reset the demo',
     button: 'Reset demo',
     confirm:
       'Put every recipe, article, image and setting back to the fresh demo, for everyone?',
@@ -39,10 +40,22 @@ export default {
     builtWith: 'Built with Druxt',
     entityExplorer: 'Entity Explorer',
   },
+  drupal: {
+    menu: 'Drupal',
+    'edit-form': 'Edit in Drupal',
+    'version-history': 'Revisions',
+    'drupal-content-translation-overview': 'Translations',
+    'delete-form': 'Delete…',
+  },
   search: {
+    unavailable: 'Search is unavailable right now.',
+    facet: { bundle: 'Type', category: 'Category', tag: 'Tags' },
     placeholder: 'Search recipes',
-    hint: 'Results appear as you type',
-    results: 'results',
+    hint: 'Results appear as you type.',
+    none: 'Nothing found.',
+    try: 'Try “{example}”',
+    example: 'sugar',
+    results: 'result | results',
     engine: 'lunr · no request',
   },
   home: {
@@ -200,6 +213,10 @@ export default {
   form: {
     save: 'Save changes',
     saveCount: 'Save · {n} change | Save · {n} changes',
+    saving: 'Saving…',
+    saved: 'Saved to Drupal',
+    savedBody:
+      'The site rebuilds with your change in about a minute. Until then a reload shows the last build.',
     cancel: 'Cancel',
     signInToSave:
       'to save changes. Nothing is written until Drupal says who you are.',

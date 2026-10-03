@@ -12,6 +12,7 @@ crawlable
 crossorigin
 dcbdaaf
 defu
+describedby
 devpod
 diffable
 drush
@@ -35,10 +36,12 @@ lighthouserc
 lintfix
 llms
 LOCALDEV
+mocktails
 nuxtjs
 opencode
 persistedstate
 PKCE
+Postres
 prismeditor
 quickstart
 Receta

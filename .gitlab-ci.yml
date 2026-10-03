@@ -410,6 +410,8 @@ test:stack:
       grep -q 'brownie\|quiche' <<<"$index" || fail "the search index has no recipes in it"
       code=$(curl -s -o /dev/null -w '%{http_code}' "$site/_nuxt/not-a-real-asset.js")
       [ "$code" = 404 ] || fail "a missing build asset answered $code"
+      code=$(curl -s -o /dev/null -w '%{http_code}' "$site/en/recipes/no-such-recipe")
+      [ "$code" = 404 ] || fail "a path with no page answered $code"
 
       # Purge's cache clear: refused without the secret, accepted with it.
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'X-Druxt-Secret: wrong' "$site/_druxt/cache/clear")
@@ -429,7 +431,8 @@ test:stack:
       [ -n "$access" ] || fail "no access token in the grant's answer"
       who=$(curl -sS -X POST -H "Authorization: Bearer $access" "$site/oauth/userinfo")
       grep -q '"name":"admin"' <<<"$who" || fail "userinfo did not name the editor: $who"
-      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"wrong"}' "$site/_auth/drupal-password/token")
+      wrong='{"grant_type":"password","username":"admin","password":"wrong"}'
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d "$wrong" "$site/_auth/drupal-password/token")
       [ "$code" = 400 ] || [ "$code" = 401 ] || fail "a wrong password answered $code"
 
       # The demo resets to its snapshot: not for a visitor, once a minute for
@@ -493,13 +496,16 @@ test:e2e:
   extends: .stack
   stage: test
   script:
+    # The site on localhost, Drupal on 127.0.0.1: two hosts, as on Lagoon,
+    # where a proxy that sends Drupal the wrong one loses the session.
+    - export SITE_ORIGIN="http://localhost:$SITE_PORT"
     - !reference [.start-site, script]
     - !reference [.node20, script]
     - section_start "e2e" "Running the browser tests"
     - |
       export PATH="/opt/node20/bin:$PATH"
       cd "$CI_PROJECT_DIR/e2e"
-      CI=1 E2E_BASE_URL="http://127.0.0.1:$SITE_PORT" E2E_USER=admin E2E_PASS=admin npx playwright test
+      CI=1 E2E_BASE_URL="$SITE_ORIGIN" E2E_USER=admin E2E_PASS=admin npx playwright test
     - section_end "e2e"
   artifacts:
     when: always

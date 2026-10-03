@@ -87,8 +87,7 @@ export default {
         })
         this.response = data
       } catch (e) {
-        this.error =
-          'The response could not be loaded here; open the raw response instead.'
+        this.error = this.$t('note.jsonapiError')
       }
       this.loading = false
     },

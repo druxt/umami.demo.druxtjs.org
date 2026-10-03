@@ -204,6 +204,16 @@ export default {
     discard() {
       this.discarding = false
       this.$drafts.discard(this.type, this.uuid, this.lang)
+      // The banner goes with its button: focus moves to the page's heading,
+      // not back to the top of the document.
+      this.$nextTick(() => {
+        const heading = [...document.querySelectorAll('h1, h2')].find(
+          (el) => el.offsetParent
+        )
+        if (!heading) return
+        heading.setAttribute('tabindex', '-1')
+        heading.focus()
+      })
     },
     mark(on) {
       this.$drafts.showChanges(this.type, this.uuid, this.lang, on)

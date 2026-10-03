@@ -153,6 +153,20 @@ h4 {
   }
 }
 
+// Whatever is scrolled into view, by a focus, an anchor or a script, clears
+// the sticky demo bar and masthead: 40px and 60, 64 or 84px, plus a gap.
+html {
+  scroll-padding-top: calc(#{$demo-bar-height} + 76px);
+
+  @media (min-width: 768px) {
+    scroll-padding-top: calc(#{$demo-bar-height} + 80px);
+  }
+
+  @media (min-width: 992px) {
+    scroll-padding-top: calc(#{$demo-bar-height} + 100px);
+  }
+}
+
 // The masthead's wrapper is the sticky element: the navbar inside it could
 // only stick within the wrapper's own height, which scrolled away. The demo
 // bar is sticky at top: 0, so the masthead starts below it.
@@ -670,6 +684,28 @@ h4 {
       font-size: 1rem;
       line-height: 1.75;
     }
+  }
+}
+
+// The method's prose around its steps, set like the steps' own text.
+.method-prose {
+  color: #3a342d;
+  font-size: 0.90625rem;
+  line-height: 1.65;
+  margin-block: 1rem;
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+  }
+  @media (min-width: 992px) {
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-block: 1.5rem;
   }
 }
 
@@ -1455,10 +1491,7 @@ html.druxt-inspector {
   width: 100%;
 
   // The main menu, at lg and up. Below that the drawer owns these links.
-  // Bootstrap's navbar-light rule outranks a plain .nav-link and paints
-  // them half-black, 3.9:1 on paper, so this selector outweighs it.
-  .nav-link,
-  .navbar-nav .nav-item .nav-link {
+  .nav-link {
     color: $ink-soft;
     font-size: 0.90625rem;
     font-weight: 500;
@@ -1473,6 +1506,18 @@ html.druxt-inspector {
       border-bottom: 2px solid $spice;
       color: $ink;
       padding-bottom: 2px;
+    }
+  }
+
+  // Bootstrap's navbar-light colours outrank a plain .nav-link and paint the
+  // links half-black, 3.9:1 on paper. Only the colours take the heavier
+  // selector: its padding is what spaces the menu.
+  .navbar-nav .nav-item .nav-link {
+    color: $ink-soft;
+
+    &:hover,
+    &.nuxt-link-exact-active {
+      color: $ink;
     }
   }
 
@@ -1710,6 +1755,69 @@ html.druxt-inspector {
     font-size: 0.71875rem;
   }
 
+  // The suggestion reads as a link in the hint and fills the field.
+  &__example {
+    background: none;
+    border: 0;
+    color: $spice;
+    font: inherit;
+    padding: 0;
+    text-decoration: underline;
+
+    &:hover,
+    &:focus-visible {
+      color: $ink;
+    }
+  }
+
+  // The facets sit above the list and stay put while it scrolls.
+  &__facets {
+    border-bottom: 1px solid $rule;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+  }
+
+  &__facet {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  &__chip {
+    background: transparent;
+    border: 1px solid $rule;
+    border-radius: 999px;
+    color: $ink-soft;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.65rem;
+
+    &:hover,
+    &:focus-visible {
+      border-color: $ink;
+      color: $ink;
+    }
+
+    &[aria-pressed='true'] {
+      background: $ink;
+      border-color: $ink;
+      color: $paper;
+    }
+
+    // Nothing to show under the other filters: there, but not a choice.
+    &:disabled {
+      border-color: $rule;
+      border-style: dashed;
+      color: $ink-faint;
+      cursor: default;
+    }
+  }
+
+  &__count {
+    opacity: 0.75;
+  }
+
   &__results {
     flex: 1;
     overflow-y: auto;
@@ -1789,9 +1897,20 @@ html.druxt-inspector {
   &__search {
     border-bottom: 1px solid $rule;
 
+    // Its own height in the drawer, not the panel's full one, or the facets
+    // push the list over the menu below.
+    .searchbar {
+      height: auto;
+    }
+
     .searchbar__head {
       border-bottom: 0;
       padding: 1rem 1.25rem;
+    }
+
+    .searchbar__facets {
+      border-bottom: 0;
+      padding: 0 1.25rem 0.75rem;
     }
 
     .searchbar__results {
@@ -2391,10 +2510,48 @@ html.druxt-inspector {
 // Screens that already exist in the repo and were rendering as raw
 // bootstrap-vue. See REPASS.md §4.
 
+// The sign-in dialog: the auth screen's form on paper, a sheet from the
+// bottom on a phone, where the keyboard takes the top of the screen.
+.sign-in__dialog {
+  max-width: 420px;
+
+  .modal-content {
+    background: $paper;
+    border: 1px solid $rule;
+    border-radius: 12px;
+  }
+
+  .modal-header {
+    border-bottom: 0;
+    padding: 1.25rem 1.5rem 0;
+  }
+
+  .sign-in__title {
+    font-family: $serif;
+    font-size: 1.75rem;
+    font-weight: 400;
+  }
+
+  .sign-in__body {
+    padding: 0.5rem 1.5rem 1.5rem;
+  }
+
+  @media (max-width: 575.98px) {
+    align-items: flex-end;
+    margin: 0;
+    max-width: none;
+    min-height: 100%;
+
+    .modal-content {
+      border-radius: 16px 16px 0 0;
+    }
+  }
+}
+
 .auth,
 .form-page,
 .term-page {
-  margin: 0 auto;
+  // A reading width from the container's edge, where every page starts.
   max-width: 640px;
 
   &__kicker {
@@ -2445,10 +2602,42 @@ html.druxt-inspector {
     min-height: 92px;
   }
 
+  // A field drawn by the site's own widget sits in the column like a
+  // b-form-group: the same gap under its label, below it and around its box.
+  .edit-field {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .edit-control {
+    border: 1px solid $rule-strong;
+    border-radius: 3px;
+  }
+
   .btn-primary {
     min-height: 48px;
     width: 100%;
   }
+
+  // The answer Drupal sent back, as code: each line whole, the box scrolls.
+  &__sent .vjs-tree {
+    background: #fff;
+    border: 1px solid $rule;
+    font-family: $mono;
+    font-size: 0.75rem;
+    overflow-x: auto;
+    padding: 0.75rem;
+  }
+}
+
+// A JSON tree reads as code: a row keeps its value on its own line instead
+// of wrapping it in a narrow column beside the key, and its box scrolls.
+.vjs-tree-node {
+  white-space: nowrap;
+}
+
+.vjs-value {
+  word-break: normal;
 }
 
 .term-page {
@@ -2816,6 +3005,13 @@ html.druxt-inspector {
     &--article img {
       height: 440px;
     }
+    // The recipe's head sits on this frame at lg: with no photograph, a
+    // draft that removed it, the frame keeps its height and a dark ground,
+    // or the title would float up over the page tabs on bare paper.
+    &--recipe {
+      background: $night;
+      min-height: 460px;
+    }
   }
 }
 
@@ -2911,6 +3107,10 @@ html.druxt-inspector {
         font-size: 3.5rem;
         line-height: 1.02;
       }
+      // The summary as a block: Drupal hands it over in a <p> or, for a
+      // draft and the saved version beside it, a <div>, and either sits on
+      // the photograph.
+      .node-head__summary,
       .node-head__summary p {
         color: #efe4d6;
         font-size: 1.0625rem;
@@ -3100,7 +3300,6 @@ html.druxt-inspector {
   @media (min-width: 768px) {
     &__column {
       gap: 14px;
-      margin: 0 auto;
       max-width: 640px;
       padding: 36px 0;
       width: 100%;
@@ -3123,7 +3322,9 @@ html.druxt-inspector {
   @media (min-width: 992px) {
     &__grid {
       gap: 32px;
-      grid-template-columns: 1fr 680px 1fr;
+      // The rail from the container's edge, as every page starts; the
+      // column beside it keeps its measure.
+      grid-template-columns: 160px minmax(0, 680px);
       padding: 56px 0;
     }
     &__rail {
@@ -3131,7 +3332,6 @@ html.druxt-inspector {
       display: block;
       font-size: 0.78125rem;
       line-height: 1.7;
-      text-align: right;
     }
     &__column {
       gap: 16px;
@@ -4054,11 +4254,22 @@ html.druxt-inspector {
   }
 }
 
+// A swap in place (components/app/SteadyBox.vue): the box eases from the old
+// height to the new, and the content dips while the new one arrives.
+.steady {
+  transition: min-height 0.25s ease;
+
+  &__inner {
+    transition: opacity 0.2s ease;
+  }
+
+  &--changing &__inner {
+    opacity: 0.4;
+  }
+}
+
 // The View / Edit bar on a node page.
 .page-tabs {
-  // Scrolled into view (a tab click, a focus), the tabs clear the sticky
-  // masthead instead of landing under it.
-  scroll-margin-top: 7rem;
   border-bottom: 1px solid $rule;
   display: flex;
   gap: 4px;
@@ -4078,6 +4289,72 @@ html.druxt-inspector {
       border-bottom-color: $ink;
       color: $ink;
       font-weight: 600;
+    }
+  }
+
+  &__list {
+    display: flex;
+    gap: 4px;
+  }
+}
+
+// Drupal's own screens for the node, at the tab bar's far end: the
+// operations druxt-admin reads from Drupal, as a small menu.
+.drupal-links {
+  align-self: center;
+  margin-left: auto;
+
+  &__menu {
+    position: relative;
+  }
+
+  &__toggle {
+    background: none;
+    border: 0;
+    color: $ink-soft;
+    font-size: 0.875rem;
+    min-height: $tap;
+    padding: 0 8px;
+
+    &:hover,
+    &:focus-visible,
+    &[aria-expanded='true'] {
+      color: $ink;
+      text-decoration: underline;
+    }
+  }
+
+  &__list {
+    background: $paper;
+    border: 1px solid $rule;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(36, 31, 26, 0.12);
+    list-style: none;
+    margin: 4px 0 0;
+    min-width: 200px;
+    padding: 6px;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 30;
+  }
+
+  &__item {
+    border-radius: 4px;
+    color: $ink;
+    display: block;
+    font-size: 0.875rem;
+    padding: 8px 10px;
+
+    &:hover,
+    &:focus-visible {
+      background: $paper-warm;
+      color: $ink;
+      text-decoration: none;
+    }
+
+    &--destructive {
+      color: #a3361a;
     }
   }
 }
@@ -4490,12 +4767,8 @@ button.masthead__account {
 .reset-demo {
   align-items: center;
   display: inline-flex;
-  flex-wrap: wrap;
-  gap: 8px;
 
-  &__button,
-  &__yes,
-  &__no {
+  &__button {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.35);
     border-radius: 3px;
@@ -4504,27 +4777,28 @@ button.masthead__account {
     font-size: 0.75rem;
     line-height: 1.2;
     padding: 3px 8px;
+
+    &:hover:not(:disabled) {
+      border-color: #fff;
+    }
   }
-  &__button:hover,
-  &__no:hover {
-    border-color: #fff;
+}
+
+// The reset question, in the sign-in dialog's frame.
+.reset-dialog {
+  &__text {
+    color: $ink-muted;
+    margin-bottom: 1.25rem;
   }
-  &__yes {
-    background: #fff;
-    border-color: #fff;
-    color: $druxt-navy;
-  }
-  &__ask,
-  &__busy,
-  &__message {
-    align-items: center;
-    display: inline-flex;
+  &__actions {
+    display: flex;
     flex-wrap: wrap;
-    font-size: 0.75rem;
-    gap: 8px;
-  }
-  &__question {
-    max-width: 32em;
+    gap: 0.75rem;
+
+    .btn {
+      flex: 1 1 10rem;
+      min-height: 48px;
+    }
   }
 }
 
@@ -4794,8 +5068,8 @@ h3 del.v-diff-del--trailing {
 // Screen 12: the term head band, then prose in the article's measure. The
 // About page adds the site's own section and a resource band below it.
 .page-node {
+  // The reading width from the container's edge, under the title band.
   &__measure {
-    margin: 0 auto;
     max-width: 680px;
     padding-bottom: 32px;
   }

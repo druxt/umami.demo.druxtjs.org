@@ -2,14 +2,17 @@
   <div class="edit-actions">
     <template v-if="signedIn">
       <b-button
+        :aria-busy="String(saving)"
         class="edit-actions__save"
-        :disabled="!changes"
+        :disabled="!changes || saving"
         type="submit"
         variant="primary"
         @click.prevent="$parent.$emit('submit')"
       >
         {{
-          changes
+          saving
+            ? $t('form.saving')
+            : changes
             ? $tc('form.saveCount', changes, { n: changes })
             : $t('form.save')
         }}
@@ -29,7 +32,7 @@
 
     <!-- Anonymous visitors see the form and this in place of the buttons. -->
     <p v-else class="edit-actions__signin">
-      <nuxt-link to="/login">{{ $t('nav.signIn') }}</nuxt-link>
+      <AppAccountLink />
       {{ $t('form.signInToSave') }}
     </p>
   </div>
@@ -78,15 +81,18 @@ export default {
     },
 
     signedIn: ({ $auth }) => !!($auth && $auth.loggedIn),
+
+    /** The save is on its way to Drupal. */
+    saving: ({ form }) => !!(form && form.submitting),
   },
 
   mounted() {
     this.snapshot()
-    if (this.form) this.form.$on('submit', this.snapshot)
+    if (this.form) this.form.$on('submit', this.onSaved)
   },
 
   beforeDestroy() {
-    if (this.form) this.form.$off('submit', this.snapshot)
+    if (this.form) this.form.$off('submit', this.onSaved)
   },
 
   methods: {
@@ -107,6 +113,22 @@ export default {
             )
           : null
       this.pristine = JSON.stringify(withoutDraft(model, draft))
+    },
+
+    /**
+     * Drupal has it: say so, and that the static pages catch up once the
+     * site has rebuilt, or a reload before then reads as a lost save.
+     */
+    onSaved(saved) {
+      this.snapshot(saved)
+      if (!saved) return
+      this.$bvToast.toast(this.$t('form.savedBody'), {
+        autoHideDelay: 8000,
+        solid: true,
+        title: this.$t('form.saved'),
+        toaster: 'b-toaster-bottom-right',
+        variant: 'success',
+      })
     },
 
     /** Back to the entity as the form found it. */

@@ -17,6 +17,7 @@ export default {
     edit: 'Editar',
   },
   reset: {
+    title: 'Reiniciar la demo',
     button: 'Reiniciar la demo',
     confirm:
       '¿Devolver cada receta, artículo, imagen y ajuste a la demo original, para todo el mundo?',
@@ -39,10 +40,22 @@ export default {
     builtWith: 'Hecho con Druxt',
     entityExplorer: 'Explorador de entidades',
   },
+  drupal: {
+    menu: 'Drupal',
+    'edit-form': 'Editar en Drupal',
+    'version-history': 'Revisiones',
+    'drupal-content-translation-overview': 'Traducciones',
+    'delete-form': 'Eliminar…',
+  },
   search: {
+    unavailable: 'La búsqueda no está disponible ahora mismo.',
+    facet: { bundle: 'Tipo', category: 'Categoría', tag: 'Etiquetas' },
     placeholder: 'Buscar recetas',
-    hint: 'Los resultados aparecen mientras escribes',
-    results: 'resultados',
+    hint: 'Los resultados aparecen mientras escribes.',
+    none: 'Sin resultados.',
+    try: 'Prueba “{example}”',
+    example: 'azúcar',
+    results: 'resultado | resultados',
     engine: 'lunr · sin petición',
   },
   home: {
@@ -204,6 +217,10 @@ export default {
   form: {
     save: 'Guardar cambios',
     saveCount: 'Guardar · {n} cambio | Guardar · {n} cambios',
+    saving: 'Guardando…',
+    saved: 'Guardado en Drupal',
+    savedBody:
+      'El sitio se reconstruye con tu cambio en un minuto aproximadamente. Hasta entonces, al recargar se ve la última versión.',
     cancel: 'Cancelar',
     signInToSave:
       'para guardar cambios. No se escribe nada hasta que Drupal sepa quién eres.',
