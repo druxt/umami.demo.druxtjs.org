@@ -332,6 +332,19 @@ function druxt_umami_install() {
   $consumer->save();
   // Drupal's responses may be cached for five minutes, and Druxt's cache
   // takes its lifetime from them. At the default 0 nothing is cached.
+  // The page's URL picks the interface language, so configuration labels,
+  // such as the main menu's Home, Articles and Recipes, match the page. With
+  // the account's own preference first, a signed-in editor reads them in that
+  // language on every page. Drupal's admin screens keep the admin preference.
+  \Drupal::configFactory()
+    ->getEditable('language.types')
+    ->set('negotiation.language_interface.enabled', [
+      'language-user-admin' => -20,
+      'language-url' => -18,
+      'language-selected' => -15,
+    ])
+    ->save();
+
   \Drupal::configFactory()
     ->getEditable('system.performance')
     ->set('cache.page.max_age', 300)

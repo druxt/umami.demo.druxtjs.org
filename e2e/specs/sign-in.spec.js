@@ -52,6 +52,28 @@ test.describe('sign in', () => {
     ).toBeAttached()
   })
 
+  // A signed-in editor reads each page in its own language: the account's
+  // English preference does not turn a Spanish page's menu English.
+  test('signed in, a Spanish page keeps a Spanish menu', async ({ page }) => {
+    await visit(page, '/en')
+    await openSignIn(page)
+    const dialog = page.locator('.sign-in__dialog')
+    await dialog.locator('#sign-in-name').fill(process.env.E2E_USER || 'admin')
+    await dialog.locator('#sign-in-pass').fill(process.env.E2E_PASS || 'admin')
+    await dialog.locator('.auth__submit').click()
+    await expect(dialog).toBeHidden()
+    await visit(page, '/es/articles')
+    // The masthead's links, read whether or not the phone hides them.
+    const labels = () =>
+      page
+        .locator('.masthead__menu a')
+        .evaluateAll((links) => links.map((a) => a.textContent.trim()))
+    await expect.poll(labels).toContain('Inicio')
+    const menu = await labels()
+    expect(menu).not.toContain('Home')
+    expect(menu).not.toContain('Articles')
+  })
+
   test('a wrong password is said in the dialog', async ({ page }) => {
     await visit(page, '/en')
     await openSignIn(page)
