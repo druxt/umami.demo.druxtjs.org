@@ -687,6 +687,28 @@ html {
   }
 }
 
+// The method's prose around its steps, set like the steps' own text.
+.method-prose {
+  color: #3a342d;
+  font-size: 0.90625rem;
+  line-height: 1.65;
+  margin-block: 1rem;
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+  }
+  @media (min-width: 992px) {
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-block: 1.5rem;
+  }
+}
+
 // The band owns the ground now (`band band--warm`), so these pills sit on
 // paper: the cream-on-night colours left the labels invisible.
 .collections {
