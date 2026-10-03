@@ -209,6 +209,16 @@ export default {
       logout: '/',
     },
     strategies: {
+      // A Drupal session already open in the browser, from Drupal's own
+      // login form, is ended by druxt_umami's route rather than refusing a
+      // sign-in with the right password.
+      'drupal-password': {
+        endpoints: {
+          sessionLogout: '/druxt-umami/session/end',
+          sessionLogoutMethod: 'post',
+          csrfToken: '/session/token',
+        },
+      },
       github: {
         clientId: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,

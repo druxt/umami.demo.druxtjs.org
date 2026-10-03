@@ -8,3 +8,18 @@ druxt_umami.reset:
   options:
     _auth: ['oauth2']
     no_cache: TRUE
+
+# Ends the browser's own Drupal session, for a sign-in on the frontend that
+# finds one it did not open: Drupal's JSON logout needs the token issued at
+# login, which only the opener holds. Cookie session and CSRF header only.
+druxt_umami.session_end:
+  path: '/druxt-umami/session/end'
+  defaults:
+    _controller: '\Drupal\druxt_umami\Controller\SessionController::end'
+  methods: [POST]
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    _csrf_request_header_token: 'TRUE'
+  options:
+    _auth: ['cookie']
+    no_cache: TRUE
