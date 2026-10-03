@@ -22,9 +22,6 @@ coverage
 # nyc test coverage
 .nyc_output
 
-# cypress test coverage
-cypress/screenshots
-cypress/videos
 
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
@@ -74,6 +71,7 @@ typings/
 
 # Nuxt generate
 dist
+dist-*
 
 # Nuxt storybook
 .nuxt-storybook

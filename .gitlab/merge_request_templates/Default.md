@@ -15,4 +15,5 @@ and then breaks the next push to the target branch.
 
 - [ ] `npm run lint` and `yarn lint` in `nuxt/` pass
 - [ ] `.devtools/test` passes in `drupal/`, if the backend changed
+- [ ] `test:stack` passes, if the start script or the Lagoon setup changed
 - [ ] Nothing that resolves only on a private network reached a tracked file

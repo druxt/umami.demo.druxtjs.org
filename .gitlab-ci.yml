@@ -12,9 +12,9 @@
 #     Nuxt 2 / Vue 2.7 codebase on a frozen toolchain with a v1 lockfile.
 #     Corepack forces Yarn 3 against that lockfile and fails with YN0028, so
 #     `yarn` is pinned rather than taken from corepack.
-#   * The build needs a reachable Drupal. It fetches /js-search/settings for
-#     search_api_lunr and fails hard without it, so BASE_URL points at the live
-#     backend. That backend idles, hence the wake step before generating.
+#   * The build needs a reachable Drupal. The stack jobs provision a fresh
+#     Drupal 11 in the job and start the site the way Lagoon does, through
+#     nuxt/server/start.js.
 
 stages:
   - lint
@@ -239,70 +239,167 @@ commitlint:
 #   * ROUTER_BASE tells Nuxt the site is served from a subdirectory. Without
 #     it every /_nuxt/ asset 404s under the prefix.
 #   * API_PROXY=0 makes Druxt call the backend absolutely. There is no proxy
-#     layer on Pages the way netlify.toml provides one in production, and the
+#     layer on Pages the way the start script provides one on Lagoon, and the
 #     backend does send permissive CORS headers, so direct calls work.
-# A generated copy of the site, served through a Cloudflare quick tunnel so a
-# reviewer can click through the real thing on a real device. Manual: click
-# "Run" on this job, then watch the log for the https://*.trycloudflare.com URL.
-# The tunnel lives as long as the job.
+# The demo as Lagoon runs it: a fresh Drupal 11, and the site's start script
+# generating against it and serving the result with Drupal's paths proxied.
+# PHP's built-in server and SQLite stand in for nginx and MariaDB.
+.stack:
+  image: php:8.3-cli
+  interruptible: true
+  needs: []
+  variables:
+    COMPOSER_ALLOW_SUPERUSER: "1"
+    DRUPAL_PORT: "8888"
+    SITE_PORT: "8080"
+  cache:
+    - key:
+        files:
+          - drupal/composer.lock
+      paths:
+        - .composer-cache/
+    - key:
+        files:
+          - nuxt/yarn.lock
+      paths:
+        - .yarn-cache/
+  before_script:
+    - !reference [test:drupal, before_script]
+    - section_start "node" "Installing Node 16"
+    - |
+      node_version="16.20.2"
+      case "$(uname -m)" in
+        aarch64|arm64)
+          node_arch=arm64
+          node_sha256=e88d86154d1ce53dc52fd74d79d4bfdf0b05f58c0bb2639adfa36e9378b770c4
+          ;;
+        x86_64)
+          node_arch=x64
+          node_sha256=874463523f26ed528634580247f403d200ba17a31adf2de98a7b124c6eb33d87
+          ;;
+        *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+      esac
+      tarball="node-v${node_version}-linux-${node_arch}.tar.xz"
+      curl -fsSL "https://nodejs.org/dist/v${node_version}/${tarball}" -o "/tmp/${tarball}"
+      echo "${node_sha256}  /tmp/${tarball}" | sha256sum -c -
+      tar -xJf "/tmp/${tarball}" -C /usr/local --strip-components=1
+      corepack enable
+      node --version
+    - section_end "node"
+    - section_start "drupal" "Provisioning a fresh umami"
+    - cd drupal
+    - composer config cache-dir "$CI_PROJECT_DIR/.composer-cache"
+    - composer install --no-interaction --no-progress
+    # The site's proxy forwards the visitor's host and scheme, as Lagoon's
+    # router does; Drupal trusts them from the proxy, as it does on Lagoon.
+    - >-
+      printf '%s\n' '<?php' "\$settings['reverse_proxy'] = TRUE;"
+      "\$settings['reverse_proxy_addresses'] = ['127.0.0.1'];"
+      > web/sites/default/settings.local.php
+    - .devtools/provision
+    - (.devtools/start > "$CI_PROJECT_DIR/drupal.log" 2>&1 &)
+    - cd ..
+    - section_end "drupal"
+    - section_start "install" "Installing the site (Yarn 1)"
+    - cd nuxt
+    - yarn --version
+    - yarn config set cache-folder "$CI_PROJECT_DIR/.yarn-cache"
+    - yarn install --frozen-lockfile --network-timeout 600000
+    - section_end "install"
+
+# Starts the site and waits until it serves /en. SITE_ORIGIN, when set, is the
+# origin visitors reach it on.
+.start-site:
+  script:
+    - section_start "start" "Starting the site"
+    - >-
+      (PORT="$SITE_PORT" HOST=127.0.0.1 DRUPAL_URL="http://127.0.0.1:$DRUPAL_PORT"
+      node server/start.js > "$CI_PROJECT_DIR/start.log" 2>&1 &)
+    - |
+      # Until the build is served the site answers 503 with its starting page.
+      for i in $(seq 1 120); do
+        code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$SITE_PORT/en" || echo 000)
+        [ "$code" = 200 ] && break
+        grep -q '^start: .*trying again' "$CI_PROJECT_DIR/start.log" && break
+        sleep 10
+      done
+      grep '^start:' "$CI_PROJECT_DIR/start.log" || true
+      [ "$code" = 200 ] || { tail -50 "$CI_PROJECT_DIR/start.log"; echo "The site never served /en (last $code)." >&2; exit 1; }
+    - section_end "start"
+
+# Asserts what Lagoon relies on from the start script.
+test:stack:
+  extends: .stack
+  stage: test
+  script:
+    - !reference [.start-site, script]
+    - |
+      site="http://127.0.0.1:$SITE_PORT"
+      fail() { echo "FAIL: $*" >&2; exit 1; }
+      # Responses are read whole and handed to grep without a pipe: under
+      # pipefail, grep -q closing a pipe early fails the writer, and the line,
+      # even on a match.
+
+      # The front page is real content, not a client-side stub.
+      body=$(curl -fsS "$site/en")
+      grep -qi '<title>' <<<"$body" || fail "/en has no title"
+      grep -q 'Umami' <<<"$body" || fail "/en does not render umami"
+
+      # "/" is not a page: English is prefixed.
+      headers=$(curl -sSI "$site/" | tr -d '\r')
+      grep -q '^HTTP/1.1 301' <<<"$headers" || fail "/ is not a 301"
+      grep -qi '^location: /en$' <<<"$headers" || fail "/ does not redirect to /en"
+
+      # Drupal's paths reach Drupal from the site's own origin.
+      api=$(curl -fsS -H 'Accept: application/vnd.api+json' "$site/en/jsonapi")
+      grep -q '"jsonapi"' <<<"$api" || fail "/en/jsonapi is not proxied to JSON:API"
+
+      # An article shows its body, which Drupal 11 names field_body.
+      article=$(curl -fsS "$site/en/articles/give-your-oatmeal-the-ultimate-makeover")
+      grep -q 'gluten-free' <<<"$article" || fail "an article page does not render its body"
+
+      # A regenerate request from a public host is just a page request.
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Host: umami.demo.druxtjs.org' "$site/_regenerate")
+      [ "$code" = 200 ] || fail "a public regenerate answered $code, not the fallback page"
+      grep -c '^start: generated in' "$CI_PROJECT_DIR/start.log" | grep -qx 1 || fail "a public host triggered a build"
+
+      # From the internal network it builds again, serving the old copy meanwhile.
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/_regenerate")
+      [ "$code" = 202 ] || fail "an internal regenerate answered $code"
+      curl -fsS -o /dev/null "$site/en" || fail "/en stopped serving during the rebuild"
+      for i in $(seq 1 60); do
+        [ "$(grep -c '^start: generated in' "$CI_PROJECT_DIR/start.log")" = 2 ] && break
+        sleep 10
+      done
+      [ "$(grep -c '^start: generated in' "$CI_PROJECT_DIR/start.log")" = 2 ] || fail "the rebuild never finished"
+      [ "$(ls -d dist-* | wc -l)" = 1 ] || fail "the previous build was not removed"
+      body=$(curl -fsS "$site/en")
+      grep -q 'Umami' <<<"$body" || fail "/en does not render after the rebuild"
+      echo "All assertions passed."
+  artifacts:
+    when: always
+    paths:
+      - start.log
+      - drupal.log
+    expire_in: 1 week
+
+# The same stack, served through a Cloudflare quick tunnel so a reviewer can
+# click through the real thing on a real device. Manual: click "Run" on this
+# job, then watch the log for the https://*.trycloudflare.com URL. The tunnel
+# lives as long as the job.
 #
 # This is the house pattern (druxt.js docs:review, stuar.tc preview:live) and
 # not a preference. GitLab Pages is configured on these projects but the Pages
-# host does not resolve: druxt.pages.gitlab.local has no DNS record and there
-# are zero deployments across the instance. druxt.js carries a pages:preview
-# job disabled for the same reason. The disabled job below is kept in the same
-# spirit, ready for the day Pages works.
+# host does not resolve on this instance; see the disabled job below.
 preview:
-  extends: .node
+  extends: .stack
   stage: preview
   interruptible: false
-  needs: []
   timeout: 1h
   rules:
     - when: manual
       allow_failure: true
-  variables:
-    BASE_URL: $BACKEND_URL
-    # No proxy layer in front of a tunnelled static build, so Druxt calls the
-    # backend absolutely. Verified the backend reflects arbitrary origins.
-    API_PROXY: '0'
   script:
-    - section_start "wake" "Waking the demo backend"
-    - |
-      # Assert the response is JSON:API, not merely a 200. A status-only check
-      # is not enough here: this estate has sites that answer 200 with an HTML
-      # shell for any path, and Lagoon serves a holding page while an
-      # environment scales up. Either would pass a status check and then fail
-      # the generate step with a far less obvious error.
-      ok=
-      for i in $(seq 1 30); do
-        body=$(curl -s --max-time 30 -H 'Accept: application/vnd.api+json' "$BACKEND_URL/en/jsonapi" || true)
-        code=$(curl -s -o /dev/null --max-time 30 -w '%{http_code}' "$BACKEND_URL/en/jsonapi" || echo 000)
-        # Both conditions: a JSON:API-shaped 4xx or 5xx would otherwise pass
-        # the gate and fail the generate step afterwards.
-        case "$code:$body" in
-          2[0-9][0-9]:*'"jsonapi"'*) ok=1 ;;
-          *) ok= ;;
-        esac
-        echo "attempt $i: http=$code jsonapi=${ok:-no}"
-        [ -n "$ok" ] && break
-        sleep 10
-      done
-      if [ -z "$ok" ]; then
-        echo "Backend never returned a JSON:API document (last status $code)." >&2
-        exit 1
-      fi
-    - section_end "wake"
-    - section_start "generate" "nuxt generate"
-    - yarn generate
-    - section_end "generate"
-    - |
-      # Assert the output is real, not merely present. A shell with no title is
-      # the failure this estate keeps hitting.
-      test -f dist/index.html || { echo "No index.html generated." >&2; exit 1; }
-      grep -qi '<title>' dist/index.html || { echo "index.html has no title; build produced a shell." >&2; exit 1; }
-      echo "Title:  $(sed -n 's/.*<title>\(.*\)<\/title>.*/\1/p' dist/index.html | head -1)"
-      echo "Routes: $(find dist -name '*.html' | wc -l)"
     - section_start "tunnel" "Starting the preview tunnel"
     - |
       cloudflared_version="2026.8.3"
@@ -321,12 +418,23 @@ preview:
       curl -fsSL "${url}/cloudflared-linux-${cloudflared_arch}" -o /usr/local/bin/cloudflared
       echo "${cloudflared_sha256}  /usr/local/bin/cloudflared" | sha256sum -c -
       chmod +x /usr/local/bin/cloudflared
-    - npx --yes serve --no-clipboard --no-port-switching -l 8080 dist &
-    - npx --yes wait-on http://127.0.0.1:8080
-    - echo "Tunnel starting - the preview URL appears below as https://*.trycloudflare.com"
+    # The tunnel opens first: its URL is the origin the site is built for.
     # cloudflared self-updates and restarts mid-run by default, which kills the
     # tunnel whose URL was already printed and starts a new one silently.
-    - cloudflared tunnel --url http://127.0.0.1:8080 --no-autoupdate
+    - (cloudflared tunnel --url "http://127.0.0.1:$SITE_PORT" --no-autoupdate > "$CI_PROJECT_DIR/tunnel.log" 2>&1 &)
+    - |
+      for i in $(seq 1 30); do
+        # The job shell runs with pipefail, and grep fails until the URL appears.
+        SITE_ORIGIN=$(grep -o 'https://[a-z0-9-]*\.trycloudflare\.com' "$CI_PROJECT_DIR/tunnel.log" | head -1 || true)
+        [ -n "$SITE_ORIGIN" ] && break
+        sleep 2
+      done
+      [ -n "$SITE_ORIGIN" ] || { cat "$CI_PROJECT_DIR/tunnel.log"; echo "The tunnel never printed a URL." >&2; exit 1; }
+      export SITE_ORIGIN
+    - section_end "tunnel"
+    - !reference [.start-site, script]
+    - echo "Preview ready at $SITE_ORIGIN/en - it stays up until this job is cancelled or times out."
+    - tail -f "$CI_PROJECT_DIR/tunnel.log" "$CI_PROJECT_DIR/start.log"
 
 # Disabled: GitLab Pages is configured on this project but the Pages host does
 # not resolve on this instance. Kept so the preview moves to a persistent

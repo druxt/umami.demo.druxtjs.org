@@ -1,27 +1,16 @@
-FROM uselagoon/node-16-builder:latest as builder
+FROM uselagoon/node-16-builder:23.10.0 as builder
 
 COPY ./nuxt/ /app/
-RUN yarn
+RUN yarn install --frozen-lockfile
 
-FROM uselagoon/node-16:latest
+FROM uselagoon/node-16:23.10.0
 
 COPY --from=builder /app/node_modules /app/node_modules
 COPY ./nuxt/ /app/
-COPY ./.env /app/
+# The site builds when the container starts, into /app.
+RUN fix-permissions /app
 
-ARG BASE_URL
-ARG GITHUB_CLIENT_ID
-ARG GITHUB_CLIENT_SECRET
-ARG OAUTH_CLIENT_ID
-
-ENV BASE_URL ${BASE_URL}
-ENV GITHUB_CLIENT_ID ${GITHUB_CLIENT_ID}
-ENV GITHUB_CLIENT_SECRET ${GITHUB_CLIENT_SECRET}
-ENV OAUTH_CLIENT_ID ${OAUTH_CLIENT_ID}
-
-RUN yarn build && yarn generate
-
-ENV HOST 0.0.0.0
+ENV HOST=0.0.0.0 PORT=3000 DRUPAL_URL=http://nginx:8080
 EXPOSE 3000
 
-CMD ["yarn", "start"]
+CMD ["node", "server/start.js"]

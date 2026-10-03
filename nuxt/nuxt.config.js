@@ -6,6 +6,8 @@ export default {
   target: 'static',
 
   generate: {
+    // The start script builds beside the served copy, then swaps it in.
+    dir: process.env.GENERATE_DIR || 'dist',
     routes: [
       '/node/preview/card',
       '/node/preview/card_common',
@@ -65,8 +67,8 @@ export default {
   publicRuntimeConfig: {
     // The browser builds file and logo URLs from this. A preview generated
     // against a throwaway backend sets PUBLIC_BASE_URL to a host that outlives
-    // the build.
-    baseUrl: process.env.PUBLIC_BASE_URL || baseUrl,
+    // the build. Empty makes them same-origin, through the frontend's proxy.
+    baseUrl: process.env.PUBLIC_BASE_URL ?? baseUrl,
   },
 
   // Modules (https://go.nuxtjs.dev/config-modules)

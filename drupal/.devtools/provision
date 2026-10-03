@@ -37,6 +37,16 @@ ACCOUNT_PASS="${DRUPAL_ACCOUNT_PASS:-admin}"
 
 [ -x "$DRUSH" ] || { echo "drush not found at $DRUSH; run composer install first." >&2; exit 1; }
 
+# Web requests answer 503 until provisioning ends (see all.settings.php). A
+# request served mid-install caches a container without the modules still to
+# come, and the final cache rebuild boots from it.
+FLAG="$PWD/web/sites/default/files/.provisioning"
+mkdir -p "$(dirname "$FLAG")"
+touch "$FLAG"
+trap 'rm -f "$FLAG"' EXIT
+# A deploy that stops this task mid-install must not leave the site answering 503.
+trap 'exit 143' INT TERM HUP
+
 # Only the driver, never the whole URL: it can carry a password.
 echo "==> Fresh demo_umami install (${DB_URL%%:*})"
 case "$DB_URL" in

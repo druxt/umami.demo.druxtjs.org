@@ -1,6 +1,8 @@
-FROM amazeeio/php:8.3-cli-drupal
+FROM uselagoon/php-8.3-cli-drupal:26.8.1
 
-COPY ./drupal/composer.* /app/
+# The patches apply during install, so they are in place before it runs.
+COPY ./drupal/composer.* ./drupal/patches.lock.json /app/
+COPY ./drupal/patches /app/patches
 COPY ./drupal/assets /app/assets
 RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev
 COPY ./drupal/ /app

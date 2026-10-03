@@ -11,6 +11,7 @@
     "nuxt/.nuxt/",
     "nuxt/.nuxt-storybook/",
     "nuxt/dist/",
+    "nuxt/dist-*/",
     "nuxt/storybook-static/",
     "nuxt/modules/templates/",
     "drupal/",

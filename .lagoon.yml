@@ -1,9 +1,28 @@
-docker-compose-yaml: 'docker-compose.yml'
+---
+docker-compose-yaml: docker-compose.yml
 
 project: druxtjs-org-demo-umami
 
+# The whole demo is one environment: Drupal, the site and Storybook together,
+# so the production environment keeps all of it awake.
+environments:
+  main:
+    routes:
+      - app:
+          - umami.demo.druxtjs.org
+      - nginx:
+          - api.umami.demo.druxtjs.org
+      - storybook:
+          - storybook.umami.demo.druxtjs.org
+    cronjobs:
+      - name: drush cron
+        schedule: "*/15 * * * *"
+        command: drush cron
+        service: cli
+
 tasks:
   post-rollout:
+    # A fresh umami on every deploy: the demo resets to its known content.
     - run:
         name: drupal install
         command: >-
@@ -11,34 +30,13 @@ tasks:
           .devtools/provision
         service: cli
 
+    # New content means new entity IDs, so the site builds again from it.
+    - run:
+        name: regenerate the site
+        command: curl -fsS --retry 5 --retry-connrefused -X POST http://app:3000/_regenerate
+        service: cli
+
     - run:
         name: drush user:login
         command: drush user:login
-        service: cli
-
-environments:
-  staging/frontend:
-    routes:
-      - app:
-          - staging.umami.demo.druxtjs.org
-      - storybook:
-          - storybook.staging.umami.demo.druxtjs.org
-  staging/backend:
-    routes:
-      - nginx:
-          - api.staging.umami.demo.druxtjs.org
-  production/frontend:
-    routes:
-      - app:
-          - umami.demo.druxtjs.org
-      - storybook:
-          - storybook.umami.demo.druxtjs.org
-  production/backend:
-    routes:
-      - nginx:
-          - api.umami.demo.druxtjs.org
-    cronjobs:
-      - name: drush cron
-        schedule: "*/15 * * * *"
-        command: drush cron
         service: cli

@@ -48,7 +48,8 @@ npm run lint              # root ESLint and markdownlint
 ```
 
 The pipeline also runs cspell, YAML and JSON lint, a secret scan and commit
-message lint.
+message lint, and `test:stack`, which provisions Drupal and starts the site
+the way Lagoon does.
 
 ## Commit messages
 
