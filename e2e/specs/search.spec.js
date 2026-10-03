@@ -66,7 +66,7 @@ test.describe('search', () => {
     // searched as such, and nothing throws.
     await input.fill('title:')
     await expect(bar.locator('.searchbar__meta')).toContainText(
-      /result|Nothing/,
+      /result|Nothing/
     )
     expect(errors).toEqual([])
   })
@@ -99,8 +99,8 @@ test.describe('search', () => {
     await page.evaluate(
       () =>
         new Promise((resolve) =>
-          requestAnimationFrame(() => requestAnimationFrame(resolve)),
-        ),
+          requestAnimationFrame(() => requestAnimationFrame(resolve))
+        )
     )
     expect(scrolled).toBeGreaterThan(50)
     await page.keyboard.press('Escape')
@@ -113,7 +113,7 @@ test.describe('search', () => {
       .poll(() =>
         page
           .locator('.searchbar:visible .searchbar__results')
-          .evaluate((el) => el.scrollTop),
+          .evaluate((el) => el.scrollTop)
       )
       .toBe(scrolled)
   })
@@ -136,10 +136,10 @@ test.describe('search', () => {
     expect(labels.filter((label) => /^\d+$/.test(label))).toEqual([])
     if (!(await page.locator('button[aria-label="Open menu"]').isVisible())) {
       await expect(
-        bar.locator('.searchbar__chip', { hasText: 'Desserts' }),
+        bar.locator('.searchbar__chip', { hasText: 'Desserts' })
       ).toBeVisible()
       await expect(
-        bar.locator('.searchbar__chip', { hasText: 'Vegetarian' }),
+        bar.locator('.searchbar__chip', { hasText: 'Vegetarian' })
       ).toBeVisible()
     }
     const article = bar.locator('.searchbar__chip', { hasText: 'Article' })
@@ -148,11 +148,54 @@ test.describe('search', () => {
     await expect(article).toHaveAttribute('aria-pressed', 'true')
     await expect(results).toHaveCount(count)
     const hrefs = await results.evaluateAll((links) =>
-      links.map((a) => a.getAttribute('href')),
+      links.map((a) => a.getAttribute('href'))
     )
     expect(hrefs.every((href) => href.includes('/articles/'))).toBe(true)
     await article.click()
     await expect(results).toHaveCount(all)
+  })
+
+  // Every count is what choosing it would show under the other facets'
+  // choices, so a chip never promises results the list then does not have.
+  test('facet counts follow the other chosen facets', async ({ page }) => {
+    await visit(page, '/en')
+    test.skip(
+      await page.locator('button[aria-label="Open menu"]').isVisible(),
+      'the phone drawer shows the type facet only'
+    )
+    await openSearch(page)
+    const bar = page.locator('.searchbar:visible').first()
+    await bar.locator('input').fill('sugar')
+    const results = bar.locator('.searchbar__results a')
+    await expect.poll(() => results.count()).toBeGreaterThanOrEqual(8)
+    await bar.locator('.searchbar__chip', { hasText: 'Recipe' }).click()
+
+    // Labels first: choosing one chip rightly disables others, so a live
+    // list of the enabled ones would shift under the loop.
+    const labels = await bar
+      .locator(
+        '.searchbar__facet:not(:first-child) .searchbar__chip:not([disabled])'
+      )
+      .evaluateAll((chips) => chips.map((c) => c.firstChild.textContent.trim()))
+    expect(labels.length).toBeGreaterThan(0)
+    for (const label of labels) {
+      const chip = bar
+        .locator('.searchbar__facet:not(:first-child) .searchbar__chip')
+        .filter({ hasText: new RegExp(`^\\s*${label}\\s+\\d+\\s*$`) })
+      const count = Number(await chip.locator('.searchbar__count').innerText())
+      expect(count).toBeGreaterThan(0)
+      await chip.click()
+      await expect(results).toHaveCount(count)
+      await chip.click()
+      await expect(chip).toHaveAttribute('aria-pressed', 'false')
+    }
+    // A chip that would show nothing says 0 and is not a choice.
+    const empty = bar.locator('.searchbar__chip[disabled]')
+    for (const label of await empty
+      .locator('.searchbar__count')
+      .allInnerTexts()) {
+      expect(label).toBe('0')
+    }
   })
 
   test('in the phone drawer the results end above the menu', async ({
@@ -183,7 +226,7 @@ test.describe('search', () => {
     const results = bar.locator('.searchbar__results a')
     await expect(results.first()).toBeVisible()
     const hrefs = await results.evaluateAll((links) =>
-      links.map((a) => a.getAttribute('href')),
+      links.map((a) => a.getAttribute('href'))
     )
     expect(hrefs.every((href) => href.startsWith('/es/'))).toBe(true)
 
@@ -194,7 +237,7 @@ test.describe('search', () => {
     await english.locator('input').fill('zanahorias')
     // Searched, not merely not yet: the status says so before the count.
     await expect(english.locator('.searchbar__meta')).toContainText(
-      'Nothing found',
+      'Nothing found'
     )
     await expect(english.locator('.searchbar__results a')).toHaveCount(0)
   })

@@ -61,6 +61,7 @@
           :key="option.value"
           :aria-pressed="String(filters[facet.key] === option.value)"
           class="searchbar__chip"
+          :disabled="!option.count && filters[facet.key] !== option.value"
           type="button"
           @click="toggle(facet.key, option.value)"
         >
@@ -148,36 +149,51 @@ export default {
         }
       },
 
+    /** The results under every chosen facet value but `except`'s. */
+    matching:
+      ({ searchResults, filters, valuesOf }) =>
+      (except) =>
+        (searchResults || []).filter((item) => {
+          const values = valuesOf(item)
+          return Object.entries(filters).every(
+            ([key, chosen]) =>
+              key === except || !chosen || values[key].includes(chosen)
+          )
+        }),
+
     /** The results under every chosen facet value. */
-    shownResults: ({ searchResults, filters, valuesOf }) =>
-      (searchResults || []).filter((item) => {
-        const values = valuesOf(item)
-        return Object.entries(filters).every(
-          ([key, chosen]) => !chosen || values[key].includes(chosen)
-        )
-      }),
+    shownResults: ({ matching }) => matching(null),
 
     /**
-     * The facets worth showing: each value counted across the results, and a
-     * facet only when it tells results apart. Tags are many: the six most
-     * frequent, and any chosen one.
+     * The facets worth showing, and a facet only when it tells results apart.
+     * The values, and their order, come from the whole query, so the chips
+     * stay put as filters change. Each count is what choosing that value
+     * would show, under every filter chosen in the other facets: a value
+     * that would show nothing reads 0 and cannot be chosen. Tags are many:
+     * the six most frequent, and any chosen one.
      */
     facets() {
       if (!this.searchResults || this.searchResults.length < 2) return []
       const keys = this.compact ? ['bundle'] : ['bundle', 'category', 'tag']
+      const tally = (items, key) => {
+        const counts = {}
+        for (const item of items) {
+          for (const value of this.valuesOf(item)[key]) {
+            counts[value] = (counts[value] || 0) + 1
+          }
+        }
+        return counts
+      }
       return keys
         .map((key) => {
-          const counts = {}
-          for (const item of this.searchResults) {
-            for (const value of this.valuesOf(item)[key]) {
-              counts[value] = (counts[value] || 0) + 1
-            }
-          }
-          let options = Object.entries(counts)
+          const total = tally(this.searchResults, key)
+          const narrowed = tally(this.matching(key), key)
+          let options = Object.entries(total)
             .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-            .map(([value, count]) => ({
+            .map(([value, all]) => ({
               value,
-              count,
+              all,
+              count: narrowed[value] || 0,
               label: key === 'bundle' ? this.$t(`bundle.${value}`) : value,
             }))
           if (key === 'tag') {
@@ -187,7 +203,7 @@ export default {
           }
           const tellsApart =
             options.length > 1 ||
-            (options[0] && options[0].count < this.searchResults.length)
+            (options[0] && options[0].all < this.searchResults.length)
           return { key, options: tellsApart ? options : [] }
         })
         .filter((facet) => facet.options.length)
