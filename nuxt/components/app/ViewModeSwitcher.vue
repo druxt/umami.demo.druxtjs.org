@@ -1,10 +1,7 @@
 <template>
   <div class="druxt-note">
-    <span class="druxt-note__kicker">Same node, other view modes</span>
-    <p class="druxt-note__body mt-2">
-      Drupal's display modes are components here. Switch one and the page
-      re-renders from the entity already in the store, with no second request.
-    </p>
+    <span class="druxt-note__kicker">{{ $t('note.sameNode') }}</span>
+    <p class="druxt-note__body mt-2">{{ $t('note.viewModes') }}</p>
 
     <div class="view-modes mt-3">
       <button
@@ -31,7 +28,7 @@
       rel="noopener"
       target="_blank"
     >
-      Open {{ mode }} in Storybook →
+      {{ $t('note.openInStorybook', { mode }) }}
     </a>
   </div>
 </template>

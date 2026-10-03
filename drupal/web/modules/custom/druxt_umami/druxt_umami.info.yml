@@ -21,3 +21,6 @@ dependencies:
   - purge_purger_http:purge_purger_http
   - drupal:search_api_lunr
   - drupal:simple_oauth
+  # Editors sign in on the site with a username and password: the password
+  # grant, which Simple OAuth 6 moved out of core.
+  - simple_oauth_password_grant:simple_oauth_password_grant

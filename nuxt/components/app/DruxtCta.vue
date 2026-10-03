@@ -3,15 +3,9 @@
     <b-container>
       <b-row>
         <b-col cols="12" lg="7">
-          <span class="druxt-cta__kicker">Built with DruxtJS</span>
-          <h2 class="mt-2">
-            This whole magazine is one Drupal site and one Nuxt app
-          </h2>
-          <p class="mt-3 mb-3">
-            Blocks, menus, views, breadcrumbs, entity forms and search all come
-            straight from Drupal's JSON:API. You override a component only when
-            you want to.
-          </p>
+          <span class="druxt-cta__kicker">{{ $t('cta.kicker') }}</span>
+          <h2 class="mt-2">{{ $t('cta.title') }}</h2>
+          <p class="mt-3 mb-3">{{ $t('cta.body') }}</p>
           <div class="druxt-cta__links d-none d-md-flex">
             <a
               href="https://github.com/druxt/umami.demo.druxtjs.org"
@@ -19,8 +13,11 @@
               target="_blank"
               >GitHub</a
             >
-            <a href="https://discord.druxtjs.org" rel="noopener" target="_blank"
-              >Discord</a
+            <a
+              href="https://discord.druxtjs.org"
+              rel="noopener"
+              target="_blank"
+              >{{ $t('demoBar.discord') }}</a
             >
             <a
               href="https://storybook.umami.demo.druxtjs.org"
@@ -28,30 +25,30 @@
               target="_blank"
               >Storybook</a
             >
-            <a href="https://druxtjs.org" rel="noopener" target="_blank"
-              >Docs</a
-            >
+            <a href="https://druxtjs.org" rel="noopener" target="_blank">{{
+              $t('demoBar.docs')
+            }}</a>
           </div>
         </b-col>
 
         <b-col cols="12" lg="5" class="mt-4 mt-lg-0">
-          <span class="druxt-cta__kicker d-none d-md-inline"
-            >Start your own in one command</span
-          >
+          <span class="druxt-cta__kicker d-none d-md-inline">{{
+            $t('cta.startKicker')
+          }}</span>
           <div class="druxt-cta__command mt-2">
             <span><span class="prompt">$</span> {{ command }}</span>
             <button type="button" @click="copy">
-              {{ copied ? 'copied' : 'copy' }}
+              {{ copied ? $t('cta.copied') : $t('cta.copy') }}
             </button>
           </div>
           <p class="druxt-cta__devpod mt-2 mb-0">
-            Or
+            {{ $t('cta.devpodBefore') }}
             <a
               href="https://devpod.sh/open#https://github.com/druxt/umami.demo.druxtjs.org"
               rel="noopener"
               target="_blank"
-              >open this site in DevPod</a
-            >, with its backend, frontend and demo content.
+              >{{ $t('cta.devpodLink') }}</a
+            >{{ $t('cta.devpodAfter') }}
           </p>
         </b-col>
       </b-row>

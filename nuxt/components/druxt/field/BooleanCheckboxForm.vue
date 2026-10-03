@@ -24,14 +24,17 @@ export default {
   mixins: [formField],
 
   computed: {
-    label: ({ schema }) =>
-      ({
-        status: 'Published',
-        promote: 'Promoted to front page',
-        sticky: 'Sticky at top of lists',
-      }[schema.id] ||
-      ((schema || {}).label || {}).text ||
-      schema.id),
+    label() {
+      const key = {
+        status: 'form.published',
+        promote: 'form.promoted',
+        sticky: 'form.sticky',
+        copy: 'form.copy',
+      }[this.schema.id]
+      return key
+        ? this.$t(key)
+        : ((this.schema || {}).label || {}).text || this.schema.id
+    },
   },
 
   methods: { single },

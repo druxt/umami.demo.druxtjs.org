@@ -14,7 +14,8 @@
     "lintfix": "prettier --write --list-different . && npm run lint:js -- --fix && npm run lint:style -- --fix",
     "start": "nuxt start",
     "storybook:build": "API_PROXY=0 npx nuxt storybook build",
-    "storybook": "npx nuxt storybook"
+    "storybook": "npx nuxt storybook",
+    "postinstall": "patch-package"
   },
   "resolutions": {
     "druxt": "0.25.0-dev.20260928061526",
@@ -22,6 +23,7 @@
   },
   "dependencies": {
     "@druxt-contrib/ckeditor": "file:vendor/druxt-ckeditor",
+    "@druxt-contrib/inline-content-edit": "file:vendor/inline-content-edit",
     "@nuxtjs/auth-next": "5.0.0-1667386184.dfbbb54",
     "@nuxtjs/axios": "5.13.6",
     "@nuxtjs/google-analytics": "2.4.0",
@@ -31,13 +33,16 @@
     "core-js": "3.32.1",
     "css-loader": "5.2.7",
     "drupal-jsonapi-params": "^2.3.1",
+    "druxt-auth": "0.5.0",
     "druxt-search": "0.1.1",
     "druxt-site": "0.14.4-dev.20260928061526",
     "jsonapi-serializer": "3.6.7",
     "nuxt": "2.17.1",
     "prismjs": "^1.29.0",
+    "vue-i18n": "^8.28.2",
     "vue-json-pretty": "1.9.4",
     "vue-live": "^1.17.2",
+    "vuedraggable": "^2.24.3",
     "vuex": "3.6.2",
     "vuex-persistedstate": "^4.1.0"
   },
@@ -60,6 +65,7 @@
     "eslint-plugin-prettier": "4.2.1",
     "eslint-plugin-vue": "9.17.0",
     "html-webpack-plugin": "5.5.3",
+    "patch-package": "^8",
     "postcss": "8.4.29",
     "postcss-html": "1.5.0",
     "prettier": "2.8.8",

@@ -1,12 +1,12 @@
 <template>
   <AppFormField
-    description="Transitions belong to Drupal's workflow; the form shows the state and never guesses a transition."
+    :description="$t('form.moderationHint')"
     :feedback="feedback"
-    label="Moderation state"
+    :label="$t('form.moderationState')"
   >
     <div class="edit-control edit-control--readonly">
       <span>{{ state }}</span>
-      <span class="edit-control__unit">workflow</span>
+      <span class="edit-control__unit">{{ $t('form.workflow') }}</span>
     </div>
   </AppFormField>
 </template>

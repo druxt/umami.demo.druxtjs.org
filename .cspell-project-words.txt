@@ -1,3 +1,4 @@
+acerca
 aeiou
 amazeeio
 amazeeiolagoon
@@ -5,6 +6,8 @@ Archivo
 crawlable
 crossorigin
 dcbdaaf
+defu
+devpod
 druxt
 druxtjs
 Druxty
@@ -14,6 +17,7 @@ janked
 janks
 lando
 langcode
+LANGCODES
 lede
 lintfix
 LOCALDEV
@@ -31,4 +35,5 @@ umami
 unscrimmed
 uselagoon
 viewports
+vuedraggable
 wordmark

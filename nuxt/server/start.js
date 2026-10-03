@@ -105,9 +105,11 @@ const serveStatic = (req, res) => {
   const headers = {
     'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream',
   }
-  if (decoded.startsWith('/_nuxt/')) {
-    headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-  }
+  // Hashed assets never change; a page must be checked on every visit, or a
+  // phone keeps one whose chunks a later build removed.
+  headers['Cache-Control'] = decoded.startsWith('/_nuxt/')
+    ? 'public, max-age=31536000, immutable'
+    : 'no-cache'
   res.writeHead(200, headers)
   // A build swapped out mid-request loses its files; answer 404, don't crash.
   fs.createReadStream(file)
@@ -259,11 +261,95 @@ const clearCache = (req, res) => {
   res.end()
 }
 
+/** The body of a request, as text, capped so a stray upload cannot fill memory. */
+const readBody = (req, limit = 64 * 1024) =>
+  new Promise((resolve, reject) => {
+    let body = ''
+    req.on('data', (chunk) => {
+      body += chunk
+      if (body.length > limit) {
+        reject(new Error('body too large'))
+        req.destroy()
+      }
+    })
+    req.on('end', () => resolve(body))
+    req.on('error', reject)
+  })
+
+/**
+ * The route druxt-auth's password grant posts to. Under `nuxt dev` the
+ * module serves it; here the generated site has no Nuxt server, so this
+ * does the same: the credentials go on to Drupal's token endpoint with the
+ * consumer's id, and the answer comes back as it is.
+ */
+const GRANT_FIELDS = {
+  password: ['username', 'password', 'scope'],
+  refresh_token: ['refresh_token', 'scope'],
+}
+const passwordToken = async (req, res) => {
+  if (req.method !== 'POST') {
+    res.writeHead(405, { Allow: 'POST' })
+    return res.end()
+  }
+  let data
+  try {
+    data = JSON.parse((await readBody(req)) || '{}')
+  } catch (error) {
+    res.writeHead(400, { 'Content-Type': 'application/json' })
+    return res.end(JSON.stringify({ message: 'Malformed request' }))
+  }
+  const fields = GRANT_FIELDS[data.grant_type]
+  if (
+    !fields ||
+    (data.grant_type === 'password' && !(data.username && data.password))
+  ) {
+    res.writeHead(400, { 'Content-Type': 'application/json' })
+    return res.end(JSON.stringify({ message: 'Invalid username or password' }))
+  }
+  const form = new URLSearchParams({
+    ...Object.fromEntries(
+      fields.filter((f) => data[f] !== undefined).map((f) => [f, data[f]])
+    ),
+    grant_type: data.grant_type,
+    client_id: env.OAUTH_CLIENT_ID || 'umami_druxt',
+    ...(env.OAUTH_CLIENT_SECRET
+      ? { client_secret: env.OAUTH_CLIENT_SECRET }
+      : {}),
+  }).toString()
+  const url = new URL('/oauth/token', drupalUrl)
+  const upstream = http.request(
+    url,
+    {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(form),
+      },
+      timeout: 30000,
+    },
+    (answer) => {
+      res.writeHead(answer.statusCode, {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store',
+      })
+      answer.pipe(res)
+    }
+  )
+  upstream.on('timeout', () => upstream.destroy(new Error('timeout')))
+  upstream.on('error', () => {
+    res.writeHead(502, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ message: 'Drupal did not answer' }))
+  })
+  upstream.end(form)
+}
+
 const drupal = createDrupalProxy(drupalUrl)
 const server = http.createServer((req, res) => {
   if (isDrupalPath(req.url)) return drupal(req, res)
   if (req.url === '/_regenerate') return regenerate(req, res)
   if (req.url === '/_druxt/cache/clear') return clearCache(req, res)
+  if (req.url === '/_auth/drupal-password/token') return passwordToken(req, res)
   // Once a build serves, the starting page's status poll must fail, so the
   // page reloads into the site instead of reading the fallback page as JSON.
   if (distDir && req.url.split('?')[0] === '/__status') {
