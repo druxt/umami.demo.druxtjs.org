@@ -56,6 +56,7 @@
 </template>
 
 <script>
+import { seoHead } from '~/utils/seo'
 import { langMixin } from '~/utils/lang'
 export default {
   mixins: [langMixin],
@@ -66,7 +67,14 @@ export default {
     busy: false,
     error: '',
   }),
-  head: () => ({ title: 'Sign in' }),
+  head() {
+    return seoHead({
+      origin: this.$config.siteOrigin,
+      path: this.$route.path,
+      title: this.$t('login.title'),
+      robots: 'noindex, nofollow',
+    })
+  },
 
   computed: {
     /** Where to go afterwards: where the visitor came from, else home. */

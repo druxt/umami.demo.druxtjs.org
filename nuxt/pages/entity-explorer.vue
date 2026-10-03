@@ -106,6 +106,7 @@
 <script>
 import { DrupalJsonApiParams } from 'drupal-jsonapi-params'
 import { mapActions } from 'vuex'
+import { seoHead } from '~/utils/seo'
 import { storybookMixin } from '~/utils/storybook'
 
 import 'prismjs/themes/prism-tomorrow.css'
@@ -165,6 +166,15 @@ export default {
         .addFilter('bundle', bundle)
         .addFields('entity_view_display--entity_view_display', ['mode']),
     }).then((displays) => displays.map((display) => display.attributes.mode))
+  },
+  head() {
+    return seoHead({
+      origin: this.$config.siteOrigin,
+      path: this.$route.path,
+      title: 'Entity Explorer',
+      description:
+        "Every Drupal entity on the site, rendered through Druxt's display modes: pick a type, an entity and a view mode, and read the JSON:API request behind it.",
+    })
   },
 
   computed: {

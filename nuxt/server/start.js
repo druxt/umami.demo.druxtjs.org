@@ -55,6 +55,7 @@ const TYPES = {
   '.webp': 'image/webp',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
+  '.xml': 'application/xml; charset=utf-8',
 }
 
 // What druxtjs.org's starting page reports until the first build serves.

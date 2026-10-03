@@ -1,0 +1,14 @@
+langcode: en
+status: true
+dependencies: {  }
+id: druxt_demo
+label: 'Druxt demo'
+token: false
+context:
+  show_warning: false
+  group: {  }
+  fallback: {  }
+menu:
+  path: /admin/config/system/druxt-demo
+  weight: 0
+  description: 'The links and commands the demo frontend shows: where the code is, the docs, Discord and the quickstart.'

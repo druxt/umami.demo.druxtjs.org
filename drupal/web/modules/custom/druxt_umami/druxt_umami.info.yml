@@ -6,6 +6,10 @@ core_version_requirement: ^10 || ^11
 
 dependencies:
   - drupal:anonymous_redirect
+  # The demo's share links and commands, edited in one place and read by
+  # the frontend through JSON:API.
+  - config_pages:config_pages
+  - drupal:link
   # demo_umami leaves contact out, so /contact 404s and the frontend's
   # contact form has no contact_message bundle to build itself from.
   - drupal:contact

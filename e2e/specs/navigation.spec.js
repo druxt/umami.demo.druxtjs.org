@@ -3,6 +3,17 @@ const { visit } = require('./helpers')
 
 // A link opens its page at the top, however far down the last one was read.
 test.describe('navigation', () => {
+  // The front page is /en; the server answers the bare root with a redirect
+  // rather than a page that paints nothing, on every environment.
+  test('the root is a redirect to the English home', async ({
+    page,
+    baseURL,
+  }) => {
+    const response = await page.request.get(`${baseURL}/`, { maxRedirects: 0 })
+    expect(response.status()).toBe(301)
+    expect(response.headers().location).toBe('/en')
+  })
+
   const scrollY = (page) => () => page.evaluate(() => window.scrollY)
 
   test('a card opens its page at the top', async ({ page }) => {

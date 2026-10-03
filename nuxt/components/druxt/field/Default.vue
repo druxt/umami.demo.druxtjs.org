@@ -134,12 +134,17 @@ export default {
      * One size fits all HTML to render for View displays, with JSON.stringify() as a fallback.
      * @returns {string}
      */
-    html: ({ model }) =>
-      typeof model === 'string'
-        ? model
-        : (model || {}).processed || (model || {}).value
-        ? model.processed || model.value
-        : JSON.stringify(model),
+    html: ({ model }) => {
+      if (typeof model === 'string') return model
+      if (
+        model &&
+        typeof model === 'object' &&
+        ('processed' in model || 'value' in model)
+      ) {
+        return model.processed || model.value || ''
+      }
+      return model == null ? '' : JSON.stringify(model)
+    },
 
     isSchemaForm: ({ schema }) => schema.config.schemaType === 'form',
     isSchemaView: ({ schema }) => schema.config.schemaType === 'view',

@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - config_pages.type.druxt_demo
+    - field.storage.config_pages.field_twitter
+id: config_pages.druxt_demo.field_twitter
+field_name: field_twitter
+entity_type: config_pages
+bundle: druxt_demo
+label: 'Twitter handle'
+description: 'Named in the share cards.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

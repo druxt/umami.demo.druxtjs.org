@@ -44,22 +44,26 @@ export default {
   methods: {
     onModel(model) {
       if (!model || !model.id || !this.$drafts) return
-      const key = `${model.type}:${model.id}`
+      const langcode = (model.attributes || {}).langcode || 'en'
+      const key = `${model.type}:${model.id}:${langcode}`
       if (!this.original) {
         // The first model is the fetched entity, with any draft already laid
         // over it; the draft's before values give the entity Drupal holds.
         this.original = JSON.parse(
           JSON.stringify(
-            withoutDraft(model, this.$drafts.draftFor(model.type, model.id))
+            withoutDraft(
+              model,
+              this.$drafts.draftFor(model.type, model.id, langcode)
+            )
           )
         )
         return
       }
       const draft = draftOf(this.original, model)
       if (draft) {
-        this.$store.commit('druxtIce/setDraft', { key, draft })
-      } else if (this.$drafts.draftFor(model.type, model.id)) {
-        this.$store.commit('druxtIce/clearDraft', key)
+        this.$store.commit('drafts/setDraft', { key, draft })
+      } else if (this.$drafts.draftFor(model.type, model.id, langcode)) {
+        this.$store.commit('drafts/clearDraft', key)
       }
       this.$drafts.mirror(model)
     },
@@ -70,8 +74,10 @@ export default {
       if (!resource || !model) return
       this.original = JSON.parse(JSON.stringify(model))
       this.$store.commit(
-        'druxtIce/clearDraft',
-        `${resource.type}:${resource.id}`
+        'drafts/clearDraft',
+        `${resource.type}:${resource.id}:${
+          (model.attributes || {}).langcode || 'en'
+        }`
       )
     },
   },
