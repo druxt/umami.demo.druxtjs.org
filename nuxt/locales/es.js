@@ -17,6 +17,7 @@ export default {
     edit: 'Editar',
   },
   reset: {
+    title: 'Reiniciar la demo',
     button: 'Reiniciar la demo',
     confirm:
       '¿Devolver cada receta, artículo, imagen y ajuste a la demo original, para todo el mundo?',

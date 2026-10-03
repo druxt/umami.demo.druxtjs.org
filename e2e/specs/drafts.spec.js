@@ -310,5 +310,13 @@ test.describe('drafts', () => {
     if (await menu.isVisible()) await menu.click()
     await expect(page.locator('.reset-demo__button:visible')).toBeVisible()
     await expect(page.locator('.banner__media').first()).toBeVisible()
+
+    // The question opens in a dialog, whole, and Keep it leaves the demo be.
+    await page.locator('.reset-demo__button:visible').click()
+    const dialog = page.locator('.reset-dialog')
+    await expect(dialog).toBeVisible()
+    await expect(dialog).toContainText('for everyone')
+    await dialog.locator('.reset-dialog__no').click()
+    await expect(dialog).toBeHidden()
   })
 })

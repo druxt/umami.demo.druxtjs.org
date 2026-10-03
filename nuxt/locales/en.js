@@ -17,6 +17,7 @@ export default {
     edit: 'Edit',
   },
   reset: {
+    title: 'Reset the demo',
     button: 'Reset demo',
     confirm:
       'Put every recipe, article, image and setting back to the fresh demo, for everyone?',
