@@ -4767,12 +4767,8 @@ button.masthead__account {
 .reset-demo {
   align-items: center;
   display: inline-flex;
-  flex-wrap: wrap;
-  gap: 8px;
 
-  &__button,
-  &__yes,
-  &__no {
+  &__button {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.35);
     border-radius: 3px;
@@ -4781,27 +4777,28 @@ button.masthead__account {
     font-size: 0.75rem;
     line-height: 1.2;
     padding: 3px 8px;
+
+    &:hover:not(:disabled) {
+      border-color: #fff;
+    }
   }
-  &__button:hover,
-  &__no:hover {
-    border-color: #fff;
+}
+
+// The reset question, in the sign-in dialog's frame.
+.reset-dialog {
+  &__text {
+    color: $ink-muted;
+    margin-bottom: 1.25rem;
   }
-  &__yes {
-    background: #fff;
-    border-color: #fff;
-    color: $druxt-navy;
-  }
-  &__ask,
-  &__busy,
-  &__message {
-    align-items: center;
-    display: inline-flex;
+  &__actions {
+    display: flex;
     flex-wrap: wrap;
-    font-size: 0.75rem;
-    gap: 8px;
-  }
-  &__question {
-    max-width: 32em;
+    gap: 0.75rem;
+
+    .btn {
+      flex: 1 1 10rem;
+      min-height: 48px;
+    }
   }
 }
 
