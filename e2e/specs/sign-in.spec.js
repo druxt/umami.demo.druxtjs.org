@@ -19,7 +19,36 @@ test.describe('sign in', () => {
     await expect(dialog).toBeHidden()
     await expect(page).toHaveURL(/\/en\/recipes$/)
     await expect(
-      page.locator('button', { hasText: 'Sign out' }).first(),
+      page.locator('button', { hasText: 'Sign out' }).first()
+    ).toBeAttached()
+  })
+
+  // A Drupal session already open in the browser, as Drupal's own login form
+  // leaves one, is ended and replaced: the right password still signs in.
+  test('a Drupal session left open does not refuse the right password', async ({
+    page,
+  }) => {
+    await visit(page, '/en')
+    const user = process.env.E2E_USER || 'admin'
+    const pass = process.env.E2E_PASS || 'admin'
+    const status = await page.evaluate(
+      ([name, pass]) =>
+        fetch('/user/login?_format=json', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, pass }),
+        }).then((r) => r.status),
+      [user, pass]
+    )
+    expect(status).toBe(200)
+    await openSignIn(page)
+    const dialog = page.locator('.sign-in__dialog')
+    await dialog.locator('#sign-in-name').fill(user)
+    await dialog.locator('#sign-in-pass').fill(pass)
+    await dialog.locator('.auth__submit').click()
+    await expect(dialog).toBeHidden()
+    await expect(
+      page.locator('button', { hasText: 'Sign out' }).first()
     ).toBeAttached()
   })
 
@@ -47,7 +76,7 @@ test.describe('sign in', () => {
   test('the link is still a link to the page', async ({ page }) => {
     await visit(page, '/en')
     await expect(
-      page.locator('a.masthead__account, .masthead__account a').first(),
+      page.locator('a.masthead__account, .masthead__account a').first()
     ).toHaveAttribute('href', '/login')
     await visit(page, '/login')
     await expect(page.locator('h1')).toContainText('Sign in')
