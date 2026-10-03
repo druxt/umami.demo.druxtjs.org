@@ -9,6 +9,10 @@ export default {
   generate: {
     // The start script builds beside the served copy, then swaps it in.
     dir: process.env.GENERATE_DIR || 'dist',
+    // Builds sit beside the source, so the change check skips them: one
+    // counted as a source change would rebuild webpack for every content
+    // change instead of only rendering the pages again.
+    cache: { ignore: ['dist-*/**', 'dist/**'] },
     routes: [
       // Drupal names each language's front page /node; a visit there is a
       // page, not a client-side render.
