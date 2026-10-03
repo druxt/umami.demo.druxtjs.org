@@ -220,7 +220,7 @@ export default {
     saving: 'Guardando…',
     saved: 'Guardado en Drupal',
     savedBody:
-      'El sitio se reconstruye con tu cambio en unos dos minutos. Hasta entonces, al recargar se ve la última versión.',
+      'El sitio se reconstruye con tu cambio en un minuto aproximadamente. Hasta entonces, al recargar se ve la última versión.',
     cancel: 'Cancelar',
     signInToSave:
       'para guardar cambios. No se escribe nada hasta que Drupal sepa quién eres.',

@@ -216,7 +216,7 @@ export default {
     saving: 'Saving…',
     saved: 'Saved to Drupal',
     savedBody:
-      'The site rebuilds with your change in about two minutes. Until then a reload shows the last build.',
+      'The site rebuilds with your change in about a minute. Until then a reload shows the last build.',
     cancel: 'Cancel',
     signInToSave:
       'to save changes. Nothing is written until Drupal says who you are.',
