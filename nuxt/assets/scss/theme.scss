@@ -1782,6 +1782,14 @@ html.druxt-inspector {
       border-color: $ink;
       color: $paper;
     }
+
+    // Nothing to show under the other filters: there, but not a choice.
+    &:disabled {
+      border-color: $rule;
+      border-style: dashed;
+      color: $ink-faint;
+      cursor: default;
+    }
   }
 
   &__count {
