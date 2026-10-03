@@ -23,6 +23,7 @@
         }}</span>
         <textarea
           :ref="`step-${index}`"
+          :aria-label="`${label} ${index + 1}`"
           class="edit-steps__input"
           rows="2"
           :value="step"

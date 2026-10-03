@@ -40,6 +40,44 @@
             : $tc('draft.changes', changes, { n: changes })
         }}
       </button>
+
+      <!-- Throwing a draft away is not undone, so it asks once. -->
+      <!-- Focus moves into the question and back to the cross; Escape keeps. -->
+      <span
+        v-if="discarding"
+        aria-labelledby="draft-banner-ask"
+        class="draft-banner__confirm"
+        role="group"
+        @keydown.esc="keep"
+      >
+        <span id="draft-banner-ask">{{ $t('draft.discardAsk') }}</span>
+        <button
+          class="draft-banner__discard-yes"
+          type="button"
+          @click="discard"
+        >
+          {{ $t('draft.discardYes') }}
+        </button>
+        <button
+          ref="keep"
+          class="draft-banner__discard-no"
+          type="button"
+          @click="keep"
+        >
+          {{ $t('draft.discardNo') }}
+        </button>
+      </span>
+      <button
+        v-else
+        ref="cross"
+        :aria-label="$t('draft.discard')"
+        class="draft-banner__discard"
+        :title="$t('draft.discard')"
+        type="button"
+        @click="ask"
+      >
+        <BIconX aria-hidden="true" />
+      </button>
     </div>
 
     <!-- A removed field renders nothing, so the page has nowhere to mark
@@ -58,7 +96,8 @@
 </template>
 
 <script>
-import { fileOfMedia, plain } from '~/utils/draft-marks'
+import { BIconX } from 'bootstrap-vue'
+import { fileOfMedia, plain } from '~/utils/draft-diff'
 import { langMixin } from '~/utils/lang'
 
 /** A field name as a word or two: `field_media_image` is "media image". */
@@ -76,12 +115,16 @@ const isEmpty = (value) =>
     (value.data == null || (Array.isArray(value.data) && !value.data.length)))
 
 export default {
+  components: { BIconX },
+
   mixins: [langMixin],
 
   props: {
     type: { type: String, required: true },
     uuid: { type: String, required: true },
   },
+
+  data: () => ({ discarding: false }),
 
   computed: {
     draft() {
@@ -149,6 +192,18 @@ export default {
   methods: {
     show(real) {
       this.$drafts.showReal(this.type, this.uuid, this.lang, real)
+    },
+    ask() {
+      this.discarding = true
+      this.$nextTick(() => this.$refs.keep && this.$refs.keep.focus())
+    },
+    keep() {
+      this.discarding = false
+      this.$nextTick(() => this.$refs.cross && this.$refs.cross.focus())
+    },
+    discard() {
+      this.discarding = false
+      this.$drafts.discard(this.type, this.uuid, this.lang)
     },
     mark(on) {
       this.$drafts.showChanges(this.type, this.uuid, this.lang, on)

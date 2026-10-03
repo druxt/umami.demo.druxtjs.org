@@ -59,8 +59,8 @@
           <div class="explorer__head">
             <span class="stat-grid__label">Live preview</span>
             <a
-              class="druxt-note__link"
-              :href="storybookOrigin"
+              class="druxt-note__link explorer__storybook"
+              :href="storyLink"
               rel="noopener"
               target="_blank"
             >
@@ -107,7 +107,7 @@
 import { DrupalJsonApiParams } from 'drupal-jsonapi-params'
 import { mapActions } from 'vuex'
 import { seoHead } from '~/utils/seo'
-import { storybookMixin } from '~/utils/storybook'
+import { entityStoryId, storyUrl, storybookMixin } from '~/utils/storybook'
 
 import 'prismjs/themes/prism-tomorrow.css'
 import 'vue-prism-editor/dist/prismeditor.min.css'
@@ -178,6 +178,14 @@ export default {
   },
 
   computed: {
+    /** The story of the display being previewed, in this site's Storybook. */
+    storyLink() {
+      return storyUrl(
+        this.storybookHost,
+        entityStoryId(this.resourceType.selected, this.display.selected)
+      )
+    },
+
     /** What the preview renders: the edited source if any, else the snippet
      * the current selections describe. */
     previewCode() {

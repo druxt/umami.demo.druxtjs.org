@@ -1,11 +1,17 @@
 <template>
   <b-form-group
     :id="schema.id"
+    :label-for="`${schema.id}-field`"
     :invalid-feedback="stateFeedback"
     :label="fieldLabel"
     :state="state"
   >
-    <b-input v-model="model" type="email" :state="state" />
+    <b-input
+      :id="`${schema.id}-field`"
+      v-model="model"
+      type="email"
+      :state="state"
+    />
   </b-form-group>
 </template>
 

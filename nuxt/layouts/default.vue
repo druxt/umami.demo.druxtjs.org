@@ -116,8 +116,9 @@
           right
           shadow
           width="min(520px, 100vw)"
+          @shown="focusSearch"
         >
-          <DruxtSearchbar />
+          <DruxtSearchbar ref="searchbar" />
         </b-sidebar>
       </div>
     </template>
@@ -125,16 +126,23 @@
 </template>
 
 <script>
-const FRONT = /^\/(en|es)?\/?$/
+import { isFront } from '~/utils/front'
+import { langcodeOf } from '~/utils/lang'
 
 const SNIPPET = [
-  "<span class='t'>DruxtBlockRegion</span>",
+  "<span class='t'>&lt;DruxtBlockRegion</span>",
   "  <span class='a'>name</span>=<span class='v'>\"banner_top\"</span>",
   "  <span class='a'>theme</span>=<span class='v'>\"umami\"</span>",
+  "<span class='t'>/&gt;</span>",
 ].join('\n')
 
 export default {
   data: () => ({ blocksSnippet: SNIPPET }),
+
+  /** The page's language on the html element, whichever page set the head. */
+  head() {
+    return { htmlAttrs: { lang: langcodeOf(this.$route.path) } }
+  },
 
   computed: {
     /** The router resolved this path to something in Drupal. */
@@ -148,8 +156,14 @@ export default {
     },
 
     isFront() {
-      const route = this.$store.state.druxtRouter.route
-      return !!route.isHomePath || FRONT.test(this.$route.path)
+      return isFront(this.$store.state.druxtRouter.route, this.$route.path)
+    },
+  },
+
+  methods: {
+    /** The panel is open: the cursor goes to the field, ready to type. */
+    focusSearch() {
+      this.$nextTick(() => this.$refs.searchbar && this.$refs.searchbar.focus())
     },
   },
 }

@@ -3,6 +3,7 @@
     <div v-show="ready" ref="host" class="druxt-ckeditor__host" />
     <textarea
       v-if="!ready"
+      :aria-label="$attrs['aria-label'] || null"
       class="druxt-ckeditor__textarea"
       :value="value"
       @input="$emit('input', $event.target.value)"

@@ -1,5 +1,5 @@
 {
-    "_hash": "eae0115d5b4e58a64660173210c3ae1ce22c336063b969dd6f234d72d4a831b4",
+    "_hash": "83cd90fb4bbc1d6fd08743834279cbdb979252fb1892ceeb9d9f03617f6a6da1",
     "patches": {
         "drupal/decoupled_router": [
             {
@@ -29,6 +29,16 @@
                 "description": "#3264181 Node Preview (MR!8, rerolled for 1.2.2, applies to 1.3.1)",
                 "url": "patches/druxt-mr8-node-preview.patch",
                 "sha256": "ef3fca6f13cfeae336ac2c063d853b4484499935aec15b3eecd7580f1f0ca1eb",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            },
+            {
+                "package": "drupal/druxt",
+                "description": "The front page of a prefixed language is the home path",
+                "url": "patches/druxt-front-page-language.patch",
+                "sha256": "d8ea008559ab4466010f7e02d34ab1c5bb370035e059f7b93bac71836b52a30c",
                 "depth": 1,
                 "extra": {
                     "provenance": "root"

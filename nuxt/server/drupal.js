@@ -124,7 +124,15 @@ const createDrupalProxy = (baseUrl) => {
         timeout: 60000,
       },
       (answer) => {
-        res.writeHead(answer.statusCode, endToEnd(answer.headers))
+        const headers = endToEnd(answer.headers)
+        // A demo file keeps its name for life, so a browser keeps the file.
+        if (
+          answer.statusCode === 200 &&
+          req.url.startsWith('/sites/default/files/')
+        ) {
+          headers['cache-control'] = 'public, max-age=31536000, immutable'
+        }
+        res.writeHead(answer.statusCode, headers)
         answer.pipe(res)
       }
     )

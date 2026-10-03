@@ -20,7 +20,7 @@ $rule-faint: #f0e7d8;
 $ink: #241f1a;
 $ink-soft: #55504a;
 $ink-muted: #6b625a;
-$ink-faint: #776c5e; // 4.97:1 on $paper — was #8a7f70 at 3.80:1
+$ink-faint: #6f6454; // 5.40:1 on $paper, 4.97:1 on $paper-warm; was #776c5e at 4.44:1 on warm
 $ink-ghost: #6f6454; // 4.97:1 on $paper-warm, 5.40:1 on $paper
 $ink-ghost-dark: #b3a894; // for ghost text on the $ink band — 6.9:1
 
@@ -723,11 +723,18 @@ h4 {
     max-width: 230px;
   }
 
+  // The sort control and its count read as one line.
+  &__row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5625rem 1rem;
+  }
+
   &__count {
     color: $druxt-blue-ink;
     font-family: $mono;
     font-size: 0.75rem;
-    margin-left: auto;
   }
 
   .btn-sm {
@@ -763,6 +770,10 @@ h4 {
     font-size: 0.90625rem;
     margin: 0.5rem 0 0;
     max-width: 60ch;
+
+    code {
+      color: $druxt-blue-ink;
+    }
   }
   &__link {
     color: $druxt-blue-ink;
@@ -797,6 +808,15 @@ h4 {
   }
   .v {
     color: #e8b98f;
+  }
+  // Beside a note's prose: as tall as the card, the sample centred in it.
+  &--fill {
+    align-items: flex-start;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
   }
 }
 
@@ -863,13 +883,34 @@ h4 {
     .prompt {
       color: #9fd2a0;
     }
+
+    // The copy button, as druxtjs.org draws it over a code block: a shade
+    // lighter than the block, lighter again under the pointer, and green
+    // once it has copied. Wide enough for the longer label, so the swap to
+    // "Copied" moves nothing.
     button {
-      background: transparent;
-      border: 1px solid #3f5f78;
-      border-radius: 3px;
-      color: #8fbfe0;
+      background: #223443; // $druxt-code lifted 8% towards white
+      border: 1px solid rgb(255 255 255 / 0.15);
+      border-radius: 6px;
+      color: rgb(229 236 241 / 0.85);
       font-size: 0.6875rem;
-      padding: 3px 8px;
+      font-weight: 500;
+      line-height: 1.5;
+      min-width: 5.5em;
+      padding: 4px 10px;
+      text-align: center;
+      transition: background-color 150ms, border-color 150ms, color 150ms;
+
+      &:hover,
+      &:focus-visible {
+        background: #334352; // 15% towards white
+        color: #fff;
+      }
+
+      &[data-state='copied'] {
+        border-color: rgb(159 210 160 / 0.5);
+        color: #9fd2a0;
+      }
     }
   }
 }
@@ -1414,7 +1455,10 @@ html.druxt-inspector {
   width: 100%;
 
   // The main menu, at lg and up. Below that the drawer owns these links.
-  .nav-link {
+  // Bootstrap's navbar-light rule outranks a plain .nav-link and paints
+  // them half-black, 3.9:1 on paper, so this selector outweighs it.
+  .nav-link,
+  .navbar-nav .nav-item .nav-link {
     color: $ink-soft;
     font-size: 0.90625rem;
     font-weight: 500;
@@ -2657,10 +2701,17 @@ html.druxt-inspector {
       }
 
       button {
+        background: transparent;
         border: 0;
         color: $druxt-navy;
         font-size: 0.78125rem;
         padding: 0;
+
+        &:hover,
+        &:focus-visible {
+          background: transparent;
+          color: $druxt-blue;
+        }
       }
     }
   }
@@ -3350,6 +3401,29 @@ html.druxt-inspector {
     }
   }
 
+  // Beside each other from lg: the content holds the design's 640 measure
+  // and the settings take the column on its right, open and in reach while
+  // the page scrolls. Below lg the settings follow the content as a drawer.
+  &__layout {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    @media (min-width: 992px) {
+      align-items: start;
+      display: grid;
+      gap: 44px 64px;
+      grid-template-columns: minmax(0, 640px) minmax(240px, 1fr);
+    }
+  }
+
+  &__aside {
+    @media (min-width: 992px) {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+
   &__numbers {
     display: grid;
     gap: 12px;
@@ -3393,6 +3467,22 @@ html.druxt-inspector {
     flex-direction: column;
     gap: 14px;
     padding: 4px 0 20px;
+  }
+
+  // In its own column the drawer is a panel: framed, open, no rules.
+  @media (min-width: 992px) {
+    &__settings {
+      border: 1px solid $rule;
+      padding: 0 18px;
+
+      > summary {
+        pointer-events: none;
+
+        &::after {
+          display: none;
+        }
+      }
+    }
   }
 
   &__alert {
@@ -3992,12 +4082,6 @@ html.druxt-inspector {
   }
 }
 
-// A card fills its grid cell whatever its neighbours hold, so a row of cards
-// shares one bottom edge. DruxtEntity wraps each card in a div of its own.
-.card-cell > [data-fetch-key] {
-  height: 100%;
-}
-
 // The filter bar's sort control: a fixed-height select clips its text in
 // Safari, so the height comes from the line and the padding.
 .recipe-filters .custom-select {
@@ -4112,6 +4196,17 @@ html.druxt-inspector {
 }
 
 // Cards 2 / 3 / 4 across, the grid the design uses on every listing.
+// A listing cell fills its row, so a title that wraps does not leave its
+// card shorter than the rest.
+.card-cell {
+  display: flex;
+  flex-direction: column;
+
+  > * {
+    flex: 1 1 auto;
+  }
+}
+
 .card-grid {
   display: grid;
   gap: 12px;
@@ -4501,10 +4596,81 @@ button.masthead__account {
       color: #fff;
     }
   }
+  // The cross that throws the draft away: quiet until the pointer finds
+  // it, then red; it asks before it acts.
+  &__discard {
+    align-items: center;
+    background: transparent;
+    border: 1px solid $rule;
+    border-radius: 50%;
+    color: $ink-muted;
+    display: inline-flex;
+    font-size: 1.125rem;
+    height: 1.75rem;
+    justify-content: center;
+    margin-left: auto;
+    padding: 0;
+    width: 1.75rem;
+
+    &:hover,
+    &:focus-visible {
+      border-color: #a3361a;
+      color: #a3361a;
+    }
+  }
+
+  &__confirm {
+    align-items: center;
+    display: inline-flex;
+    font-size: 0.8125rem;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+
+  &__discard-yes,
+  &__discard-no {
+    background: transparent;
+    border: 1px solid $rule;
+    border-radius: 999px;
+    color: $ink-muted;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.7rem;
+
+    &:hover,
+    &:focus-visible {
+      border-color: $ink;
+      color: $ink;
+    }
+  }
+
+  &__discard-no {
+    border-color: $druxt-navy;
+    color: $druxt-navy;
+
+    &:hover,
+    &:focus-visible {
+      background: $druxt-navy;
+      border-color: $druxt-navy;
+      color: #fff;
+    }
+  }
+
+  &__discard-yes {
+    border-color: #a3361a;
+    color: #a3361a;
+
+    &:hover,
+    &:focus-visible {
+      background: #a3361a;
+      color: #fff;
+    }
+  }
+
   &__diff-toggle {
     background: transparent;
     border: 0;
-    color: $druxt-blue;
+    color: $druxt-blue-ink;
     font: inherit;
     font-size: 0.75rem;
     font-weight: 600;
@@ -4571,6 +4737,24 @@ del.v-diff-del--trailing {
   line-height: 1.6;
   margin-top: 0.75rem;
   padding: 0.5rem 0.625rem;
+}
+
+// A removed paragraph or bullet is struck as a block where it stood.
+del.v-diff-del--block {
+  display: block;
+  line-height: 1.6;
+  margin: 0.75rem 0;
+  padding: 0.5rem 0.625rem;
+}
+
+// A title's struck tail reads on from the words kept, not as a block below.
+h1 del.v-diff-del--trailing,
+h2 del.v-diff-del--trailing,
+h3 del.v-diff-del--trailing {
+  display: inline;
+  line-height: inherit;
+  margin: 0;
+  padding: 0 0.1em;
 }
 // A replaced photograph has no words to mark: the field is outlined and a
 // chip in its corner shows what it replaced.
