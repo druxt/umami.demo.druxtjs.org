@@ -44,7 +44,7 @@ const internalHosts = (env.REGENERATE_HOSTS || 'app,localhost,127.0.0.1')
 // The secret Drupal's purger sends; without one the endpoint is off.
 const cacheSecret = env.DRUXT_CACHE_SECRET || ''
 // Seconds without a further clear before the rebuild starts.
-const quietPeriod = (Number(env.DRUXT_CACHE_QUIET) || 10) * 1000
+const quietPeriod = (Number(env.DRUXT_CACHE_QUIET) || 3) * 1000
 const log = (message) => process.stdout.write(`start: ${message}\n`)
 
 const TYPES = {
@@ -238,14 +238,20 @@ const cycle = async () => {
     setPhase('waiting')
     await waitForDrupal(drupalUrl, log)
     setPhase('building')
+    // Always the same directory while it builds: GENERATE_DIR is read in
+    // nuxt.config.js, and Nuxt rebuilds webpack whenever such a value
+    // changes. A content change then only renders the pages again.
+    const next = path.join(rootDir, 'dist-next')
     const dir = path.join(rootDir, `dist-${Date.now()}`)
     const started = Date.now()
     try {
-      await generate(dir)
+      fs.rmSync(next, { recursive: true, force: true })
+      await generate(next)
+      fs.renameSync(next, dir)
     } catch (error) {
       setPhase('failed')
       log(`${error.message}; trying again in 30s`)
-      fs.rmSync(dir, { recursive: true, force: true })
+      fs.rmSync(next, { recursive: true, force: true })
       pending = true
       await new Promise((resolve) => setTimeout(resolve, 30000))
       continue
