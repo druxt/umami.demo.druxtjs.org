@@ -1,19 +1,23 @@
 <template>
-  <b-row>
-    <b-container class="mb-3 mt-3 mb-md-5 mt-md-5">
-      <b-row>
-        <slot name="results" :wrapper="column" />
+  <div class="band band--warm">
+    <b-container>
+      <span class="band__label">This week</span>
 
-        <component
-          :is="column.component"
-          :class="column.class"
-          v-bind="column.propsData"
-        >
-          <slot name="attachments_after" :wrapper="{ component: 'span' }" />
-        </component>
-      </b-row>
+      <!-- Image, kicker, headline. A snap scroller below md, with the next
+           card cut at the edge so it says swipe. Both wrappers are
+           display: contents, so every teaser is a direct item of the strip. -->
+      <div class="featured-strip">
+        <slot
+          name="results"
+          :wrapper="{ class: 'contents', component: 'div' }"
+        />
+        <slot
+          name="attachments_after"
+          :wrapper="{ class: 'contents', component: 'div' }"
+        />
+      </div>
     </b-container>
-  </b-row>
+  </div>
 </template>
 
 <script>
@@ -21,16 +25,5 @@ import { DruxtViewsViewMixin } from 'druxt-views'
 
 export default {
   mixins: [DruxtViewsViewMixin],
-
-  data: () => ({
-    column: {
-      component: 'b-col',
-      class: 'mb-3',
-      propsData: {
-        cols: 12,
-        lg: 6,
-      },
-    },
-  }),
 }
 </script>

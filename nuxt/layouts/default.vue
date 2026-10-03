@@ -1,118 +1,171 @@
 <template>
   <DruxtSite theme="umami">
     <template #default="{ props, regions }">
-      <b-container fluid>
-        <DruxtBlockRegion
+      <div>
+        <AppDemoBar />
+
+        <!-- The wrapper is what sticks: a sticky element can only stay
+             within its parent's box, and this parent is the page. -->
+        <AppDevRegion
           v-if="regions.includes('header')"
-          v-bind="props.header"
-          :wrapper="{
-            class: ['bg-white', 'p-3'],
-            component: 'b-navbar',
-            propsData: {
-              sticky: true,
-              toggleable: 'lg',
-            },
-          }"
-        />
+          class="masthead-sticky"
+          label='DruxtBlockRegion name="header"'
+          source="components/druxt/block-region/Header.vue"
+        >
+          <!-- toggleable: false — the phone menu is a drawer now, so the
+               navbar no longer owns a collapse. -->
+          <DruxtBlockRegion
+            v-bind="props.header"
+            :wrapper="{
+              class: ['masthead-wrapper'],
+              component: 'b-navbar',
+              propsData: { sticky: true, toggleable: false },
+            }"
+          />
+        </AppDevRegion>
 
-        <DruxtBlockRegion
+        <AppDevRegion
           v-if="regions.includes('banner_top')"
-          v-bind="props.banner_top"
-        />
+          label='DruxtBlockRegion name="banner_top"'
+          source="components/druxt/block-region/BannerTop.vue"
+        >
+          <DruxtBlockRegion v-bind="props.banner_top" />
+        </AppDevRegion>
 
-        <b-row class="bg-light">
-          <b-container :class="containerClass">
-            <b-row v-show="!isHomePath">
-              <b-col v-if="regions.includes('breadcrumbs')">
-                <DruxtBlockRegion v-bind="props.breadcrumbs" />
-              </b-col>
-            </b-row>
+        <!-- The one note in the editorial flow, and the front page is where
+             it earns its place: the bands above are Drupal's block layout. -->
+        <div v-if="isFront" class="band band--paper d-none d-md-block">
+          <b-container>
+            <AppDruxtNote
+              :code="blocksSnippet"
+              cta="Read the Blocks guide"
+              href="https://druxtjs.org/modules/blocks"
+              kicker="How this page works"
+              title="The blocks above are Drupal's block layout, placed by an editor"
+            >
+              Nothing here is hard-coded into the frontend. Druxt reads the
+              region and renders whichever blocks Drupal reports, so an editor
+              moving the promoted items block changes this page with no deploy.
+            </AppDruxtNote>
+          </b-container>
+        </div>
 
-            <b-row v-show="!isHomePath">
-              <b-col v-if="regions.includes('page_title')" class="mb-3 mb-md-5">
-                <DruxtBlockRegion v-bind="props.page_title" />
-              </b-col>
-            </b-row>
-
-            <slot v-if="$slots.default" />
+        <!-- v-if, not v-show: on the front page these should not be in the
+             DOM at all. isHomePath is false at /en/ because the router's home
+             path is /node, so the langcode roots are tested here too. -->
+        <!-- Drupal has no breadcrumb or title for a route it does not know,
+             so on a Nuxt-owned page this band would be an empty stripe. -->
+        <!-- A node draws its own head under its photograph; a term draws its
+             own band with the kicker and the count. -->
+        <div
+          v-if="!isFront && isDrupalRoute && !ownsHead"
+          class="band band--warm band--head"
+        >
+          <b-container>
             <DruxtBlockRegion
-              v-else-if="regions.includes('content')"
-              v-bind="props.content"
+              v-if="regions.includes('breadcrumbs')"
+              v-bind="props.breadcrumbs"
+            />
+            <DruxtBlockRegion
+              v-if="regions.includes('page_title')"
+              v-bind="props.page_title"
             />
           </b-container>
-        </b-row>
+        </div>
 
-        <b-row
-          v-if="regions.includes('content_bottom')"
-          class="bg-secondary text-white"
+        <!-- Every band is full-bleed with its own ground; the content inside
+             every band sits in the same b-container. See REPASS.md §2. -->
+        <AppDevRegion
+          label='DruxtBlockRegion name="content"'
+          source="layouts/default.vue"
         >
-          <b-container
-            :class="containerClass.concat(['text-center', 'text-md-left'])"
-          >
-            <DruxtBlockRegion v-bind="props.content_bottom" />
-          </b-container>
-        </b-row>
+          <!-- A page that draws its own head sits closer to the masthead. -->
+          <div class="band band--paper" :class="{ 'band--flush': ownsHead }">
+            <b-container>
+              <slot v-if="$slots.default" />
+              <DruxtBlockRegion
+                v-else-if="regions.includes('content')"
+                v-bind="props.content"
+              />
+            </b-container>
+          </div>
+        </AppDevRegion>
 
-        <b-row v-if="regions.includes('footer')" class="bg-dark text-white">
-          <b-container
-            :class="containerClass.concat(['text-center', 'text-md-left'])"
-          >
+        <!-- Each block in this region brings its own band: the region holds
+             the articles grid and the collection pills, on different
+             grounds. -->
+        <DruxtBlockRegion
+          v-if="regions.includes('content_bottom')"
+          v-bind="props.content_bottom"
+        />
+
+        <div
+          v-if="regions.includes('footer')"
+          class="band band--paper band--footer"
+        >
+          <b-container>
             <DruxtBlockRegion v-bind="props.footer" />
           </b-container>
-        </b-row>
+        </div>
 
-        <b-row v-if="regions.includes('bottom')">
-          <b-container
-            :class="containerClass.concat(['text-center', 'text-md-left'])"
-          >
+        <!-- The one unconditional piece of promotion in the page flow. -->
+        <AppDruxtCta />
+
+        <div v-if="regions.includes('bottom')" class="site-footer">
+          <b-container>
             <DruxtBlockRegion v-bind="props.bottom" />
           </b-container>
-        </b-row>
+        </div>
 
+        <AppMobileDrawer />
+
+        <!-- lazy, so only one DruxtSearchbar is mounted at a time: the
+             drawer holds the other one, and two mounted panels fought over
+             the autofocus. -->
         <b-sidebar
           id="search"
-          title="Search"
           backdrop
-          shadow
+          lazy
           no-close-on-route-change
+          no-header
           right
+          shadow
+          width="min(520px, 100vw)"
         >
           <DruxtSearchbar />
         </b-sidebar>
-      </b-container>
+      </div>
     </template>
   </DruxtSite>
 </template>
 
 <script>
-export default {
-  computed: {
-    containerClass: () => ['mb-3', 'mt-3', 'mb-md-5', 'mt-md-5'],
+const FRONT = /^\/(en|es)?\/?$/
 
-    isHomePath: ({ $store }) => !!$store.state.druxtRouter.route.isHomePath,
+const SNIPPET = [
+  "<span class='t'>DruxtBlockRegion</span>",
+  "  <span class='a'>name</span>=<span class='v'>\"banner_top\"</span>",
+  "  <span class='a'>theme</span>=<span class='v'>\"umami\"</span>",
+].join('\n')
+
+export default {
+  data: () => ({ blocksSnippet: SNIPPET }),
+
+  computed: {
+    /** The router resolved this path to something in Drupal. */
+    isDrupalRoute() {
+      return !!this.$store.state.druxtRouter.route.resolvedPath
+    },
+
+    ownsHead() {
+      const { entity } = this.$store.state.druxtRouter.route
+      return ['node', 'taxonomy_term'].includes((entity || {}).type)
+    },
+
+    isFront() {
+      const route = this.$store.state.druxtRouter.route
+      return !!route.isHomePath || FRONT.test(this.$route.path)
+    },
   },
 }
 </script>
-
-<style>
-html {
-  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 16px;
-  word-spacing: 1px;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  box-sizing: border-box;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-}
-
-.sticky-top {
-  margin: 0 -15px;
-}
-</style>
