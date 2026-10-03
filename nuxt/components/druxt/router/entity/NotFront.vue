@@ -4,6 +4,14 @@
          edited. The rendered view is always in the page, so it is there
          before any JavaScript runs; the form is built when it is asked for.
          A contact form has no edit mode, so it gets no bar. -->
+    <client-only>
+      <AppDraftBanner
+        v-if="editable"
+        :type="route.props.type"
+        :uuid="route.props.uuid"
+      />
+    </client-only>
+
     <div v-if="editable" class="page-tabs" role="tablist">
       <button
         v-for="tab of tabs"

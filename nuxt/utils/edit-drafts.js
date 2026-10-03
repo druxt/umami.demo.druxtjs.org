@@ -59,12 +59,32 @@ export function draftOf(original, model) {
   return { attributes, relationships, files: {}, before }
 }
 
+/**
+ * Text fields as the page renders them. Drupal sends `processed`, the
+ * filtered HTML the page shows, and an edit brings only `value`; the store
+ * merges the two and keeps the old `processed`. The edited value stands in
+ * for it until Drupal has filtered the saved text.
+ */
+export function renderable(attributes) {
+  const out = {}
+  for (const [name, value] of Object.entries(attributes || {})) {
+    out[name] =
+      value && typeof value === 'object' && typeof value.value === 'string'
+        ? { ...value, processed: value.value }
+        : value
+  }
+  return out
+}
+
 /** The entity with a draft laid over it. */
 export function withDraft(data, draft) {
   if (!draft || !data) return data
   return {
     ...data,
-    attributes: { ...(data.attributes || {}), ...(draft.attributes || {}) },
+    attributes: {
+      ...(data.attributes || {}),
+      ...renderable(draft.attributes || {}),
+    },
     relationships: {
       ...(data.relationships || {}),
       ...(draft.relationships || {}),

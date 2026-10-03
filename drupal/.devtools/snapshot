@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+#
+# Keep the fresh demo: the database and the files as they are right after
+# provisioning, so `.devtools/reset` can put them back in seconds.
+#
+# Written to the private files directory, which the web server never serves
+# and which Lagoon keeps on the shared files volume, where the php service
+# that answers the reset route can read it.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+DRUSH="$PWD/vendor/bin/drush"
+export PHP_INI_SCAN_DIR="$PWD/.devtools/etc:${PHP_INI_SCAN_DIR:-}"
+FILES="$PWD/web/sites/default/files"
+DIR="${DRUXT_RESET_DIR:-$FILES/private/druxt-reset}"
+
+mkdir -p "$DIR"
+# Drupal writes the same denial into a private directory it creates itself.
+printf 'Require all denied\nDeny from all\n' > "$FILES/private/.htaccess"
+
+echo "==> Snapshot of the database"
+DB="${DRUPAL_SQLITE_PATH:-$PWD/.devtools/db.sqlite}"
+# Drupal's own answer, not an environment variable: on Lagoon the database
+# URL is set only where the install runs.
+DRIVER=$("$DRUSH" php:eval 'echo \Drupal::database()->driver();')
+case "$DRIVER" in
+  sqlite)
+    # The file itself. A dump cannot come back through the sqlite3 tool,
+    # which lacks the NOCASE_UTF8 collation Drupal's driver registers.
+    # In-process, through Drupal's own connection: drush sql:query wants the
+    # sqlite3 binary, which CI does not have.
+    "$DRUSH" php:eval '\Drupal::database()->query("PRAGMA wal_checkpoint(TRUNCATE)");' >/dev/null
+    cp "$DB" "$DIR/database.sqlite"
+    rm -f "$DIR/database.sql"
+    ;;
+  *)
+    # --no-tablespaces: MariaDB refuses the dump without the PROCESS privilege.
+    "$DRUSH" sql:dump --result-file="$DIR/database.sql" --extra-dump=--no-tablespaces >/dev/null
+    rm -f "$DIR/database.sqlite"
+    ;;
+esac
+
+echo "==> Snapshot of the files"
+# The generated directories come back on their own; the private directory
+# holds this snapshot.
+tar -C "$FILES" -czf "$DIR/files.tgz" \
+  --exclude=./private --exclude=./php --exclude=./css --exclude=./js \
+  --exclude=./styles --exclude=./.provisioning .
+
+date -u +%Y-%m-%dT%H:%M:%SZ > "$DIR/taken"
+echo "==> Snapshot in $DIR ($(du -sh "$DIR" | cut -f1))"

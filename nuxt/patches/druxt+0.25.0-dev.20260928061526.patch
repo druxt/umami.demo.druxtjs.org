@@ -1,0 +1,52 @@
+diff --git a/node_modules/druxt/dist/druxt.esm.js b/node_modules/druxt/dist/druxt.esm.js
+index 849fa49..6649db5 100644
+--- a/node_modules/druxt/dist/druxt.esm.js
++++ b/node_modules/druxt/dist/druxt.esm.js
+@@ -391,7 +391,9 @@ class DruxtClient {
+     }
+     let { href } = await this.getIndex(type, prefix);
+     if (!href) {
+-      href = this.options.endpoint + "/" + type.replace("--", "/");
++      // A resource the index does not list, such as a view, still belongs
++      // to the language the prefix names.
++      href = [prefix, this.options.endpoint].join("").replace(/^\/*/, "/") + "/" + type.replace("--", "/");
+     }
+     const url = this.buildQueryUrl(`${href}/${id}/${related}`, query);
+     const { data } = await this.get(url);
+@@ -403,7 +405,9 @@ class DruxtClient {
+     }
+     let { href } = await this.getIndex(type, prefix);
+     if (!href) {
+-      href = this.options.endpoint + "/" + type.replace("--", "/");
++      // A resource the index does not list, such as a view, still belongs
++      // to the language the prefix names.
++      href = [prefix, this.options.endpoint].join("").replace(/^\/*/, "/") + "/" + type.replace("--", "/");
+     }
+     const url = this.buildQueryUrl([href, id].join("/"), query);
+     const { data } = await this.get(url);
+diff --git a/node_modules/druxt/dist/druxt.ssr.js b/node_modules/druxt/dist/druxt.ssr.js
+index 0633a3e..169970b 100644
+--- a/node_modules/druxt/dist/druxt.ssr.js
++++ b/node_modules/druxt/dist/druxt.ssr.js
+@@ -404,7 +404,9 @@ class DruxtClient {
+     }
+     let { href } = await this.getIndex(type, prefix);
+     if (!href) {
+-      href = this.options.endpoint + "/" + type.replace("--", "/");
++      // A resource the index does not list, such as a view, still belongs
++      // to the language the prefix names.
++      href = [prefix, this.options.endpoint].join("").replace(/^\/*/, "/") + "/" + type.replace("--", "/");
+     }
+     const url = this.buildQueryUrl(`${href}/${id}/${related}`, query);
+     const { data } = await this.get(url);
+@@ -416,7 +418,9 @@ class DruxtClient {
+     }
+     let { href } = await this.getIndex(type, prefix);
+     if (!href) {
+-      href = this.options.endpoint + "/" + type.replace("--", "/");
++      // A resource the index does not list, such as a view, still belongs
++      // to the language the prefix names.
++      href = [prefix, this.options.endpoint].join("").replace(/^\/*/, "/") + "/" + type.replace("--", "/");
+     }
+     const url = this.buildQueryUrl([href, id].join("/"), query);
+     const { data } = await this.get(url);

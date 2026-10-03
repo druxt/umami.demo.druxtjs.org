@@ -7,7 +7,7 @@ const https = require('https')
 
 // Paths Drupal answers, with or without a language prefix.
 const DRUPAL_PATH =
-  /^\/(?:(?:en|es)\/)?(?:jsonapi|router\/translate-path|js-search|oauth|sites\/default\/files|core)(?:[/?]|$)/
+  /^\/(?:(?:en|es)\/)?(?:jsonapi|router\/translate-path|js-search|oauth|sites\/default\/files|core|druxt-umami)(?:[/?]|$)/
 
 /**
  * Whether a request path belongs to Drupal.

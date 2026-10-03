@@ -4,7 +4,11 @@
     <div class="term-head bleed">
       <b-container class="term-head__inner">
         <DruxtBreadcrumb />
-        <h1 class="term-head__title">{{ entity.attributes.title }}</h1>
+        <h1
+          v-draft-diff="'title'"
+          class="term-head__title"
+          v-text="entity.attributes.title"
+        />
       </b-container>
     </div>
 

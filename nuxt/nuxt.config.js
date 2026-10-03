@@ -66,6 +66,8 @@ export default {
     { src: '~/plugins/druxt-inspector.client.js' },
     // Keeps and previews an editor's unsaved changes.
     { src: '~/plugins/edit-drafts.client.js' },
+    // Marks a draft's changes in the page, word by word.
+    { src: '~/plugins/draft-marks.client.js' },
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
@@ -110,6 +112,11 @@ export default {
     [
       '@nuxtjs/lunr-module',
       {
+        // A path of its own per build: the index carries no hash, and a
+        // browser that once cached a page in its place keeps it for a year.
+        path: `search-index-${Date.now().toString(36)}`,
+        // An index per language, stemmed for it.
+        languages: ['en', 'es'],
         fields: [
           'title',
           'body',
@@ -120,6 +127,8 @@ export default {
     ],
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
+    // The word diff behind the marks on a drafted page.
+    '@druxt-contrib/diff',
     '~/modules/storybook-proxy',
     // Editors sign in on the site: the password grant through the Druxt
     // consumer, with the authorization code flow kept for a browser sent to
@@ -217,6 +226,8 @@ export default {
     '/en/jsonapi': baseUrl,
     '/es/jsonapi': baseUrl,
     '/core/assets': baseUrl,
+    // The demo's reset route, druxt_umami's, called with the editor's token.
+    '/druxt-umami': baseUrl,
   },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
