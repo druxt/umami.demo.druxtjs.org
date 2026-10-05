@@ -27,16 +27,25 @@
           {{ $t(tab.label) }}
         </button>
       </div>
-      <!-- The frontend's Edit tab, and beside it Drupal's own screens for
-           the same node, for an editor. -->
+      <!-- Who else has the page open, live; then, for an editor, Drupal's
+           own screens for the same node. -->
       <client-only>
-        <AppDrupalLinks
-          v-if="signedIn"
-          :label="route.label || ''"
-          :langcode="(route.entity || {}).langcode || route.props.langcode"
-          :type="route.props.type"
-          :uuid="route.props.uuid"
-        />
+        <div class="page-tabs__aside">
+          <AppPresence
+            :channel="`page:${$route.path}`"
+            :role="mode === 'edit' ? 'editor' : 'reader'"
+            :type="route.props.type"
+            :uuid="route.props.uuid"
+            :compact="signedIn"
+          />
+          <AppDrupalLinks
+            v-if="signedIn"
+            :label="route.label || ''"
+            :langcode="(route.entity || {}).langcode || route.props.langcode"
+            :type="route.props.type"
+            :uuid="route.props.uuid"
+          />
+        </div>
       </client-only>
     </div>
 

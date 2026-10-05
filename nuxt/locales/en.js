@@ -440,4 +440,27 @@ export default {
     nextRound: 'Next round',
     playAgain: 'Play again at this table',
   },
+  live: {
+    cooking: '{n} cooking this now',
+    justYou: 'Just you here',
+    reading: '{n} reading',
+    editing: 'Being edited by an editor',
+    updated: 'Updated from Drupal just now',
+    whoIsHere: 'Who has this page open',
+    you: 'You',
+    // A changed field named in the save's pill, where the page shows it
+    // without Drupal's own label.
+    fields: {
+      title: 'title',
+      field_preparation_time: 'prep time',
+      field_cooking_time: 'cooking time',
+      field_number_of_servings: 'servings',
+      field_difficulty: 'difficulty',
+      field_ingredients: 'ingredients',
+      field_recipe_instruction: 'method',
+      field_summary: 'summary',
+      field_media_image: 'photograph',
+      body: 'text',
+    },
+  },
 }

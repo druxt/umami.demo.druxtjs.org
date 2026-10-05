@@ -4296,6 +4296,25 @@ html.druxt-inspector {
     display: flex;
     gap: 4px;
   }
+
+  // The row's far end: who else is here, then Drupal's menu for an editor.
+  &__aside {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+
+    .drupal-links {
+      margin-left: 0;
+      padding-left: 0.75rem;
+      border-left: 1px solid $rule;
+    }
+
+    .presence:empty + .drupal-links {
+      padding-left: 0;
+      border-left: 0;
+    }
+  }
 }
 
 // Drupal's own screens for the node, at the tab bar's far end: the
@@ -6627,5 +6646,147 @@ $go-kinds: (
 
   .go-hand.is-passing li {
     animation: none;
+  }
+}
+
+// ---------------------------------------------------------------- presence
+// Who else has a node page open, at tab-label size on the tab row. Druxt
+// navy appears once, on the pill that says Drupal's save has arrived.
+
+.presence {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: $ink;
+  font-size: 0.8125rem;
+
+  @media (min-width: $go-lg) {
+    font-size: 0.875rem;
+  }
+
+  &__readers {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__faces {
+    display: flex;
+    align-items: center;
+    min-height: $tap;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  &__face {
+    box-shadow: 0 0 0 2px $paper;
+    font-size: calc(var(--go-avatar) * 0.3);
+    letter-spacing: 0;
+
+    & + & {
+      margin-left: -7px;
+    }
+  }
+
+  &__more {
+    margin-left: 4px;
+    color: $ink-muted;
+    font-size: 0.75rem;
+  }
+
+  &__count {
+    white-space: nowrap;
+  }
+
+  &__names {
+    position: absolute;
+    z-index: 20;
+    top: 100%;
+    right: 0;
+    min-width: 13rem;
+    margin: 0;
+    padding: 0.25rem 0;
+    border: 1px solid $rule;
+    background: $paper;
+    box-shadow: 0 8px 24px rgb(36 31 26 / 12%);
+    list-style: none;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      min-height: $tap;
+      padding: 0 0.9rem;
+    }
+  }
+
+  &__editor {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $spice;
+    white-space: nowrap;
+  }
+
+  &__editor-ring {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1.5px dashed $spice;
+    border-radius: 50%;
+    font-size: 0.625rem;
+    font-weight: 700;
+  }
+
+  &__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 32px;
+    padding: 0 0.9rem;
+    border-radius: 999px;
+    background: $druxt-navy;
+    color: $paper;
+    font-weight: 500;
+    white-space: nowrap;
+    animation: go-fade 200ms ease-out both;
+  }
+
+  &__pill-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #8fbfe0;
+  }
+
+  &__pill-field {
+    color: #bcd7ea;
+    font-size: 0.8125rem;
+  }
+
+  // Beside the Drupal menu on a phone: the faces and a number.
+  &--compact &__more {
+    display: none;
+  }
+}
+
+// A field Drupal's save just changed: a warm wash for as long as the pill.
+.is-fresh {
+  background: $paper-warm;
+  transition: background-color 0.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .presence__pill {
+    animation: none;
+  }
+
+  .is-fresh {
+    transition: none;
   }
 }
