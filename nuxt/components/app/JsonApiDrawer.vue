@@ -77,21 +77,33 @@ export default {
     url: ({ $config, path }) => $config.baseUrl + path,
   },
 
+  watch: {
+    // A reused drawer starts again for the new path.
+    path() {
+      this.response = null
+      this.loading = false
+      this.error = ''
+    },
+  },
+
   methods: {
     /** Fetched once, on the first open, through the same proxy the page uses. */
     async load() {
       if (this.response || this.loading) return
+      const path = this.path
       this.loading = true
       try {
-        const { data } = await this.$druxt.axios.get(this.path, {
+        const { data } = await this.$druxt.axios.get(path, {
           headers: { Accept: 'application/vnd.api+json' },
         })
-        this.response = data
+        if (path === this.path) this.response = data
       } catch (e) {
-        this.error =
-          'The response could not be loaded here; open the raw response instead.'
+        if (path === this.path)
+          this.error =
+            'The response could not be loaded here; open the raw response instead.'
+      } finally {
+        if (path === this.path) this.loading = false
       }
-      this.loading = false
     },
   },
 }

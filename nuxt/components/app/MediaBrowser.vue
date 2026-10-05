@@ -129,6 +129,8 @@ export default {
 
     /** One page of the library, appended when `offset` is given. */
     async load(offset = 0) {
+      // Only the latest request may fill the list or end the loading state.
+      const request = (this.request = (this.request || 0) + 1)
       this.loading = true
       this.error = ''
       const [entity, bundle] = this.type.split('--')
@@ -150,7 +152,7 @@ export default {
           `/en/jsonapi/${entity}/${bundle}?${params}`,
           { headers: { Accept: 'application/vnd.api+json' } }
         )
-        if (this.query.trim() !== q) return
+        if (request !== this.request) return
         const doc = response.data || {}
         const files = Object.fromEntries(
           (doc.included || []).map((o) => [o.id, o.attributes.uri.url])
@@ -168,9 +170,11 @@ export default {
         this.items = offset ? [...this.items, ...page] : page
         this.more = !!((doc.links || {}).next || {}).href
       } catch (e) {
-        this.error = 'The library could not be read.'
+        if (request === this.request)
+          this.error = 'The library could not be read.'
+      } finally {
+        if (request === this.request) this.loading = false
       }
-      this.loading = false
     },
 
     choose(item) {

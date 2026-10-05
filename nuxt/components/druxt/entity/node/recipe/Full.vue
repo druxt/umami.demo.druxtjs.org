@@ -78,15 +78,17 @@ export default {
     stats: ({ entity }) => {
       const a = entity.attributes
       const level = a.field_difficulty || ''
+      const minutes = (n) => (n || n === 0 ? `${n} min` : '')
+      // A recipe without a value shows no stat rather than "undefined min".
       return [
-        { label: 'Prep', value: `${a.field_preparation_time} min` },
-        { label: 'Cook', value: `${a.field_cooking_time} min` },
+        { label: 'Prep', value: minutes(a.field_preparation_time) },
+        { label: 'Cook', value: minutes(a.field_cooking_time) },
         { label: 'Serves', value: a.field_number_of_servings },
         {
           label: 'Difficulty',
           value: level.charAt(0).toUpperCase() + level.slice(1),
         },
-      ]
+      ].filter(({ value }) => value || value === 0)
     },
 
     jsonApiPath: ({ entity }) =>
