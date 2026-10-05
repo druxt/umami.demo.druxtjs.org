@@ -14,6 +14,10 @@ The demo is a site without releases, so changes are grouped by date.
 - The whole demo runs in one Lagoon environment, `main`, which does not idle.
 - The site builds when its container starts, against its own Drupal.
 - An editorial theme, and demo tools that show how each page is built.
+- Umami Go at `/play`, a card game for two to five dealt from the magazine's
+  recipes over the live WebSocket: a table to start or join by code or QR
+  code, simultaneous picks with a swap, three scored rounds, and a Play link
+  in the main menu.
 - Open pages refresh what a content change touches as soon as Drupal purges,
   over a WebSocket through `@druxt-contrib/sockets`, vendored, ahead of the
   rebuild.

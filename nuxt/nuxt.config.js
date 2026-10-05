@@ -202,6 +202,8 @@ export default {
 
   sockets: {
     path: '/_live',
+    // Umami Go tables, beside the live updates every page gets.
+    handlers: '~/server/live/handlers.js',
   },
 
   auth: {

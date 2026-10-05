@@ -222,7 +222,8 @@ function druxt_umami_install() {
   // so the footer's Magazine column had nothing to list.
   $links = [
     // Articles is 20 and Recipes is 30 in the view's own menu settings, so
-    // these two sit after them.
+    // these sit after them. Play is the frontend's own page, not Drupal's.
+    ['title' => 'Play', 'es' => 'Jugar', 'uri' => 'internal:/play', 'menu' => 'main', 'weight' => 35],
     ['title' => 'About', 'es' => 'Acerca de', 'uri' => 'internal:/about-umami', 'menu' => 'main', 'weight' => 40],
     ['title' => 'Contact', 'es' => 'Contacto', 'uri' => 'internal:/contact', 'menu' => 'main', 'weight' => 41],
     ['title' => 'Home', 'es' => 'Inicio', 'uri' => 'internal:/', 'menu' => 'footer', 'weight' => 0],

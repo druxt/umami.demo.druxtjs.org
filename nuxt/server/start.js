@@ -24,6 +24,7 @@ const { attachSockets } = require('@druxt-contrib/sockets/server')
 const { createServerMiddleware } = require('druxt-auth/server')
 const { createProxyMiddleware } = require('http-proxy-middleware')
 const { createDrupalProxy, isDrupalPath, waitForDrupal } = require('./drupal')
+const liveHandlers = require('./live/handlers')
 const { createStartingHandler } = require('./starting')
 
 const rootDir = path.join(__dirname, '..')
@@ -96,6 +97,9 @@ const resolveFile = (pathname) => {
   return path.join(distDir, '200.html')
 }
 
+/** Pages only the browser renders: an Umami Go table, `/play/K7QF`. */
+const APP_ONLY = /^\/play\/[A-Z0-9]{4}$/
+
 const serveStatic = (req, res) => {
   const { pathname } = new URL(req.url, 'http://localhost')
   // English is prefixed, so the front page is /en and "/" is not a page.
@@ -147,7 +151,9 @@ const serveStatic = (req, res) => {
   }
   // A path with no generated page still gets the app, which renders what it
   // can, but as a 404: a dead link or stale redirect must not read as a page.
-  res.writeHead(file.endsWith('200.html') ? 404 : 200, headers)
+  // A game's own address is a page the app renders, never generated ahead.
+  const appOnly = APP_ONLY.test(decoded)
+  res.writeHead(file.endsWith('200.html') && !appOnly ? 404 : 200, headers)
   // A build swapped out mid-request loses its files: pipeline ends the
   // response, and a compressor's error with it, rather than crash.
   pipeline(...steps, res, () => {})
@@ -389,7 +395,12 @@ const server = http.createServer((req, res) => {
 })
 
 // Live updates on /_live: open pages refresh when Drupal purges.
-const live = attachSockets(server, { path: '/_live', drupalUrl, log })
+const live = attachSockets(server, {
+  path: '/_live',
+  drupalUrl,
+  handlers: liveHandlers({ drupalUrl, log }),
+  log,
+})
 
 const main = async () => {
   // Builds left by an earlier run are never served again.
