@@ -103,3 +103,6 @@ sw.*
 
 # Dev container service logs
 .devcontainer/logs/
+
+# Vendored packages carry their built dist.
+!nuxt/vendor/*/dist/

@@ -21,6 +21,18 @@
       "enabled": false
     },
     {
+      "description": "The druxt.js dev snapshot is pinned by hand. Only dev versions are held, so updates resume once 0.25.0 is published.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "druxt",
+        "druxt-site"
+      ],
+      "enabled": false,
+      "matchCurrentVersion": "/-dev\\./"
+    },
+    {
       "description": "Majors need a human. An automated major lands a breaking change on a branch nobody chose to upgrade.",
       "matchUpdateTypes": [
         "major"

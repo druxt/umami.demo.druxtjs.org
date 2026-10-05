@@ -1,5 +1,10 @@
 <template>
-  <component :is="wrapper.component" v-bind="wrapper.props">
+  <!-- A form field with no widget, such as a computed one, has nothing to edit. -->
+  <component
+    :is="wrapper.component"
+    v-if="!(isSchemaForm && !schema.type)"
+    v-bind="wrapper.props"
+  >
     <!-- Image fields. -->
     <template v-if="isSchemaView && isTypeImage">
       <DruxtEntity
@@ -7,8 +12,13 @@
         :key="id"
         v-bind="{ type, uuid: id }"
       >
+        <!-- A plain image with native lazy loading: it is in the page
+             before JavaScript runs, and the browser decides when to fetch. -->
         <template #default="{ entity }">
-          <b-card-img-lazy
+          <img
+            alt=""
+            class="card-img"
+            loading="lazy"
             :src="
               $config.baseUrl +
               entity.attributes.uri.value.replace(
@@ -78,7 +88,12 @@
       <b-form-checkbox v-if="isTypeCheckbox" v-model="model" v-bind="props" />
 
       <!-- Input fields -->
-      <b-input v-else-if="isTypeInput" v-model="model" v-bind="props" />
+      <b-input
+        v-else-if="isTypeInput"
+        v-model="model"
+        :type="inputType"
+        v-bind="props"
+      />
 
       <!-- Textarea -->
       <b-textarea
@@ -130,7 +145,15 @@ export default {
     isTypeCheckbox: ({ schema }) => ['boolean_checkbox'].includes(schema.type),
     isTypeLink: ({ schema }) => ['link'].includes(schema.type),
     isTypeImage: ({ schema }) => ['responsive_image'].includes(schema.type),
-    isTypeInput: ({ schema }) => ['string_textfield'].includes(schema.type),
+    // Anything not listed here renders as a textarea, which is how the
+    // contact form's email field became a five-line box.
+    isTypeInput: ({ schema }) =>
+      ['email_default', 'string_textfield', 'telephone_default'].includes(
+        schema.type
+      ),
+    inputType: ({ schema }) =>
+      ({ email_default: 'email', telephone_default: 'tel' }[schema.type] ||
+      'text'),
 
     label: ({ schema }) =>
       ((string) => string.charAt(0).toUpperCase() + string.slice(1))(

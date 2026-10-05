@@ -1,68 +1,70 @@
 <template>
-  <article>
-    <b-row class="mb-4">
-      <!-- Recipe category. -->
-      <b-col sm="4">
-        <slot name="field_recipe_category" />
-      </b-col>
-
-      <!-- Tags. -->
-      <b-col>
-        <slot name="field_tags" />
-      </b-col>
-    </b-row>
-
-    <!-- Summary. -->
-    <b-row class="mb-3">
-      <b-col>
-        <slot name="field_summary" />
-      </b-col>
-    </b-row>
-
-    <b-row class="mb-3">
-      <!-- Image. -->
-      <b-col lg="6">
+  <article class="recipe-page">
+    <!-- The photograph leads at every width. At lg the title sits on it. -->
+    <div class="recipe-hero bleed">
+      <div class="node-hero node-hero--recipe">
         <slot name="field_media_image" />
-      </b-col>
+      </div>
+      <div class="recipe-hero__scrim" />
+      <b-container class="node-head recipe-hero__head">
+        <DruxtBreadcrumb />
+        <h1 class="node-head__title">{{ entity.attributes.title }}</h1>
+        <div class="node-head__summary field--field-summary">
+          <slot name="field_summary" />
+        </div>
+      </b-container>
+    </div>
 
-      <b-col class="my-4">
-        <b-row class="h-50 mb-3">
-          <!-- Preparation time. -->
-          <b-col cols="6" class="my-auto text-center">
-            <slot name="field_preparation_time" />
-          </b-col>
+    <dl class="stat-grid bleed">
+      <div v-for="stat of stats" :key="stat.label" class="stat-grid__cell">
+        <dt class="stat-grid__label">{{ stat.label }}</dt>
+        <dd class="stat-grid__value">{{ stat.value }}</dd>
+      </div>
+    </dl>
 
-          <!-- Preparation time. -->
-          <b-col cols="6" class="my-auto text-center">
-            <slot name="field_cooking_time" />
-          </b-col>
-        </b-row>
-
-        <b-row class="h-50 mb-3">
-          <!-- Number of servings. -->
-          <b-col cols="6" class="my-auto text-center">
-            <slot name="field_number_of_servings" />
-          </b-col>
-
-          <!-- Difficulty. -->
-          <b-col cols="6" class="my-auto text-center">
-            <slot name="field_difficulty" :icon="true" />
-          </b-col>
-        </b-row>
-      </b-col>
-    </b-row>
-
-    <b-row class="my-3">
-      <!-- Ingredients. -->
-      <b-col md="4" class="mb-3">
+    <!-- Ingredients first, then the method; side by side from md. -->
+    <div class="recipe-body">
+      <section class="recipe-ingredients">
+        <h2 class="recipe-body__heading">Ingredients</h2>
         <slot name="field_ingredients" />
-      </b-col>
+      </section>
 
-      <!-- Recipe instruction. -->
-      <b-col class="mb-3">
+      <section class="recipe-method">
+        <h2 class="recipe-body__heading">Method</h2>
         <slot name="field_recipe_instruction" />
-      </b-col>
-    </b-row>
+
+        <div class="recipe-tags">
+          <slot name="field_recipe_category" />
+          <slot name="field_tags" />
+        </div>
+      </section>
+    </div>
+
+    <!-- The learning layer follows the recipe: the view modes on one side,
+         the request and the note on the other from lg. Editing is the
+         page's Edit tab. -->
+    <div class="learn-grid">
+      <AppViewModeSwitcher
+        :modes="['card', 'teaser']"
+        :type="entity.type"
+        :uuid="entity.id"
+      />
+
+      <div class="learn-grid__aside">
+        <AppJsonApiDrawer :path="jsonApiPath" />
+
+        <AppDruxtNote
+          title="One component file renders every recipe on this site"
+          cta="Read the Entity guide"
+          href="https://druxtjs.org/modules/entity"
+          :code="code"
+        >
+          Drupal's <em>full</em> display mode maps to this file. Change the
+          layout here and all 24 recipes follow. The field templates, labels and
+          formatters still come from Drupal's display config.
+        </AppDruxtNote>
+      </div>
+    </div>
   </article>
 </template>
 
@@ -71,5 +73,43 @@ import { DruxtEntityMixin } from 'druxt-entity'
 
 export default {
   mixins: [DruxtEntityMixin],
+
+  computed: {
+    stats: ({ entity }) => {
+      const a = entity.attributes
+      const level = a.field_difficulty || ''
+      const minutes = (n) => (n || n === 0 ? `${n} min` : '')
+      // A recipe without a value shows no stat rather than "undefined min".
+      return [
+        { label: 'Prep', value: minutes(a.field_preparation_time) },
+        { label: 'Cook', value: minutes(a.field_cooking_time) },
+        { label: 'Serves', value: a.field_number_of_servings },
+        {
+          label: 'Difficulty',
+          value: level.charAt(0).toUpperCase() + level.slice(1),
+        },
+      ].filter(({ value }) => value || value === 0)
+    },
+
+    jsonApiPath: ({ entity }) =>
+      `/en/jsonapi/node/recipe/${entity.id}?include=field_media_image.field_media_image`,
+
+    code: () =>
+      [
+        '<span class="t">&lt;DruxtEntity</span>',
+        '  <span class="a">type</span>=<span class="v">"node--recipe"</span>',
+        '  <span class="a">mode</span>=<span class="v">"full"</span>',
+        '  <span class="a">:uuid</span>=<span class="v">"uuid"</span>',
+        '<span class="t">/&gt;</span>',
+      ].join('\n'),
+  },
+
+  // The display carries no title: the page title block does, and this
+  // template draws its own.
+  druxt: {
+    query: {
+      fields: ['title'],
+    },
+  },
 }
 </script>

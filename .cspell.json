@@ -1,9 +1,20 @@
 {
-  "files": ["**/*.{js,vue,json,md,yml,yaml}"],
-  "dictionaryDefinitions": [
-    { "name": "project-words", "path": "./.cspell-project-words.txt" }
+  "files": [
+    "**/*.{js,vue,json,md,yml,yaml}"
   ],
-  "dictionaries": ["project-words", "bash", "misc", "node", "softwareTerms"],
+  "dictionaryDefinitions": [
+    {
+      "name": "project-words",
+      "path": "./.cspell-project-words.txt"
+    }
+  ],
+  "dictionaries": [
+    "project-words",
+    "bash",
+    "misc",
+    "node",
+    "softwareTerms"
+  ],
   "ignorePaths": [
     ".git/",
     "node_modules/",
@@ -14,6 +25,7 @@
     "nuxt/dist-*/",
     "nuxt/storybook-static/",
     "nuxt/modules/templates/",
+    "nuxt/vendor/",
     "drupal/",
     "**/CHANGELOG.md",
     "*.lock",
