@@ -21,14 +21,29 @@ export default {
 
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
-    title: 'demo.druxtjs.org',
+    title: 'Umami — a decoupled food magazine, built with DruxtJS',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' },
+      {
+        hid: 'description',
+        name: 'description',
+        content:
+          'A demonstration food magazine: Drupal Umami content rendered by Nuxt with DruxtJS.',
+      },
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+      {
+        rel: 'preconnect',
+        href: 'https://fonts.gstatic.com',
+        crossorigin: true,
+      },
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap',
+      },
       {
         rel: 'stylesheet',
         href: 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css',
@@ -37,13 +52,19 @@ export default {
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
-  css: [],
+  // The editorial theme layer. Requires `sass` + `sass-loader` as devDeps.
+  css: ['~/assets/scss/theme.scss'],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [{ src: '~/plugins/vuex-persistedstate.client.js' }],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
-  components: true,
+  // `~/components/app` is flattened so the promo components are usable as
+  // <AppDemoBar />, <AppDruxtNote />, <AppDevRegion /> and so on.
+  components: [
+    '~/components',
+    { path: '~/components/app', prefix: 'App', pathPrefix: false },
+  ],
 
   // Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
   buildModules: [
@@ -62,6 +83,8 @@ export default {
     ],
     // DruxtJS Site.
     'druxt-site',
+    // Drupal's own CKEditor 5, mounted on the edit form's text fields.
+    '@druxt-contrib/ckeditor',
   ],
 
   publicRuntimeConfig: {
@@ -164,6 +187,13 @@ export default {
       api: process.env.API_PROXY === '1',
     },
 
+    // The editor's scripts and the pictures in a body come through the
+    // site's own origin, which proxies Drupal's core and files paths.
+    ckeditor: {
+      scripts: '/core/assets/vendor/ckeditor5',
+      files: { from: '/sites/default/files/', to: '/sites/default/files/' },
+    },
+
     // Druxt Router module settings.
     router: {
       // Disable middleware/redirect support.
@@ -180,13 +210,7 @@ export default {
   proxy: {
     '/en/jsonapi': baseUrl,
     '/es/jsonapi': baseUrl,
-  },
-
-  // Serve from a subdirectory when previewing. GitLab Pages publishes each
-  // branch under /<project>/<branch-slug>/, and without this every /_nuxt/
-  // asset resolves to the domain root and 404s. Unset in production.
-  router: {
-    base: process.env.ROUTER_BASE || '/',
+    '/core/assets': baseUrl,
   },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)

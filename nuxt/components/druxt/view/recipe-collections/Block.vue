@@ -1,20 +1,30 @@
 <template>
-  <b-row>
-    <b-col class="text-center" cols="12">
-      <h2>Recipe collections</h2>
-    </b-col>
+  <div class="band band--warm collections">
+    <b-container>
+      <b-row class="align-items-center">
+        <b-col cols="12" md="4">
+          <h2 class="mb-0">Recipe collections</h2>
+        </b-col>
 
-    <b-col v-for="result of results" :key="result.id" class="p-2" md="3">
-      <b-link
-        class="font-weight-bold text-white"
-        component="strong"
-        nuxt
-        :to="`/en${(result.attributes.path || {}).alias}`"
-      >
-        {{ result.attributes.name }}
-      </b-link>
-    </b-col>
-  </b-row>
+        <b-col class="mt-3 mt-md-0" cols="12" md="8">
+          <div class="collections__list">
+            <b-link
+              v-for="result of results"
+              :key="result.id"
+              class="collections__link"
+              nuxt
+              :to="`/en${(result.attributes.path || {}).alias}`"
+            >
+              {{ result.attributes.name }}
+            </b-link>
+            <b-link class="collections__more" nuxt to="/en/recipes">
+              More →
+            </b-link>
+          </div>
+        </b-col>
+      </b-row>
+    </b-container>
+  </div>
 </template>
 
 <script>

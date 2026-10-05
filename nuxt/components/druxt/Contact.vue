@@ -24,9 +24,10 @@ export default {
 
   methods: {
     getScopedSlots() {
+      // The form component carries the page's heading, so the contact form's
+      // own label would be a third title under the page title.
       return {
         default: () => [
-          this.$createElement('h2', [this.entity.attributes.label]),
           this.$createElement('DruxtEntityForm', {
             props: { type: this.resourceType },
           }),

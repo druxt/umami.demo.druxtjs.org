@@ -6,6 +6,9 @@
  */
 
 use Drupal\consumers\Entity\Consumer;
+use Drupal\contact\Entity\ContactForm;
+use Drupal\Core\Field\Entity\BaseFieldOverride;
+use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\user\RoleInterface;
 
 /**
@@ -29,6 +32,16 @@ function druxt_umami_install() {
 
   // JSON:API settings.
   \Drupal::service('config.factory')->getEditable('jsonapi.settings')->set('read_only', FALSE)->save();
+
+  // The edit form's editor reads each text format's toolbar and filters.
+  $druxt = \Drupal::service('config.factory')->getEditable('druxt.settings');
+  $resources = $druxt->get('resources') ?: [];
+  foreach (['editor--editor', 'filter_format--filter_format'] as $resource) {
+    if (!in_array($resource, $resources, TRUE)) {
+      $resources[] = $resource;
+    }
+  }
+  $druxt->set('resources', $resources)->save();
 
   // Remove the taxonomy term view displays druxt_install() auto-creates.
   //
@@ -57,6 +70,172 @@ function druxt_umami_install() {
   $display = &$view->getDisplay('default');
   $display['display_options']['pager']['options']['offset'] = 2;
   $view->save();
+
+  // Card and teaser displays ship with an image and a title and nothing else,
+  // so every card in the frontend renders as a bare headline: no category
+  // kicker, no difficulty badge, no cooking time, no standfirst. The frontend
+  // has a component per field for all of them. Put the fields on the displays
+  // that feed the cards.
+  $image = [
+    'type' => 'entity_reference_entity_view',
+    'label' => 'hidden',
+    'settings' => ['view_mode' => 'medium_3_2_2x'],
+    'weight' => -10,
+  ];
+  $displays = [
+    'node.recipe.card' => [
+      'field_media_image' => $image,
+      'field_recipe_category' => ['type' => 'entity_reference_label', 'label' => 'hidden', 'settings' => ['link' => FALSE], 'weight' => -5],
+      'field_difficulty' => ['type' => 'list_default', 'label' => 'hidden', 'weight' => 5],
+      'field_cooking_time' => ['type' => 'number_integer', 'label' => 'hidden', 'weight' => 6],
+    ],
+    'node.article.card' => [
+      'field_media_image' => $image,
+      'field_tags' => ['type' => 'entity_reference_label', 'label' => 'hidden', 'settings' => ['link' => FALSE], 'weight' => -5],
+      'field_body' => ['type' => 'text_summary_or_trimmed', 'label' => 'hidden', 'settings' => ['trim_length' => 130], 'weight' => 5],
+    ],
+    'node.recipe.teaser' => [
+      'field_media_image' => $image,
+    ],
+  ];
+
+  $storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+  foreach ($displays as $id => $components) {
+    $display = $storage->load($id);
+    if (!$display) {
+      continue;
+    }
+    foreach ($components as $field => $options) {
+      $display->setComponent($field, $options);
+    }
+    $display->save();
+  }
+
+  // The node templates set their own headings, so Drupal's field labels
+  // would print twice. The route renders the default display.
+  foreach (['node.recipe.default', 'node.recipe.full', 'node.article.default', 'node.article.full'] as $id) {
+    $display = $storage->load($id);
+    if (!$display) {
+      continue;
+    }
+    foreach (array_keys($display->getComponents()) as $field) {
+      $options = $display->getComponent($field);
+      $options['label'] = 'hidden';
+      $display->setComponent($field, $options);
+    }
+    $display->save();
+  }
+
+  // The contact module ships the personal form only, and its site-wide form
+  // setting points at a `feedback` form that no profile here creates, so
+  // /contact fatals and every link to it is filtered out as inaccessible.
+  if (!ContactForm::load('feedback')) {
+    ContactForm::create([
+      'id' => 'feedback',
+      'label' => 'Website feedback',
+      'recipients' => ['hello@druxtjs.org'],
+      'message' => 'Your message has been sent.',
+      'reply' => '',
+      'weight' => 0,
+    ])->save();
+  }
+  // The footer's base line, worded as the design has it.
+  $blocks = \Drupal::entityTypeManager()
+    ->getStorage('block_content')
+    ->loadByProperties(['type' => 'disclaimer_block']);
+  foreach ($blocks as $block) {
+    $block->set('field_copyright', [
+      'value' => '&copy; ' . date('Y') . ' Umami Publications &middot; Terms &amp; Conditions',
+      'format' => 'basic_html',
+    ])->save();
+  }
+
+  // The demo's contact form says no email is sent. Core's test collector
+  // keeps each message in state instead of handing it to a mail server.
+  \Drupal::configFactory()
+    ->getEditable('system.mail')
+    ->set('interface.default', 'test_mail_collector')
+    ->save();
+  user_role_grant_permissions(RoleInterface::ANONYMOUS_ID, ['access site-wide contact form']);
+  user_role_grant_permissions(RoleInterface::AUTHENTICATED_ID, ['access site-wide contact form']);
+
+  // DruxtEntityForm builds itself from the form display, and a form created
+  // in code has none, so the contact page rendered as two bare buttons.
+  $form_display = \Drupal::entityTypeManager()
+    ->getStorage('entity_form_display')
+    ->load('contact_message.feedback.default');
+  if (!$form_display) {
+    $form_display = \Drupal::entityTypeManager()
+      ->getStorage('entity_form_display')
+      ->create([
+        'targetEntityType' => 'contact_message',
+        'bundle' => 'feedback',
+        'mode' => 'default',
+        'status' => TRUE,
+      ]);
+    $weight = 0;
+    foreach (['name' => 'string_textfield', 'mail' => 'email_default', 'subject' => 'string_textfield', 'message' => 'string_textarea', 'copy' => 'boolean_checkbox'] as $field => $type) {
+      $form_display->setComponent($field, ['type' => $type, 'weight' => $weight++]);
+    }
+    $form_display->save();
+  }
+
+  // A visitor submitting an article through the demo should not be able to
+  // publish it. The frontend's save button says "Save as unpublished", and
+  // this is what makes that true.
+  BaseFieldOverride::createFromBaseFieldDefinition(
+    \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('node')['status'],
+    'article'
+  )->setDefaultValue(FALSE)->save();
+
+  // Every card on the site is the same card. The profile ships three view
+  // modes for it (card, card_common, card_common_alt) which differ only in
+  // which fields somebody remembered to enable, and each one needs its own
+  // frontend component. Point the views that feed cards at `card`.
+  $rows = [
+    'frontpage' => ['default'],
+    'featured_articles' => ['default'],
+    'articles_aside' => ['default'],
+  ];
+  foreach ($rows as $view_id => $display_ids) {
+    $view = \Drupal::entityTypeManager()->getStorage('view')->load($view_id);
+    if (!$view) {
+      continue;
+    }
+    $display = $view->get('display');
+    foreach ($display_ids as $display_id) {
+      if (isset($display[$display_id]['display_options']['row']['options']['view_mode'])) {
+        $display[$display_id]['display_options']['row']['options']['view_mode'] = 'card';
+      }
+    }
+    $view->set('display', $display)->save();
+  }
+
+  // Menu links for the pages the frontend already renders.
+  //
+  // demo_umami ships the About page and the contact form, but links to
+  // neither: the main menu is three view routes and the footer menu is empty,
+  // so the footer's Magazine column had nothing to list.
+  $links = [
+    // Articles is 20 and Recipes is 30 in the view's own menu settings, so
+    // these two sit after them.
+    ['title' => 'About', 'uri' => 'internal:/about-umami', 'menu' => 'main', 'weight' => 40],
+    ['title' => 'Contact', 'uri' => 'internal:/contact', 'menu' => 'main', 'weight' => 41],
+    ['title' => 'Home', 'uri' => 'internal:/', 'menu' => 'footer', 'weight' => 0],
+    ['title' => 'Articles', 'uri' => 'internal:/articles', 'menu' => 'footer', 'weight' => 1],
+    ['title' => 'Recipes', 'uri' => 'internal:/recipes', 'menu' => 'footer', 'weight' => 2],
+    ['title' => 'About', 'uri' => 'internal:/about-umami', 'menu' => 'footer', 'weight' => 3],
+    ['title' => 'Contact', 'uri' => 'internal:/contact', 'menu' => 'footer', 'weight' => 4],
+  ];
+  foreach ($links as $link) {
+    MenuLinkContent::create([
+      'title' => $link['title'],
+      'link' => ['uri' => $link['uri']],
+      'menu_name' => $link['menu'],
+      'weight' => $link['weight'],
+      'expanded' => TRUE,
+    ])->save();
+  }
 
   // Druxt JSON:API resource access.
   // druxt_entity_access() gates view--view, menu--menu and the display config
