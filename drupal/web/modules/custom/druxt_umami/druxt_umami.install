@@ -296,7 +296,10 @@ function druxt_umami_install() {
     ->set('request_method', 'POST')
     ->set('scheme', 'http')
     ->set('headers', [['field' => 'X-Druxt-Secret', 'value' => '']])
-    ->set('body', '')
+    // The purged tags, comma separated, so open pages refresh only what
+    // they show of them.
+    ->set('body', '[invalidations:separated_comma]')
+    ->set('body_content_type', 'text/plain')
     ->set('timeout', 3.0)
     ->set('connect_timeout', 1.0)
     ->set('max_requests', 100)

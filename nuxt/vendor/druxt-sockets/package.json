@@ -1,0 +1,99 @@
+{
+  "name": "@druxt-contrib/sockets",
+  "version": "0.0.0",
+  "description": "Live updates for Druxt over a WebSocket: Drupal purges reach open pages, presence, and channels a site adds its own handlers to.",
+  "keywords": [
+    "druxt",
+    "module",
+    "websocket",
+    "live"
+  ],
+  "license": "MIT",
+  "exports": {
+    ".": "./dist/index.js",
+    "./server": "./dist/server/index.js",
+    "./runtime/*.js": "./dist/runtime/*.js",
+    "./components/*": "./dist/components/*",
+    "./package.json": "./package.json"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "siroc build",
+    "build:watch": "siroc build --watch",
+    "changeset": "changeset",
+    "example:assemble": "cd example/drupal && .devtools/assemble",
+    "example:dev": "npm --prefix example/nuxt run dev",
+    "example:generate": "npm --prefix example/nuxt run generate",
+    "example:info": "cd example/drupal && .devtools/info",
+    "example:install": "npm --prefix example/nuxt install",
+    "example:provision": "cd example/drupal && .devtools/provision",
+    "example:setup": "npm run example:assemble && npm run example:provision && npm run example:start && npm run example:install",
+    "example:start": "cd example/drupal && .devtools/start",
+    "example:stop": "cd example/drupal && .devtools/stop",
+    "hooks:install": "git config core.hooksPath .githooks",
+    "lint": "npm run lint:js && npm run lint:format && npm run lint:md && npm run lint:cspell && npm run lint:private && npm run lint:attribution && npm run lint:knip",
+    "lint:attribution": "bash .gitlab/scripts/check-attribution.sh",
+    "lint:audit": "npm audit --omit=dev --audit-level=high",
+    "lint:commit": "commitlint",
+    "lint:cspell": "cspell lint --no-progress --no-must-find-files --gitignore --dot \"**/*.{js,mjs,vue,json,jsonc,md,yml,yaml}\"",
+    "lint:format": "prettier --check \"**/*.{js,mjs,vue,json,jsonc,md,yml,yaml}\"",
+    "lint:format:fix": "prettier --write \"**/*.{js,mjs,vue,json,jsonc,md,yml,yaml}\"",
+    "lint:js": "eslint --ext .js,.mjs,.vue src test scripts",
+    "lint:knip": "knip --include dependencies,unlisted --no-config-hints",
+    "lint:md": "markdownlint-cli2 \"**/*.md\"",
+    "lint:private": "node scripts/lint-private-refs.mjs",
+    "lint:prose": "PROSE_LINT_GLOB='!{.changeset,example/drupal}/**' bash .gitlab/scripts/lint-prose.sh --all",
+    "lint:prose:install": "bash .gitlab/scripts/install-vale.sh .vale/bin .vale/styles",
+    "serve": "node scripts/serve.js example/nuxt/dist 3000",
+    "test": "jest",
+    "test:e2e": "playwright test --grep-invert @visual",
+    "test:visual": "playwright test --grep @visual",
+    "test:visual:update": "playwright test --grep @visual --update-snapshots",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "ws": "8.22.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.20.2",
+    "@babel/preset-env": "7.20.2",
+    "@changesets/cli": "2.25.2",
+    "@commitlint/cli": "17.8.1",
+    "@commitlint/config-conventional": "17.8.1",
+    "@playwright/test": "1.49.1",
+    "@vue/test-utils": "1.3.3",
+    "babel-core": "7.0.0-bridge.0",
+    "cspell": "7.3.9",
+    "druxt": "0.21.0",
+    "esbuild-jest": "0.5.0",
+    "eslint": "8.28.0",
+    "eslint-config-prettier": "8.10.0",
+    "eslint-plugin-nuxt": "4.0.0",
+    "eslint-plugin-vue": "9.32.0",
+    "jest": "27.5.1",
+    "jest-environment-jsdom": "27.5.1",
+    "jest-junit": "14.0.1",
+    "knip": "2.43.0",
+    "markdownlint-cli2": "0.10.0",
+    "prettier": "3.3.3",
+    "siroc": "0.16.0",
+    "vue": "2.7.16",
+    "vue-jest": "3.0.7",
+    "vue-template-compiler": "2.7.16"
+  },
+  "packageManager": "npm@8.19.4",
+  "engines": {
+    "node": ">=16.20.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "jest-junit": {
+    "outputDirectory": "reports/junit",
+    "outputName": "junit.xml"
+  }
+}

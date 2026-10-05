@@ -395,6 +395,8 @@ test:stack:
       [ "$code" = 401 ] || fail "a wrong cache secret answered $code"
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "X-Druxt-Secret: $DRUXT_CACHE_SECRET" "$site/_druxt/cache/clear")
       [ "$code" = 204 ] || fail "the cache secret answered $code"
+      # Open pages hear a content purge on /_live, but not a sign-in's.
+      (cd nuxt && node server/check-live.js "$site" "$DRUXT_CACHE_SECRET") || fail "a purge did not reach an open page"
       echo "All assertions passed."
   artifacts:
     when: always

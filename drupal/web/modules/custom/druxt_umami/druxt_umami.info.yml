@@ -18,6 +18,7 @@ dependencies:
   - purge:purge_drush
   - purge:purge_processor_lateruntime
   - purge:purge_queuer_coretags
+  - purge:purge_tokens
   - purge_purger_http:purge_purger_http
   - drupal:search_api_lunr
   - drupal:simple_oauth

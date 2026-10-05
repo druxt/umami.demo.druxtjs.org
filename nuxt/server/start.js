@@ -8,13 +8,16 @@
  * not exist yet. Each deploy reinstalls Drupal, so the post-rollout task asks
  * for a fresh build with `POST /_regenerate`; the old build serves until the
  * new one is complete. Content changes arrive from Drupal's Purge as Druxt's
- * `POST /_druxt/cache/clear`, and rebuild once saves stop arriving.
+ * `POST /_druxt/cache/clear`, and rebuild once saves stop arriving. Open
+ * pages hear the purged tags at once on the /_live WebSocket and refetch what
+ * they show of them, ahead of the rebuild.
  */
 const crypto = require('crypto')
 const fs = require('fs')
 const http = require('http')
 const path = require('path')
 const { spawn } = require('child_process')
+const { attachSockets } = require('@druxt-contrib/sockets/server')
 const { createDrupalProxy, isDrupalPath, waitForDrupal } = require('./drupal')
 const { createStartingHandler } = require('./starting')
 
@@ -242,22 +245,39 @@ const clearCache = (req, res) => {
   if (!cacheSecret || req.method !== 'POST') {
     return (distDir ? serveStatic : starting)(req, res)
   }
-  req.resume()
   if (!sameSecret(req.headers['x-druxt-secret'])) {
+    req.resume()
     res.writeHead(401)
     return res.end()
   }
-  // Purge sends one request per batch; an editor saving again restarts the
-  // wait, so a run of saves costs one build.
-  clearTimeout(quiet)
-  quiet = setTimeout(() => {
-    log('content changed; rebuilding')
-    pending = true
-    cycle()
-  }, quietPeriod)
-  res.writeHead(204)
-  res.end()
+  let body = ''
+  req.setEncoding('utf8')
+  req.on('data', (chunk) => {
+    if (body.length < 64 * 1024) body += chunk
+  })
+  req.on('end', () => {
+    const tags = body
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter((tag) => /^[\w:.-]{1,128}$/.test(tag))
+    res.writeHead(204)
+    res.end()
+    // A sign-in purges its tokens' tags too; that is not a content change.
+    if (tags.length && tags.every((tag) => BOOKKEEPING.test(tag))) return
+    live.contentChanged(tags)
+    // Purge sends one request per batch; an editor saving again restarts the
+    // wait, so a run of saves costs one build.
+    clearTimeout(quiet)
+    quiet = setTimeout(() => {
+      log('content changed; rebuilding')
+      pending = true
+      cycle()
+    }, quietPeriod)
+  })
 }
+
+/** Tags Drupal purges that no page shows: sign-in tokens and consumers. */
+const BOOKKEEPING = /^(oauth2_token|consumer|session)(_list)?(:|$)/
 
 const drupal = createDrupalProxy(drupalUrl)
 const server = http.createServer((req, res) => {
@@ -272,6 +292,9 @@ const server = http.createServer((req, res) => {
   }
   return (distDir ? serveStatic : starting)(req, res)
 })
+
+// Live updates on /_live: open pages refresh when Drupal purges.
+const live = attachSockets(server, { path: '/_live', drupalUrl, log })
 
 const main = async () => {
   // Builds left by an earlier run are never served again.
