@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+<rect width="400" height="300" fill="#ead9c3"></rect>
+<g transform="rotate(-12 160 160)"><rect x="104" y="80" width="112" height="156" rx="10" fill="#3a2f24"></rect><rect x="114" y="90" width="92" height="136" rx="6" fill="none" stroke="#7d4a1a" stroke-width="3"></rect><circle cx="160" cy="158" r="22" fill="#7d4a1a"></circle></g>
+<g transform="rotate(10 240 150)"><rect x="184" y="70" width="112" height="156" rx="10" fill="#fdfbf7" stroke="#d8cfc0" stroke-width="3"></rect><rect x="194" y="80" width="92" height="69" rx="4" fill="#7d4a1a"></rect><rect x="194" y="160" width="70" height="9" rx="4" fill="#3a2f24"></rect><rect x="194" y="177" width="50" height="9" rx="4" fill="#c9b9a2"></rect></g>
+<path d="M84 96Q120 32 196 30" fill="none" stroke="#241f1a" stroke-width="9" stroke-linecap="round"></path>
+<path d="M180 14l20 16-20 18" fill="none" stroke="#241f1a" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M316 210Q282 270 204 272" fill="none" stroke="#241f1a" stroke-width="9" stroke-linecap="round"></path>
+<path d="M220 254l-20 18 20 18" fill="none" stroke="#241f1a" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>

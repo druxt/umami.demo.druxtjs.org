@@ -112,6 +112,9 @@ lint:
     - section_start "prettier" "Prettier"
     - npx --no-install prettier --check .
     - section_end "prettier"
+    - section_start "live" "Umami Go engine tests"
+    - yarn test:live
+    - section_end "live"
 
 # The root ESLint config: the tooling's own config files and scripts.
 lint:root:
