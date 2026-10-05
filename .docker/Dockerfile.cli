@@ -1,4 +1,4 @@
-FROM uselagoon/php-8.3-cli-drupal:26.8.1
+FROM uselagoon/php-8.3-cli-drupal:26.9.0
 
 # The patches apply during install, so they are in place before it runs.
 COPY ./drupal/composer.* ./drupal/patches.lock.json /app/
