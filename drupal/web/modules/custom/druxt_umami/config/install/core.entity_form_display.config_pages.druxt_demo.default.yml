@@ -1,0 +1,85 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - config_pages.type.druxt_demo
+    - field.field.config_pages.druxt_demo.field_site_source
+    - field.field.config_pages.druxt_demo.field_druxt_docs
+    - field.field.config_pages.druxt_demo.field_druxt_source
+    - field.field.config_pages.druxt_demo.field_druxt_module
+    - field.field.config_pages.druxt_demo.field_discord
+    - field.field.config_pages.druxt_demo.field_devpod
+    - field.field.config_pages.druxt_demo.field_quickstart
+    - field.field.config_pages.druxt_demo.field_twitter
+  module:
+    - link
+id: config_pages.druxt_demo.default
+targetEntityType: config_pages
+bundle: druxt_demo
+mode: default
+content:
+  field_site_source:
+    type: link_default
+    weight: 0
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_druxt_docs:
+    type: link_default
+    weight: 1
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_druxt_source:
+    type: link_default
+    weight: 2
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_druxt_module:
+    type: link_default
+    weight: 3
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_discord:
+    type: link_default
+    weight: 4
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_devpod:
+    type: link_default
+    weight: 5
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_quickstart:
+    type: string_textfield
+    weight: 6
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_twitter:
+    type: string_textfield
+    weight: 7
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden: {  }

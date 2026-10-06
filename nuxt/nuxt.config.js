@@ -1,4 +1,5 @@
 import storybook from './nuxt-storybook.config'
+import { drupalOrigin, siteOrigin } from './lib/site'
 
 const baseUrl = process.env.BASE_URL || 'http://druxt-js-demo-umami.ddev.site'
 
@@ -87,6 +88,9 @@ export default {
     ['@nuxtjs/google-analytics', { id: 'UA-172677199-2' }],
     // https://go.nuxtjs.dev/stylelint
     '@nuxtjs/stylelint-module',
+    // The demo's share links and commands, from Drupal's config page. The
+    // wrapper lets a build outlive a page that is not there yet.
+    '~/modules/config-pages',
     // Custom Search API Lunr module.
     [
       '~/modules/search-api-lunr',
@@ -99,6 +103,8 @@ export default {
     'druxt-site',
     // Drupal's own CKEditor 5, mounted on the edit form's text fields.
     '@druxt-contrib/ckeditor',
+    // Drupal's admin paths hand through to the backend.
+    '@druxt-contrib/admin',
   ],
 
   publicRuntimeConfig: {
@@ -106,6 +112,10 @@ export default {
     // against a throwaway backend sets PUBLIC_BASE_URL to a host that outlives
     // the build. Empty makes them same-origin, through the frontend's proxy.
     baseUrl: process.env.PUBLIC_BASE_URL ?? baseUrl,
+    // The origin the head names in canonical links and share tags.
+    siteOrigin: siteOrigin(),
+    // Drupal's public origin: where the admin paths hand through to.
+    drupalOrigin: drupalOrigin(),
   },
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -140,6 +150,11 @@ export default {
     // Drupal. The token route the grant posts to is the module's own under
     // `nuxt dev`, and server/start.js's on the generated site.
     ['druxt-auth', { clientId: process.env.OAUTH_CLIENT_ID || 'umami_druxt' }],
+    // Last: it puts the site's page on the router's routes, which exist
+    // once the modules above have added them. It also writes robots.txt,
+    // sitemap.xml, llms.txt and llms-full.txt into the export.
+    '~/modules/admin-routes',
+    '~/modules/seo-files',
   ],
 
   sockets: {
@@ -183,6 +198,8 @@ export default {
 
   // Druxt Configuration
   druxt: {
+    // The config page the share links come from: $druxtConfigPages.get('druxt_demo').
+    configPages: { pages: ['druxt_demo'] },
     baseUrl,
 
     // Druxt Blocks module settings.

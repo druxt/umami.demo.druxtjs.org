@@ -61,40 +61,31 @@
 
 <script>
 import { DruxtEntityMixin } from 'druxt-entity'
+import { demoMixin, hostOf } from '~/utils/demo'
 
 /** The About page's alias in each language. */
 const ABOUT = ['/about-umami', '/acerca-de-umami']
 
-const RESOURCES = [
-  { key: 'docs', href: 'https://druxtjs.org', host: 'druxtjs.org' },
-  {
-    key: 'github',
-    href: 'https://github.com/druxt/druxt.js',
-    host: 'github.com/druxt/druxt.js',
-  },
-  {
-    key: 'module',
-    href: 'https://www.drupal.org/project/druxt',
-    host: 'drupal.org/project/druxt',
-  },
-  {
-    key: 'discord',
-    href: 'https://discord.druxtjs.org',
-    host: 'discord.druxtjs.org',
-  },
-  {
-    key: 'source',
-    href: 'https://github.com/druxt/umami.demo.druxtjs.org',
-    host: 'github.com/druxt/umami.demo.druxtjs.org',
-  },
-]
-
 export default {
-  mixins: [DruxtEntityMixin],
-
-  data: () => ({ resources: RESOURCES }),
+  mixins: [demoMixin, DruxtEntityMixin],
 
   computed: {
+    /** The resource cards, from Drupal's config page. */
+    resources: ({ demo }) =>
+      [
+        ['docs', demo.docs],
+        ['github', demo.druxtSource],
+        ['module', demo.druxtModule],
+        ['discord', demo.discord],
+        ['source', demo.source],
+      ]
+        .filter(([, link]) => link.href)
+        .map(([key, link]) => ({
+          key,
+          href: link.href,
+          host: hostOf(link.href),
+        })),
+
     isAbout: ({ entity }) =>
       ABOUT.includes(((entity.attributes || {}).path || {}).alias),
   },

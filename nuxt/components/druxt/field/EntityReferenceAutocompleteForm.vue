@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import { DrupalJsonApiParams } from 'drupal-jsonapi-params'
 import formField from '~/utils/form-field'
 import { langMixin } from '~/utils/lang'
 import {
@@ -96,19 +97,15 @@ export default {
         return
       }
       const { operator, limit } = matchSettings(this.schema)
-      const [entity, bundle] = this.type.split('--')
-      const field = entity === 'user' ? 'name' : 'title'
-      const params = new URLSearchParams({
-        [`filter[${field}][operator]`]: operator,
-        [`filter[${field}][value]`]: q,
-        'page[limit]': String(limit),
-      })
+      const field = this.type.startsWith('user--') ? 'name' : 'title'
+      const query = new DrupalJsonApiParams()
+        .addFilter(field, q, operator)
+        .addPageLimit(limit)
       try {
-        const response = await this.$druxt.get(
-          `${this.prefix}/jsonapi/${entity}/${bundle}?${params}`
-        )
+        const { data } =
+          (await this.$druxt.getCollection(this.type, query, this.lang)) || {}
         if (this.query.trim() !== q) return
-        this.suggestions = ((response || {}).data || {}).data || []
+        this.suggestions = data || []
       } catch (e) {
         this.suggestions = []
       }

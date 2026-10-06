@@ -140,6 +140,28 @@ export default {
     countRecipes: '{n} receta | {n} recetas',
     and: 'y',
   },
+  admin: {
+    kicker: 'Drupal',
+    title: 'Esta página vive en Drupal',
+    text: 'El contenido, los medios, los usuarios y la configuración se gestionan en el backend de Drupal. Esta dirección abre la misma ruta allí.',
+    none: 'Esta compilación no tiene backend donde abrirla.',
+    open: 'Abrir en Drupal',
+  },
+  error: {
+    kicker: 'Algo salió mal',
+    title: 'Error {status}',
+    text: 'No se pudo mostrar la página.',
+    notFoundKicker: 'No encontrado',
+    notFound: 'Aquí no hay ninguna página',
+    notFoundText:
+      'Puede que la dirección haya cambiado o que la página se haya eliminado.',
+    resettingKicker: 'Un momento',
+    resetting: 'La demo se está reiniciando',
+    resettingText:
+      'Drupal está reinstalando su contenido de ejemplo. Tarda unos dos minutos; la página se carga sola en cuanto Drupal responde.',
+    retrying: 'Comprobando de nuevo… ({n})',
+    home: 'Volver a la portada',
+  },
   note: {
     howThisWorks: 'Cómo funciona',
     howThisPageWorks: 'Cómo funciona esta página',
@@ -256,12 +278,16 @@ export default {
   },
   draft: {
     showingDraft: 'Borrador sin guardar',
-    showingReal: 'La versión de Drupal',
-    kept: 'Esta página muestra cambios guardados en este navegador, no lo que tiene Drupal.',
+    showingReal: 'Versión guardada',
+    kept: 'Tus cambios quedan en este navegador hasta que los guardes.',
+    keptReal: 'La página tal como la tiene Drupal. Tu borrador sigue ahí.',
     draft: 'Borrador',
-    real: 'Versión de Drupal',
+    real: 'Guardada',
     changes: 'Marcar {n} cambio | Marcar {n} cambios',
     hideMarks: 'Ocultar las marcas',
+    replaced: 'Reemplazada',
+    removed: 'Eliminada',
+    was: 'antes',
   },
   contact: {
     kicker: 'Contacto',

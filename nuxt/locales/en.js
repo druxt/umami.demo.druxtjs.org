@@ -139,6 +139,28 @@ export default {
     countRecipes: '{n} recipe | {n} recipes',
     and: 'and',
   },
+  admin: {
+    kicker: 'Drupal',
+    title: 'This page lives in Drupal',
+    text: 'Content, media, users and settings are managed in the Drupal backend. This address opens the same path there.',
+    none: 'This build has no backend to open it on.',
+    open: 'Open in Drupal',
+  },
+  error: {
+    kicker: 'Something went wrong',
+    title: 'Error {status}',
+    text: 'The page could not be shown.',
+    notFoundKicker: 'Not found',
+    notFound: 'There is no page here',
+    notFoundText:
+      'The address may have changed, or the page may have been removed.',
+    resettingKicker: 'One moment',
+    resetting: 'The demo is being reset',
+    resettingText:
+      'Drupal is reinstalling its sample content. This takes about two minutes; the page loads itself as soon as Drupal answers.',
+    retrying: 'Checking again… ({n})',
+    home: 'Back to the home page',
+  },
   note: {
     howThisWorks: 'How this works',
     howThisPageWorks: 'How this page works',
@@ -250,12 +272,16 @@ export default {
   },
   draft: {
     showingDraft: 'Unsaved draft',
-    showingReal: "Drupal's version",
-    kept: 'This page shows changes kept in this browser, not what Drupal holds.',
+    showingReal: 'Saved version',
+    kept: 'Your changes stay in this browser until you save them.',
+    keptReal: 'The page as Drupal has it. Your draft is kept.',
     draft: 'Draft',
-    real: "Drupal's version",
+    real: 'Saved',
     changes: 'Mark {n} change | Mark {n} changes',
     hideMarks: 'Hide the marks',
+    replaced: 'Replaced',
+    removed: 'Removed',
+    was: 'was',
   },
   contact: {
     kicker: 'Contact',
