@@ -20,6 +20,7 @@ const PAGES = [
   '/en/about-umami',
   '/en/contact',
   '/en/tags/vegan',
+  '/play',
 ]
 
 const audit = (page) =>

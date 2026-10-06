@@ -5276,3 +5276,1356 @@ h3 del.v-diff-del--trailing {
     margin-top: 1rem;
   }
 }
+
+// ---------------------------------------------------------------- umami go
+// The card game at /play, from the "Umami demo" design handover: a night
+// ground for the game's own chrome, spice for its one call to action, and
+// cards whose kinds differ by colour and pattern together.
+
+$go-lg: 992px;
+$go-amber: #e8b98f; // the code and the winner's ring, on night
+$go-frame: #d8cfc0;
+
+// Each kind: a solid for badges and tiles, and a ground with its pattern.
+$go-kinds: (
+  dish: (
+    #7d4a1a,
+    #7d4a1a,
+  ),
+  sauce: (
+    oklch(0.46 0.11 28),
+    (
+      radial-gradient(rgb(253 251 247 / 17%) 1.2px, transparent 1.7px) 0 0 / 9px
+        9px,
+      oklch(0.46 0.11 28)
+    ),
+  ),
+  starter: (
+    oklch(0.46 0.085 150),
+    (
+      repeating-linear-gradient(
+        45deg,
+        rgb(253 251 247 / 13%) 0 2px,
+        transparent 2px 9px
+      ),
+      oklch(0.46 0.085 150)
+    ),
+  ),
+  feast: (
+    oklch(0.44 0.085 300),
+    (
+      repeating-linear-gradient(
+        0deg,
+        rgb(253 251 247 / 13%) 0 2px,
+        transparent 2px 8px
+      ),
+      oklch(0.44 0.085 300)
+    ),
+  ),
+  snack: (
+    oklch(0.47 0.085 85),
+    (
+      radial-gradient(rgb(253 251 247 / 20%) 1px, transparent 1.5px) 0 0 / 5px
+        5px,
+      oklch(0.47 0.085 85)
+    ),
+  ),
+  side: (
+    oklch(0.46 0.085 120),
+    (
+      repeating-linear-gradient(
+        90deg,
+        rgb(253 251 247 / 13%) 0 2px,
+        transparent 2px 9px
+      ),
+      oklch(0.46 0.085 120)
+    ),
+  ),
+  dessert: (
+    oklch(0.46 0.1 350),
+    (
+      repeating-linear-gradient(
+        45deg,
+        rgb(253 251 247 / 11%) 0 1.5px,
+        transparent 1.5px 8px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        rgb(253 251 247 / 11%) 0 1.5px,
+        transparent 1.5px 8px
+      ),
+      oklch(0.46 0.1 350)
+    ),
+  ),
+  swap: (
+    #3a2f24,
+    (
+      repeating-linear-gradient(
+        -45deg,
+        rgb(253 251 247 / 9%) 0 6px,
+        transparent 6px 12px
+      ),
+      #3a2f24
+    ),
+  ),
+);
+
+// Buttons the game shares: spice to act, ink to commit, outlines to leave.
+.go-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 0;
+  font-family: $sans;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  &--spice {
+    background: $spice;
+    color: $paper;
+
+    &:hover:not(:disabled) {
+      background: $spice-dark;
+      color: $paper;
+    }
+  }
+
+  &--ink {
+    background: $ink;
+    color: $paper;
+
+    &:hover:not(:disabled) {
+      background: #000;
+    }
+  }
+
+  &--outline {
+    border-color: $rule-strong;
+    background: $paper;
+    color: $ink;
+
+    &:hover {
+      border-color: $ink;
+      color: $ink;
+    }
+  }
+
+  &--outline-paper {
+    border-color: rgb(253 251 247 / 60%);
+    background: transparent;
+    color: $paper;
+  }
+
+  &--small {
+    min-height: $tap;
+    padding: 0 1.1rem;
+    font-size: 0.875rem;
+  }
+
+  &--block {
+    width: 100%;
+  }
+}
+
+.go-kicker {
+  margin: 0 0 0.5rem;
+  color: $go-amber;
+  font-family: $sans;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+// ---- the card
+
+.go-card {
+  // A full card is laid out at 170px and scaled whole with zoom: its type
+  // is a fixed size, so narrowing the card alone crops the recipe's name.
+  --go-zoom: 1;
+
+  position: relative;
+  width: calc(170px * var(--go-zoom));
+  transition: transform 0.22s ease;
+
+  &--full &__face,
+  &--full &__back {
+    width: 170px;
+    zoom: var(--go-zoom);
+  }
+
+  &__face {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    aspect-ratio: 5 / 7;
+    padding: 6px;
+    border-radius: 9px;
+    box-shadow: 0 2px 6px rgb(36 31 26 / 16%);
+  }
+
+  &__art {
+    position: relative;
+    flex-shrink: 0;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 4px;
+    background: $night;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__badge {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 7px;
+    border: 2px solid $paper;
+    border-radius: 999px;
+    color: $paper;
+    font-family: $mono;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  &__badge-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  &__kind {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 2px;
+    color: $paper;
+    font-family: $sans;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+  }
+
+  &__name {
+    flex: 1;
+    min-height: 0;
+    padding: 0 2px;
+    overflow: hidden;
+    color: $paper;
+    font-family: $serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.12;
+  }
+
+  &__score {
+    padding: 5px 7px;
+    border-radius: 4px;
+    background: $paper;
+    color: $ink;
+    font-family: $sans;
+    font-size: 10.5px;
+    font-weight: 500;
+    line-height: 1.28;
+  }
+
+  &__tab {
+    position: absolute;
+    z-index: 2;
+    top: -12px;
+    left: 50%;
+    padding: 5px 9px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: $ink;
+    color: $paper;
+    font-family: $sans;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  &__back {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12%;
+    aspect-ratio: 5 / 7;
+    padding: 6px;
+    border-radius: 9px;
+    background: repeating-linear-gradient(
+        45deg,
+        #4d3f31 0 1px,
+        transparent 1px 10px
+      ),
+      repeating-linear-gradient(-45deg, #4d3f31 0 1px, transparent 1px 10px),
+      $night;
+    box-shadow: inset 0 0 0 6px $night, inset 0 0 0 8px $spice;
+  }
+
+  &__back-mark {
+    width: 46%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, $paper 0 19%, transparent 19.5%),
+      radial-gradient(
+        circle,
+        transparent 0 34%,
+        $paper 34.5% 39%,
+        transparent 39.5%
+      ),
+      $spice;
+  }
+
+  &__back-word {
+    color: $paper;
+    font-family: $serif;
+    font-size: 19px;
+    font-style: italic;
+  }
+
+  // The small size, on the table: art, icon, and the number that matters.
+  &--sm {
+    width: 46px;
+
+    .go-card__face {
+      gap: 3px;
+      aspect-ratio: auto;
+      padding: 3px;
+      border-radius: 6px;
+      box-shadow: none;
+    }
+
+    .go-card__art {
+      border-radius: 3px;
+    }
+
+    .go-card__back {
+      aspect-ratio: 46 / 60;
+      padding: 3px;
+      border-radius: 6px;
+      box-shadow: inset 0 0 0 3px $night, inset 0 0 0 4px $spice;
+    }
+  }
+
+  &__sm-foot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 18px;
+    color: $paper;
+    font-family: $mono;
+    font-size: 11px;
+    font-weight: 600;
+
+    .go-card__icon {
+      width: 13px;
+      height: 13px;
+    }
+  }
+
+  @each $kind, $values in $go-kinds {
+    &--#{$kind} {
+      .go-card__face {
+        background: nth($values, 2);
+      }
+
+      .go-card__badge {
+        background: nth($values, 1);
+      }
+    }
+  }
+
+  // States: a pick lifts and is outlined, the rest of a locked hand waits.
+  &.is-picked {
+    transform: translateY(-14px);
+
+    .go-card__face {
+      outline: 3px solid $ink;
+      outline-offset: 2px;
+      box-shadow: 0 14px 24px rgb(36 31 26 / 28%);
+    }
+  }
+
+  &.is-played .go-card__face {
+    box-shadow: none;
+  }
+
+  &.is-dim {
+    opacity: 0.4;
+  }
+
+  // The reveal: every new card flips over together, staggered by seat.
+  &.is-revealed {
+    animation: go-flip 280ms ease-out both;
+    animation-delay: calc(var(--seat, 0) * 60ms);
+  }
+}
+
+@keyframes go-flip {
+  from {
+    transform: perspective(400px) rotateY(90deg);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@keyframes go-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes go-pass {
+  from {
+    transform: translateX(40%);
+    opacity: 0;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+// ---- avatars
+
+.go-avatar {
+  --go-avatar: 36px;
+
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--go-avatar);
+  height: var(--go-avatar);
+  border-radius: 50%;
+  background: $spice;
+  color: $paper;
+  font-family: $sans;
+  font-size: calc(var(--go-avatar) * 0.36);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+
+  &--seat-1 {
+    background: $ink;
+  }
+
+  &--seat-2 {
+    background: $ink-muted;
+  }
+
+  &--seat-3 {
+    background: #5a4636;
+  }
+
+  &--empty {
+    border: 1px dashed $go-frame;
+    background: transparent;
+  }
+}
+
+// ---- /play
+
+.go-hero {
+  overflow: hidden;
+  padding: 2rem 0 1.5rem;
+  background: $night;
+  color: $paper;
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__title {
+    margin: 0 0 1rem;
+    color: $paper;
+    font-family: $serif;
+    font-size: 3.5rem;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  &__lede {
+    max-width: 36rem;
+    margin-bottom: 1.5rem;
+    color: $paper;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__fan {
+    position: relative;
+    order: 0;
+    height: 210px;
+    margin: 0 auto 1.5rem;
+  }
+
+  &__fan-card {
+    --go-zoom: 0.72;
+
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) translateX(calc(var(--i) * 48px))
+      rotate(calc(var(--i) * 8deg));
+    transform-origin: 50% 120%;
+
+    // Three cards at the phone width; all five once there is room.
+    &:first-child,
+    &:last-child {
+      display: none;
+    }
+  }
+
+  &__copy {
+    display: contents;
+  }
+
+  .go-kicker {
+    order: -3;
+  }
+
+  &__title {
+    order: -2;
+  }
+
+  &__lede {
+    order: -1;
+  }
+
+  &__actions {
+    order: 1;
+  }
+
+  @media (min-width: $go-lg) {
+    padding: 5rem 0;
+
+    &__inner {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    &__copy {
+      display: block;
+      max-width: 34rem;
+    }
+
+    &__title {
+      font-size: 6rem;
+    }
+
+    &__lede {
+      font-size: 1.125rem;
+    }
+
+    &__actions {
+      flex-direction: row;
+      align-items: flex-end;
+    }
+
+    &__fan {
+      width: 460px;
+      height: 280px;
+      margin: 0;
+    }
+
+    &__fan-card {
+      --go-zoom: 0.88;
+      transform: translateX(-50%) translateX(calc(var(--i) * 70px))
+        rotate(calc(var(--i) * 9deg));
+
+      &:first-child,
+      &:last-child {
+        display: block;
+      }
+    }
+  }
+}
+
+.go-join {
+  &__label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: $paper;
+    font-size: 0.8125rem;
+  }
+
+  &__row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    height: 52px;
+    padding: 0 1rem;
+    border: 0;
+    border-radius: 0;
+    background: $paper;
+    color: $ink;
+    font-family: $mono;
+    font-size: 1.25rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+
+    &::placeholder {
+      color: $ink-muted;
+    }
+
+    @media (min-width: $go-lg) {
+      width: 170px;
+      flex: none;
+    }
+  }
+}
+
+.go-guide {
+  padding: 2rem 0 3rem;
+  background: $paper;
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  &__heading {
+    margin-bottom: 1rem;
+    font-family: $serif;
+    font-size: 1.5rem;
+  }
+
+  &__note {
+    margin-top: 1.5rem;
+  }
+
+  @media (min-width: $go-lg) {
+    padding: 3rem 0 4rem;
+
+    &__inner {
+      flex-direction: row;
+      gap: 3.5rem;
+    }
+
+    &__rules {
+      flex: 0 0 22rem;
+    }
+
+    &__heading {
+      font-size: 2rem;
+    }
+  }
+}
+
+.go-kinds {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 64px;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid $rule;
+  }
+
+  &__icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: $tap;
+    height: $tap;
+    border-radius: 6px;
+
+    img {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    color: $ink-muted;
+    font-size: 0.8125rem;
+
+    strong {
+      color: $ink;
+      font-size: 0.9375rem;
+      font-weight: 600;
+    }
+  }
+
+  @each $kind, $values in $go-kinds {
+    &__item--#{$kind} .go-kinds__icon {
+      background: nth($values, 1);
+    }
+  }
+
+  @media (min-width: $go-lg) {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+
+    &__item {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1rem;
+      border: 0;
+      background: $paper-warm;
+    }
+  }
+}
+
+// ---- a table: the game bar, then the lobby, the play or the scores
+
+.go-table-layout {
+  min-height: 100vh;
+  background: $paper;
+}
+
+.go-bar {
+  background: $night;
+  color: $paper;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 56px;
+  }
+
+  &__word {
+    flex: 1;
+    font-family: $serif;
+    font-size: 1.375rem;
+    font-style: italic;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    font-family: $mono;
+    font-size: 0.875rem;
+  }
+
+  &__code {
+    color: $go-amber;
+  }
+
+  &__leave {
+    color: $paper;
+    font-family: $sans;
+    font-size: 0.875rem;
+
+    &:hover {
+      color: $go-amber;
+    }
+  }
+
+  // At the phone width the lobby leads with Leave, and the table keeps
+  // only the turn: there is no room for everything.
+  @media (max-width: $bp-lg) {
+    .go-table--lobby &__word {
+      text-align: center;
+    }
+
+    .go-table--lobby &__meta &__leave,
+    .go-table--picking &__code,
+    .go-table--picking &__leave,
+    .go-table--scored &__leave,
+    .go-table--over &__code,
+    .go-table--over &__leave {
+      display: none;
+    }
+  }
+
+  @media (min-width: $go-lg) {
+    &__inner {
+      min-height: 64px;
+    }
+
+    &__leave--start {
+      display: none;
+    }
+  }
+}
+
+.go-missing {
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.go-lobby {
+  padding-top: 1.5rem;
+  padding-bottom: 7rem;
+
+  &__join {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  &__scan {
+    margin-bottom: 0.75rem;
+    color: $ink-muted;
+  }
+
+  &__qr {
+    width: 260px;
+  }
+
+  &__code {
+    margin: 0.75rem 0;
+    font-family: $mono;
+    font-size: 2.875rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    line-height: 1;
+  }
+
+  &__seats {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid $rule;
+  }
+
+  &__heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-family: $serif;
+    font-size: 1.375rem;
+  }
+
+  &__count {
+    color: $ink-muted;
+    font-family: $mono;
+    font-size: 0.8125rem;
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__player {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 56px;
+    border-bottom: 1px solid $rule;
+  }
+
+  &__name {
+    flex: 1;
+    font-size: 1rem;
+
+    .go-lobby__player--empty & {
+      color: $ink-muted;
+    }
+  }
+
+  &__tag {
+    color: $ink-muted;
+    font-size: 0.8125rem;
+  }
+
+  // The host's deal sits at the foot of the phone screen, under a thumb.
+  &__deal {
+    position: fixed;
+    z-index: 10;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid $rule;
+    background: $paper;
+    text-align: center;
+  }
+
+  &__hint {
+    margin: 0.35rem 0 0;
+    color: $ink-muted;
+    font-size: 0.8125rem;
+  }
+
+  &__waiting {
+    margin: 0;
+    padding: 0.9rem 0;
+    color: $ink-muted;
+  }
+
+  @media (min-width: $go-lg) {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+
+    &__join {
+      flex: 1;
+      flex-direction: row;
+      gap: 2.5rem;
+      text-align: left;
+    }
+
+    &__qr {
+      width: 340px;
+    }
+
+    &__code {
+      font-size: 5.25rem;
+    }
+
+    &__seats {
+      flex: 0 0 26rem;
+      margin: 0;
+      padding: 1.75rem;
+      border: 0;
+      background: $paper-warm;
+    }
+
+    &__deal {
+      position: static;
+      margin-top: 1.25rem;
+      padding: 0;
+      border: 0;
+      background: none;
+    }
+  }
+}
+
+.go-qr__code svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid $rule;
+}
+
+.go-seats-band {
+  padding: 1rem 0;
+  background: $paper-warm;
+}
+
+.go-status {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.go-status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $spice;
+}
+
+.go-seats {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: $bp-md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: $go-lg) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.go-seat {
+  padding: 1rem;
+  border: 1px solid $rule;
+  background: $paper;
+
+  &.is-you {
+    border-color: $ink;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  &__who {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+
+  &__name {
+    font-weight: 600;
+  }
+
+  &__state {
+    color: $ink-muted;
+    font-size: 0.8125rem;
+  }
+
+  &__score {
+    font-family: $mono;
+    font-size: 1.375rem;
+  }
+
+  &__cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 0.75rem;
+  }
+
+  &__swap {
+    margin: 0.6rem 0 0;
+    color: $ink-muted;
+    font-size: 0.8125rem;
+  }
+}
+
+.go-hand-band {
+  padding: 1.25rem 0 2rem;
+}
+
+.go-hand {
+  display: flex;
+  gap: 12px;
+  margin: 0 -15px;
+  padding: 24px 24px 12px;
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x mandatory;
+
+  li {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  // About two and a third cards in view at the phone width.
+  .go-card {
+    --go-zoom: 0.85;
+  }
+
+  &.is-passing li {
+    animation: go-pass 240ms ease-out both;
+  }
+
+  &__heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.75rem;
+    font-family: $serif;
+    font-size: 1.375rem;
+  }
+
+  &__meta {
+    color: $ink-muted;
+    font-family: $sans;
+    font-size: 0.8125rem;
+  }
+
+  &__passed {
+    margin: 0;
+    color: $spice;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  &__card {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  @media (min-width: $go-lg) {
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 24px 0 12px;
+    overflow: visible;
+
+    li {
+      flex: 0 0 auto;
+    }
+
+    .go-card {
+      --go-zoom: 0.94;
+    }
+
+    &__actions {
+      flex-direction: row;
+      justify-content: flex-end;
+
+      .go-lock {
+        flex: 0 0 22rem;
+        width: auto;
+      }
+    }
+  }
+}
+
+.go-swap {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 56px;
+  margin: 0;
+  padding: 0 1rem;
+  border: 1px solid $rule;
+  background: $paper;
+  cursor: pointer;
+
+  span {
+    flex: 1;
+  }
+
+  &__icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  &__switch {
+    width: 48px;
+    height: 28px;
+    appearance: none;
+    border-radius: 999px;
+    background: radial-gradient(
+        circle at 14px 50%,
+        $paper 0 10px,
+        transparent 10.5px
+      ),
+      $rule-strong;
+    cursor: pointer;
+    transition: background-position 0.2s;
+
+    &:checked {
+      background: radial-gradient(
+          circle at 34px 50%,
+          $paper 0 10px,
+          transparent 10.5px
+        ),
+        $spice;
+    }
+  }
+}
+
+.go-scores {
+  @media (min-width: $go-lg) {
+    display: flex;
+  }
+
+  &__winner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    background: $night;
+    color: $paper;
+    text-align: center;
+
+    @media (min-width: $go-lg) {
+      flex: 0 0 420px;
+      align-items: flex-start;
+      padding: 3rem 2rem;
+      text-align: left;
+    }
+  }
+
+  &__avatar {
+    box-shadow: 0 0 0 3px $night, 0 0 0 5px $go-amber;
+  }
+
+  &__line {
+    margin: 1rem 0 0.25rem;
+    color: $paper;
+    font-family: $serif;
+    font-size: 2.25rem;
+
+    @media (min-width: $go-lg) {
+      font-size: 3.25rem;
+    }
+  }
+
+  &__points {
+    color: $go-amber;
+    font-family: $mono;
+    font-size: 1.125rem;
+  }
+
+  &__last {
+    display: none;
+
+    @media (min-width: $go-lg) {
+      display: block;
+      margin-top: 1rem;
+      font-size: 0.8125rem;
+    }
+  }
+
+  &__last-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 0.5rem;
+  }
+
+  &__table {
+    flex: 1;
+    padding: 1.5rem 1rem 2rem;
+
+    @media (min-width: $go-lg) {
+      padding: 3rem 2.5rem;
+    }
+  }
+
+  &__actions {
+    margin-top: 1.5rem;
+
+    .go-button {
+      width: 100%;
+
+      @media (min-width: $go-lg) {
+        width: auto;
+      }
+    }
+  }
+}
+
+.go-score-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.9rem 0.4rem;
+    border-bottom: 1px solid $rule;
+  }
+
+  thead th {
+    border-bottom-color: $ink;
+    color: $ink-muted;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  tbody th {
+    font-weight: 600;
+  }
+
+  &__who {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .num {
+    text-align: right;
+  }
+
+  td.num {
+    font-family: $mono;
+  }
+
+  .total {
+    color: $ink;
+    font-weight: 600;
+  }
+
+  &__icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .go-card {
+    transition: none;
+
+    &.is-revealed {
+      animation: go-fade 120ms linear both;
+      animation-delay: 0ms;
+    }
+  }
+
+  .go-hand.is-passing li {
+    animation: none;
+  }
+}

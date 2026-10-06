@@ -44,6 +44,7 @@ persistedstate
 PKCE
 Postres
 prismeditor
+qrcode
 quickstart
 Receta
 Recetas
