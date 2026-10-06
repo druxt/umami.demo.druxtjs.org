@@ -133,7 +133,7 @@ export default {
   },
 
   beforeDestroy() {
-    clearTimeout(this.washTimer)
+    this.unwash()
     if (this.media) this.media.removeEventListener('change', this.onMedia)
     document.removeEventListener('click', this.onDocument)
     document.removeEventListener('keydown', this.onDocument)
@@ -178,7 +178,8 @@ export default {
 
     /** The changed fields' elements get a warm wash for six seconds. */
     wash() {
-      clearTimeout(this.washTimer)
+      // A second save within the six seconds replaces the first one's wash.
+      this.unwash()
       const fields = {}
       const elements = []
       const visit = (vm) => {
@@ -196,10 +197,15 @@ export default {
           .forEach((el) => elements.push(el))
       }
       this.fields = fields
+      this.washed = elements
       elements.forEach((el) => el.classList.add('is-fresh'))
-      this.washTimer = setTimeout(() => {
-        elements.forEach((el) => el.classList.remove('is-fresh'))
-      }, FRESH)
+      this.washTimer = setTimeout(this.unwash, FRESH)
+    },
+
+    unwash() {
+      clearTimeout(this.washTimer)
+      for (const el of this.washed || []) el.classList.remove('is-fresh')
+      this.washed = []
     },
   },
 }
