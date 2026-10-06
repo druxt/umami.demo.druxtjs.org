@@ -43,10 +43,31 @@ export default ({ $sockets, store }, inject) => {
         vm.type === type &&
         typeof vm.$fetch === 'function'
       )
-        vm.$fetch()
+        Promise.resolve(vm.$fetch()).then(() =>
+          vm.$nextTick(() => refetchFields(vm))
+        )
       vm.$children.forEach(visit)
     }
     if (window.$nuxt) visit(window.$nuxt)
+  }
+
+  /**
+   * A field picks its component when it fetches, so one whose formatter
+   * changed fetches again to pick the new formatter's. Fields of entities
+   * nested inside are their own entity's business.
+   */
+  const refetchFields = (entity) => {
+    const walk = (vm) =>
+      vm.$children.forEach((child) => {
+        if (child.$options.name === 'DruxtEntity') return
+        if (
+          child.$options.name === 'DruxtField' &&
+          typeof child.$fetch === 'function'
+        )
+          child.$fetch()
+        walk(child)
+      })
+    walk(entity)
   }
 
   /** The unsaved display's schema, in place of the saved one. */

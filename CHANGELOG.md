@@ -37,6 +37,10 @@ The demo is a site without releases, so changes are grouped by date.
   order. Manage display also opens a live preview on the site, which follows
   the form before it is saved: the order, labels, formatters and formatter
   settings.
+- A multi-value reference rendered by the fallback field component, such as
+  recipe categories with Drupal's "Rendered entity" formatter, renders each
+  referenced entity in the formatter's view mode. A term rendered that way
+  shows its name, linked, and its description.
 - Open pages refresh what a content change touches as soon as Drupal purges,
   over a WebSocket through `@druxt-contrib/sockets`, vendored, ahead of the
   rebuild.

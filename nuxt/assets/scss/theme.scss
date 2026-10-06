@@ -7119,3 +7119,31 @@ $go-kinds: (
     color: $paper;
   }
 }
+
+// ---------------------------------------------------------------- rendered term
+// A term rendered as an entity, as Drupal's "Rendered entity" formatter does:
+// its name linked to its page, and its description.
+
+.term-rendered {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid $rule;
+  background: $paper;
+
+  &__name {
+    color: $ink;
+    font-family: $serif;
+    font-size: 1.125rem;
+  }
+
+  &__body {
+    color: $ink-muted;
+    font-size: 0.875rem;
+
+    p {
+      margin: 0;
+    }
+  }
+}
