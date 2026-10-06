@@ -251,15 +251,25 @@ const clearCache = (req, res) => {
     return res.end()
   }
   let body = ''
+  let overflow = false
   req.setEncoding('utf8')
   req.on('data', (chunk) => {
-    if (body.length < 64 * 1024) body += chunk
+    if (overflow) return
+    body += chunk
+    if (body.length > 64 * 1024) {
+      overflow = true
+      body = ''
+    }
   })
   req.on('end', () => {
-    const tags = body
-      .split(',')
-      .map((tag) => tag.trim())
-      .filter((tag) => /^[\w:.-]{1,128}$/.test(tag))
+    // A batch too big to keep names more than it lists: no tags at all
+    // tells open pages everything changed, so none keeps a stale part.
+    const tags = overflow
+      ? []
+      : body
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter((tag) => /^[\w:.-]{1,128}$/.test(tag))
     res.writeHead(204)
     res.end()
     // A sign-in purges its tokens' tags too; that is not a content change.

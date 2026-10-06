@@ -1,7 +1,8 @@
 /**
  * CI: a purge reaches an open page. Opens the /_live socket, posts a sign-in's
  * purge, which no page hears, then a content purge, which must arrive with
- * its tags. Usage: node server/check-live.js <site origin> <cache secret>
+ * its tags, then one too big to keep, which must arrive as everything.
+ * Usage: node server/check-live.js <site origin> <cache secret>
  */
 const http = require('http')
 const path = require('path')
@@ -35,6 +36,7 @@ const purge = (body) =>
     req.end(body)
   })
 
+let heard = false
 const ws = new WebSocket(`${site.replace(/^http/, 'ws')}/_live`)
 ws.on('error', (error) => fail(error.message))
 ws.on('message', (data) => {
@@ -46,8 +48,17 @@ ws.on('message', (data) => {
   }
   if (message.type === 'content:changed') {
     const tags = message.payload.tags.join(',')
-    if (tags !== 'node:1,node_list') fail(`an open page heard ${tags}`)
-    process.stdout.write('A purge reached an open page with its tags.\n')
+    if (!heard) {
+      if (tags !== 'node:1,node_list') fail(`an open page heard ${tags}`)
+      heard = true
+      // Far past the 64 KiB the handler keeps.
+      const big = Array.from({ length: 10000 }, (_, i) => `node:${i}`)
+      return purge(big.join(',')).catch((error) => fail(error.message))
+    }
+    if (tags !== '') fail(`an oversized purge arrived as ${tags.slice(0, 40)}…`)
+    process.stdout.write(
+      'A purge reached an open page with its tags, and an oversized one as everything.\n'
+    )
     process.exit(0)
   }
 })
