@@ -5450,9 +5450,19 @@ $go-kinds: (
 // ---- the card
 
 .go-card {
+  // A full card is laid out at 170px and scaled whole with zoom: its type
+  // is a fixed size, so narrowing the card alone crops the recipe's name.
+  --go-zoom: 1;
+
   position: relative;
-  width: 100%;
+  width: calc(170px * var(--go-zoom));
   transition: transform 0.22s ease;
+
+  &--full &__face,
+  &--full &__back {
+    width: 170px;
+    zoom: var(--go-zoom);
+  }
 
   &__face {
     display: flex;
@@ -5803,9 +5813,10 @@ $go-kinds: (
   }
 
   &__fan-card {
+    --go-zoom: 0.72;
+
     position: absolute;
     left: 50%;
-    width: 120px;
     transform: translateX(-50%) translateX(calc(var(--i) * 48px))
       rotate(calc(var(--i) * 8deg));
     transform-origin: 50% 120%;
@@ -5871,7 +5882,7 @@ $go-kinds: (
     }
 
     &__fan-card {
-      width: 150px;
+      --go-zoom: 0.88;
       transform: translateX(-50%) translateX(calc(var(--i) * 70px))
         rotate(calc(var(--i) * 9deg));
 
@@ -6345,14 +6356,19 @@ $go-kinds: (
   display: flex;
   gap: 12px;
   margin: 0 -15px;
-  padding: 24px 20px 12px;
+  padding: 24px 24px 12px;
   overflow-x: auto;
   list-style: none;
   scroll-snap-type: x mandatory;
 
   li {
-    flex: 0 0 40%;
+    flex: 0 0 auto;
     scroll-snap-align: start;
+  }
+
+  // About two and a third cards in view at the phone width.
+  .go-card {
+    --go-zoom: 0.85;
   }
 
   &.is-passing li {
@@ -6404,7 +6420,11 @@ $go-kinds: (
     overflow: visible;
 
     li {
-      flex: 0 0 160px;
+      flex: 0 0 auto;
+    }
+
+    .go-card {
+      --go-zoom: 0.94;
     }
 
     &__actions {
