@@ -1,9 +1,11 @@
 /**
  * The browser half: one WebSocket for the whole app.
  *
- * `join(channel, role)` and `leave(channel)` keep the server's channels in
- * step with the page; `send(type, channel, payload)` and `on(type, handler)`
- * carry the rest. A dropped socket reconnects with exponential backoff and
+ * `subscribe(channel, fn, { mode })` hears every message on a channel and
+ * returns its own end; `join(channel, role)` and `leave(channel)` do the same
+ * without a listener. Joins are counted per channel, so the server is only
+ * told to leave when the last of them ends. `send(type, channel, payload)`
+ * and `on(type, handler)` carry the rest. A dropped socket reconnects with exponential backoff and
  * resumes its identity with the token the server gave it, so a phone that
  * sleeps comes back as the same person.
  *
@@ -30,7 +32,9 @@ export function createSockets(context, options = {}) {
   const Socket = options.WebSocket || win.WebSocket
   // Read when needed: auth-next's plugin runs after this one.
   const auth = () => context.$auth
-  const state = Vue.observable({
+  // The app's Vue: a linked package resolves its own copy, which the app
+  // cannot watch.
+  const state = (options.Vue || Vue).observable({
     connected: false,
     id: null,
     name: null,
@@ -38,7 +42,9 @@ export function createSockets(context, options = {}) {
     updatedAt: 0,
   })
   const handlers = new Map()
+  /** Per channel: `{ subs, direct, role }`, subscribers and bare joins. */
   const joined = new Map()
+  const listeners = new Map()
   const holds = []
   let socket = null
   let attempts = 0
@@ -95,7 +101,7 @@ export function createSockets(context, options = {}) {
       state.connected = true
       if (auth() && auth().loggedIn) authenticate()
       // The server keeps channels across a resume; a new identity rejoins.
-      for (const [channel, role] of joined)
+      for (const [channel, { role }] of joined)
         raw({ type: 'join', channel, payload: { role } })
     }
     socket.onmessage = (event) => {
@@ -115,6 +121,8 @@ export function createSockets(context, options = {}) {
         state.signedIn = message.payload.signedIn
       }
       emit(message)
+      if (message.channel && listeners.has(message.channel))
+        listeners.get(message.channel).forEach((fn) => fn(message))
     }
     socket.onclose = () => {
       state.connected = false
@@ -132,15 +140,48 @@ export function createSockets(context, options = {}) {
     timer = setTimeout(connect, delay)
   }
 
+  /** Count a join; tell the server on the first, or when the role changes. */
+  const enter = (channel, role, key) => {
+    const entry = joined.get(channel) || { subs: 0, direct: 0, role: null }
+    entry[key]++
+    joined.set(channel, entry)
+    if (entry.role === role) return
+    entry.role = role
+    raw({ type: 'join', channel, payload: { role } })
+  }
+
+  /** Count a leave; tell the server when nothing holds the channel. */
+  const exit = (channel, key) => {
+    const entry = joined.get(channel)
+    if (!entry || !entry[key]) return
+    entry[key]--
+    if (entry.subs + entry.direct) return
+    joined.delete(channel)
+    raw({ type: 'leave', channel })
+  }
+
   const sockets = {
     state,
     join(channel, role = 'reader') {
-      joined.set(channel, role)
-      raw({ type: 'join', channel, payload: { role } })
+      enter(channel, role, 'direct')
     },
     leave(channel) {
-      joined.delete(channel)
-      raw({ type: 'leave', channel })
+      exit(channel, 'direct')
+    },
+    /** `fn(message)` for every message on `channel`; returns its end. */
+    subscribe(channel, fn, { mode = 'reader' } = {}) {
+      if (!listeners.has(channel)) listeners.set(channel, new Set())
+      listeners.get(channel).add(fn)
+      enter(channel, mode, 'subs')
+      let done = false
+      return () => {
+        if (done) return
+        done = true
+        const set = listeners.get(channel)
+        set.delete(fn)
+        if (!set.size) listeners.delete(channel)
+        exit(channel, 'subs')
+      }
     },
     send(type, channel, payload = {}) {
       raw({ type, channel, payload })

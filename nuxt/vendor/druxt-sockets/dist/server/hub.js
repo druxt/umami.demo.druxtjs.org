@@ -90,8 +90,9 @@ function readMessage(raw) {
  * The hub. `handlers` maps a channel kind (`room`, `game`) to an object with
  * any of `join(hub, channel, client)`, `leave(hub, channel, client)`,
  * `resume(hub, channel, client)` and
- * `message(hub, channel, client, type, payload)`. A channel of any other
- * kind than these and `page` is refused.
+ * `message(hub, channel, client, type, payload)`, and `presence: true` for
+ * the hub to tell its channels who is there, as it does for `page`. A channel
+ * of any other kind than these and `page` is refused.
  */
 function createHub({ handlers = {}, now = Date.now, rand = Math.random } = {}) {
   /** Live and resumable clients, by id. */
@@ -128,8 +129,10 @@ function createHub({ handlers = {}, now = Date.now, rand = Math.random } = {}) {
     return [...seen.values()]
   }
 
+  /** Pages, and the kinds whose handler sets `presence: true`. */
   const announce = (channel) => {
-    if (channel.startsWith('page:'))
+    const k = channel.split(':')[0]
+    if (k === 'page' || (handlers[k] && handlers[k].presence))
       broadcast(channel, 'presence', { people: presence(channel) })
   }
 
