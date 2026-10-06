@@ -49,13 +49,16 @@ default:
 .node:
   image: $NODE_IMAGE
   interruptible: true
+  # The downloads only: a cached node_modules keeps the patches it was built
+  # with, and patch-package cannot lay a changed patch over an applied one.
   cache:
     key:
       files:
         - nuxt/yarn.lock
+      # A new prefix, so no job restores an archive that held node_modules.
+      prefix: yarn-only
     paths:
       - .yarn-cache/
-      - nuxt/node_modules/
   before_script:
     - !reference [default, before_script]
     - section_start "install" "Installing dependencies (Yarn 1)"
@@ -66,6 +69,9 @@ default:
     - cd nuxt
     - yarn --version
     - yarn config set cache-folder "$CI_PROJECT_DIR/.yarn-cache"
+    # Yarn 1 keys a file: package by its version, which the vendored copies
+    # never change, so a cached one outlives edits to vendor/. Drop them.
+    - for p in admin ckeditor diff; do yarn cache clean "@druxt-contrib/$p"; done
     - yarn install --frozen-lockfile --network-timeout 600000
     - section_end "install"
 
@@ -265,6 +271,7 @@ commitlint:
     - key:
         files:
           - nuxt/yarn.lock
+        prefix: yarn-only
       paths:
         - .yarn-cache/
   before_script:
@@ -308,6 +315,9 @@ commitlint:
     - cd nuxt
     - yarn --version
     - yarn config set cache-folder "$CI_PROJECT_DIR/.yarn-cache"
+    # Yarn 1 keys a file: package by its version, which the vendored copies
+    # never change, so a cached one outlives edits to vendor/. Drop them.
+    - for p in admin ckeditor diff; do yarn cache clean "@druxt-contrib/$p"; done
     - yarn install --frozen-lockfile --network-timeout 600000
     - section_end "install"
 
@@ -457,12 +467,12 @@ test:stack:
 # The same stack, driven by a browser: the overlay, search, the edit form,
 # drafts and the reset control, as a visitor and as an editor. Playwright
 # needs a newer Node than the site builds with, so it gets its own.
-test:e2e:
-  extends: .stack
-  stage: test
+# Node 20 for the browser tooling (Playwright and Lighthouse), installed from
+# the official tarball with its checksum verified: the image's Node is the
+# site's own, which is older than either tool supports.
+.node20:
   script:
-    - !reference [.start-site, script]
-    - section_start "playwright" "Installing Playwright"
+    - section_start "node20" "Installing Node 20 and the browser tests' dependencies"
     - |
       node_version="20.19.5"
       case "$(uname -m)" in
@@ -479,7 +489,14 @@ test:e2e:
       cd "$CI_PROJECT_DIR/e2e"
       npm ci --no-audit --no-fund
       npx playwright install --with-deps chromium
-    - section_end "playwright"
+    - section_end "node20"
+
+test:e2e:
+  extends: .stack
+  stage: test
+  script:
+    - !reference [.start-site, script]
+    - !reference [.node20, script]
     - section_start "e2e" "Running the browser tests"
     - |
       export PATH="/opt/node20/bin:$PATH"
@@ -495,6 +512,30 @@ test:e2e:
       - drupal.log
     reports:
       junit: e2e/results/junit.xml
+    expire_in: 1 week
+
+# Lighthouse over the generated site: performance, accessibility, best
+# practices and SEO, each with a floor the run must clear (e2e/lighthouserc.js).
+# The reports are artifacts, one HTML page per URL.
+test:lighthouse:
+  extends: .stack
+  stage: test
+  script:
+    - !reference [.start-site, script]
+    - !reference [.node20, script]
+    - section_start "lighthouse" "Running Lighthouse"
+    - |
+      export PATH="/opt/node20/bin:$PATH"
+      cd "$CI_PROJECT_DIR/e2e"
+      chrome_path="$(node -e "console.log(require('@playwright/test').chromium.executablePath())")"
+      CHROME_PATH="$chrome_path" E2E_BASE_URL="http://127.0.0.1:$SITE_PORT" npm run lighthouse
+    - section_end "lighthouse"
+  artifacts:
+    when: always
+    paths:
+      - e2e/lighthouse/
+      - start.log
+      - drupal.log
     expire_in: 1 week
 
 # The same stack, served through a Cloudflare quick tunnel so a reviewer can

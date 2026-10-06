@@ -10,6 +10,10 @@ export default {
     // The start script builds beside the served copy, then swaps it in.
     dir: process.env.GENERATE_DIR || 'dist',
     routes: [
+      // Drupal names each language's front page /node; a visit there is a
+      // page, not a client-side render.
+      '/en/node',
+      '/es/node',
       '/node/preview/card',
       '/node/preview/card_common',
       '/node/preview/card_common_alt',
@@ -22,6 +26,10 @@ export default {
 
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
+    __dangerouslyDisableSanitizersByTagID: {
+      fonts: ['onload'],
+      'fonts-noscript': ['innerHTML'],
+    },
     title: 'Umami — a decoupled food magazine, built with DruxtJS',
     meta: [
       { charset: 'utf-8' },
@@ -33,6 +41,13 @@ export default {
           'A demonstration food magazine: Drupal Umami content rendered by Nuxt with DruxtJS.',
       },
     ],
+    noscript: [
+      {
+        hid: 'fonts-noscript',
+        innerHTML:
+          '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">',
+      },
+    ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -41,9 +56,15 @@ export default {
         href: 'https://fonts.gstatic.com',
         crossorigin: true,
       },
+      // The fonts load beside the first paint, not before it: preloaded, then
+      // switched to a stylesheet once fetched. Without scripts the plain
+      // link below applies.
       {
-        rel: 'stylesheet',
+        hid: 'fonts',
+        rel: 'preload',
+        as: 'style',
         href: 'https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap',
+        onload: "this.onload=null;this.rel='stylesheet'",
       },
       {
         rel: 'stylesheet',
@@ -67,10 +88,9 @@ export default {
     { src: '~/plugins/druxt-inspector.client.js' },
     // Keeps and previews an editor's unsaved changes.
     { src: '~/plugins/edit-drafts.client.js' },
-    // Marks a draft's changes in the page, word by word.
-    { src: '~/plugins/draft-marks.client.js' },
     // An entity with an unsaved draft is not refetched on a live update.
     { src: '~/plugins/live-drafts.client.js' },
+    // Marks a draft's changes in the page, word by word.
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)

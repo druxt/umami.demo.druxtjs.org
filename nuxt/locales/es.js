@@ -47,9 +47,10 @@ export default {
   },
   home: {
     thisWeek: 'Esta semana',
+    recipeOfWeek: 'Receta de la semana',
     allRecipes: 'Todas las recetas',
     collections: 'Colecciones de recetas',
-    more: 'Más →',
+    more: 'Todas las colecciones →',
     inPrint: 'En papel',
     feedbackTitle: 'Cuéntanos qué te parece',
     feedbackBody:
@@ -288,6 +289,10 @@ export default {
     replaced: 'Reemplazada',
     removed: 'Eliminada',
     was: 'antes',
+    discard: 'Descartar borrador',
+    discardAsk: '¿Tirar este borrador?',
+    discardYes: 'Descartar',
+    discardNo: 'Conservarlo',
   },
   contact: {
     kicker: 'Contacto',

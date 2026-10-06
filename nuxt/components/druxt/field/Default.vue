@@ -55,7 +55,7 @@
          its own paragraphs, and a p inside a p is re-parsed by the browser
          into markup the server never sent. -->
     <!-- eslint-disable-next-line -->
-    <div v-else-if="isSchemaView" v-html="html" />
+    <div v-else-if="isSchemaView" v-diff="textDiff(schema.id)" v-html="html" />
 
     <!-- Entity reference forms. -->
     <b-card v-else-if="relationship" class="mb-3" no-body>
@@ -81,17 +81,24 @@
     <b-form-group
       v-else
       :id="schema.id"
+      :label-for="`${schema.id}-field`"
       :description="schema.description || ''"
       :invalid-feedback="stateFeedback"
       :label="label"
       :state="state"
     >
       <!-- Checkboxes -->
-      <b-form-checkbox v-if="isTypeCheckbox" v-model="model" v-bind="props" />
+      <b-form-checkbox
+        v-if="isTypeCheckbox"
+        :id="`${schema.id}-field`"
+        v-model="model"
+        v-bind="props"
+      />
 
       <!-- Input fields -->
       <b-input
         v-else-if="isTypeInput"
+        :id="`${schema.id}-field`"
         v-model="model"
         :type="inputType"
         v-bind="props"
@@ -100,6 +107,7 @@
       <!-- Textarea -->
       <b-textarea
         v-else
+        :id="`${schema.id}-field`"
         v-model="model"
         v-bind="{
           rows: schema.settings.display.rows || undefined,
@@ -114,11 +122,12 @@
 import { BFormCheckbox } from 'bootstrap-vue'
 import { DruxtFieldMixin } from 'druxt-entity'
 import DruxtEntity from 'druxt-entity/dist/components/DruxtEntity.vue'
+import { draftDiffable } from '~/utils/draft-diff'
 
 export default {
   components: { BFormCheckbox, DruxtEntity },
 
-  mixins: [DruxtFieldMixin],
+  mixins: [draftDiffable, DruxtFieldMixin],
 
   data: ({ relationship, schema, value }) => ({
     model:

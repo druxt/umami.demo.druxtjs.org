@@ -18,6 +18,7 @@
 
       <b-button v-if="link" :to="link.to" variant="secondary">
         {{ link.title }}
+        <span v-if="link.target" class="sr-only">: {{ link.target }}</span>
       </b-button>
     </div>
   </div>
@@ -72,7 +73,10 @@ export default {
       const langcode =
         (this.$route.path.match(/^\/(en|es)(\/|$)/) || [])[1] || 'en'
       const path = field.data.uri.replace('internal:', '')
+      const title = (this.fields || {}).field_title
       return {
+        // The block's title, read out after a generic label like "Más información".
+        target: title && title.data,
         title: field.data.title,
         to: `/${langcode}${path}`,
       }

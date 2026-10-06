@@ -25,6 +25,30 @@
 <script>
 import { mapState } from 'vuex'
 
+/**
+ * The box a component occupies. A wrapper with `display: contents` has no
+ * box of its own, so the one around its children stands in for it: the
+ * featured strip's cards sit in such wrappers and went unlabelled.
+ */
+const boxOf = (el) => {
+  const own = el.getBoundingClientRect()
+  if ((own.width && own.height) || !el.children.length) return own
+  let left = Infinity
+  let top = Infinity
+  let right = -Infinity
+  let bottom = -Infinity
+  for (const child of el.children) {
+    const r = child.getBoundingClientRect()
+    if (!r.width || !r.height) continue
+    left = Math.min(left, r.left)
+    top = Math.min(top, r.top)
+    right = Math.max(right, r.right)
+    bottom = Math.max(bottom, r.bottom)
+  }
+  if (left === Infinity) return own
+  return { left, top, width: right - left, height: bottom - top }
+}
+
 const LABEL_HEIGHT = 18
 const CORNER = 8
 /** The demo bar's height; nothing sits under it. */
@@ -77,7 +101,7 @@ export default {
       for (const item of this.$inspector.items) {
         if (!item.el.isConnected) continue
         if (item.hover && !(hovered && item.el.contains(hovered))) continue
-        const rect = item.el.getBoundingClientRect()
+        const rect = boxOf(item.el)
         // An empty region or a block that rendered nothing has no box to name.
         if (!rect.width || !rect.height) continue
         const corner = `${Math.round(rect.left / CORNER)}:${Math.round(

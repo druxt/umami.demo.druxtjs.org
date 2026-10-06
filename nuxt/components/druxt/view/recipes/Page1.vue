@@ -31,9 +31,12 @@
 
       <div class="recipe-filters__row">
         <div class="recipe-filters__group">
-          <span class="stat-grid__label">{{ $t('listing.sort') }}</span>
+          <span id="recipe-sort-label" class="stat-grid__label">{{
+            $t('listing.sort')
+          }}</span>
           <b-form-select
             v-model="sort"
+            aria-labelledby="recipe-sort-label"
             :options="sortOptions"
             size="sm"
             style="width: auto"

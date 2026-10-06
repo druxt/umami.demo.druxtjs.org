@@ -1,4 +1,5 @@
 import { demoLinks } from '~/utils/demo'
+import { isFront } from '~/utils/front'
 import {
   LOCALES,
   SITE_NAME,
@@ -242,7 +243,7 @@ export function routeHead(vm) {
     return seoHead({
       origin,
       path,
-      title: route.isHomePath ? undefined : route.label || undefined,
+      title: isFront(route, path) ? undefined : route.label || undefined,
       twitter,
     })
   }

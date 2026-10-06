@@ -8,7 +8,7 @@
            referenced entity resolves back to a card. -->
       <span v-if="kicker" class="recipe-card__kicker">{{ kicker }}</span>
 
-      <h3 class="recipe-card__title">{{ entity.attributes.title }}</h3>
+      <h2 class="recipe-card__title">{{ entity.attributes.title }}</h2>
 
       <!-- One meta line: time then difficulty. Read off the entity, because a
            field slot renders the referenced entity, and an entity rendered

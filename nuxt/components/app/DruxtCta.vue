@@ -27,8 +27,17 @@
             $t('cta.startKicker')
           }}</span>
           <div class="druxt-cta__command mt-2">
-            <span><span class="prompt">$</span> {{ command }}</span>
-            <button type="button" @click="copy">
+            <!-- One line on a phone, scrolled sideways: the keyboard reaches
+                 it as well. -->
+            <span tabindex="0"
+              ><span class="prompt">$</span> {{ command }}</span
+            >
+            <button
+              class="druxt-cta__copy-btn"
+              :data-state="copied ? 'copied' : null"
+              type="button"
+              @click="copy"
+            >
               {{ copied ? $t('cta.copied') : $t('cta.copy') }}
             </button>
           </div>
