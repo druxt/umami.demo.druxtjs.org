@@ -138,8 +138,20 @@
               if (message.channel !== channel) return;
               if (message.type === 'error' && message.payload) {
                 status.textContent = message.payload.message;
-              } else if (message.type === 'draft') {
-                status.textContent = Drupal.t('Connected');
+              } else if (message.type === 'built' && message.payload) {
+                // Built, and how many preview tabs it reached.
+                const time = new Date().toLocaleTimeString();
+                status.textContent = message.payload.watching
+                  ? Drupal.formatPlural(
+                      message.payload.watching,
+                      'Preview updated at @time, 1 tab watching',
+                      'Preview updated at @time, @count tabs watching',
+                      { '@time': time },
+                    )
+                  : Drupal.t(
+                      'Built at @time, but no preview tab is open: use the link.',
+                      { '@time': time },
+                    );
               }
             });
             socket.addEventListener('close', () => {

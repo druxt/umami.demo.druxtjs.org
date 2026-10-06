@@ -76,9 +76,9 @@ test('a draft is checked field by field', () => {
     assert.strictEqual(readDraft(payload), null)
 })
 
-test('the schema built from a draft reaches everyone else on the key, and anyone joining later', async () => {
+test('the schema built from a draft reaches everyone else on the key, and the form hears it is built', async () => {
   const handler = handlerFor()
-  const hub = fakeHub()
+  const hub = fakeHub([{ id: 'form' }, { id: 'page' }])
   const form = { id: 'form' }
   handler.message(
     hub,
@@ -91,7 +91,7 @@ test('the schema built from a draft reaches everyone else on the key, and anyone
     })
   )
   await wait(30)
-  const sent = hub.sent.pop()
+  const [sent, built] = hub.sent
   assert.strictEqual(sent.to, 'all')
   assert.strictEqual(sent.except, 'form')
   assert.deepStrictEqual(sent.payload, {
@@ -104,8 +104,14 @@ test('the schema built from a draft reaches everyone else on the key, and anyone
       ],
     },
   })
-  handler.join(hub, CHANNEL, { id: 'page' })
-  assert.deepStrictEqual(hub.sent.pop().payload, sent.payload)
+  assert.deepStrictEqual(built, {
+    to: 'form',
+    type: 'built',
+    channel: CHANNEL,
+    payload: { fields: 2, watching: 1 },
+  })
+  // The hub hands the latest draft to whoever joins later.
+  assert.deepStrictEqual(handler.retain, ['draft'])
 })
 
 test('edits in quick succession build once, from the latest', async () => {
@@ -127,7 +133,7 @@ test('edits in quick succession build once, from the latest', async () => {
     )
   await wait(30)
   assert.strictEqual(builds, 1)
-  assert.strictEqual(hub.sent.length, 1)
+  assert.strictEqual(hub.sent.filter((s) => s.type === 'draft').length, 1)
 })
 
 test('a slow build overtaken by a later draft is not sent', async () => {
@@ -155,7 +161,9 @@ test('a slow build overtaken by a later draft is not sent', async () => {
   )
   await wait(80)
   assert.deepStrictEqual(
-    hub.sent.map((s) => s.payload.schema.fields[0].id),
+    hub.sent
+      .filter((s) => s.type === 'draft')
+      .map((s) => s.payload.schema.fields[0].id),
     ['field_fast']
   )
 })
@@ -202,11 +210,16 @@ test('a short key, a bad draft or another message is refused', () => {
   assert.match(hub.sent.pop().payload.message, /draft/)
   handler.message(hub, CHANNEL, who, 'save', {})
   assert.match(hub.sent.pop().payload.message, /drafts only/)
-  assert.strictEqual(handler.drafts.size, 0)
 })
 
-test('a draft nobody watches is dropped', async () => {
-  const handler = handlerFor({ idleMs: 20 })
+test('an emptied channel forgets a draft still waiting to build', async () => {
+  let builds = 0
+  const handler = handlerFor({
+    buildSchema: (...args) => {
+      builds++
+      return fakeBuild(...args)
+    },
+  })
   const hub = fakeHub([])
   handler.message(
     hub,
@@ -215,20 +228,8 @@ test('a draft nobody watches is dropped', async () => {
     'draft',
     draft({ field_a: { weight: 1 } })
   )
-  await wait(30)
   handler.leave(hub, CHANNEL)
-  await wait(60)
-  assert.strictEqual(handler.drafts.has(CHANNEL), false)
-  // Someone still on the channel keeps it.
-  handler.message(
-    hub,
-    CHANNEL,
-    { id: 'f' },
-    'draft',
-    draft({ field_a: { weight: 1 } })
-  )
   await wait(30)
-  handler.leave(fakeHub([{ id: 'p' }]), CHANNEL)
-  await wait(60)
-  assert.strictEqual(handler.drafts.has(CHANNEL), true)
+  assert.strictEqual(builds, 0)
+  assert.strictEqual(hub.sent.length, 0)
 })

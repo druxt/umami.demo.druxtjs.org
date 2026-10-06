@@ -33,7 +33,7 @@ const storage = {
 }
 
 export default ({ $sockets, store }, inject) => {
-  const state = Vue.observable({ key: null, draft: null })
+  const state = Vue.observable({ key: null, draft: null, at: null })
 
   /** Refetch every DruxtEntity of a type, `node--recipe`, so it reloads its schema. */
   const refetch = (type) => {
@@ -106,6 +106,7 @@ export default ({ $sockets, store }, inject) => {
   $sockets.on('draft', ({ channel, payload }) => {
     if (!state.key || channel !== `display:${state.key}`) return
     state.draft = payload
+    state.at = new Date()
     apply(payload)
   })
 

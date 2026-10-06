@@ -9,8 +9,10 @@
     <span>
       Previewing Drupal's unsaved display
       <template v-if="$displayPreview.state.draft">
-        · <code v-text="$displayPreview.state.draft.schemaId" />
+        · <code v-text="$displayPreview.state.draft.schemaId" /> · updated
+        {{ $displayPreview.state.at.toLocaleTimeString() }}
       </template>
+      <template v-else> · waiting for a change in Drupal</template>
     </span>
     <button
       type="button"

@@ -19,8 +19,6 @@ const MAX_BYTES = 32 * 1024
 const MAX_DRAFTS = 500
 /** Edits closer together than this build one schema, the latest. */
 const SETTLE_MS = 150
-/** A draft nobody is looking at is dropped after this long. */
-const IDLE_MS = 30 * 60 * 1000
 
 const isObject = (value) =>
   !!value && typeof value === 'object' && !Array.isArray(value)
@@ -63,25 +61,25 @@ function readDraft(payload) {
 
 /**
  * `buildSchema(schemaId, content)` resolves to a Druxt schema, or null when
- * Drupal has no such display.
+ * Drupal has no such display. The hub keeps the latest schema sent on a
+ * channel, `retain`, and hands it to a page that joins later.
  */
 function displayHandler({
   buildSchema,
   log = () => {},
-  idleMs = IDLE_MS,
   settleMs = SETTLE_MS,
 } = {}) {
-  /** Per channel: the latest schema built, and the draft waiting to build. */
-  const drafts = new Map()
+  /** Per channel: the draft waiting to build, and the latest draft's number. */
   const waiting = new Map()
   const latest = new Map()
-  const idle = new Map()
 
   const fail = (hub, client, channel, message) =>
     hub.send(client, 'error', channel, { message })
 
   const build = async (hub, channel, client) => {
     const draft = waiting.get(channel)
+    // The channel emptied while the draft waited.
+    if (!draft) return
     waiting.delete(channel)
     const seq = latest.get(channel)
     try {
@@ -90,9 +88,17 @@ function displayHandler({
       if (latest.get(channel) !== seq) return
       if (!schema)
         return fail(hub, client, channel, 'Drupal has no such display.')
-      const message = { schemaId: draft.schemaId, schema }
-      drafts.set(channel, message)
-      hub.broadcast(channel, 'draft', message, client)
+      hub.broadcast(
+        channel,
+        'draft',
+        { schemaId: draft.schemaId, schema },
+        client
+      )
+      // The form hears that its change is built, and how many are watching.
+      hub.send(client, 'built', channel, {
+        fields: schema.fields.length,
+        watching: hub.members(channel).length - 1,
+      })
     } catch (e) {
       log(`display preview: ${e.message}`)
       fail(hub, client, channel, 'The preview could not be built.')
@@ -100,23 +106,15 @@ function displayHandler({
   }
 
   return {
-    drafts,
+    retain: ['draft'],
     join(hub, channel, client) {
       if (!KEY.test(channel.slice(8)))
         return fail(hub, client, channel, 'That preview key is not valid.')
-      clearTimeout(idle.get(channel))
-      // A page opened after the form changed sees the draft straight away.
-      if (drafts.has(channel))
-        hub.send(client, 'draft', channel, drafts.get(channel))
     },
     leave(hub, channel) {
       if (hub.members(channel).length) return
-      const timer = setTimeout(() => {
-        drafts.delete(channel)
-        latest.delete(channel)
-      }, idleMs)
-      if (timer.unref) timer.unref()
-      idle.set(channel, timer)
+      waiting.delete(channel)
+      latest.delete(channel)
     },
     message(hub, channel, client, type, payload) {
       if (type !== 'draft')
@@ -125,7 +123,7 @@ function displayHandler({
         return fail(hub, client, channel, 'That preview key is not valid.')
       const draft = readDraft(payload)
       if (!draft) return fail(hub, client, channel, 'That draft is not valid.')
-      if (!drafts.has(channel) && drafts.size >= MAX_DRAFTS)
+      if (!latest.has(channel) && latest.size >= MAX_DRAFTS)
         return fail(hub, client, channel, 'Too many previews are open.')
       const pending = waiting.has(channel)
       waiting.set(channel, draft)
