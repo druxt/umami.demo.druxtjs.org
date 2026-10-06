@@ -17,9 +17,15 @@ const fs = require('fs')
 const http = require('http')
 const path = require('path')
 const zlib = require('zlib')
+const { pipeline } = require('stream')
 const { spawn } = require('child_process')
+const { proxyEntry } = require('@druxt-contrib/admin')
 const { attachSockets } = require('@druxt-contrib/sockets/server')
+const { createServerMiddleware } = require('druxt-auth/server')
+const { createProxyMiddleware } = require('http-proxy-middleware')
 const { createDrupalProxy, isDrupalPath, waitForDrupal } = require('./drupal')
+const liveHandlers = require('./live/handlers')
+const { tablePage } = require('./table-page')
 const { createStartingHandler } = require('./starting')
 
 const rootDir = path.join(__dirname, '..')
@@ -43,7 +49,7 @@ const internalHosts = (env.REGENERATE_HOSTS || 'app,localhost,127.0.0.1')
 // The secret Drupal's purger sends; without one the endpoint is off.
 const cacheSecret = env.DRUXT_CACHE_SECRET || ''
 // Seconds without a further clear before the rebuild starts.
-const quietPeriod = (Number(env.DRUXT_CACHE_QUIET) || 10) * 1000
+const quietPeriod = (Number(env.DRUXT_CACHE_QUIET) || 3) * 1000
 const log = (message) => process.stdout.write(`start: ${message}\n`)
 
 const TYPES = {
@@ -92,6 +98,9 @@ const resolveFile = (pathname) => {
   return path.join(distDir, '200.html')
 }
 
+/** Pages only the browser renders: an Umami Go table, `/play/K7QF`. */
+const APP_ONLY = /^\/play\/[A-Z0-9]{4}$/
+
 const serveStatic = (req, res) => {
   const { pathname } = new URL(req.url, 'http://localhost')
   // English is prefixed, so the front page is /en and "/" is not a page.
@@ -124,37 +133,50 @@ const serveStatic = (req, res) => {
       ? 'public, max-age=31536000, immutable'
       : 'no-cache'
   // Text goes out compressed: the scripts are the bulk of a page's bytes.
-  const encoding = compressionFor(req, headers['Content-Type'])
-  if (encoding) {
-    headers['Content-Encoding'] = encoding
+  // Every compressible response varies by encoding, compressed or not, so a
+  // cache never hands brotli to a client that asked for none.
+  if (COMPRESSIBLE.test(headers['Content-Type'])) {
     headers.Vary = 'Accept-Encoding'
   }
-  res.writeHead(200, headers)
-  // A build swapped out mid-request loses its files; answer 404, don't crash.
-  const stream = fs.createReadStream(file).on('error', () => {
-    if (!res.headersSent) res.writeHead(404)
-    res.end()
-  })
-  if (encoding === 'br') {
-    stream
-      .pipe(
-        zlib.createBrotliCompress({
-          params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 5 },
-        })
-      )
-      .pipe(res)
-  } else if (encoding === 'gzip') {
-    stream.pipe(zlib.createGzip({ level: 6 })).pipe(res)
-  } else {
-    stream.pipe(res)
+  // A table's address answers with the game's invitation in its head, so a
+  // link shared in a chat previews as the table, not the front page.
+  if (APP_ONLY.test(decoded) && file.endsWith('200.html')) {
+    const html = tablePage(fs.readFileSync(file, 'utf8'), {
+      code: decoded.split('/').pop(),
+      origin: siteOrigin,
+    })
+    res.writeHead(200, {
+      ...headers,
+      'Content-Length': Buffer.byteLength(html),
+    })
+    return res.end(req.method === 'HEAD' ? undefined : html)
   }
+  const encoding = compressionFor(req, headers['Content-Type'])
+  if (encoding) headers['Content-Encoding'] = encoding
+  const steps = [fs.createReadStream(file)]
+  if (encoding === 'br') {
+    steps.push(
+      zlib.createBrotliCompress({
+        params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 5 },
+      })
+    )
+  } else if (encoding === 'gzip') {
+    steps.push(zlib.createGzip({ level: 6 }))
+  }
+  // A path with no generated page still gets the app, which renders what it
+  // can, but as a 404: a dead link or stale redirect must not read as a page.
+  res.writeHead(file.endsWith('200.html') ? 404 : 200, headers)
+  // A build swapped out mid-request loses its files: pipeline ends the
+  // response, and a compressor's error with it, rather than crash.
+  pipeline(...steps, res, () => {})
 }
+
+/** The types worth compressing: text, scripts, data and SVG. */
+const COMPRESSIBLE = /^(text\/|application\/(javascript|json|xml)|image\/svg)/
 
 /** The encoding a browser takes for a text response, or nothing. */
 const compressionFor = (req, type) => {
-  if (!/^(text\/|application\/(javascript|json|xml)|image\/svg)/.test(type)) {
-    return ''
-  }
+  if (!COMPRESSIBLE.test(type)) return ''
   const accept = String(req.headers['accept-encoding'] || '')
   if (/\bbr\b/.test(accept)) return 'br'
   if (/\bgzip\b/.test(accept)) return 'gzip'
@@ -237,14 +259,20 @@ const cycle = async () => {
     setPhase('waiting')
     await waitForDrupal(drupalUrl, log)
     setPhase('building')
+    // Always the same directory while it builds: GENERATE_DIR is read in
+    // nuxt.config.js, and Nuxt rebuilds webpack whenever such a value
+    // changes. A content change then only renders the pages again.
+    const next = path.join(rootDir, 'dist-next')
     const dir = path.join(rootDir, `dist-${Date.now()}`)
     const started = Date.now()
     try {
-      await generate(dir)
+      fs.rmSync(next, { recursive: true, force: true })
+      await generate(next)
+      fs.renameSync(next, dir)
     } catch (error) {
       setPhase('failed')
       log(`${error.message}; trying again in 30s`)
-      fs.rmSync(dir, { recursive: true, force: true })
+      fs.rmSync(next, { recursive: true, force: true })
       pending = true
       await new Promise((resolve) => setTimeout(resolve, 30000))
       continue
@@ -328,106 +356,63 @@ const clearCache = (req, res) => {
 
 /** Tags Drupal purges that no page shows: sign-in tokens and consumers. */
 const BOOKKEEPING = /^(oauth2_token|consumer|session)(_list)?(:|$)/
-/** The body of a request, as text, capped so a stray upload cannot fill memory. */
-const readBody = (req, limit = 64 * 1024) =>
-  new Promise((resolve, reject) => {
-    let body = ''
-    req.on('data', (chunk) => {
-      body += chunk
-      if (body.length > limit) {
-        reject(new Error('body too large'))
-        req.destroy()
-      }
-    })
-    req.on('end', () => resolve(body))
-    req.on('error', reject)
-  })
 
-/**
- * The route druxt-auth's password grant posts to. Under `nuxt dev` the
- * module serves it; here the generated site has no Nuxt server, so this
- * does the same: the credentials go on to Drupal's token endpoint with the
- * consumer's id, and the answer comes back as it is.
- */
-const GRANT_FIELDS = {
-  password: ['username', 'password', 'scope'],
-  refresh_token: ['refresh_token', 'scope'],
-}
-const passwordToken = async (req, res) => {
-  if (req.method !== 'POST') {
-    res.writeHead(405, { Allow: 'POST' })
-    return res.end()
-  }
-  let data
-  try {
-    data = JSON.parse((await readBody(req)) || '{}')
-  } catch (error) {
-    res.writeHead(400, { 'Content-Type': 'application/json' })
-    return res.end(JSON.stringify({ message: 'Malformed request' }))
-  }
-  const fields = GRANT_FIELDS[data.grant_type]
-  if (
-    !fields ||
-    (data.grant_type === 'password' && !(data.username && data.password))
-  ) {
-    res.writeHead(400, { 'Content-Type': 'application/json' })
-    return res.end(JSON.stringify({ message: 'Invalid username or password' }))
-  }
-  const form = new URLSearchParams({
-    ...Object.fromEntries(
-      fields.filter((f) => data[f] !== undefined).map((f) => [f, data[f]])
-    ),
-    grant_type: data.grant_type,
-    client_id: env.OAUTH_CLIENT_ID || 'umami_druxt',
-    ...(env.OAUTH_CLIENT_SECRET
-      ? { client_secret: env.OAUTH_CLIENT_SECRET }
-      : {}),
-  }).toString()
-  const url = new URL('/oauth/token', drupalUrl)
-  const upstream = http.request(
-    url,
-    {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': Buffer.byteLength(form),
-      },
-      timeout: 30000,
-    },
-    (answer) => {
-      res.writeHead(answer.statusCode, {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store',
-      })
-      answer.pipe(res)
-    }
-  )
-  upstream.on('timeout', () => upstream.destroy(new Error('timeout')))
-  upstream.on('error', () => {
-    res.writeHead(502, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ message: 'Drupal did not answer' }))
-  })
-  upstream.end(form)
-}
+// druxt-auth's server routes, which a static build has no Nuxt server to run:
+// the password grant's token route, and Drupal's sign-in, session and OAuth
+// paths on this origin, so the session the sign-in opens is first party.
+const auth = createServerMiddleware({
+  baseUrl: drupalUrl,
+  clientId: env.OAUTH_CLIENT_ID || 'umami_druxt',
+  clientSecret: env.OAUTH_CLIENT_SECRET,
+})
+
+const LLMS_LINK = '</llms.txt>; rel="describedby"; type="text/markdown"'
 
 const drupal = createDrupalProxy(drupalUrl)
+
+// Drupal's admin screens, logins and their assets, served on this origin by
+// druxt-admin's proxy, so the session an editor opens on sign-in is first
+// party and an edit link opens signed in. The module's own rules decide
+// which paths are Drupal's; Drupal's language prefix comes off first.
+const LANGUAGE_PREFIX = /^\/(en|es)(?=\/)/
+const adminEntry = proxyEntry({ baseUrl: drupalUrl })
+const admin = adminEntry
+  ? createProxyMiddleware(
+      (pathname) => adminEntry[0](pathname.replace(LANGUAGE_PREFIX, '')),
+      adminEntry[1]
+    )
+  : null
 const server = http.createServer((req, res) => {
   if (isDrupalPath(req.url)) return drupal(req, res)
   if (req.url === '/_regenerate') return regenerate(req, res)
   if (req.url === '/_druxt/cache/clear') return clearCache(req, res)
-  if (req.url === '/_auth/drupal-password/token') return passwordToken(req, res)
   // Once a build serves, the starting page's status poll must fail, so the
   // page reloads into the site instead of reading the fallback page as JSON.
   if (distDir && req.url.split('?')[0] === '/__status') {
     res.writeHead(404)
     return res.end()
   }
-  return (distDir ? serveStatic : starting)(req, res)
+  // llms.txt discovery (https://llmstxt.org): every
+  // response the site serves points at the index that covers it, which
+  // reaches a client that never parses the page's own <link>.
+  res.setHeader('Link', LLMS_LINK)
+  const site = () => (distDir ? serveStatic : starting)(req, res)
+  const rest = () => (admin ? admin(req, res, site) : site())
+  return auth(req, res, (error) => {
+    if (!error) return rest()
+    // A refused grant: the module names why, and Drupal is never asked.
+    res.writeHead(400, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ message: error.message }))
+  })
 })
 
 // Live updates on /_live: open pages refresh when Drupal purges.
-const live = attachSockets(server, { path: '/_live', drupalUrl, log })
+const live = attachSockets(server, {
+  path: '/_live',
+  drupalUrl,
+  handlers: liveHandlers({ drupalUrl, log }),
+  log,
+})
 
 const main = async () => {
   // Builds left by an earlier run are never served again.

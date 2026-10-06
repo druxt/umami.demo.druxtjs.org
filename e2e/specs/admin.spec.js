@@ -1,28 +1,25 @@
 const { test, expect } = require('@playwright/test')
-const { visit } = require('./helpers')
 
-// Drupal's admin paths are not content: the site hands the visitor through
-// to the same path on the backend.
+// Drupal's admin paths are not content: the site's server hands them to
+// Drupal on this origin, so a session the sign-in opened reaches them.
 test.describe('admin', () => {
-  test('an admin path opens the same path in Drupal', async ({ page }) => {
-    await visit(page, '/admin/content')
-    const admin = page.locator('.admin-page')
-    await expect(admin).toBeVisible()
-    await expect(admin).toContainText('lives in Drupal')
-    const href = await admin.locator('.admin-page__open').getAttribute('href')
-    expect(href).toMatch(/\/admin\/content$/)
-    expect(href.startsWith(new URL(page.url()).origin)).toBe(false)
+  test('an admin path is Drupal’s, answered on this origin', async ({
+    request,
+  }) => {
+    const response = await request.get('/admin/content', { maxRedirects: 0 })
+    // Signed out, Drupal itself sends the visitor to sign in, on this origin.
+    expect(response.status()).toBe(302)
+    expect(response.headers()['x-generator']).toMatch(/Drupal/)
+    expect(response.headers().location).toMatch(/^\/en\/user\/login/)
   })
 
   test('a content path that starts like an admin one stays content', async ({
-    page,
+    request,
   }) => {
-    await visit(page, '/node/add/recipe')
-    await expect(page.locator('.admin-page__open')).toHaveAttribute(
-      'href',
-      /\/node\/add\/recipe$/
-    )
-    await visit(page, '/en/recipes')
-    await expect(page.locator('.admin-page')).toHaveCount(0)
+    const add = await request.get('/node/add/recipe', { maxRedirects: 0 })
+    expect(add.headers()['x-generator']).toMatch(/Drupal/)
+    const recipes = await request.get('/en/recipes')
+    expect(recipes.status()).toBe(200)
+    expect(recipes.headers()['x-generator']).toBeUndefined()
   })
 })

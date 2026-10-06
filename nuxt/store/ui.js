@@ -4,6 +4,8 @@
 export const state = () => ({
   devOverlay: false,
   requestLog: [],
+  // The sign-in dialog, open or closed. Not persisted: a reload closes it.
+  signIn: false,
 })
 
 export const mutations = {
@@ -13,6 +15,10 @@ export const mutations = {
 
   setDevOverlay(state, value) {
     state.devOverlay = !!value
+  },
+
+  setSignIn(state, value) {
+    state.signIn = !!value
   },
 
   logRequest(state, entry) {

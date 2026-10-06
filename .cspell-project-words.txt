@@ -12,6 +12,7 @@ crawlable
 crossorigin
 dcbdaaf
 defu
+describedby
 devpod
 diffable
 drush
@@ -24,6 +25,7 @@ giget
 horneada
 hrefs
 información
+Inicio
 janked
 janks
 lando
@@ -35,11 +37,14 @@ lighthouserc
 lintfix
 llms
 LOCALDEV
+mocktails
 nuxtjs
 opencode
 persistedstate
 PKCE
+Postres
 prismeditor
+qrcode
 quickstart
 Receta
 Recetas

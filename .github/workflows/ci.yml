@@ -39,6 +39,8 @@ jobs:
         working-directory: nuxt
       - run: npx --no-install prettier --check .
         working-directory: nuxt
+      - run: yarn test:live
+        working-directory: nuxt
 
   lint-repo:
     name: Lint (repo)

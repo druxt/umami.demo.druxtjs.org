@@ -1,11 +1,14 @@
 <template>
   <!-- The dev overlay's labels, drawn over the page in a fixed layer. Each
        names a Druxt component, says which file rendered it, and links there.
-       Labels sharing a corner stack instead of covering each other. -->
+       Labels sharing a corner stack instead of covering each other. The
+       layer is decoration for pointer users, so it is out of the tab order
+       as well as the accessibility tree. -->
   <div v-if="devOverlay" class="druxt-inspector-layer" aria-hidden="true">
     <a
       v-for="item of labels"
       :key="item.key"
+      tabindex="-1"
       class="druxt-inspector-label"
       :class="`is-${item.kind}`"
       :href="item.href"

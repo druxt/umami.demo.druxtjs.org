@@ -10,7 +10,7 @@
 const http = require('http')
 const path = require('path')
 const { spawn } = require('child_process')
-const { createDrupalProxy, waitForDrupal } = require('./drupal')
+const { createDrupalProxy, isDrupalPath, waitForDrupal } = require('./drupal')
 const { createStartingHandler } = require('./starting')
 
 const env = process.env
@@ -19,6 +19,22 @@ const host = env.HOST || '0.0.0.0'
 const inner = port + 1
 const drupalUrl = env.DRUPAL_URL || 'http://nginx:8080'
 const log = (message) => process.stdout.write(`storybook: ${message}\n`)
+
+/**
+ * The address a browser reaches this Storybook on. Stories read Drupal from
+ * the browser, through this server's own proxy, so each environment's
+ * Storybook reads its own Drupal. Lagoon lists the environment's routes; the
+ * one for this service starts with `storybook.`.
+ */
+const publicOrigin = () => {
+  if (env.STORYBOOK_ORIGIN) return env.STORYBOOK_ORIGIN
+  const route = String(env.LAGOON_ROUTES || '')
+    .split(',')
+    .map((r) => r.trim())
+    .find((r) => /^https?:\/\/storybook\./.test(r))
+  return route ? route.replace(/\/+$/, '') : env.BASE_URL
+}
+const drupal = createDrupalProxy(drupalUrl)
 
 // druxtjs.org's starting page, until Storybook answers.
 const state = { phase: 'waiting', since: new Date().toISOString() }
@@ -29,7 +45,9 @@ const setPhase = (phase) => {
 const starting = createStartingHandler(state)
 
 let handler = starting
-const server = http.createServer((req, res) => handler(req, res))
+const server = http.createServer((req, res) =>
+  isDrupalPath(req.url) ? drupal(req, res) : handler(req, res)
+)
 
 /** Resolves once Storybook answers on its own port. */
 const waitForStorybook = async () => {
@@ -58,10 +76,14 @@ const main = async () => {
   log(`Drupal is ready at ${drupalUrl}`)
   setPhase('building')
 
-  const child = spawn(
+  child = spawn(
     'yarn',
     ['storybook', '-p', String(inner), '-h', '127.0.0.1', '--ci'],
-    { cwd: path.join(__dirname, '..'), stdio: 'inherit' }
+    {
+      cwd: path.join(__dirname, '..'),
+      env: { ...env, BASE_URL: publicOrigin() || env.BASE_URL },
+      stdio: 'inherit',
+    }
   )
   child.on('error', (error) => {
     setPhase('failed')
@@ -69,6 +91,8 @@ const main = async () => {
     process.exit(1)
   })
   child.on('exit', (code, signal) => {
+    // Stopped on purpose, with the server: not a failure.
+    if (stopping) return
     setPhase('failed')
     log(`Storybook exited with ${signal || code}`)
     process.exit(code || 1)
@@ -80,8 +104,15 @@ const main = async () => {
   log(`serving Storybook from port ${inner}`)
 }
 
+// Storybook runs in a child, which a signal to this process does not reach:
+// it is passed on, so the child stops with the server, not after it.
+let child = null
+let stopping = false
+
 for (const signal of ['SIGINT', 'SIGTERM']) {
   process.on(signal, () => {
+    stopping = true
+    if (child && child.exitCode === null) child.kill(signal)
     server.close(() => process.exit(0))
     setTimeout(() => process.exit(0), 10000).unref()
   })

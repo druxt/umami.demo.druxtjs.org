@@ -2,7 +2,6 @@
   <b-sidebar
     id="menu"
     backdrop
-    lazy
     left
     no-close-on-route-change
     no-header
