@@ -12,7 +12,7 @@
     "lint:style": "stylelint **/*.{vue,css} --ignore-path ../.gitignore",
     "lint": "npm run lint:js && npm run lint:style",
     "lintfix": "prettier --write --list-different . && npm run lint:js -- --fix && npm run lint:style -- --fix",
-    "test:live": "node --test server/live/code.test.js server/live/game.test.js server/table-page.test.js",
+    "test:live": "node --test server/live/code.test.js server/live/game.test.js server/live/game-room.test.js server/table-page.test.js",
     "start": "nuxt start",
     "storybook:build": "API_PROXY=0 npx nuxt storybook build",
     "storybook": "npx nuxt storybook",
