@@ -360,6 +360,8 @@
 </template>
 
 <script>
+import { seoHead } from '~/utils/seo'
+
 /** How long a reveal and a pass take to settle, in milliseconds. */
 const SETTLE = 900
 
@@ -378,11 +380,18 @@ export default {
     passedFrom: '',
   }),
 
+  // The server writes the same invitation for a link preview; this keeps
+  // the head right once the app has the page.
   head() {
-    return {
-      title: `Umami Go · ${this.code}`,
-      meta: [{ hid: 'robots', name: 'robots', content: 'noindex' }],
-    }
+    return seoHead({
+      origin: this.$config.siteOrigin,
+      path: this.$route.path,
+      title: `Umami Go: join table ${this.code}`,
+      description:
+        "You're invited to a game of Umami Go: draft the magazine's recipes into the best meal at the table.",
+      card: '/og/umami-go.png',
+      robots: 'noindex',
+    })
   },
 
   computed: {

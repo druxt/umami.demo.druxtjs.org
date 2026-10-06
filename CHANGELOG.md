@@ -17,7 +17,8 @@ The demo is a site without releases, so changes are grouped by date.
 - Umami Go at `/play`, a card game for two to five dealt from the magazine's
   recipes over the live WebSocket: a table to start or join by code or QR
   code, simultaneous picks with a swap, three scored rounds, and a Play link
-  in the main menu.
+  in the main menu. It shares with a card of its own, and a table's link
+  previews as an invitation to that table.
 - Open pages refresh what a content change touches as soon as Drupal purges,
   over a WebSocket through `@druxt-contrib/sockets`, vendored, ahead of the
   rebuild.
