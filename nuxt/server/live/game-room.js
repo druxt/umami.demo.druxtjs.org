@@ -9,6 +9,9 @@ const { roomCode } = require('./code')
 const game = require('./game')
 
 const EMPTY_GAME_MS = 15 * 60 * 1000
+/** A table nobody else joins closes after this long. */
+const UNJOINED_GAME_MS = 10 * 60 * 1000
+const MAX_GAMES = 200
 
 /** A fair random source for dealing: crypto, not Math.random. */
 const fairRand = () => crypto.randomInt(0, 2 ** 32) / 2 ** 32
@@ -58,10 +61,17 @@ function gameHandler({
   load = loadRecipes,
   rand = fairRand,
   log = () => {},
+  unjoinedMs = UNJOINED_GAME_MS,
 } = {}) {
   const games = new Map()
   const langs = new Map()
   const empty = new Map()
+
+  /** A table still open that this visitor started, so they get one at most. */
+  const openTableOf = (clientId) =>
+    [...games.values()].find(
+      (g) => g.creator === clientId && g.phase !== 'over'
+    )
 
   /** Each player sees the game as they may: their hand, nobody else's. */
   const share = (hub, channel, g) => {
@@ -124,7 +134,10 @@ function gameHandler({
       if (code === 'new') {
         if (type !== 'create')
           return fail(hub, client, channel, 'Create a game first.')
-        if (games.size >= 200)
+        // One open table a visitor: asking again returns the one they have.
+        const own = openTableOf(client.id)
+        if (own) return hub.send(client, 'created', channel, { code: own.code })
+        if (games.size >= MAX_GAMES)
           return fail(
             hub,
             client,
@@ -135,7 +148,16 @@ function gameHandler({
           roomCode(new Set(games.keys()), rand),
           client.id
         )
+        g.creator = client.id
         games.set(g.code, g)
+        // A table set and left before anyone joins does not hold a place.
+        const unjoined = setTimeout(() => {
+          if (games.get(g.code) === g && g.players.length < 2) {
+            games.delete(g.code)
+            langs.delete(g.code)
+          }
+        }, unjoinedMs)
+        if (unjoined.unref) unjoined.unref()
         langs.set(g.code, LANG.test(payload.langcode) ? payload.langcode : 'en')
         return hub.send(client, 'created', channel, { code: g.code })
       }
@@ -178,4 +200,4 @@ function gameHandler({
   }
 }
 
-module.exports = { gameHandler, loadRecipes, fairRand }
+module.exports = { gameHandler, loadRecipes, fairRand, MAX_GAMES }
