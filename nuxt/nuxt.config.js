@@ -57,14 +57,22 @@ export default {
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
+    // First, so it sees every error that follows.
+    { src: '~/plugins/error-log.client.js' },
+    // The frontend's own words, in the page's language.
+    { src: '~/plugins/i18n.js' },
     { src: '~/plugins/vuex-persistedstate.client.js' },
+    // Tags every Druxt component for the dev overlay.
+    { src: '~/plugins/druxt-inspector.client.js' },
+    // Keeps and previews an editor's unsaved changes.
+    { src: '~/plugins/edit-drafts.client.js' },
     // An entity with an unsaved draft is not refetched on a live update.
     { src: '~/plugins/live-drafts.client.js' },
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   // `~/components/app` is flattened so the promo components are usable as
-  // <AppDemoBar />, <AppDruxtNote />, <AppDevRegion /> and so on.
+  // <AppDemoBar />, <AppDruxtNote />, <AppDruxtInspector /> and so on.
   components: [
     '~/components',
     { path: '~/components/app', prefix: 'App', pathPrefix: false },
@@ -118,6 +126,11 @@ export default {
     // Live updates on /_live: open pages refresh when Drupal purges. It
     // attaches under `nuxt dev`; start.js attaches it in production.
     '@druxt-contrib/sockets',
+    // Editors sign in on the site: the password grant through the Druxt
+    // consumer, with the authorization code flow kept for a browser sent to
+    // Drupal. The token route the grant posts to is the module's own under
+    // `nuxt dev`, and server/start.js's on the generated site.
+    ['druxt-auth', { clientId: process.env.OAUTH_CLIENT_ID || 'umami_druxt' }],
   ],
 
   sockets: {
@@ -130,15 +143,6 @@ export default {
       logout: '/',
     },
     strategies: {
-      drupal: {
-        scheme: 'oauth2',
-        endpoints: {
-          authorization: baseUrl + '/oauth/authorize',
-          token: baseUrl + '/oauth/token',
-          userInfo: baseUrl + '/oauth/userinfo',
-        },
-        clientId: process.env.OAUTH_CLIENT_ID,
-      },
       github: {
         clientId: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
@@ -226,8 +230,19 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
+    transpile: ['defu'],
+
     extend(config) {
       config.resolve.alias.vue$ = 'vue/dist/vue.esm.js'
+      // The server bundle leaves node_modules to Node, so auth-next's
+      // runtime, an ES module the bundle does carry, was handed Nuxt's own
+      // defu 6 as a CommonJS external, which has no default export. Bundled
+      // (see `transpile`) and pointed at the ES build, both the default and
+      // the named import every importer here uses are there.
+      config.resolve.alias.defu$ = require('path').join(
+        require('path').dirname(require.resolve('defu')),
+        'defu.mjs'
+      )
     },
 
     extractCSS: true,

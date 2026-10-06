@@ -10,8 +10,8 @@
       >
         {{
           changes
-            ? `Save · ${changes} change${changes === 1 ? '' : 's'}`
-            : 'Save changes'
+            ? $tc('form.saveCount', changes, { n: changes })
+            : $t('form.save')
         }}
       </b-button>
       <b-button
@@ -19,26 +19,38 @@
         :disabled="!changes"
         type="button"
         variant="outline-secondary"
-        @click="$parent.$emit('reset')"
+        @click="cancel"
+        >{{ $t('form.cancel') }}</b-button
       >
-        Cancel
-      </b-button>
+      <span v-if="changes" class="edit-actions__kept">{{
+        $t('form.draftKept')
+      }}</span>
     </template>
 
     <!-- Anonymous visitors see the form and this in place of the buttons. -->
     <p v-else class="edit-actions__signin">
-      <nuxt-link to="/login">Sign in</nuxt-link> to save changes. Nothing is
-      written until Drupal says who you are.
+      <nuxt-link to="/login">{{ $t('nav.signIn') }}</nuxt-link>
+      {{ $t('form.signInToSave') }}
     </p>
   </div>
 </template>
 
 <script>
+import { withoutDraft } from '~/utils/edit-drafts'
+
 /**
- * Save counts the fields that differ from the entity in the store and is off
- * until there is one; Cancel puts the entity back.
+ * Save counts the fields that differ from the entity as Drupal holds it, and
+ * is off until there is one; Cancel puts that back.
+ *
+ * DruxtEntityForm's `entity` is a view of its `model`, so the pristine copy
+ * has to be kept here, and it moves on after a save goes through. A form
+ * that opens on a draft counts the draft's fields as changes.
  */
 export default {
+  data: () => ({
+    pristine: '',
+  }),
+
   computed: {
     /** The DruxtEntityForm these buttons belong to. */
     form() {
@@ -49,19 +61,56 @@ export default {
 
     changes() {
       const form = this.form
-      if (!form) return 0
+      if (!form || !this.pristine) return 0
+      const was = JSON.parse(this.pristine)
       let count = 0
       for (const type of ['attributes', 'relationships']) {
-        const was = (form.entity || {})[type] || {}
+        const before = was[type] || {}
         const now = (form.model || {})[type] || {}
-        for (const key of new Set([...Object.keys(was), ...Object.keys(now)])) {
-          if (JSON.stringify(was[key]) !== JSON.stringify(now[key])) count++
+        for (const key of new Set([
+          ...Object.keys(before),
+          ...Object.keys(now),
+        ])) {
+          if (JSON.stringify(before[key]) !== JSON.stringify(now[key])) count++
         }
       }
       return count
     },
 
     signedIn: ({ $auth }) => !!($auth && $auth.loggedIn),
+  },
+
+  mounted() {
+    this.snapshot()
+    if (this.form) this.form.$on('submit', this.snapshot)
+  },
+
+  beforeDestroy() {
+    if (this.form) this.form.$off('submit', this.snapshot)
+  },
+
+  methods: {
+    /** After a save the model is what Drupal holds; before one, the draft is not. */
+    snapshot(saved) {
+      const form = this.form
+      if (!form) {
+        this.pristine = ''
+        return
+      }
+      const model = form.model
+      const draft =
+        this.$drafts && !saved
+          ? this.$drafts.draftFor(model.type, model.id)
+          : null
+      this.pristine = JSON.stringify(withoutDraft(model, draft))
+    },
+
+    /** Back to the entity as the form found it. */
+    cancel() {
+      if (this.form && this.pristine) {
+        this.form.model = JSON.parse(this.pristine)
+      }
+    },
   },
 }
 </script>

@@ -5,7 +5,7 @@
     <img v-if="img" alt="" class="promo__cover" :src="img" />
 
     <div class="promo__body">
-      <span class="promo__kicker">In print</span>
+      <span class="promo__kicker">{{ $t('home.inPrint') }}</span>
 
       <h2 class="promo__title">
         <slot name="field_title" />

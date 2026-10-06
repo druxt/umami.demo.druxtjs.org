@@ -12,9 +12,9 @@
     @hidden="reset"
   >
     <div class="media-browser__head">
-      <span class="media-browser__title">Choose a photograph</span>
+      <span class="media-browser__title">{{ $t('browser.title') }}</span>
       <button
-        aria-label="Close"
+        :aria-label="$t('browser.close')"
         class="media-browser__close"
         type="button"
         @click="$bvModal.hide(id)"
@@ -26,21 +26,25 @@
     <input
       ref="search"
       v-model="query"
-      aria-label="Search the library"
+      :aria-label="$t('browser.search')"
       autocomplete="off"
       class="edit-control media-browser__search"
-      placeholder="Search the library"
+      :placeholder="$t('browser.search')"
       type="search"
       @input="search"
     />
 
     <p v-if="error" class="edit-field__error">{{ error }}</p>
     <p v-else-if="!items.length && !loading" class="edit-field__description">
-      Nothing in the library matches.
+      {{ $t('browser.empty') }}
     </p>
 
     <!-- The library as 4:3 tiles; one tap selects, a second confirms. -->
-    <div class="media-browser__grid" role="listbox" aria-label="Library">
+    <div
+      class="media-browser__grid"
+      role="listbox"
+      :aria-label="$t('form.library')"
+    >
       <button
         v-for="item of items"
         :key="item.id"
@@ -59,14 +63,16 @@
       </button>
     </div>
 
-    <p v-if="loading" class="edit-field__description">Loading…</p>
+    <p v-if="loading" class="edit-field__description">
+      {{ $t('note.loading') }}
+    </p>
     <button
       v-else-if="more"
       class="edit-list__add"
       type="button"
       @click="load(items.length)"
     >
-      + Show more
+      {{ $t('browser.more') }}
     </button>
 
     <div class="media-browser__actions">
@@ -75,21 +81,20 @@
         :disabled="!selected"
         variant="primary"
         @click="choose(items.find((o) => o.id === selected))"
+        >{{ $t('browser.use') }}</b-button
       >
-        Use this photograph
-      </b-button>
       <b-button
         class="edit-actions__cancel"
         variant="outline-secondary"
         @click="$bvModal.hide(id)"
+        >{{ $t('form.cancel') }}</b-button
       >
-        Cancel
-      </b-button>
     </div>
   </b-modal>
 </template>
 
 <script>
+import { langMixin } from '~/utils/lang'
 const PAGE = 24
 
 /**
@@ -97,6 +102,8 @@ const PAGE = 24
  * name over JSON:API. Emits `select` with the chosen media's type and id.
  */
 export default {
+  mixins: [langMixin],
+
   props: {
     id: { type: String, required: true },
     /** The media resource type to browse, e.g. `media--image`. */
@@ -149,7 +156,7 @@ export default {
       }
       try {
         const response = await this.$druxt.axios.get(
-          `/en/jsonapi/${entity}/${bundle}?${params}`,
+          `${this.prefix}/jsonapi/${entity}/${bundle}?${params}`,
           { headers: { Accept: 'application/vnd.api+json' } }
         )
         if (request !== this.request) return
@@ -170,8 +177,7 @@ export default {
         this.items = offset ? [...this.items, ...page] : page
         this.more = !!((doc.links || {}).next || {}).href
       } catch (e) {
-        if (request === this.request)
-          this.error = 'The library could not be read.'
+        if (request === this.request) this.error = this.$t('browser.error')
       } finally {
         if (request === this.request) this.loading = false
       }

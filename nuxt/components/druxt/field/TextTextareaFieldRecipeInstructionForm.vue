@@ -1,16 +1,26 @@
 <template>
   <AppFormField
-    :description="
-      description || 'Each step becomes a numbered step on the page.'
-    "
+    :description="description || $t('form.stepsHint')"
     :feedback="feedback"
     :label="label"
     :required="required"
   >
-    <!-- The method is stored as an ordered list; here it is one row a step. -->
-    <ol class="edit-steps">
+    <!-- The method is stored as an ordered list; here it is one row a step,
+         and the number is the grip that drags a step to its place. -->
+    <draggable
+      :animation="150"
+      :fallback-tolerance="3"
+      :force-fallback="true"
+      class="edit-steps"
+      handle=".edit-steps__n"
+      tag="ol"
+      :value="steps"
+      @input="write"
+    >
       <li v-for="(step, index) of steps" :key="index" class="edit-steps__row">
-        <span class="edit-steps__n">{{ index + 1 }}</span>
+        <span class="edit-steps__n" :title="$t('form.dragStep')">{{
+          index + 1
+        }}</span>
         <textarea
           :ref="`step-${index}`"
           class="edit-steps__input"
@@ -27,15 +37,16 @@
           ×
         </button>
       </li>
-    </ol>
+    </draggable>
     <button class="edit-list__add" type="button" @click="add()">
-      + Add a step
+      {{ $t('form.addStep') }}
     </button>
     <span v-if="item.format" class="edit-field__format">{{ item.format }}</span>
   </AppFormField>
 </template>
 
 <script>
+import draggable from 'vuedraggable'
 import formField from '~/utils/form-field'
 import { single } from '~/utils/form-widgets'
 
@@ -49,6 +60,8 @@ const encode = (text) =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
 export default {
+  components: { draggable },
+
   mixins: [formField],
 
   computed: {

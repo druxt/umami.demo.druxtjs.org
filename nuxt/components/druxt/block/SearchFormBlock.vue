@@ -4,7 +4,9 @@
       <b-input v-model="query" />
 
       <b-input-group-append>
-        <b-button :disabled="!query.length" nuxt :to="to">Search</b-button>
+        <b-button :disabled="!query.length" nuxt :to="to">{{
+          $t('nav.search')
+        }}</b-button>
       </b-input-group-append>
     </b-input-group>
   </b-form>
@@ -13,9 +15,10 @@
 <script>
 import { DruxtBlocksBlockMixin } from 'druxt-blocks'
 import { DruxtSearchMixin } from 'druxt-search'
+import { langMixin } from '~/utils/lang'
 
 export default {
-  mixins: [DruxtBlocksBlockMixin, DruxtSearchMixin],
+  mixins: [langMixin, DruxtBlocksBlockMixin, DruxtSearchMixin],
 
   computed: {
     searchOptions: () => ({
@@ -23,7 +26,7 @@ export default {
     }),
 
     to() {
-      return { path: `/en/search?query=${this.query}` }
+      return { path: `${this.prefix}/search?query=${this.query}` }
     },
   },
 

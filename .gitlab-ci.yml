@@ -397,6 +397,17 @@ test:stack:
       [ "$code" = 204 ] || fail "the cache secret answered $code"
       # Open pages hear a content purge on /_live, but not a sign-in's.
       (cd nuxt && node server/check-live.js "$site" "$DRUXT_CACHE_SECRET") || fail "a purge did not reach an open page"
+
+      # An editor signs in on the site: the password grant through the
+      # site's own token route, then Drupal's userinfo with the token.
+      token=$(curl -sS -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"admin"}' "$site/_auth/drupal-password/token")
+      grep -q '"access_token"' <<<"$token" || fail "the password grant did not issue a token: $token"
+      access=$(sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p' <<<"$token")
+      [ -n "$access" ] || fail "no access token in the grant's answer"
+      who=$(curl -sS -X POST -H "Authorization: Bearer $access" "$site/oauth/userinfo")
+      grep -q '"name":"admin"' <<<"$who" || fail "userinfo did not name the editor: $who"
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"wrong"}' "$site/_auth/drupal-password/token")
+      [ "$code" = 400 ] || [ "$code" = 401 ] || fail "a wrong password answered $code"
       echo "All assertions passed."
   artifacts:
     when: always
