@@ -16,7 +16,7 @@
     </div>
 
     <div
-      class="mt-3 p-2"
+      class="view-modes__stage mt-3 p-2"
       style="background: #fdfbf7; border: 1px solid #d8e8f4; border-radius: 6px"
     >
       <DruxtEntity :key="mode" :mode="mode" :type="type" :uuid="uuid" />
@@ -24,7 +24,7 @@
 
     <a
       class="druxt-note__link d-inline-block mt-3"
-      :href="`https://storybook.umami.demo.druxtjs.org/?path=/story/entity-${mode}`"
+      :href="`${storybookOrigin}/?path=/story/${entityStoryId(type, mode)}`"
       rel="noopener"
       target="_blank"
     >
@@ -34,7 +34,11 @@
 </template>
 
 <script>
+import { entityStoryId, storybookMixin } from '~/utils/storybook'
+
 export default {
+  mixins: [storybookMixin],
+
   props: {
     type: {
       type: String,
@@ -60,5 +64,6 @@ export default {
   data: ({ modes }) => ({
     mode: modes[0],
   }),
+  methods: { entityStoryId },
 }
 </script>

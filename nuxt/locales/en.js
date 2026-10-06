@@ -16,6 +16,16 @@ export default {
     view: 'View',
     edit: 'Edit',
   },
+  reset: {
+    button: 'Reset demo',
+    confirm:
+      'Put every recipe, article, image and setting back to the fresh demo, for everyone?',
+    yes: 'Yes, reset',
+    no: 'Keep it',
+    busy: 'Resetting…',
+    done: 'Reset. Drupal is fresh again, this site rebuilds in a minute, and everyone is signed out.',
+    failed: 'The reset was refused: {message}',
+  },
   demoBar: {
     long: 'A DruxtJS demo of Drupal Umami content, rendered by Nuxt',
     mid: 'A DruxtJS demo of Umami by Nuxt',
@@ -24,6 +34,7 @@ export default {
     viewSource: 'View source',
     docs: 'Docs',
     discord: 'Discord',
+    devShort: 'Dev',
     devOverlay: 'Dev overlay',
     builtWith: 'Built with Druxt',
     entityExplorer: 'Entity Explorer',
@@ -236,6 +247,15 @@ export default {
     discordBlurb: 'Ask, show what you built, follow releases.',
     source: "This site's source",
     sourceBlurb: 'Drupal backend and Nuxt frontend, one repository.',
+  },
+  draft: {
+    showingDraft: 'Unsaved draft',
+    showingReal: "Drupal's version",
+    kept: 'This page shows changes kept in this browser, not what Drupal holds.',
+    draft: 'Draft',
+    real: "Drupal's version",
+    changes: 'Mark {n} change | Mark {n} changes',
+    hideMarks: 'Hide the marks',
   },
   contact: {
     kicker: 'Contact',

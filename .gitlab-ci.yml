@@ -390,6 +390,17 @@ test:stack:
       headers=$(curl -sSI "http://127.0.0.1:$DRUPAL_PORT/en/jsonapi/node/recipe" | tr -d '\r')
       grep -qi '^cache-control: .*max-age=300' <<<"$headers" || fail "Drupal does not send max-age=300"
 
+      # The search index is in the build and is JSON, not a page; a build
+      # asset that is missing is a 404, never a page cached as the asset.
+      index_file=$(find "$CI_PROJECT_DIR/nuxt" -path '*/_nuxt/search-index*/en.json' | head -1)
+      [ -n "$index_file" ] || fail "no search index in the build"
+      [ -f "$(dirname "$index_file")/es.json" ] || fail "no Spanish search index in the build"
+      index=$(curl -sS "$site/_nuxt/$(basename "$(dirname "$index_file")")/en.json")
+      grep -q '"documentStore"\|"fields"\|"index"' <<<"$index" || fail "the search index is not served as JSON: $(head -c 120 <<<"$index")"
+      grep -q 'brownie\|quiche' <<<"$index" || fail "the search index has no recipes in it"
+      code=$(curl -s -o /dev/null -w '%{http_code}' "$site/_nuxt/not-a-real-asset.js")
+      [ "$code" = 404 ] || fail "a missing build asset answered $code"
+
       # Purge's cache clear: refused without the secret, accepted with it.
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'X-Druxt-Secret: wrong' "$site/_druxt/cache/clear")
       [ "$code" = 401 ] || fail "a wrong cache secret answered $code"
@@ -397,6 +408,10 @@ test:stack:
       [ "$code" = 204 ] || fail "the cache secret answered $code"
       # Open pages hear a content purge on /_live, but not a sign-in's.
       (cd nuxt && node server/check-live.js "$site" "$DRUXT_CACHE_SECRET") || fail "a purge did not reach an open page"
+
+      # The fresh demo, kept before any token exists: the reset below must
+      # take the editor's session with it.
+      (cd "$CI_PROJECT_DIR/drupal" && .devtools/snapshot) || fail "the snapshot could not be taken"
 
       # An editor signs in on the site: the password grant through the
       # site's own token route, then Drupal's userinfo with the token.
@@ -408,12 +423,78 @@ test:stack:
       grep -q '"name":"admin"' <<<"$who" || fail "userinfo did not name the editor: $who"
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"wrong"}' "$site/_auth/drupal-password/token")
       [ "$code" = 400 ] || [ "$code" = 401 ] || fail "a wrong password answered $code"
+
+      # The demo resets to its snapshot: not for a visitor, once a minute for
+      # an editor, and Drupal is back before the frontend has rebuilt.
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/druxt-umami/reset")
+      [ "$code" = 302 ] || [ "$code" = 401 ] || [ "$code" = 403 ] || fail "an anonymous reset answered $code"
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/druxt-umami/reset")
+      [ "$code" = 202 ] || fail "the reset answered $code"
+      sleep 3
+      for _ in $(seq 1 30); do
+        code=$(curl -s -o /dev/null -w '%{http_code}' -H 'Accept: application/vnd.api+json' "$site/en/jsonapi")
+        [ "$code" = 200 ] && break
+        sleep 2
+      done
+      [ "$code" = 200 ] || fail "Drupal did not come back after the reset ($code)"
+      # The restore took every token with it, so the editor signs in again,
+      # and the minute's quiet time still holds.
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/oauth/userinfo")
+      [ "$code" = 401 ] || [ "$code" = 403 ] || fail "the old token survived the reset ($code)"
+      token=$(curl -sS -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"admin"}' "$site/_auth/drupal-password/token")
+      access=$(sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p' <<<"$token")
+      [ -n "$access" ] || fail "no token after the reset: $token"
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/druxt-umami/reset")
+      [ "$code" = 429 ] || fail "a second reset within a minute answered $code"
       echo "All assertions passed."
   artifacts:
     when: always
     paths:
       - start.log
       - drupal.log
+    expire_in: 1 week
+
+# The same stack, driven by a browser: the overlay, search, the edit form,
+# drafts and the reset control, as a visitor and as an editor. Playwright
+# needs a newer Node than the site builds with, so it gets its own.
+test:e2e:
+  extends: .stack
+  stage: test
+  script:
+    - !reference [.start-site, script]
+    - section_start "playwright" "Installing Playwright"
+    - |
+      node_version="20.19.5"
+      case "$(uname -m)" in
+        aarch64|arm64) node_arch=arm64 ;;
+        x86_64) node_arch=x64 ;;
+        *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+      esac
+      tarball="node-v${node_version}-linux-${node_arch}.tar.xz"
+      curl -fsSL "https://nodejs.org/dist/v${node_version}/${tarball}" -o "/tmp/${tarball}"
+      curl -fsSL "https://nodejs.org/dist/v${node_version}/SHASUMS256.txt" | grep " ${tarball}\$" | sed "s# .*# /tmp/${tarball}#" | sha256sum -c -
+      mkdir -p /opt/node20 && tar -xJf "/tmp/${tarball}" -C /opt/node20 --strip-components=1
+      export PATH="/opt/node20/bin:$PATH"
+      node --version
+      cd "$CI_PROJECT_DIR/e2e"
+      npm ci --no-audit --no-fund
+      npx playwright install --with-deps chromium
+    - section_end "playwright"
+    - section_start "e2e" "Running the browser tests"
+    - |
+      export PATH="/opt/node20/bin:$PATH"
+      cd "$CI_PROJECT_DIR/e2e"
+      CI=1 E2E_BASE_URL="http://127.0.0.1:$SITE_PORT" E2E_USER=admin E2E_PASS=admin npx playwright test
+    - section_end "e2e"
+  artifacts:
+    when: always
+    paths:
+      - e2e/results/
+      - e2e/test-results/
+      - start.log
+      - drupal.log
+    reports:
+      junit: e2e/results/junit.xml
     expire_in: 1 week
 
 # The same stack, served through a Cloudflare quick tunnel so a reviewer can

@@ -66,6 +66,7 @@
 <script>
 import { BIconSearch } from 'bootstrap-vue'
 import LunrSearch from 'lunr-module/search'
+import { langcodeOf } from '~/utils/lang'
 
 export default {
   components: { BIconSearch },
@@ -87,6 +88,11 @@ export default {
   data: () => ({
     placeholder: 'Try “brownie”, “quiche”, “mushroom”',
   }),
+
+  computed: {
+    /** The page's language picks the index: a Spanish page finds Spanish content. */
+    language: ({ $route }) => langcodeOf(($route || {}).path),
+  },
 
   methods: {
     /** Called by the drawer when the masthead's search button opened it. */
