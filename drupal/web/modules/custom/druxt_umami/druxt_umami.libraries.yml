@@ -1,0 +1,7 @@
+display_preview:
+  js:
+    js/display-preview.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/once

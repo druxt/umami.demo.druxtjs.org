@@ -3,7 +3,9 @@
     <template #default="{ props, regions }">
       <div>
         <AppDemoBar />
-        <client-only><AppDebugPanel /><AppDruxtInspector /></client-only>
+        <client-only>
+          <AppDebugPanel /><AppDruxtInspector /><AppDisplayPreview />
+        </client-only>
 
         <!-- The wrapper is what sticks: a sticky element can only stay
              within its parent's box, and this parent is the page. -->

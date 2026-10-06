@@ -23,6 +23,7 @@ const { proxyEntry } = require('@druxt-contrib/admin')
 const { attachSockets } = require('@druxt-contrib/sockets/server')
 const { createServerMiddleware } = require('druxt-auth/server')
 const { createProxyMiddleware } = require('http-proxy-middleware')
+const { DruxtSchema } = require('druxt-schema')
 const { createDrupalProxy, isDrupalPath, waitForDrupal } = require('./drupal')
 const liveHandlers = require('./live/handlers')
 const { tablePage } = require('./table-page')
@@ -308,6 +309,71 @@ const sameSecret = (given) => {
   return a.length === b.length && crypto.timingSafeEqual(a, b)
 }
 
+/**
+ * Druxt schemas regenerated from Drupal, held until the next purge: what
+ * druxt-schema's refresh does on a Nuxt server, here, since a generated site
+ * has none. A display reordered in Drupal reaches the page with no rebuild.
+ */
+const SCHEMA_ID = /^[a-z0-9_]+--[a-z0-9_]+--[a-z0-9_]+--(view|form)$/
+const freshHold = () => ({
+  generator: null,
+  schemas: new Map(),
+  pending: new Map(),
+})
+let schemaHold = freshHold()
+
+/** One schema, shared by everyone asking while it generates. */
+const heldSchema = (id) => {
+  const hold = schemaHold
+  if (hold.schemas.has(id)) return Promise.resolve(hold.schemas.get(id))
+  if (!hold.pending.has(id)) {
+    if (!hold.generator) hold.generator = new DruxtSchema(drupalUrl)
+    const request = hold.generator
+      .getSchemaById(id)
+      .then((schema) => {
+        // One generated across a purge is answered but not held.
+        if (schema && schemaHold === hold) hold.schemas.set(id, schema)
+        return schema
+      })
+      .finally(() => hold.pending.delete(id))
+    hold.pending.set(id, request)
+  }
+  return hold.pending.get(id)
+}
+
+/** `GET /_druxt/schema/<id>`, answered as druxt-schema's own route answers. */
+const serveSchema = async (req, res) => {
+  const headers = { 'Cache-Control': 'no-store' }
+  if (req.method !== 'GET') {
+    res.writeHead(405, { ...headers, Allow: 'GET' })
+    return res.end()
+  }
+  let id = ''
+  try {
+    id = decodeURIComponent(
+      req.url.split('?')[0].slice('/_druxt/schema/'.length)
+    )
+  } catch (e) {}
+  if (!SCHEMA_ID.test(id)) {
+    res.writeHead(404, headers)
+    return res.end()
+  }
+  let schema
+  try {
+    schema = await heldSchema(id)
+  } catch (e) {
+    res.writeHead(502, headers)
+    return res.end()
+  }
+  if (!schema) {
+    // Drupal has no such display, as against a host without this route.
+    res.writeHead(404, { ...headers, 'X-Druxt-Schema': 'missing' })
+    return res.end()
+  }
+  res.writeHead(200, { ...headers, 'Content-Type': 'application/json' })
+  res.end(JSON.stringify(schema))
+}
+
 let quiet = null
 const clearCache = (req, res) => {
   if (!cacheSecret || req.method !== 'POST') {
@@ -342,6 +408,8 @@ const clearCache = (req, res) => {
     res.end()
     // A sign-in purges its tokens' tags too; that is not a content change.
     if (tags.length && tags.every((tag) => BOOKKEEPING.test(tag))) return
+    // Displays may have changed: schemas regenerate on their next request.
+    schemaHold = freshHold()
     live.contentChanged(tags)
     // Purge sends one request per batch; an editor saving again restarts the
     // wait, so a run of saves costs one build.
@@ -386,6 +454,7 @@ const server = http.createServer((req, res) => {
   if (isDrupalPath(req.url)) return drupal(req, res)
   if (req.url === '/_regenerate') return regenerate(req, res)
   if (req.url === '/_druxt/cache/clear') return clearCache(req, res)
+  if (req.url.startsWith('/_druxt/schema/')) return serveSchema(req, res)
   // Once a build serves, the starting page's status poll must fail, so the
   // page reloads into the site instead of reading the fallback page as JSON.
   if (distDir && req.url.split('?')[0] === '/__status') {

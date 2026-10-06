@@ -101,6 +101,8 @@ export default {
     { src: '~/plugins/edit-drafts.client.js' },
     // An entity with an unsaved draft is not refetched on a live update.
     { src: '~/plugins/live-drafts.client.js' },
+    // Displays saved, or previewed unsaved, in Drupal's Manage display.
+    { src: '~/plugins/live-schema.client.js' },
     // Marks a draft's changes in the page, word by word.
   ],
 
@@ -202,7 +204,8 @@ export default {
 
   sockets: {
     path: '/_live',
-    // Umami Go tables, beside the live updates every page gets.
+    // Umami Go tables, and previews of an unsaved Manage display form in
+    // Drupal, beside the live updates every page gets.
     handlers: '~/server/live/handlers.js',
   },
 
@@ -279,6 +282,11 @@ export default {
       // Enable schema filter by default.
       query: { schema: true },
     },
+
+    // Druxt Schema: a display changed in Drupal reaches the site without a
+    // rebuild. The browser asks /_druxt/schema/<id>, which server/start.js
+    // serves, regenerated from Drupal and held until the next purge.
+    schema: { refresh: true },
 
     // Druxt Menu module settings.
     menu: {

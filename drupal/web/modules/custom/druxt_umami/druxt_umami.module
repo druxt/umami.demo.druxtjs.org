@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * @file
+ * Hooks for the Druxt Umami demo.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Site\Settings;
+
+/**
+ * Implements hook_form_FORM_ID_alter() for entity_view_display_edit_form.
+ *
+ * Manage display gets a live preview on the Druxt site: open it beside the
+ * form, and each change to the order or the hidden fields shows there before
+ * it is saved. The form talks to the site over the site's own WebSocket.
+ */
+function druxt_umami_form_entity_view_display_edit_form_alter(array &$form, FormStateInterface $form_state): void {
+  $display = $form_state->getFormObject()->getEntity();
+  if (!$display instanceof EntityViewDisplayInterface) {
+    return;
+  }
+  $type = $display->getTargetEntityTypeId();
+  $bundle = $display->getTargetBundle();
+  $mode = $display->getMode();
+
+  $form['druxt_preview'] = [
+    '#type' => 'container',
+    '#weight' => -50,
+    '#attributes' => ['class' => ['druxt-display-preview']],
+    '#attached' => [
+      'library' => ['druxt_umami/display_preview'],
+      'drupalSettings' => [
+        'druxtDisplayPreview' => [
+          'schemaId' => "$type--$bundle--$mode--view",
+          'path' => _druxt_umami_preview_path($type, $bundle, $mode),
+          // Empty when Drupal's admin is served on the site's own origin.
+          'frontend' => rtrim((string) Settings::get('druxt_umami_frontend', ''), '/'),
+        ],
+      ],
+    ],
+  ];
+}
+
+/**
+ * The site page that shows a display: an entity of the bundle in its own
+ * page for the default and full modes, else the bundle's listing.
+ */
+function _druxt_umami_preview_path(string $type, string $bundle, string $mode): string {
+  $listings = ['recipe' => '/en/recipes', 'article' => '/en/articles'];
+  if (!in_array($mode, ['default', 'full'], TRUE) && isset($listings[$bundle])) {
+    return $listings[$bundle];
+  }
+  $storage = \Drupal::entityTypeManager()->getStorage($type);
+  $definition = $storage->getEntityType();
+  $query = $storage->getQuery()->accessCheck(TRUE)->range(0, 1);
+  if ($key = $definition->getKey('bundle')) {
+    $query->condition($key, $bundle);
+  }
+  if ($key = $definition->getKey('published')) {
+    $query->condition($key, 1);
+  }
+  $ids = $query->execute();
+  if (!$ids) {
+    return '/en';
+  }
+  $entity = $storage->load(reset($ids));
+  $english = \Drupal::languageManager()->getLanguage('en');
+  return $entity->toUrl('canonical', ['language' => $english])->toString();
+}

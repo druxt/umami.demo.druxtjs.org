@@ -3381,6 +3381,16 @@ html.druxt-inspector {
     grid-template-columns: 4fr 8fr;
     padding: 44px 0;
   }
+
+  // Drupal's display put the method first: the wide column comes first.
+  &--method-first {
+    @media (min-width: 768px) {
+      grid-template-columns: 7fr 5fr;
+    }
+    @media (min-width: 992px) {
+      grid-template-columns: 8fr 4fr;
+    }
+  }
 }
 
 .recipe-ingredients {
@@ -7070,5 +7080,42 @@ $go-kinds: (
 
   .is-fresh {
     transition: none;
+  }
+}
+
+// ---------------------------------------------------------------- display preview
+// The tab is following an unsaved Manage display form in Drupal.
+
+.display-preview {
+  position: sticky;
+  z-index: 1030;
+  top: $demo-bar-height;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 1rem;
+  background: $druxt-navy;
+  color: $paper;
+  font-size: 0.875rem;
+
+  code {
+    color: #bcd7ea;
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #8fbfe0;
+  }
+
+  &__stop {
+    min-height: 32px;
+    margin-left: auto;
+    padding: 0 0.75rem;
+    border: 1px solid rgb(253 251 247 / 50%);
+    border-radius: 0;
+    background: transparent;
+    color: $paper;
   }
 }
