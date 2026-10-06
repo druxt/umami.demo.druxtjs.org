@@ -22,6 +22,8 @@ const BOOKKEEPING = /^(oauth2_token|consumer|session)(_list)?(:|$)/
  *   `DRUXT_SOCKETS_SECRET`. No secret, no endpoint.
  * - `refresh`: refetch what a page shows of a purge (true).
  * - `server`: attach to Nuxt's server (true).
+ * - `limits`: `maxPerAddress`, `messagesPerSecond` and `checksPerMinute`, for
+ *   the server's defaults of 20, 20 and 5.
  */
 function DruxtSocketsModule(moduleOptions = {}) {
   const options = {
@@ -79,6 +81,7 @@ function DruxtSocketsModule(moduleOptions = {}) {
       path: options.path,
       drupalUrl,
       handlers,
+      ...(options.limits || {}),
       log: (message) => process.stdout.write(`druxt-sockets: ${message}\n`),
     })
   })

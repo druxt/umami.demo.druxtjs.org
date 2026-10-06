@@ -63,17 +63,28 @@ export default ({ $sockets, store }) => {
 
 ## Presence
 
-`DruxtPresence` joins the channel for the current route and shows how many
-people have the page open, a note while someone else edits it, and a flash
-when Drupal's change arrives.
+`DruxtPresence` is a Druxt module. It joins a channel, the current page's by
+default, and passes who is there to the site's own theme component.
 
 ```vue
 <DruxtPresence :role="editing ? 'editor' : 'reader'" />
 ```
 
-Its default slot takes over the markup, with `{ people, editor, updated }`.
-Only a signed-in editor's `editor` role counts: the server checks their token
-with Drupal.
+The theme component is found the Druxt way: `DruxtPresencePage` for a
+`page:` channel, else `DruxtPresenceDefault`, from `components/druxt/presence/`.
+It receives these props, and writes its own words:
+
+| Prop              |                                                              |
+| ----------------- | ------------------------------------------------------------ |
+| `people`          | Everyone in the channel: `id`, `name`, `role`                |
+| `self`            | This visitor's id                                            |
+| `editors`         | Everyone else with the editor role                           |
+| `updated`         | Whether Drupal's last change arrived in the past six seconds |
+| `updatedAt`       | When it arrived                                              |
+| `channel`, `role` | The channel, and this visitor's role in it                   |
+
+Without a theme component, a plain count renders. Only a signed-in editor's
+`editor` role counts: the server checks their token with Drupal.
 
 ## Channels of your own
 
@@ -142,7 +153,9 @@ sockets: {
 | `refresh`   | `true`                    | Refetch what a page shows of a purge                           |
 | `server`    | `true`                    | Attach to the server Nuxt runs                                 |
 
-State lives in one Node process. More than one needs a shared broker, which
+A socket that keeps sending past its rate is closed, and an address past its
+socket limit is refused with a 429. A token already checked on a socket is
+not checked with Drupal again. State lives in one Node process. More than one needs a shared broker, which
 this module does not provide.
 
 This repository follows the Druxt repository standard, from

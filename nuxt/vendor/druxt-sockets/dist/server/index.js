@@ -59,6 +59,23 @@ const whoIs = (drupalUrl, token, { request } = {}) =>
  * Attach to an HTTP server. `handlers` maps channel kinds to handlers (see
  * the hub); `drupalUrl` is where an editor's token is checked.
  */
+/**
+ * The address a connection comes from: the first hop a proxy names, else the
+ * socket's own. Behind Lagoon's router every socket is the router's.
+ */
+const addressOf = (req) =>
+  String(req.headers['x-forwarded-for'] || '')
+    .split(',')[0]
+    .trim() ||
+  (req.socket || {}).remoteAddress ||
+  ''
+
+/**
+ * Attach to an HTTP server. `handlers` maps channel kinds to handlers (see
+ * the hub); `drupalUrl` is where an editor's token is checked. The limits
+ * keep one visitor from holding the server: sockets per address, messages
+ * per second per socket, and sign-in checks per minute per socket.
+ */
 function attachSockets(
   server,
   {
@@ -68,24 +85,60 @@ function attachSockets(
     log = () => {},
     whoIs: who = whoIs,
     heartbeatMs = 30000,
+    maxPerAddress = 20,
+    messagesPerSecond = 20,
+    checksPerMinute = 5,
+    address = addressOf,
+    now = Date.now,
   } = {}
 ) {
   const hub = createHub({ handlers })
   const wss = new WebSocketServer({ noServer: true, maxPayload: 8 * 1024 })
+  const perAddress = new Map()
+
+  /** A token bucket: `rate` a second, twice that in a burst. */
+  const bucket = (rate, per = 1000) => {
+    let tokens = rate * 2
+    let at = now()
+    return () => {
+      const t = now()
+      tokens = Math.min(rate * 2, tokens + ((t - at) / per) * rate)
+      at = t
+      if (tokens < 1) return false
+      tokens--
+      return true
+    }
+  }
 
   const onUpgrade = (req, socket, head) => {
     const url = new URL(req.url, 'http://localhost')
     if (url.pathname !== path) return
+    const from = address(req)
+    if ((perAddress.get(from) || 0) >= maxPerAddress) {
+      socket.end('HTTP/1.1 429 Too Many Requests\r\n\r\n')
+      return
+    }
+    perAddress.set(from, (perAddress.get(from) || 0) + 1)
     wss.handleUpgrade(req, socket, head, (ws) => {
       const sendFn = (data) => ws.readyState === 1 && ws.send(data)
       const client = hub.connect(sendFn, {
         resume: url.searchParams.get('resume') || undefined,
       })
+      const allowMessage = bucket(messagesPerSecond)
+      const allowCheck = bucket(checksPerMinute / 2, 60000)
+      let dropped = 0
+      // The last token checked and its answer: a repeat costs Drupal nothing.
+      let checked = { token: undefined, account: null }
       ws.isAlive = true
       ws.on('pong', () => {
         ws.isAlive = true
       })
       ws.on('message', (data) => {
+        if (!allowMessage()) {
+          // A socket that keeps flooding is closed: policy violation.
+          if (++dropped > 50) ws.close(1008, 'Too many messages')
+          return
+        }
         const raw = String(data)
         // The one message the hub does not take: a sign-in to check.
         if (raw.startsWith('{"type":"auth"')) {
@@ -95,7 +148,7 @@ function attachSockets(
           } catch (e) {
             token = null
           }
-          return who(drupalUrl, token).then((account) =>
+          const identify = (account) =>
             hub.identify(
               client,
               account
@@ -105,11 +158,21 @@ function attachSockets(
                   }
                 : { signedIn: false }
             )
-          )
+          if (token === checked.token) return identify(checked.account)
+          if (!allowCheck()) return
+          return who(drupalUrl, token).then((account) => {
+            checked = { token, account }
+            identify(account)
+          })
         }
         hub.receive(client, raw)
       })
-      ws.on('close', () => hub.disconnect(client, sendFn))
+      ws.on('close', () => {
+        const left = (perAddress.get(from) || 1) - 1
+        if (left > 0) perAddress.set(from, left)
+        else perAddress.delete(from)
+        hub.disconnect(client, sendFn)
+      })
       ws.on('error', () => {})
     })
   }
@@ -195,6 +258,7 @@ module.exports = {
   purgeHandler,
   readTags,
   whoIs,
+  addressOf,
   current: () => current,
   DEFAULT_PATH,
 }

@@ -13,6 +13,9 @@ const crypto = require('crypto')
 /** How long a dropped client's identity waits for it to come back. */
 const RESUME_MS = 60 * 1000
 
+/** Channels one client may be in at once. */
+const MAX_CHANNELS = 30
+
 /** Cooking-themed names for a visitor who is not signed in. */
 const ADJECTIVES = [
   'Simmering',
@@ -133,6 +136,9 @@ function createHub({ handlers = {}, now = Date.now, rand = Math.random } = {}) {
   const kind = (channel) => channel.split(':')[0]
 
   const join = (client, channel, role) => {
+    // A client in more channels than any page needs is refused another.
+    if (!client.channels.has(channel) && client.channels.size >= MAX_CHANNELS)
+      return send(client, 'error', channel, { message: 'Too many channels.' })
     if (!channels.has(channel)) channels.set(channel, new Set())
     channels.get(channel).add(client.id)
     client.channels.add(channel)
@@ -276,4 +282,4 @@ function createHub({ handlers = {}, now = Date.now, rand = Math.random } = {}) {
   return api
 }
 
-module.exports = { createHub, readMessage, randomName, RESUME_MS }
+module.exports = { createHub, readMessage, randomName, RESUME_MS, MAX_CHANNELS }
