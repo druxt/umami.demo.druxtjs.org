@@ -5693,7 +5693,8 @@ $go-kinds: (
   }
 
   // The reveal: every new card flips over together, staggered by seat.
-  &.is-revealed {
+  &.is-revealed,
+  .go-recipe-card.is-revealed > & {
     animation: go-flip 280ms ease-out both;
     animation-delay: calc(var(--seat, 0) * 60ms);
   }
@@ -6640,7 +6641,8 @@ $go-kinds: (
   .go-card {
     transition: none;
 
-    &.is-revealed {
+    &.is-revealed,
+    .go-recipe-card.is-revealed > & {
       animation: go-fade 120ms linear both;
       animation-delay: 0ms;
     }
@@ -6649,4 +6651,30 @@ $go-kinds: (
   .go-hand.is-passing li {
     animation: none;
   }
+}
+
+// A recipe's card as Druxt renders it lies exactly over the dealt copy, which
+// holds the space until the recipe arrives through the Druxt store.
+.go-recipe-card {
+  position: relative;
+
+  &__druxt {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+}
+
+// The recipe's own image field, rendered by Druxt, filling the art area.
+.go-card__druxt-art,
+.go-card__druxt-art * {
+  height: 100%;
+  margin: 0;
+}
+
+.go-card__druxt-art img {
+  display: block;
+  width: 100%;
+  object-fit: cover;
 }

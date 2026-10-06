@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test')
-const { visit, watchErrors } = require('./helpers')
+const { visit, watchErrors, signIn, openEdit } = require('./helpers')
 
 // Umami Go: two browsers at one table. Runs once, on desktop: each test
 // drives two pages, and the server's tables are shared state.
@@ -97,9 +97,48 @@ test.describe('Umami Go', () => {
     await expect(host.locator('.go-bar__turn')).toHaveText(
       'Round 1 of 3 · turn 2'
     )
-    await expect(
-      host.locator('.go-seat.is-you .go-card.is-played')
-    ).toHaveCount(1)
+    await expect(host.locator('.go-seat.is-you .go-recipe-card')).toHaveCount(1)
     await expect(host.locator('.go-hand__meta')).toContainText('passed from')
+  })
+
+  test('a recipe card is a DruxtEntity, and a Drupal save renames it in hand', async ({
+    browser,
+  }) => {
+    test.setTimeout(120000)
+    const host = await (await browser.newContext()).newPage()
+    const guest = await (await browser.newContext()).newPage()
+    await visit(host, '/play')
+    await host.getByRole('button', { name: 'Start a table' }).click()
+    await host.waitForURL(/\/play\/[A-Z0-9]{4}$/)
+    await guest.goto(host.url())
+    await host.getByRole('button', { name: 'Deal · 2 players' }).click()
+
+    // The first card dealt from a recipe, and the recipe behind it.
+    const druxtCard = host.locator('.go-hand .go-recipe-card__druxt').first()
+    await expect(druxtCard.locator('.go-card__druxt-art img')).toBeVisible()
+    const recipe = await druxtCard.evaluate(
+      (el) => el.closest('.go-recipe-card').__vue__.card
+    )
+    const name = druxtCard.locator('.go-card__name')
+    await expect(name).toHaveText(recipe.title)
+
+    const editor = await (await browser.newContext()).newPage()
+    await signIn(editor)
+    await openEdit(editor, recipe.path)
+    const save = async (value) => {
+      await editor.fill('#title', value)
+      await editor.locator('.edit-actions__save').click()
+      await expect(
+        editor.locator('.b-toast', { hasText: 'Saved to Drupal' }).last()
+      ).toBeVisible()
+      await editor.locator('.b-toast .close').last().click()
+    }
+    try {
+      await save(`${recipe.title} live`)
+      await expect(name).toHaveText(`${recipe.title} live`, { timeout: 15000 })
+    } finally {
+      await save(recipe.title)
+    }
+    await expect(name).toHaveText(recipe.title, { timeout: 15000 })
   })
 })

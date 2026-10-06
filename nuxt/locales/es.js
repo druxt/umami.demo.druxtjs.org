@@ -346,7 +346,7 @@ export default {
       'Todos eligen una carta a la vez. Las elecciones se muestran juntas y luego cada mano pasa a la izquierda.',
     rules2:
       'Tres rondas, con puntuación al final de cada una. Los postres cuentan al final.',
-    note: 'La baraja se reparte con las recetas que publica Drupal. Publica una a mitad de partida y entra en la ronda siguiente.',
+    note: 'Cada carta de receta es un DruxtEntity: su título y su fotografía llegan desde el JSON:API de Drupal a través del store de Druxt, y el servidor reparte la baraja con el cliente de Druxt. Edita una receta en Drupal y cambia en todas las manos.',
     kindsHeading: 'Los ocho tipos',
     fan: {
       starter: 'Salsa de chile picante',

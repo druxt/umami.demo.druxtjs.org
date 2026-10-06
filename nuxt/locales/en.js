@@ -339,7 +339,7 @@ export default {
     rules1:
       'Everyone picks one card at the same moment. The picks show together, then each hand passes to the left.',
     rules2: 'Three rounds, scored after each. Desserts count at the end.',
-    note: 'The deck is dealt from the recipes Drupal publishes. Publish one mid-game and it joins the next round.',
+    note: "Every recipe card is a DruxtEntity: its title and photograph come from Drupal's JSON:API through the Druxt store, and the server deals the deck with the Druxt client. Edit a recipe in Drupal and it changes in every hand.",
     kindsHeading: 'The eight kinds',
     fan: {
       starter: 'Fiery chili sauce',

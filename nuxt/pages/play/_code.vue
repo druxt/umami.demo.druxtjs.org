@@ -150,10 +150,10 @@
                 <span class="go-seat__score" v-text="p.score" />
               </div>
               <div class="go-seat__cards">
-                <AppGoCard
+                <AppGoRecipeCard
                   v-for="(card, n) in p.played"
                   :key="card.id"
-                  v-bind="cardProps(card)"
+                  :card="card"
                   size="sm"
                   state="played"
                   :class="{
@@ -210,7 +210,7 @@
                 :aria-label="cardLabel(card)"
                 @click="choose(i)"
               >
-                <AppGoCard v-bind="cardProps(card)" :state="handState(i)" />
+                <AppGoRecipeCard :card="card" :state="handState(i)" />
               </button>
             </li>
           </ul>
@@ -266,10 +266,10 @@
           class="go-scores__last"
         >
           <div class="go-scores__last-cards">
-            <AppGoCard
+            <AppGoRecipeCard
               v-for="card in leader.played"
               :key="card.id"
-              v-bind="cardProps(card)"
+              :card="card"
               size="sm"
               state="played"
             />
@@ -581,17 +581,6 @@ export default {
 
     cardLabel(card) {
       return `${this.$t(`play.kinds.${card.kind}.name`)}: ${this.titleOf(card)}`
-    },
-
-    cardProps(card) {
-      return {
-        kind: card.kind,
-        title: card.title || '',
-        // Drupal's files come through this origin's proxy.
-        img: card.image || '',
-        points: card.points || 1,
-        icons: card.sides || 1,
-      }
     },
 
     hasSwap: (p) => p.played.some((c) => c.kind === 'swap'),

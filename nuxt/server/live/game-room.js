@@ -4,7 +4,8 @@
  * each deal, so a recipe published mid-game joins the next round.
  */
 const crypto = require('crypto')
-const { getJson, text, LANG } = require('./drupal')
+const { DruxtClient } = require('druxt')
+const { text, LANG } = require('./drupal')
 const { roomCode } = require('./code')
 const game = require('./game')
 
@@ -16,7 +17,15 @@ const MAX_GAMES = 200
 /** A fair random source for dealing: crypto, not Math.random. */
 const fairRand = () => crypto.randomInt(0, 2 ** 32) / 2 ** 32
 
-/** The published recipes, as cards need them. */
+/** One Druxt client a Drupal: the deck is dealt through Druxt, as pages are. */
+const clients = new Map()
+const druxtFor = (drupalUrl) => {
+  if (!clients.has(drupalUrl))
+    clients.set(drupalUrl, new DruxtClient(drupalUrl))
+  return clients.get(drupalUrl)
+}
+
+/** The published recipes, as cards need them, through the Druxt client. */
 async function loadRecipes(drupalUrl, langcode = 'en') {
   if (!LANG.test(langcode)) return []
   const query = [
@@ -28,24 +37,34 @@ async function loadRecipes(drupalUrl, langcode = 'en') {
     'filter[status]=1',
     'page[limit]=50',
   ].join('&')
-  const doc = await getJson(
-    drupalUrl,
-    `/${langcode}/jsonapi/node/recipe?${query}`
-  )
-  if (!doc || !Array.isArray(doc.data)) return []
+  let collections
+  try {
+    collections = await druxtFor(drupalUrl).getCollectionAll(
+      'node--recipe',
+      query,
+      `/${langcode}`
+    )
+  } catch (error) {
+    return []
+  }
+  const data = collections.flatMap((doc) => (doc && doc.data) || [])
   const included = new Map(
-    (doc.included || []).map((r) => [`${r.type}:${r.id}`, r])
+    collections
+      .flatMap((doc) => (doc && doc.included) || [])
+      .map((r) => [`${r.type}:${r.id}`, r])
   )
   const rel = (r, name) => {
     const d = ((r.relationships || {})[name] || {}).data
     const one = Array.isArray(d) ? d[0] : d
     return one ? included.get(`${one.type}:${one.id}`) : null
   }
-  return doc.data.map((r) => {
+  return data.map((r) => {
     const category = rel(r, 'field_recipe_category')
     const media = rel(r, 'field_media_image')
     const file = media && rel(media, 'field_media_image')
     return {
+      // The browser renders the card from this recipe through DruxtEntity.
+      uuid: r.id,
       title: text(r.attributes.title),
       path: `/${langcode}${(r.attributes.path || {}).alias || ''}`,
       difficulty: r.attributes.field_difficulty,

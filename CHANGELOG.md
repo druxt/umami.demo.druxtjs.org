@@ -18,7 +18,9 @@ The demo is a site without releases, so changes are grouped by date.
   recipes over the live WebSocket: a table to start or join by code or QR
   code, simultaneous picks with a swap, three scored rounds, and a Play link
   in the main menu. It shares with a card of its own, and a table's link
-  previews as an invitation to that table.
+  previews as an invitation to that table. Recipe cards render through
+  DruxtEntity, so a recipe edited in Drupal changes in every hand, and the
+  server deals the deck with the Druxt client.
 - Open pages refresh what a content change touches as soon as Drupal purges,
   over a WebSocket through `@druxt-contrib/sockets`, vendored, ahead of the
   rebuild.

@@ -16,7 +16,7 @@
 
     <div v-else-if="size === 'sm'" class="go-card__face">
       <div class="go-card__art">
-        <img :src="art" alt="" loading="lazy" />
+        <slot name="art"><img :src="art" alt="" loading="lazy" /></slot>
       </div>
       <div class="go-card__sm-foot">
         <img :src="icon" alt="" class="go-card__icon" />
@@ -26,7 +26,8 @@
 
     <div v-else class="go-card__face">
       <div class="go-card__art">
-        <img :src="art" alt="" loading="lazy" />
+        <!-- A recipe card's photograph comes from Drupal through Druxt. -->
+        <slot name="art"><img :src="art" alt="" loading="lazy" /></slot>
         <span
           v-if="known === 'dish'"
           class="go-card__badge go-card__badge--points"

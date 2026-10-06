@@ -84,6 +84,7 @@ function buildDeck(recipes, rand) {
         kind === 'sauce' || kind === 'swap' ? null : order[i % order.length]
       const card = { id: `c${++n}`, kind }
       if (r) {
+        card.uuid = r.uuid || null
         card.title = r.title
         card.image = r.image || null
         card.path = r.path || null
