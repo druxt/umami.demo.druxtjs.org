@@ -5857,8 +5857,13 @@ $go-kinds: (
       justify-content: space-between;
     }
 
+    // The words stay on top: the fan never covers the title or the lede.
     &__copy {
+      position: relative;
+      z-index: 1;
       display: block;
+      flex: 1 1 auto;
+      min-width: 0;
       max-width: 34rem;
     }
 
@@ -5875,16 +5880,32 @@ $go-kinds: (
       align-items: flex-end;
     }
 
+    // Three smaller cards until the page is wide enough for five.
     &__fan {
-      width: 460px;
-      height: 280px;
+      flex: 0 0 360px;
+      width: 360px;
+      height: 240px;
       margin: 0;
     }
 
     &__fan-card {
-      --go-zoom: 0.88;
-      transform: translateX(-50%) translateX(calc(var(--i) * 70px))
-        rotate(calc(var(--i) * 9deg));
+      --go-zoom: 0.74;
+      transform: translateX(-50%) translateX(calc(var(--i) * 56px))
+        rotate(calc(var(--i) * 8deg));
+    }
+  }
+
+  @media (min-width: 1200px) {
+    &__fan {
+      flex-basis: 460px;
+      width: 460px;
+      height: 280px;
+    }
+
+    &__fan-card {
+      --go-zoom: 0.8;
+      transform: translateX(-50%) translateX(calc(var(--i) * 62px))
+        rotate(calc(var(--i) * 8deg));
 
       &:first-child,
       &:last-child {
