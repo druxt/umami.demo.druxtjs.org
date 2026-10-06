@@ -31,12 +31,10 @@
            own screens for the same node. -->
       <client-only>
         <div class="page-tabs__aside">
-          <AppPresence
+          <!-- Themed by components/druxt/presence/Page.vue. -->
+          <DruxtPresence
             :channel="`page:${$route.path}`"
             :role="mode === 'edit' ? 'editor' : 'reader'"
-            :type="route.props.type"
-            :uuid="route.props.uuid"
-            :compact="signedIn"
           />
           <AppDrupalLinks
             v-if="signedIn"
