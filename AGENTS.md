@@ -31,7 +31,7 @@ Nuxt application.
   configuration.
 - **The site builds when its container starts.** `nuxt/server/start.js` waits
   for Drupal, runs `nuxt generate` and serves the result. Drupal's
-  post-rollout task asks it to rebuild.
+  post-rollout task and Purge both ask it to rebuild.
 - **Patches are public upstream diffs where possible.** A file in
   `drupal/patches/` exists only when no upstream URL applies, and
   `drupal/patches/README.md` says why. Commit `drupal/patches.lock.json` with
