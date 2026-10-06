@@ -80,6 +80,9 @@ export default {
   computed: {
     /** When Drupal's last save that touched this page arrived. */
     updatedAt: ({ $sockets }) => ($sockets ? $sockets.state.updatedAt : 0),
+    /** Everyone else with the form open. */
+    editors: ({ people, self }) =>
+      people.filter((p) => p.activity === 'editing' && p.id !== self),
     editor: ({ editors }) => editors.length > 0,
     /** Beside Drupal's menu, for an editor: a number, not a sentence. */
     compact: ({ $auth }) => !!($auth && $auth.loggedIn),
@@ -144,8 +147,10 @@ export default {
   },
 
   methods: {
+    /** Drupal hides a signed-in person's name from a visitor who is not. */
     nameOf(p) {
-      return p.id === this.self ? this.$t('live.you') : p.name
+      if (p.id === this.self) return this.$t('live.you')
+      return p.name || this.$t('live.someone')
     },
 
     countLabel(people, editor) {

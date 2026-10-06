@@ -27,8 +27,8 @@ export const DruxtSocketsMixin = {
     kind: { type: String, default: '' },
     /** The channel's key, after the first colon. */
     channelKey: { type: String, default: '' },
-    /** `reader` or `editor`. */
-    mode: { type: String, default: 'reader' },
+    /** What this visitor is doing, such as `editing`. */
+    activity: { type: String, default: '' },
     /** This visitor's id. */
     self: { type: String, default: null },
     /** Whether the socket is open. */
@@ -60,13 +60,11 @@ export const DruxtPresenceMixin = {
   props: {
     /** The channel, `kind:key`. */
     channel: { type: String, required: true },
-    /** `reader` or `editor`. */
-    mode: { type: String, default: 'reader' },
+    /** What this visitor is doing, such as `editing`. */
+    activity: { type: String, default: '' },
     /** This visitor's id. */
     self: { type: String, default: null },
-    /** Who is in the channel. */
+    /** Who is in the channel: `{ id, name, signedIn, roles, activity }`. */
     people: { type: Array, default: () => [] },
-    /** Everyone else with the editor role. */
-    editors: { type: Array, default: () => [] },
   },
 }

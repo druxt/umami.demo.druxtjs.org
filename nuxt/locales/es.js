@@ -467,6 +467,7 @@ export default {
     updated: 'Actualizado desde Drupal ahora mismo',
     whoIsHere: 'Quién tiene esta página abierta',
     you: 'Tú',
+    someone: 'Alguien',
     fields: {
       title: 'título',
       field_preparation_time: 'tiempo de preparación',

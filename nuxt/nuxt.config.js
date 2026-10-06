@@ -1,5 +1,6 @@
 import storybook from './nuxt-storybook.config'
 import { drupalOrigin, siteOrigin } from './lib/site'
+import { name as liveName } from './server/live/names'
 
 const baseUrl = process.env.BASE_URL || 'http://druxt-js-demo-umami.ddev.site'
 
@@ -207,6 +208,8 @@ export default {
     // Umami Go tables, and previews of an unsaved Manage display form in
     // Drupal, beside the live updates every page gets.
     handlers: '~/server/live/handlers.js',
+    // Drupal's name for a signed-in visitor, else a cooking name.
+    name: liveName,
   },
 
   auth: {

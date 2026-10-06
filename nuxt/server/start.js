@@ -26,6 +26,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware')
 const { createSchemaRefresh } = require('druxt-schema')
 const { createDrupalProxy, isDrupalPath, waitForDrupal } = require('./drupal')
 const liveHandlers = require('./live/handlers')
+const { name: liveName } = require('./live/names')
 const { tablePage } = require('./table-page')
 const { createStartingHandler } = require('./starting')
 
@@ -425,6 +426,7 @@ const live = attachSockets(server, {
   path: '/_live',
   drupalUrl,
   handlers: liveHandlers({ drupalUrl, log }),
+  name: liveName,
   log,
 })
 

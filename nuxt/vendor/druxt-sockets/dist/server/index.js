@@ -56,10 +56,6 @@ const whoIs = (drupalUrl, token, { request } = {}) =>
   })
 
 /**
- * Attach to an HTTP server. `handlers` maps channel kinds to handlers (see
- * the hub); `drupalUrl` is where an editor's token is checked.
- */
-/**
  * The address a connection comes from: the first hop a proxy names, else the
  * socket's own. Behind Lagoon's router every socket is the router's.
  */
@@ -72,9 +68,12 @@ const addressOf = (req) =>
 
 /**
  * Attach to an HTTP server. `handlers` maps channel kinds to handlers (see
- * the hub); `drupalUrl` is where an editor's token is checked. The limits
- * keep one visitor from holding the server: sockets per address, messages
- * per second per socket, and sign-in checks per minute per socket.
+ * the hub); `drupalUrl` is where a signed-in visitor's token is checked.
+ * `name`, `describe` and `rolesClaim` shape identity (see the hub), and
+ * `origins`, a list or `(origin, req) => boolean`, limits where a socket may
+ * open from; any, when unset. The limits keep one visitor from holding the
+ * server: sockets per address, messages per second per socket, and sign-in
+ * checks per minute per socket.
  */
 function attachSockets(
   server,
@@ -90,9 +89,21 @@ function attachSockets(
     checksPerMinute = 5,
     address = addressOf,
     now = Date.now,
+    name,
+    describe,
+    rolesClaim,
+    origins,
   } = {}
 ) {
-  const hub = createHub({ handlers })
+  const hub = createHub({ handlers, log, name, describe, rolesClaim })
+  /** Whether a socket may open from this origin: any, unless the site says. */
+  const allowOrigin = (req) => {
+    if (!origins) return true
+    const origin = req.headers.origin || ''
+    return typeof origins === 'function'
+      ? !!origins(origin, req)
+      : origins.includes(origin)
+  }
   const wss = new WebSocketServer({ noServer: true, maxPayload: 8 * 1024 })
   const perAddress = new Map()
 
@@ -113,6 +124,10 @@ function attachSockets(
   const onUpgrade = (req, socket, head) => {
     const url = new URL(req.url, 'http://localhost')
     if (url.pathname !== path) return
+    if (!allowOrigin(req)) {
+      socket.end('HTTP/1.1 403 Forbidden\r\n\r\n')
+      return
+    }
     const from = address(req)
     if ((perAddress.get(from) || 0) >= maxPerAddress) {
       socket.end('HTTP/1.1 429 Too Many Requests\r\n\r\n')
@@ -148,16 +163,7 @@ function attachSockets(
           } catch (e) {
             token = null
           }
-          const identify = (account) =>
-            hub.identify(
-              client,
-              account
-                ? {
-                    name: account.preferred_username || account.name,
-                    signedIn: true,
-                  }
-                : { signedIn: false }
-            )
+          const identify = (account) => hub.identify(client, account)
           if (token === checked.token) return identify(checked.account)
           if (!allowCheck()) return
           return who(drupalUrl, token).then((account) => {
