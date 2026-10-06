@@ -93,13 +93,40 @@
 </template>
 
 <script>
+import { seoHead } from '~/utils/seo'
+
 export default {
   layout: 'game',
 
   data: () => ({ busy: false, code: '' }),
 
   head() {
-    return { title: 'Umami Go' }
+    const description =
+      "A card game for two to five, dealt from the Umami magazine's recipes. Start a table, share the code, and draft the best meal."
+    return seoHead({
+      origin: this.$config.siteOrigin,
+      path: this.$route.path,
+      title: 'Umami Go',
+      description,
+      card: '/og/umami-go.png',
+      graphs: [
+        {
+          '@context': 'https://schema.org',
+          '@type': 'Game',
+          name: 'Umami Go',
+          description,
+          url: `${this.$config.siteOrigin}/play`,
+          image: `${this.$config.siteOrigin}/og/umami-go.png`,
+          numberOfPlayers: {
+            '@type': 'QuantitativeValue',
+            minValue: 2,
+            maxValue: 5,
+          },
+          inLanguage: ['en', 'es'],
+          isAccessibleForFree: true,
+        },
+      ],
+    })
   },
 
   computed: {

@@ -25,6 +25,7 @@ const { createServerMiddleware } = require('druxt-auth/server')
 const { createProxyMiddleware } = require('http-proxy-middleware')
 const { createDrupalProxy, isDrupalPath, waitForDrupal } = require('./drupal')
 const liveHandlers = require('./live/handlers')
+const { tablePage } = require('./table-page')
 const { createStartingHandler } = require('./starting')
 
 const rootDir = path.join(__dirname, '..')
@@ -137,6 +138,19 @@ const serveStatic = (req, res) => {
   if (COMPRESSIBLE.test(headers['Content-Type'])) {
     headers.Vary = 'Accept-Encoding'
   }
+  // A table's address answers with the game's invitation in its head, so a
+  // link shared in a chat previews as the table, not the front page.
+  if (APP_ONLY.test(decoded) && file.endsWith('200.html')) {
+    const html = tablePage(fs.readFileSync(file, 'utf8'), {
+      code: decoded.split('/').pop(),
+      origin: siteOrigin,
+    })
+    res.writeHead(200, {
+      ...headers,
+      'Content-Length': Buffer.byteLength(html),
+    })
+    return res.end(req.method === 'HEAD' ? undefined : html)
+  }
   const encoding = compressionFor(req, headers['Content-Type'])
   if (encoding) headers['Content-Encoding'] = encoding
   const steps = [fs.createReadStream(file)]
@@ -151,9 +165,7 @@ const serveStatic = (req, res) => {
   }
   // A path with no generated page still gets the app, which renders what it
   // can, but as a 404: a dead link or stale redirect must not read as a page.
-  // A game's own address is a page the app renders, never generated ahead.
-  const appOnly = APP_ONLY.test(decoded)
-  res.writeHead(file.endsWith('200.html') && !appOnly ? 404 : 200, headers)
+  res.writeHead(file.endsWith('200.html') ? 404 : 200, headers)
   // A build swapped out mid-request loses its files: pipeline ends the
   // response, and a compressor's error with it, rather than crash.
   pipeline(...steps, res, () => {})
