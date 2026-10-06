@@ -14,6 +14,9 @@ The demo is a site without releases, so changes are grouped by date.
 - The whole demo runs in one Lagoon environment, `main`, which does not idle.
 - The site builds when its container starts, against its own Drupal.
 - An editorial theme, and demo tools that show how each page is built.
+- Live activity on a node page's tab row: the faces and count of who else
+  has it open, a mark while an editor is in the form, and a pill naming the
+  field when Drupal's save arrives, with the changed field washed warm.
 - Umami Go at `/play`, a card game for two to five dealt from the magazine's
   recipes over the live WebSocket: a table to start or join by code or QR
   code, simultaneous picks with a swap, three scored rounds, and a Play link
