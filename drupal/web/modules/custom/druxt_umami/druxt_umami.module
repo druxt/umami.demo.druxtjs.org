@@ -7,16 +7,19 @@
 
 declare(strict_types=1);
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Site\Settings;
 
 /**
  * Implements hook_form_FORM_ID_alter() for entity_view_display_edit_form.
  *
  * Manage display gets a live preview on the Druxt site: open it beside the
- * form, and each change to the order or the hidden fields shows there before
- * it is saved. The form talks to the site over the site's own WebSocket.
+ * form, and each change shows there before it is saved, whether to the order,
+ * a label, a formatter or a formatter's settings. The form talks to the site
+ * over the site's own WebSocket.
  */
 function druxt_umami_form_entity_view_display_edit_form_alter(array &$form, FormStateInterface $form_state): void {
   $display = $form_state->getFormObject()->getEntity();
@@ -27,6 +30,7 @@ function druxt_umami_form_entity_view_display_edit_form_alter(array &$form, Form
   $bundle = $display->getTargetBundle();
   $mode = $display->getMode();
 
+  $form['#after_build'][] = '_druxt_umami_display_preview_draft';
   $form['druxt_preview'] = [
     '#type' => 'container',
     '#weight' => -50,
@@ -43,6 +47,33 @@ function druxt_umami_form_entity_view_display_edit_form_alter(array &$form, Form
       ],
     ],
   ];
+}
+
+/**
+ * Form #after_build: the display as the form holds it, unsaved.
+ *
+ * Each field's formatter, label and settings, as of the form's last rebuild:
+ * a formatter's settings live only in the form until it is saved. The fields
+ * table carries them, since Field UI's AJAX replaces the table, and the
+ * preview script reads the order, regions and selects from the table itself.
+ */
+function _druxt_umami_display_preview_draft(array $element, FormStateInterface $form_state): array {
+  $display = $form_state->getFormObject()->getEntity();
+  $formatters = \Drupal::service('plugin.manager.field.formatter');
+  $draft = [];
+  foreach (Element::children($element['fields']) as $name) {
+    $component = $display->getComponent($name);
+    $type = $component['type'] ?? ($element['fields'][$name]['plugin']['type']['#default_value'] ?? NULL);
+    $draft[$name] = [
+      'type' => $type,
+      'label' => $component['label'] ?? 'above',
+      // Objects, so no settings encode as {} rather than [].
+      'settings' => (object) ($component['settings'] ?? ($type ? $formatters->getDefaultSettings($type) : [])),
+      'third_party_settings' => (object) ($component['third_party_settings'] ?? []),
+    ];
+  }
+  $element['fields']['#attributes']['data-druxt-draft'] = Json::encode($draft);
+  return $element;
 }
 
 /**

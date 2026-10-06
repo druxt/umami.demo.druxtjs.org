@@ -4,6 +4,8 @@ const { displayHandler, readDraft } = require('./display')
 
 const KEY = 'k'.repeat(20)
 const CHANNEL = `display:${KEY}`
+const ID = 'node--recipe--default--view'
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 /** A hub stand-in that keeps what is sent and broadcast. */
 const fakeHub = (members = []) => {
@@ -18,47 +20,178 @@ const fakeHub = (members = []) => {
   }
 }
 
-test('a draft is checked: a schema ID and field names, nothing else', () => {
+/** A schema builder that names the fields it was given, in weight order. */
+const fakeBuild = (schemaId, content) =>
+  Promise.resolve(
+    schemaId.startsWith('node--nope')
+      ? null
+      : {
+          id: schemaId,
+          fields: Object.entries(content)
+            .sort(([, a], [, b]) => a.weight - b.weight)
+            .map(([id, c]) => ({ id, label: { position: c.label } })),
+        }
+  )
+
+const handlerFor = (options = {}) =>
+  displayHandler({ buildSchema: fakeBuild, settleMs: 5, ...options })
+
+const draft = (content, schemaId = ID) => ({ schemaId, content })
+
+test('a draft is checked field by field', () => {
   assert.deepStrictEqual(
-    readDraft({
-      schemaId: 'node--recipe--default--view',
-      fields: ['field_a', 'field_b', 'field_a'],
-    }),
-    { schemaId: 'node--recipe--default--view', fields: ['field_a', 'field_b'] }
+    readDraft(
+      draft({
+        field_a: { type: 'string', label: 'above', weight: 2, settings: {} },
+        links: { weight: 9 },
+      })
+    ),
+    draft({
+      field_a: {
+        type: 'string',
+        label: 'above',
+        weight: 2,
+        settings: {},
+        third_party_settings: {},
+      },
+      links: {
+        type: null,
+        label: 'hidden',
+        weight: 9,
+        settings: {},
+        third_party_settings: {},
+      },
+    })
   )
   for (const payload of [
     null,
-    { schemaId: 'node--recipe--default--form', fields: [] },
-    { schemaId: 'nope', fields: [] },
-    { schemaId: 'node--recipe--default--view', fields: 'x' },
-    { schemaId: 'node--recipe--default--view', fields: ['<script>'] },
-    {
-      schemaId: 'node--recipe--default--view',
-      fields: Array.from({ length: 101 }, (_, i) => `f${i}`),
-    },
+    draft({}, 'node--recipe--default--form'),
+    draft({ '<b>': { weight: 1 } }),
+    draft({ field_a: { weight: 'x' } }),
+    draft({ field_a: { weight: 1, type: 'a b' } }),
+    draft({ field_a: { weight: 1, label: 'sideways' } }),
+    draft({ field_a: { weight: 1, settings: [] } }),
+    draft({ field_a: { weight: 1, settings: { big: 'x'.repeat(40000) } } }),
   ])
     assert.strictEqual(readDraft(payload), null)
 })
 
-test('a draft reaches everyone else on the key, and anyone joining later', () => {
-  const handler = displayHandler()
+test('the schema built from a draft reaches everyone else on the key, and anyone joining later', async () => {
+  const handler = handlerFor()
   const hub = fakeHub()
   const form = { id: 'form' }
-  const draft = { schemaId: 'node--recipe--default--view', fields: ['field_b'] }
-  handler.message(hub, CHANNEL, form, 'draft', draft)
-  assert.deepStrictEqual(hub.sent.pop(), {
-    to: 'all',
-    type: 'draft',
-    channel: CHANNEL,
-    payload: draft,
-    except: 'form',
+  handler.message(
+    hub,
+    CHANNEL,
+    form,
+    'draft',
+    draft({
+      field_a: { label: 'above', weight: 2 },
+      field_b: { label: 'inline', weight: 1 },
+    })
+  )
+  await wait(30)
+  const sent = hub.sent.pop()
+  assert.strictEqual(sent.to, 'all')
+  assert.strictEqual(sent.except, 'form')
+  assert.deepStrictEqual(sent.payload, {
+    schemaId: ID,
+    schema: {
+      id: ID,
+      fields: [
+        { id: 'field_b', label: { position: 'inline' } },
+        { id: 'field_a', label: { position: 'above' } },
+      ],
+    },
   })
   handler.join(hub, CHANNEL, { id: 'page' })
-  assert.deepStrictEqual(hub.sent.pop().payload, draft)
+  assert.deepStrictEqual(hub.sent.pop().payload, sent.payload)
+})
+
+test('edits in quick succession build once, from the latest', async () => {
+  let builds = 0
+  const handler = handlerFor({
+    buildSchema: (...args) => {
+      builds++
+      return fakeBuild(...args)
+    },
+  })
+  const hub = fakeHub()
+  for (const weight of [1, 2, 3])
+    handler.message(
+      hub,
+      CHANNEL,
+      { id: 'f' },
+      'draft',
+      draft({ field_a: { weight } })
+    )
+  await wait(30)
+  assert.strictEqual(builds, 1)
+  assert.strictEqual(hub.sent.length, 1)
+})
+
+test('a slow build overtaken by a later draft is not sent', async () => {
+  const handler = handlerFor({
+    buildSchema: async (schemaId, content) => {
+      if (content.field_slow) await wait(40)
+      return fakeBuild(schemaId, content)
+    },
+  })
+  const hub = fakeHub()
+  handler.message(
+    hub,
+    CHANNEL,
+    { id: 'f' },
+    'draft',
+    draft({ field_slow: { weight: 1 } })
+  )
+  await wait(15)
+  handler.message(
+    hub,
+    CHANNEL,
+    { id: 'f' },
+    'draft',
+    draft({ field_fast: { weight: 1 } })
+  )
+  await wait(80)
+  assert.deepStrictEqual(
+    hub.sent.map((s) => s.payload.schema.fields[0].id),
+    ['field_fast']
+  )
+})
+
+test('a failed or unknown build is reported to the form, and nothing throws', async () => {
+  const logged = []
+  const handler = handlerFor({
+    buildSchema: () => Promise.reject(new Error('Drupal is down')),
+    log: (m) => logged.push(m),
+  })
+  const hub = fakeHub()
+  handler.message(
+    hub,
+    CHANNEL,
+    { id: 'f' },
+    'draft',
+    draft({ field_a: { weight: 1 } })
+  )
+  await wait(30)
+  assert.match(hub.sent.pop().payload.message, /could not be built/)
+  assert.match(logged[0], /Drupal is down/)
+
+  const unknown = handlerFor()
+  unknown.message(
+    hub,
+    CHANNEL,
+    { id: 'f' },
+    'draft',
+    draft({}, 'node--nope--default--view')
+  )
+  await wait(30)
+  assert.match(hub.sent.pop().payload.message, /no such display/)
 })
 
 test('a short key, a bad draft or another message is refused', () => {
-  const handler = displayHandler()
+  const handler = handlerFor()
   const hub = fakeHub()
   const who = { id: 'x' }
   handler.join(hub, 'display:short', who)
@@ -73,21 +206,29 @@ test('a short key, a bad draft or another message is refused', () => {
 })
 
 test('a draft nobody watches is dropped', async () => {
-  const handler = displayHandler({ idleMs: 20 })
+  const handler = handlerFor({ idleMs: 20 })
   const hub = fakeHub([])
-  handler.message(hub, CHANNEL, { id: 'f' }, 'draft', {
-    schemaId: 'node--page--default--view',
-    fields: ['field_body'],
-  })
+  handler.message(
+    hub,
+    CHANNEL,
+    { id: 'f' },
+    'draft',
+    draft({ field_a: { weight: 1 } })
+  )
+  await wait(30)
   handler.leave(hub, CHANNEL)
-  await new Promise((resolve) => setTimeout(resolve, 60))
+  await wait(60)
   assert.strictEqual(handler.drafts.has(CHANNEL), false)
   // Someone still on the channel keeps it.
-  handler.message(hub, CHANNEL, { id: 'f' }, 'draft', {
-    schemaId: 'node--page--default--view',
-    fields: ['field_body'],
-  })
+  handler.message(
+    hub,
+    CHANNEL,
+    { id: 'f' },
+    'draft',
+    draft({ field_a: { weight: 1 } })
+  )
+  await wait(30)
   handler.leave(fakeHub([{ id: 'p' }]), CHANNEL)
-  await new Promise((resolve) => setTimeout(resolve, 60))
+  await wait(60)
   assert.strictEqual(handler.drafts.has(CHANNEL), true)
 })

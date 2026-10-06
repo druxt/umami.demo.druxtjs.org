@@ -5,8 +5,9 @@
  * from /_druxt/schema/<id> and render in the new order.
  *
  * A page opened with `?druxt-preview=<key>` from Drupal's form also follows
- * that form unsaved: each change arrives as a draft on `display:<key>` and is
- * applied to the schema in this browser only.
+ * that form unsaved: the site's server builds a Druxt schema from each change,
+ * order, labels, formatters and their settings, and sends it on
+ * `display:<key>`. It applies in this browser only.
  */
 import Vue from 'vue'
 
@@ -31,7 +32,7 @@ const storage = {
   },
 }
 
-export default ({ $sockets, $druxtSchema, store }, inject) => {
+export default ({ $sockets, store }, inject) => {
   const state = Vue.observable({ key: null, draft: null })
 
   /** Refetch every DruxtEntity of a type, `node--recipe`, so it reloads its schema. */
@@ -48,15 +49,11 @@ export default ({ $sockets, $druxtSchema, store }, inject) => {
     if (window.$nuxt) visit(window.$nuxt)
   }
 
-  /** A draft over the saved schema: its fields in the form's order, the rest hidden. */
-  const apply = async (draft) => {
-    const saved = await $druxtSchema.import(draft.schemaId)
-    const byId = new Map((saved.fields || []).map((f) => [f.id, f]))
-    // A field newly shown in the form has no formatter here until it is saved.
-    const fields = draft.fields.map((id) => byId.get(id)).filter(Boolean)
+  /** The unsaved display's schema, in place of the saved one. */
+  const apply = (draft) => {
     store.commit('druxtSchema/addSchema', {
       id: draft.schemaId,
-      schema: { ...saved, fields },
+      schema: draft.schema,
     })
     refetch(draft.schemaId.split('--').slice(0, 2).join('--'))
   }
@@ -92,7 +89,7 @@ export default ({ $sockets, $druxtSchema, store }, inject) => {
   })
 
   // A saved display: every page that shows its bundle renders it anew.
-  $sockets.on('content:changed', async ({ payload }) => {
+  $sockets.on('content:changed', ({ payload }) => {
     const types = new Set(
       (payload.tags || [])
         .map((tag) => DISPLAY_TAG.exec(tag))
@@ -102,7 +99,7 @@ export default ({ $sockets, $druxtSchema, store }, inject) => {
     if (!types.size) return
     store.commit('druxtSchema/flushSchemas')
     // A preview in progress stays on its draft over the newly saved display.
-    if (state.draft) await apply(state.draft)
+    if (state.draft) apply(state.draft)
     types.forEach(refetch)
   })
 

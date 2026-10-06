@@ -2,10 +2,12 @@
  * @file
  * Manage display, previewed live on the Druxt site before it is saved.
  *
- * The form joins `display:<key>` on the site's WebSocket and sends the order
- * of the fields it shows each time the table changes. A site page opened from
- * the link here, with the same key, renders the display that way. The key is
- * random and stays in this tab, so only its own preview follows it.
+ * The form joins `display:<key>` on the site's WebSocket and sends the display
+ * as it stands each time the table changes: the fields it shows, by weight,
+ * with their labels, formatters and formatter settings. The site's server
+ * builds a Druxt schema from that, and a site page opened from the link here,
+ * with the same key, renders the display that way. The key is random and
+ * stays in this tab, so only its own preview follows it.
  */
 ((Drupal, drupalSettings, once) => {
   const STORAGE = 'druxtDisplayPreviewKey';
@@ -25,32 +27,66 @@
     return key;
   };
 
+  /** Whether "Show row weights" is on, as tabledrag keeps it. */
+  const showingWeights = () => {
+    try {
+      return JSON.parse(localStorage.getItem('Drupal.tableDrag.showWeight'));
+    } catch (e) {
+      return false;
+    }
+  };
+
   /**
-   * The fields the table shows, in its order: every row not in Disabled, by
-   * weight. Dragging renumbers the weights, and "Show row weights" edits
-   * them, so the weights are the order either way.
+   * The display the table shows: every field not in Disabled, with its
+   * label and formatter from the table's own inputs. A dragged row moves at
+   * once but takes its new weight only when dropped or, from the keyboard,
+   * when the handle loses focus, so the rows give the order; with "Show row
+   * weights" on, the rows stay put and the weights give it. A formatter's
+   * settings come from Drupal's last rebuild of the form, which the table
+   * carries, and stand only while the formatter is the one they were made
+   * for.
    */
-  const shownFields = (table) =>
-    Array.from(table.querySelectorAll('tbody tr'))
-      .map((row, index) => {
-        const region = row.querySelector('select[name$="[region]"]');
-        const weight = row.querySelector('[name$="[weight]"]');
-        const match = region && region.name.match(/^fields\[([^\]]+)\]/);
-        return match && region.value !== 'hidden'
-          ? { name: match[1], weight: Number(weight && weight.value) || 0, index }
-          : null;
-      })
-      .filter(Boolean)
-      .sort((a, b) => a.weight - b.weight || a.index - b.index)
-      .map((field) => field.name);
+  const displayOf = (table) => {
+    let built = {};
+    try {
+      built = JSON.parse(table.dataset.druxtDraft || '{}');
+    } catch (e) {
+      // No settings: the formatters' own defaults apply.
+    }
+    const value = (row, field) => {
+      const input = row.querySelector(`[name$="[${field}]"]`);
+      return input ? input.value : undefined;
+    };
+    const byWeight = showingWeights();
+    const content = {};
+    table.querySelectorAll('tbody tr').forEach((row, index) => {
+      const region = row.querySelector('select[name$="[region]"]');
+      const match = region && region.name.match(/^fields\[([^\]]+)\]/);
+      if (!match || region.value === 'hidden') return;
+      const name = match[1];
+      const from = built[name] || {};
+      const type = value(row, 'type') || from.type || null;
+      const same = type === from.type;
+      content[name] = {
+        type,
+        label: value(row, 'label') || from.label || 'hidden',
+        weight: byWeight ? Number(value(row, 'weight')) || 0 : index,
+        settings: same && from.settings ? from.settings : {},
+        third_party_settings:
+          same && from.third_party_settings ? from.third_party_settings : {},
+      };
+    });
+    return content;
+  };
 
   Drupal.behaviors.druxtDisplayPreview = {
     attach(context) {
       const settings = drupalSettings.druxtDisplayPreview;
       once('druxt-display-preview', '.druxt-display-preview', context).forEach(
         (panel) => {
-          const table = document.getElementById('field-display-overview');
-          if (!settings || !table) return;
+          // Field UI's AJAX replaces the table, so it is found afresh each time.
+          const table = () => document.getElementById('field-display-overview');
+          if (!settings || !table()) return;
           const origin = settings.frontend || window.location.origin;
           const key = keyFor();
           const channel = `display:${key}`;
@@ -62,7 +98,7 @@
               <span class="druxt-display-preview__status"></span>
             </p>
             <p class="description">${Drupal.t(
-              'Open the preview beside this form. Drag a field or move it to Disabled, and the site shows the change before you save.',
+              'Open the preview beside this form. Reorder or hide a field, or change its label, format or format settings, and the site shows the change before you save.',
             )}</p>`;
           const link = panel.querySelector('a');
           link.textContent = Drupal.t('Open live preview');
@@ -73,25 +109,43 @@
           let last = '';
           const send = () => {
             if (!socket || socket.readyState !== 1) return;
-            const draft = { schemaId: settings.schemaId, fields: shownFields(table) };
+            const draft = { schemaId: settings.schemaId, content: displayOf(table()) };
             const message = JSON.stringify({ type: 'draft', channel, payload: draft });
             if (message === last) return;
             last = message;
             socket.send(message);
           };
 
-          const connect = (delay = 1000) => {
+          let delay = 1000;
+          const connect = () => {
             const url = `${origin.replace(/^http/, 'ws')}/_live`;
             socket = new WebSocket(url);
             socket.addEventListener('open', () => {
+              delay = 1000;
               status.textContent = Drupal.t('Connected');
               socket.send(JSON.stringify({ type: 'join', channel, payload: {} }));
               last = '';
               send();
             });
+            // The site says when it could not build a preview from a change.
+            socket.addEventListener('message', (event) => {
+              let message = {};
+              try {
+                message = JSON.parse(event.data);
+              } catch (e) {
+                return;
+              }
+              if (message.channel !== channel) return;
+              if (message.type === 'error' && message.payload) {
+                status.textContent = message.payload.message;
+              } else if (message.type === 'draft') {
+                status.textContent = Drupal.t('Connected');
+              }
+            });
             socket.addEventListener('close', () => {
               status.textContent = Drupal.t('Reconnecting…');
-              setTimeout(() => connect(Math.min(delay * 2, 30000)), delay);
+              setTimeout(connect, delay);
+              delay = Math.min(delay * 2, 30000);
             });
           };
           connect();
@@ -104,12 +158,18 @@
             clearTimeout(pending);
             pending = setTimeout(send, 50);
           };
-          new MutationObserver(changed).observe(table.querySelector('tbody'), {
+          const form = table().closest('form');
+          new MutationObserver(changed).observe(form, {
             childList: true,
             subtree: true,
           });
-          table.addEventListener('change', changed);
-          table.addEventListener('input', changed);
+          form.addEventListener('change', changed);
+          form.addEventListener('input', changed);
+          // A drop sets the new weights without an event, once the pointer or
+          // key that made it is released.
+          ['pointerup', 'touchend', 'keyup'].forEach((type) =>
+            document.addEventListener(type, changed),
+          );
         },
       );
     },

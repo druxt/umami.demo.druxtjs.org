@@ -4,9 +4,10 @@
  * `@druxt-contrib/sockets` loads this under `nuxt dev`; start.js in production.
  */
 const { displayHandler } = require('./display')
+const { draftSchemas } = require('./draft-schema')
 const { gameHandler } = require('./game-room')
 
 module.exports = ({ drupalUrl, log = () => {} }) => ({
-  display: displayHandler(),
+  display: displayHandler({ buildSchema: draftSchemas({ drupalUrl }), log }),
   game: gameHandler({ drupalUrl, log }),
 })

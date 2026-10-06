@@ -35,7 +35,8 @@ The demo is a site without releases, so changes are grouped by date.
   rebuild: the server regenerates Druxt schemas after each purge (druxt.js
   pull request #903, from the npm dev channel), and open pages render the new
   order. Manage display also opens a live preview on the site, which follows
-  the form before it is saved.
+  the form before it is saved: the order, labels, formatters and formatter
+  settings.
 - Open pages refresh what a content change touches as soon as Drupal purges,
   over a WebSocket through `@druxt-contrib/sockets`, vendored, ahead of the
   rebuild.
