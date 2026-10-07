@@ -87,6 +87,10 @@ function _druxt_umami_preview_path(string $type, string $bundle, string $mode): 
   }
   $storage = \Drupal::entityTypeManager()->getStorage($type);
   $definition = $storage->getEntityType();
+  // Block content and the like have no page of their own on the site.
+  if (!$definition->hasLinkTemplate('canonical')) {
+    return '/en';
+  }
   $query = $storage->getQuery()->accessCheck(TRUE)->range(0, 1);
   if ($key = $definition->getKey('bundle')) {
     $query->condition($key, $bundle);
