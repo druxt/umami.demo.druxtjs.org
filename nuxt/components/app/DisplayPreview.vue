@@ -6,7 +6,7 @@
     role="status"
   >
     <span class="display-preview__dot" aria-hidden="true" />
-    <span>
+    <span class="display-preview__text">
       Previewing Drupal's unsaved display
       <template v-if="$displayPreview.state.draft">
         · <code v-text="$displayPreview.state.draft.schemaId" /> · updated
