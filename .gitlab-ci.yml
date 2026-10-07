@@ -377,9 +377,9 @@ test:stack:
       log="$CI_PROJECT_DIR/start.log"
       count() { grep -c "$1" "$log" || true; }
 
-      # A regenerate request from a public host is just a page request.
+      # A regenerate request from a public host is a request for a path with no page.
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Host: umami.demo.druxtjs.org' "$site/_regenerate")
-      [ "$code" = 200 ] || fail "a public regenerate answered $code, not the fallback page"
+      [ "$code" = 404 ] || fail "a public regenerate answered $code, not the not-found page"
       [ "$(count '^start: regenerate requested')" = 0 ] || fail "a public host requested a build"
 
       # From the internal network it builds again, serving the old copy meanwhile.
@@ -418,6 +418,12 @@ test:stack:
       [ "$code" = 401 ] || fail "a wrong cache secret answered $code"
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "X-Druxt-Secret: $DRUXT_CACHE_SECRET" "$site/_druxt/cache/clear")
       [ "$code" = 204 ] || fail "the cache secret answered $code"
+      # An accepted clear rebuilds once its quiet period ends.
+      for i in $(seq 1 30); do
+        [ "$(count '^start: content changed; rebuilding')" -gt 0 ] && break
+        sleep 1
+      done
+      [ "$(count '^start: content changed; rebuilding')" -gt 0 ] || fail "an accepted cache clear never started a rebuild"
       # Open pages hear a content purge on /_live, but not a sign-in's.
       (cd "$CI_PROJECT_DIR/nuxt" && node server/check-live.js "$site" "$DRUXT_CACHE_SECRET") || fail "a purge did not reach an open page"
 
