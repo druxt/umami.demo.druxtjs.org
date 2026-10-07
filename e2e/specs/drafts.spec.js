@@ -217,6 +217,8 @@ test.describe('drafts', () => {
     await signIn(page)
     await openEdit(page, RECIPE)
     const inputs = page.locator('.edit-list__input')
+    // The list renders after the form; count it once it is there.
+    await inputs.nth(1).waitFor()
     const count = await inputs.count()
     const first = await inputs.nth(0).inputValue()
     const second = await inputs.nth(1).inputValue()
