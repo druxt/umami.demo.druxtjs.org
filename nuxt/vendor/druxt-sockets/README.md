@@ -146,6 +146,7 @@ sockets: {
 | Option      | Default                   |                                                                |
 | ----------- | ------------------------- | -------------------------------------------------------------- |
 | `path`      | `/_sockets`               | Where the socket listens; the purge endpoint is `<path>/purge` |
+| `origin`    | the page's own            | Another origin for the socket; or `socketsOrigin` at runtime   |
 | `handlers`  | none                      | A file exporting `(options) => ({ kind: handler })`            |
 | `drupalUrl` | `druxt.baseUrl`           | Where an editor's token is checked                             |
 | `secret`    | `DRUXT_SOCKETS_SECRET`    | The purge endpoint's secret; without one there is no endpoint  |
