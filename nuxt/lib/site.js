@@ -32,14 +32,27 @@ const TWITTER_HANDLE = '@DruxtJS'
 const SITE_CARD = '/og/site.png'
 
 /**
+ * A Lagoon preview's own route for this site. A preview has only generated
+ * routes, and its first, LAGOON_ROUTE, is Drupal's `nginx.` one.
+ */
+const previewRoute = (env = process.env) =>
+  env.LAGOON_ENVIRONMENT_TYPE === 'production'
+    ? ''
+    : String(env.LAGOON_ROUTES || '')
+        .split(',')
+        .map((r) => r.trim())
+        .find((r) => /^https?:\/\/app\./.test(r)) || ''
+
+/**
  * The origin visitors reach the site on. The start script hands the build
- * its own origin as LOOPBACK_ORIGIN; on Lagoon that is the environment's
- * route. Production is the fallback.
+ * its own origin as LOOPBACK_ORIGIN; on Lagoon that is production's first
+ * route or a preview's `app.` one. Production is the fallback.
  */
 const siteOrigin = (env = process.env) =>
   String(
     env.SITE_ORIGIN ||
       env.LOOPBACK_ORIGIN ||
+      previewRoute(env) ||
       env.LAGOON_ROUTE ||
       'https://umami.demo.druxtjs.org'
   ).replace(/\/$/, '')
@@ -96,6 +109,7 @@ module.exports = {
   SITE_DESCRIPTION,
   SITE_CARD,
   TWITTER_HANDLE,
+  previewRoute,
   siteOrigin,
   drupalOrigin,
   langcodeOf,

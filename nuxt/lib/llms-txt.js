@@ -57,6 +57,33 @@ function buildLlmsTxt(docs, { origin }) {
     if (list.length) lines.push('', '## ' + label, '', ...list)
   }
 
+  // What the demo shows of Druxt, and where Druxt itself lives.
+  lines.push(
+    '',
+    '## DruxtJS',
+    '',
+    listItem(
+      'DruxtJS',
+      'https://druxtjs.org',
+      'The framework this site is built with: Drupal, fully decoupled, with Nuxt.'
+    ),
+    listItem(
+      'Source code',
+      'https://github.com/druxt/umami.demo.druxtjs.org',
+      'This demo, frontend and Drupal backend, in one repository.'
+    ),
+    listItem(
+      'Entity Explorer',
+      withUtm(origin + '/entity-explorer'),
+      "Every Drupal entity on the site through Druxt's display modes, with the JSON:API request behind it."
+    ),
+    listItem(
+      'Umami Go',
+      withUtm(origin + '/play'),
+      "A card game dealt from the magazine's recipes, rendered by DruxtEntity."
+    )
+  )
+
   // The full text stays bare: an assistant reads it and
   // nobody lands on it, and the Source: links inside carry their own tags.
   lines.push(

@@ -18,6 +18,16 @@ DB="${DRUPAL_SQLITE_PATH:-$PWD/.devtools/db.sqlite}"
   exit 1
 }
 
+# One reset at a time, whoever starts it: the reset route, the daily cron or
+# a Lagoon task. The marker is the one the route reads, so its one-a-minute
+# limit counts this run too.
+exec 9>"$DIR/reset.running"
+if command -v flock >/dev/null && ! flock -n 9; then
+  echo "a reset is already running" >&2
+  exit 0
+fi
+touch "$DIR/last-reset"
+
 FLAG="$FILES/.provisioning"
 touch "$FLAG"
 trap 'rm -f "$FLAG"' EXIT
