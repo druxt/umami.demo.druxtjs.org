@@ -7538,8 +7538,10 @@ drupal-jsonapi-params@^2.3.1, drupal-jsonapi-params@^2.3.2:
   dependencies:
     qs "^6.10.3"
 
-"druxt-auth@file:vendor/druxt-auth":
+druxt-auth@0.5.0:
   version "0.5.0"
+  resolved "https://registry.yarnpkg.com/druxt-auth/-/druxt-auth-0.5.0.tgz#2a6f3d16b5789c5f7f14d0d4aec39d42303a633f"
+  integrity sha512-dsWDskwlJQik9trMJt+IIUVQkVSJjxi6n77fDr8joGUwGIaxyRp2veS4/9iqFJNTESjbu0bXz3azfewjfgi8dw==
   dependencies:
     "@nuxtjs/auth-next" "^5.0.0-1667386184.dfbbb54"
     http-proxy-middleware "^1.0.6"
