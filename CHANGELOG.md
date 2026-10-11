@@ -9,6 +9,9 @@ The demo is a site without releases, so changes are grouped by date.
 
 ### Added
 
+- The demo resets itself to its fresh content every day at 16:00 UTC, and
+  the same reset can be run on demand as a Lagoon task. One reset runs at a
+  time, whether the route, the cron or the task starts it.
 - The front page's recipe-of-the-week banner is a carousel of Drupal's
   banner blocks, from a `front_carousel` view block, with Umami Go first. Each
   slide names itself in its kicker, and it moves by its bars, its arrows, the

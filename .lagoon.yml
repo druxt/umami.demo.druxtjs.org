@@ -19,6 +19,12 @@ environments:
         schedule: "*/15 * * * *"
         command: drush cron
         service: cli
+      # The demo back to its fresh content once a day, whatever visitors left
+      # in it. 16:00 UTC is the small hours in Melbourne, where it is run from.
+      - name: reset the demo
+        schedule: "0 16 * * *"
+        command: /app/.devtools/reset
+        service: cli
 
 tasks:
   post-rollout:
