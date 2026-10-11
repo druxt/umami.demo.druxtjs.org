@@ -1,7 +1,15 @@
 <template>
   <article class="article-page">
-    <div class="node-hero node-hero--article bleed">
+    <div
+      class="node-hero node-hero--article bleed"
+      :class="{ 'v-diff-swapped': fieldDiff('field_media_image') }"
+    >
       <slot name="field_media_image" />
+      <AppDraftSwap
+        :entity="draftEntity"
+        :field="fieldDiff('field_media_image')"
+        name="field_media_image"
+      />
     </div>
 
     <!-- One measure at every width. At lg the meta moves into the left rail
@@ -20,7 +28,7 @@
         </span>
 
         <h1
-          v-draft-diff="'title'"
+          v-diff="fieldDiff('title')"
           class="article-page__title"
           v-text="entity.attributes.title"
         />
@@ -76,13 +84,19 @@
 </template>
 
 <script>
+import { diffable } from '@druxt-contrib/diff'
 import { DruxtEntityMixin } from 'druxt-entity'
 import { langMixin } from '~/utils/lang'
 
 export default {
-  mixins: [langMixin, DruxtEntityMixin],
+  mixins: [langMixin, DruxtEntityMixin, diffable],
 
   computed: {
+    /** This entity as the draft helpers name it. */
+    draftEntity() {
+      return { type: this.entity.type, id: this.entity.id, langcode: this.lang }
+    },
+
     theme: () => 'umami',
 
     /** Words in the body at 200 a minute, never under one. */

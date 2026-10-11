@@ -47,9 +47,10 @@ export default {
   },
   home: {
     thisWeek: 'This week',
+    recipeOfWeek: 'Recipe of the week',
     allRecipes: 'All recipes',
     collections: 'Recipe collections',
-    more: 'More →',
+    more: 'All collections →',
     inPrint: 'In print',
     feedbackTitle: 'Tell us what you think',
     feedbackBody:
@@ -282,6 +283,10 @@ export default {
     replaced: 'Replaced',
     removed: 'Removed',
     was: 'was',
+    discard: 'Discard draft',
+    discardAsk: 'Throw this draft away?',
+    discardYes: 'Discard',
+    discardNo: 'Keep it',
   },
   contact: {
     kicker: 'Contact',

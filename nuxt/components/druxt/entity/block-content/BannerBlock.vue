@@ -5,7 +5,9 @@
 
     <b-container>
       <div class="banner__body">
-        <span class="banner__kicker">{{ kicker }}</span>
+        <span class="banner__kicker">{{
+          kicker || $t('home.recipeOfWeek')
+        }}</span>
 
         <h2 class="banner__title">{{ fields.field_title.data }}</h2>
 
@@ -17,6 +19,7 @@
             variant="primary"
           >
             {{ fields.field_content_link.data.title }}
+            <span class="sr-only">: {{ fields.field_title.data }}</span>
           </b-button>
         </div>
       </div>
@@ -33,10 +36,10 @@ export default {
   mixins: [DruxtEntityMixin],
 
   props: {
-    /** Editorial eyebrow above the banner title. */
+    /** Editorial eyebrow above the banner title; the locale's when unset. */
     kicker: {
       type: String,
-      default: 'Recipe of the week',
+      default: null,
     },
   },
 

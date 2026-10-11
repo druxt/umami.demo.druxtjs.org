@@ -55,7 +55,15 @@ async function openEdit(page, path) {
   await page.locator('.edit-form').waitFor()
 }
 
+/** Open the search panel from the masthead, whichever control the width shows. */
+const openSearch = (page) =>
+  page
+    .locator('.masthead__search-icon:visible, .masthead__search:visible')
+    .first()
+    .click()
+
 module.exports = {
+  openSearch,
   ARTICLE,
   RECIPE,
   watchErrors,

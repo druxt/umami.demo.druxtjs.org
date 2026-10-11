@@ -11,6 +11,7 @@
     <client-only>
       <DruxtCkeditor
         :id="id"
+        :aria-label="label"
         class="edit-editor"
         :format="item.format || 'basic_html'"
         :upload="upload"

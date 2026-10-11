@@ -9,6 +9,8 @@ export default {
   data: () => ({
     /** The entity as Drupal holds it, captured when the form loads. */
     original: null,
+    /** Room for the settings beside the content, rather than below it. */
+    wide: false,
   }),
 
   computed: {
@@ -35,13 +37,33 @@ export default {
     this.onModel((this.form || {}).model)
     this.$watch(() => (this.form || {}).model, this.onModel, { deep: true })
     if (this.form) this.form.$on('submit', this.onSaved)
+    this.$nuxt.$on('drafts:discarded', this.onDiscarded)
+    // The settings drawer opens on its own once it has a column of its own.
+    this.media = window.matchMedia('(min-width: 992px)')
+    this.onMedia(this.media)
+    this.media.addEventListener('change', this.onMedia)
   },
 
   beforeDestroy() {
     if (this.form) this.form.$off('submit', this.onSaved)
+    this.$nuxt.$off('drafts:discarded', this.onDiscarded)
+    if (this.media) this.media.removeEventListener('change', this.onMedia)
   },
 
   methods: {
+    onMedia(media) {
+      this.wide = !!media.matches
+    },
+
+    /** The page threw the draft away: the form shows Drupal's entity again. */
+    onDiscarded(key) {
+      const model = (this.form || {}).model
+      if (!model || !this.original) return
+      const langcode = (model.attributes || {}).langcode || 'en'
+      if (key !== `${model.type}:${model.id}:${langcode}`) return
+      this.form.model = JSON.parse(JSON.stringify(this.original))
+    },
+
     onModel(model) {
       if (!model || !model.id || !this.$drafts) return
       const langcode = (model.attributes || {}).langcode || 'en'
