@@ -71,7 +71,9 @@
           <div class="explorer__stage">
             <div class="explorer__mount">
               <client-only>
-                <VueLivePreview :code="previewCode" />
+                <AppSteadyBox :swap="previewCode">
+                  <VueLivePreview :code="previewCode" />
+                </AppSteadyBox>
               </client-only>
             </div>
           </div>

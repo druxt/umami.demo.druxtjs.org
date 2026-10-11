@@ -53,7 +53,7 @@ const textOf = (field) =>
  *
  * @param {object} resource - A node from a collection response.
  * @param {string} langcode - The language it was fetched in.
- * @returns {object} { path, langcode, bundle, title, description, ingredients, instructions, body, created, changed }
+ * @returns {object} { path, langcode, bundle, title, description, ingredients, instructions, body, instructionsHtml, bodyHtml, created, changed }
  */
 const documentOf = (resource, langcode) => {
   const a = resource.attributes || {}
@@ -70,6 +70,9 @@ const documentOf = (resource, langcode) => {
     ingredients: (a.field_ingredients || []).map((i) => plainText(i)),
     instructions: plainText(textOf(a.field_recipe_instruction)),
     body: plainText(textOf(a.field_body)),
+    // As stored, for llms-full.txt to keep its structure as Markdown.
+    instructionsHtml: textOf(a.field_recipe_instruction),
+    bodyHtml: textOf(a.field_body),
     created: a.created,
     changed: a.changed,
   }

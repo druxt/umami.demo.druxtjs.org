@@ -1,28 +1,48 @@
 <template>
-  <!-- The way back to the fresh demo, for a signed-in editor. Asks first:
-       the reset is for everyone on the site, not just this browser. -->
+  <!-- The way back to the fresh demo, for a signed-in editor. Asks first, in
+       a dialog: the reset is for everyone on the site, not just this browser,
+       and the question needs more room than the demo bar has. -->
   <span v-if="signedIn" class="reset-demo">
     <button
-      v-if="!asking && !busy"
       class="reset-demo__button"
       type="button"
-      @click="asking = true"
+      :disabled="busy"
+      @click="open = true"
     >
-      {{ $t('reset.button') }}
+      {{ busy ? $t('reset.busy') : $t('reset.button') }}
     </button>
-    <span v-else-if="asking" class="reset-demo__ask" role="alertdialog">
-      <span class="reset-demo__question">{{ $t('reset.confirm') }}</span>
-      <button class="reset-demo__yes" type="button" @click="reset">
-        {{ $t('reset.yes') }}
-      </button>
-      <button class="reset-demo__no" type="button" @click="asking = false">
-        {{ $t('reset.no') }}
-      </button>
-    </span>
-    <span v-else class="reset-demo__busy">{{ $t('reset.busy') }}</span>
-    <span v-if="message" class="reset-demo__message" role="status">{{
-      message
-    }}</span>
+    <b-modal
+      v-model="open"
+      body-class="sign-in__body"
+      centered
+      dialog-class="sign-in__dialog reset-dialog"
+      hide-footer
+      lazy
+      :no-close-on-backdrop="busy"
+      :title="$t('reset.title')"
+      title-class="sign-in__title"
+      title-tag="h2"
+    >
+      <p class="reset-dialog__text">{{ message || $t('reset.confirm') }}</p>
+      <div v-if="!message" class="reset-dialog__actions">
+        <button
+          class="btn btn-primary reset-dialog__yes"
+          type="button"
+          :disabled="busy"
+          @click="reset"
+        >
+          {{ busy ? $t('reset.busy') : $t('reset.yes') }}
+        </button>
+        <button
+          class="btn btn-outline-secondary reset-dialog__no"
+          type="button"
+          :disabled="busy"
+          @click="open = false"
+        >
+          {{ $t('reset.no') }}
+        </button>
+      </div>
+    </b-modal>
   </span>
 </template>
 
@@ -30,7 +50,7 @@
 import { DRAFTS_KEY } from '~/utils/edit-drafts'
 
 export default {
-  data: () => ({ asking: false, busy: false, message: '' }),
+  data: () => ({ open: false, busy: false, message: '' }),
 
   computed: {
     signedIn: ({ $auth }) => !!($auth && $auth.loggedIn),
@@ -38,7 +58,6 @@ export default {
 
   methods: {
     async reset() {
-      this.asking = false
       this.busy = true
       this.message = ''
       try {

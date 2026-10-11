@@ -98,6 +98,7 @@ test.describe('seo', () => {
     expect(index).toContain('## Recipes')
     expect(index).toContain(`(${baseURL}${RECIPE}?utm_source=llms-txt`)
     expect(index).toContain('## Optional')
+    expect(index).toContain(`- [Full text](${baseURL}/llms-full.txt)`)
 
     const full = await request.get('/llms-full.txt')
     expect(full.status()).toBe(200)
@@ -105,5 +106,28 @@ test.describe('seo', () => {
     expect(text).toContain('## Crema catalana')
     expect(text).toContain('### Ingredients')
     expect(text).toContain('# En español')
+    // Markdown: a rule before each document, a source to
+    // cite, a method's numbered steps, and no markup left over.
+    expect(text).toContain(
+      `Source: ${baseURL}${RECIPE}?utm_source=llms-full-txt`,
+    )
+    expect(text).toMatch(/### Method\n\n1\. \S/)
+    expect(text).toContain('\n---\n')
+    expect(text).not.toMatch(/<\/?(p|li|ol|ul|strong)\b|<!--/)
+  })
+
+  // llms.txt discovery: the page's own <link>, and a Link header for any
+  // client that never reads the page.
+  test('every page points at llms.txt', async ({ page, request }) => {
+    for (const path of ['/en', RECIPE, '/es']) {
+      await page.goto(path)
+      await expect(
+        page.locator('link[rel="describedby"][href="/llms.txt"]'),
+      ).toHaveAttribute('type', 'text/markdown')
+      const response = await request.get(path)
+      expect(response.headers().link).toBe(
+        '</llms.txt>; rel="describedby"; type="text/markdown"',
+      )
+    }
   })
 })

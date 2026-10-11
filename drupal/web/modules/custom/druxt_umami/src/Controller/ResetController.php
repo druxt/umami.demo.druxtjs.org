@@ -32,20 +32,34 @@ final class ResetController extends ControllerBase {
     $root = dirname(DRUPAL_ROOT);
     $script = $root . '/.devtools/reset';
     $dir = getenv('DRUXT_RESET_DIR') ?: DRUPAL_ROOT . '/sites/default/files/private/druxt-reset';
-    // A dump on MariaDB, the file itself on SQLite.
-    $snapshot = is_file($dir . '/database.sql') || is_file($dir . '/database.sqlite');
+    // A dump on MariaDB, the file itself on SQLite, and the files beside it:
+    // the script needs both, so a reset without them would never run.
+    $snapshot = (is_file($dir . '/database.sql') || is_file($dir . '/database.sqlite'))
+      && is_file($dir . '/files.tgz');
     if (!is_executable($script) || !$snapshot) {
       return new JsonResponse(['message' => 'There is no snapshot to reset to.'], 503);
     }
 
     // A file beside the snapshot, not State: the restore puts State back too.
+    // Checked and moved under a lock, so a double click starts one reset.
     $marker = $dir . '/last-reset';
-    $now = \Drupal::time()->getRequestTime();
-    $wait = (is_file($marker) ? (int) filemtime($marker) : 0) + self::QUIET - $now;
-    if ($wait > 0) {
-      return new JsonResponse(['message' => "A reset just ran; try again in $wait seconds.", 'retryAfter' => $wait], 429);
+    $lock = fopen($dir . '/reset.lock', 'c');
+    if (!$lock || !flock($lock, LOCK_EX)) {
+      return new JsonResponse(['message' => 'The reset could not start.'], 503);
     }
-    touch($marker, $now);
+    try {
+      $now = \Drupal::time()->getRequestTime();
+      clearstatcache(TRUE, $marker);
+      $wait = (is_file($marker) ? (int) filemtime($marker) : 0) + self::QUIET - $now;
+      if ($wait > 0) {
+        return new JsonResponse(['message' => "A reset just ran; try again in $wait seconds.", 'retryAfter' => $wait], 429);
+      }
+      touch($marker, $now);
+    }
+    finally {
+      flock($lock, LOCK_UN);
+      fclose($lock);
+    }
 
     // Detached, so the response returns while the site restores itself.
     $log = escapeshellarg($dir . '/reset.log');

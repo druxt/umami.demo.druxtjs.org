@@ -12,19 +12,32 @@
       />
     </client-only>
 
-    <div v-if="editable" class="page-tabs" role="tablist">
-      <button
-        v-for="tab of tabs"
-        :key="tab.id"
-        :aria-selected="String(mode === tab.id)"
-        class="page-tabs__tab"
-        :class="{ 'is-active': mode === tab.id }"
-        role="tab"
-        type="button"
-        @click="mode = tab.id"
-      >
-        {{ $t(tab.label) }}
-      </button>
+    <div v-if="editable" class="page-tabs">
+      <div class="page-tabs__list" role="tablist">
+        <button
+          v-for="tab of tabs"
+          :key="tab.id"
+          :aria-selected="String(mode === tab.id)"
+          class="page-tabs__tab"
+          :class="{ 'is-active': mode === tab.id }"
+          role="tab"
+          type="button"
+          @click="mode = tab.id"
+        >
+          {{ $t(tab.label) }}
+        </button>
+      </div>
+      <!-- The frontend's Edit tab, and beside it Drupal's own screens for
+           the same node, for an editor. -->
+      <client-only>
+        <AppDrupalLinks
+          v-if="signedIn"
+          :label="route.label || ''"
+          :langcode="(route.entity || {}).langcode || route.props.langcode"
+          :type="route.props.type"
+          :uuid="route.props.uuid"
+        />
+      </client-only>
     </div>
 
     <!-- The diff host marks a draft's changes in the rendered view: each
@@ -69,6 +82,8 @@ export default {
 
   computed: {
     /** Only content has a form worth editing here; a term has no display. */
+    signedIn: ({ $auth }) => !!($auth && $auth.loggedIn),
+
     editable() {
       return String(this.route.props.type || '').startsWith('node--')
     },

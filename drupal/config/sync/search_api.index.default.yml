@@ -7,9 +7,11 @@ dependencies:
     - field.storage.node.field_ingredients
     - field.storage.node.field_recipe_category
     - field.storage.node.field_recipe_instruction
+    - field.storage.node.field_tags
     - search_api.server.druxt
   module:
     - node
+    - taxonomy
     - search_api_lunr
     - search_api
 _core:
@@ -38,11 +40,13 @@ field_settings:
   field_recipe_category:
     label: 'Recipe category'
     datasource_id: 'entity:node'
-    property_path: field_recipe_category
-    type: integer
+    property_path: 'field_recipe_category:entity:name'
+    type: text
     dependencies:
       config:
         - field.storage.node.field_recipe_category
+      module:
+        - taxonomy
   field_recipe_instruction:
     label: 'Recipe instruction'
     datasource_id: 'entity:node'
@@ -51,6 +55,16 @@ field_settings:
     dependencies:
       config:
         - field.storage.node.field_recipe_instruction
+  field_tags:
+    label: Tags
+    datasource_id: 'entity:node'
+    property_path: 'field_tags:entity:name'
+    type: text
+    dependencies:
+      config:
+        - field.storage.node.field_tags
+      module:
+        - taxonomy
   title:
     label: Title
     datasource_id: 'entity:node'
@@ -92,6 +106,26 @@ datasource_settings:
 processor_settings:
   add_url: {  }
   aggregated_field: {  }
+  html_filter:
+    weights:
+      preprocess_index: -15
+      preprocess_query: -15
+    all_fields: true
+    fields:
+      - field_body
+      - field_ingredients
+      - field_recipe_category
+      - field_recipe_instruction
+      - field_tags
+      - title
+    title: true
+    alt: true
+    tags:
+      b: 2
+      h1: 5
+      h2: 3
+      h3: 2
+      strong: 2
   language_with_fallback: {  }
   rendered_item: {  }
 tracker_settings:

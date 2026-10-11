@@ -21,6 +21,15 @@ test.describe('languages', () => {
     await expect(footer).not.toContainText('Recipes')
   })
 
+  test('a Spanish card names its category in Spanish', async ({ page }) => {
+    await visit(page, '/es/recipes')
+    const kickers = page.locator('.recipe-card__kicker')
+    await expect(kickers.first()).toBeVisible()
+    const names = await kickers.allInnerTexts()
+    expect(names.map((n) => n.toLowerCase())).toContain('postres')
+    expect(names.map((n) => n.toLowerCase())).not.toContain('desserts')
+  })
+
   test('the Spanish home banner speaks Spanish', async ({ page }) => {
     await visit(page, '/es/node')
     const banner = page.locator('.banner')

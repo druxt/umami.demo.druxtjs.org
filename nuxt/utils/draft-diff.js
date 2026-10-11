@@ -164,3 +164,74 @@ export function draftDocument(drafts, entity, labelOf = (name) => name) {
     ],
   }
 }
+
+/**
+ * A list field's diff, one row per line: the new list's items in order, each
+ * with the line it replaced, and a removed line where it stood. Lines that
+ * match either side unchanged carry no diff, so a reorder or a single edit
+ * marks only the rows it touched rather than every row against the whole list.
+ *
+ * @param {{left: string, right: string}|null} diff - The field's diff.
+ * @param {Array} items - The list as the page renders it.
+ * @param {Function} [textOf] - An item's words, for an item that is markup.
+ * @returns {{text: string, item: *, diff: object|null, removed: boolean}[]}
+ *   Rows; a removed row has its old line as `text` and no item.
+ */
+export function listRows(diff, items, textOf = (item) => String(item)) {
+  const right = items.map((item) => String(textOf(item)).trim())
+  const row = (j, change) => ({
+    text: right[j],
+    item: items[j],
+    diff: change || null,
+    removed: false,
+  })
+  if (!diff) return right.map((_, j) => row(j))
+  const left = String(diff.left || '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line !== '')
+  // Longest common subsequence of whole lines.
+  const n = left.length
+  const m = right.length
+  const lcs = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0))
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      lcs[i][j] =
+        left[i] === right[j]
+          ? lcs[i + 1][j + 1] + 1
+          : Math.max(lcs[i + 1][j], lcs[i][j + 1])
+    }
+  }
+  const rows = []
+  let removed = []
+  let added = []
+  // A gap between matched lines: its removed and added lines pair in order,
+  // and whatever is left over stands alone.
+  const flush = () => {
+    added.forEach((j, k) => {
+      const before = k < removed.length ? removed[k] : ''
+      rows.push(row(j, { ...diff, left: before, right: right[j] }))
+    })
+    for (const text of removed.slice(added.length)) {
+      rows.push({ text, item: null, diff: null, removed: true })
+    }
+    removed = []
+    added = []
+  }
+  let i = 0
+  let j = 0
+  while (i < n || j < m) {
+    if (i < n && j < m && left[i] === right[j]) {
+      flush()
+      rows.push(row(j))
+      i++
+      j++
+    } else if (j < m && (i === n || lcs[i][j + 1] >= lcs[i + 1][j])) {
+      added.push(j++)
+    } else {
+      removed.push(left[i++])
+    }
+  }
+  flush()
+  return rows
+}
