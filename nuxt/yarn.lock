@@ -2391,6 +2391,11 @@
 "@druxt-contrib/ckeditor@file:vendor/druxt-ckeditor":
   version "0.0.0"
 
+"@druxt-contrib/sockets@file:vendor/druxt-sockets":
+  version "0.0.0"
+  dependencies:
+    ws "8.22.0"
+
 "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.4.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz#a23514e8fb9af1269d5f7788aa556798d61c6b59"
@@ -18441,6 +18446,11 @@ write-json-file@^2.3.0:
     pify "^3.0.0"
     sort-keys "^2.0.0"
     write-file-atomic "^2.0.0"
+
+ws@8.22.0:
+  version "8.22.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.22.0.tgz#40f16e1d7588ac0575041be5c49b8eb261c28e73"
+  integrity sha512-Ydggc987+RO0AnWtZ/7Wq9FtNvcrL1b/RO0ud9mWjUPgDrsAAwQSF51sm2hm1XofbU/4jkpGEsLFsZZxU+1DOg==
 
 ws@^7.3.1:
   version "7.5.9"

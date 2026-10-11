@@ -56,7 +56,11 @@ export default {
   css: ['~/assets/scss/theme.scss'],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: [{ src: '~/plugins/vuex-persistedstate.client.js' }],
+  plugins: [
+    { src: '~/plugins/vuex-persistedstate.client.js' },
+    // An entity with an unsaved draft is not refetched on a live update.
+    { src: '~/plugins/live-drafts.client.js' },
+  ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   // `~/components/app` is flattened so the promo components are usable as
@@ -111,7 +115,14 @@ export default {
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
     '~/modules/storybook-proxy',
+    // Live updates on /_live: open pages refresh when Drupal purges. It
+    // attaches under `nuxt dev`; start.js attaches it in production.
+    '@druxt-contrib/sockets',
   ],
+
+  sockets: {
+    path: '/_live',
+  },
 
   auth: {
     redirect: {

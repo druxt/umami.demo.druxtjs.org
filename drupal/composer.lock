@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "af7fd757181c883657fedcb15b87d266",
+    "content-hash": "68a55faddd4d1aa741370aef6883fb63",
     "packages": [
         {
             "name": "amazeeio/drupal_integrations",
@@ -2611,6 +2611,162 @@
             "homepage": "https://www.drupal.org/project/lagoon_logs",
             "support": {
                 "source": "https://git.drupalcode.org/project/lagoon_logs"
+            }
+        },
+        {
+            "name": "drupal/purge",
+            "version": "3.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/purge.git",
+                "reference": "8.x-3.7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/purge-8.x-3.7.zip",
+                "reference": "8.x-3.7",
+                "shasum": "a471c8e9c5f766fc83057eabae257c77609051f1"
+            },
+            "require": {
+                "drupal/core": "^9.5 || ^10 || ^11"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-3.7",
+                    "datestamp": "1784660713",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                },
+                "branch-alias": {
+                    "dev-8.x-3.x": "3.x-dev"
+                },
+                "drush": {
+                    "services": {
+                        "drush.services.yml": ">=10"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Niels van Mourik",
+                    "homepage": "http://www.nielsvm.org"
+                },
+                {
+                    "name": "japerry",
+                    "homepage": "https://www.drupal.org/user/45640"
+                },
+                {
+                    "name": "nielsvm",
+                    "homepage": "https://www.drupal.org/user/163285"
+                }
+            ],
+            "description": "Provides a generic external cache invalidation API and queue service.",
+            "homepage": "https://www.drupal.org/project/purge",
+            "support": {
+                "source": "https://git.drupalcode.org/project/purge"
+            }
+        },
+        {
+            "name": "drupal/purge_purger_http",
+            "version": "1.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/purge_purger_http.git",
+                "reference": "8.x-1.3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/purge_purger_http-8.x-1.3.zip",
+                "reference": "8.x-1.3",
+                "shasum": "11403ba287b902900460c48849fa98767a146e2b"
+            },
+            "require": {
+                "drupal/core": "^9.2 || ^10 || ^11",
+                "drupal/purge": "^3.3",
+                "drupal/purge_tokens": "^3.3",
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "drupal/purge": "*"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-1.3",
+                    "datestamp": "1723190843",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "dieterholvoet",
+                    "homepage": "https://www.drupal.org/user/3567222"
+                },
+                {
+                    "name": "nielsvm",
+                    "homepage": "https://www.drupal.org/user/163285"
+                }
+            ],
+            "description": "Generic and highly configurable purger that makes HTTP requests, best suits custom configurations.",
+            "homepage": "https://www.drupal.org/project/purge_purger_http",
+            "support": {
+                "source": "https://git.drupalcode.org/project/purge_purger_http"
+            }
+        },
+        {
+            "name": "drupal/purge_tokens",
+            "version": "3.7.0",
+            "require": {
+                "drupal/core": "^9.5 || ^10 || ^11",
+                "drupal/purge": "*"
+            },
+            "type": "metapackage",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-3.7",
+                    "datestamp": "1784660713",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "djbobbydrake",
+                    "homepage": "https://www.drupal.org/user/336378"
+                },
+                {
+                    "name": "japerry",
+                    "homepage": "https://www.drupal.org/user/45640"
+                },
+                {
+                    "name": "nielsvm",
+                    "homepage": "https://www.drupal.org/user/163285"
+                }
+            ],
+            "description": "Adds tokens support for external cache invalidation.",
+            "homepage": "https://www.drupal.org/project/purge",
+            "support": {
+                "source": "https://git.drupalcode.org/project/purge"
             }
         },
         {

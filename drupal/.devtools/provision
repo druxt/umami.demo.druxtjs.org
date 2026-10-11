@@ -87,6 +87,11 @@ echo "==> Building the search index"
 # so the Lunr files have to exist before anything generates.
 "$DRUSH" search-api:index
 
+echo "==> Emptying the purge queue"
+# Installing queues invalidations for content nobody has seen yet. The
+# post-rollout rebuild covers them, and processing them would build twice.
+"$DRUSH" p:queue-empty
+
 echo "==> Rebuilding caches"
 "$DRUSH" cache:rebuild
 

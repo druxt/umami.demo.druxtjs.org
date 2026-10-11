@@ -10,9 +10,16 @@ useDefault = true
 
 [[rules]]
 id = "generic-api-key"
-[rules.allowlist]
+[[rules.allowlists]]
 condition = "AND"
 description = "Pinned npm versions in package.json are not credentials"
 paths = ['''(^|/)package(-lock)?\.json$''']
 regexTarget = "line"
 regexes = ['''"[^"]+":\s*"\d+\.\d+\.\d+[^"]*"''']
+
+[[rules.allowlists]]
+condition = "AND"
+description = "An earlier version of the live server tests used a made-up display key"
+paths = ['''(^|/)nuxt/server/live/[^/]+\.test\.js$''']
+regexTarget = "line"
+regexes = ['''const KEY = '[a-z0-9]+'''']
