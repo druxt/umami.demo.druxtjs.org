@@ -9,6 +9,10 @@ The demo is a site without releases, so changes are grouped by date.
 
 ### Added
 
+- The front page's recipe-of-the-week banner is a carousel of Drupal's
+  banner blocks, from a `front_carousel` view block, with Umami Go first. Each
+  slide names itself in its kicker, and it moves by its bars, its arrows, the
+  keyboard or a swipe.
 - Repository tooling at the root: commit message lint, commit hooks, prose
   lint, and the documents the Druxt repository standard asks for.
 - The whole demo runs in one Lagoon environment, `main`, which does not idle.

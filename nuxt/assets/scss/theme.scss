@@ -445,6 +445,227 @@ html {
   }
 }
 
+// The front page's banners, one at a time: Drupal's front_carousel view.
+// Spec: "Umami Front Carousel.dc.html" in the Umami demo design project.
+//
+// The slides share one grid cell and cross-fade. The photograph settles from
+// a slight zoom and the words rise in after it. The bars and arrows are a
+// layer of their own over the slides, and every slide's words stand on the
+// same line at its foot, so nothing on screen moves but the slide. It loops
+// and never moves on its own.
+$carousel-btn: 13.5rem; // every slide's button, so the arrows keep their place
+$carousel-foot: 3.5rem; // from the slide's foot to its button
+
+.carousel {
+  position: relative;
+
+  &__track {
+    display: grid;
+  }
+
+  &__slide {
+    grid-area: 1 / 1;
+    opacity: 0;
+    transition: opacity 600ms ease, visibility 0s linear 600ms;
+    visibility: hidden;
+
+    .banner__media {
+      transform: scale(1.04);
+      transition: transform 1200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+
+    .banner__body > * {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 400ms ease,
+        transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+  }
+
+  &__slide--on {
+    opacity: 1;
+    transition: opacity 600ms ease, visibility 0s;
+    visibility: visible;
+    z-index: 1;
+
+    .banner__media {
+      transform: none;
+    }
+
+    .banner__body > * {
+      opacity: 1;
+      transform: none;
+
+      @for $i from 1 through 4 {
+        &:nth-child(#{$i}) {
+          transition-delay: #{120 + 60 * $i}ms;
+        }
+      }
+    }
+  }
+
+  // Every slide fills the cell the tallest one sets, and its words stand on
+  // the cell's foot, below the bars, so every button lands on one line.
+  &__slide,
+  &__slide > div,
+  .banner,
+  .banner > .container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__slide > div,
+  .banner,
+  .banner > .container,
+  .banner__body {
+    flex: 1 1 auto;
+  }
+
+  .banner__body {
+    justify-content: flex-end;
+    padding-bottom: $carousel-foot;
+    padding-top: 5rem;
+  }
+
+  .banner .btn {
+    min-width: $carousel-btn;
+  }
+
+  &__controls {
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 2;
+  }
+
+  &__frame {
+    height: 100%;
+    position: relative;
+  }
+
+  &__bars,
+  &__nav {
+    align-items: center;
+    display: flex;
+    pointer-events: auto;
+    position: absolute;
+  }
+
+  &__bars {
+    gap: 6px;
+    left: calc(15px + 2rem);
+    top: 2rem;
+  }
+
+  &__bar {
+    align-items: center;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    display: flex;
+    height: 44px;
+    padding: 0;
+    width: 40px;
+
+    span {
+      background: rgba(253, 251, 247, 0.38);
+      display: block;
+      height: 3px;
+      transition: background-color 300ms ease;
+      width: 100%;
+    }
+  }
+
+  &__bar--on span {
+    background: #e8b98f;
+  }
+
+  &__nav {
+    bottom: calc(#{$carousel-foot} + 4px);
+    gap: 8px;
+    left: calc(15px + 2rem + #{$carousel-btn} + 1.75rem);
+  }
+
+  &__arrow {
+    align-items: center;
+    background: transparent;
+    border: 1.5px solid rgba(253, 251, 247, 0.7);
+    color: $paper;
+    display: flex;
+    font-size: 1.125rem;
+    height: 44px;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    transition: background-color 200ms ease, color 200ms ease;
+    width: 44px;
+
+    &:hover {
+      background: $paper;
+      border-color: $paper;
+      color: #241f1a;
+    }
+  }
+
+  &__bar:focus-visible,
+  &__arrow:focus-visible {
+    outline: 2px solid #e8b98f;
+    outline-offset: 3px;
+  }
+
+  &__count {
+    color: #efe4d6;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    margin-left: 4px;
+  }
+
+  // Below md the button spans the slide, and swipe and the bars move it.
+  @media (max-width: $bp-md) {
+    // The banner's own foot, with the button set off from the headline.
+    .banner__body {
+      padding-bottom: 1.25rem;
+      padding-top: 4rem;
+
+      > :last-child {
+        margin-top: 0.5rem;
+      }
+    }
+
+    .banner .btn {
+      min-width: 0;
+    }
+
+    &__bars {
+      left: 15px;
+      top: 0.75rem;
+    }
+
+    &__nav {
+      display: none;
+    }
+  }
+
+  // Reduced motion: the slides swap with a short fade, and nothing moves.
+  @media (prefers-reduced-motion: reduce) {
+    &__slide {
+      transition: opacity 120ms ease, visibility 0s linear 120ms;
+    }
+
+    &__slide--on {
+      transition: opacity 120ms ease, visibility 0s;
+    }
+
+    &__slide .banner__media,
+    &__slide .banner__body > * {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}
+
 .section {
   padding: 4.5rem 0;
 

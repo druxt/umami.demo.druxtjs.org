@@ -14,16 +14,19 @@ test.describe('resilience', () => {
     await page.route('**/router/translate-path**', (route) =>
       away
         ? route.fulfill({ status: 503, body: 'provisioning' })
-        : route.continue()
+        : route.continue(),
     )
     await page.route('**/jsonapi', (route) =>
       away
         ? route.fulfill({ status: 503, body: 'provisioning' })
-        : route.continue()
+        : route.continue(),
     )
+    // The recipe of the week is the carousel's second slide.
+    await page.locator('.carousel__bar').nth(1).click()
     await page
-      .locator('a[href="/en/recipes/super-easy-vegetarian-pasta-bake"]')
-      .first()
+      .locator(
+        '.carousel__slide--on a[href="/en/recipes/super-easy-vegetarian-pasta-bake"]',
+      )
       .click()
     const errorPage = page.locator('.error-page')
     await expect(errorPage).toBeVisible()
@@ -34,7 +37,7 @@ test.describe('resilience', () => {
     away = false
     await expect(page.locator('h1').first()).toContainText(
       'Super easy vegetarian pasta bake',
-      { timeout: 20000 }
+      { timeout: 20000 },
     )
   })
 
@@ -45,7 +48,7 @@ test.describe('resilience', () => {
     await expect(errorPage).toContainText('There is no page here')
     await expect(errorPage.locator('a.error-page__home')).toHaveAttribute(
       'href',
-      '/en'
+      '/en',
     )
   })
 })

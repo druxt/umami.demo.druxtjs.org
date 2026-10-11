@@ -8,6 +8,9 @@
 use Drupal\consumers\Entity\Consumer;
 use Drupal\contact\Entity\ContactForm;
 use Drupal\Core\Field\Entity\BaseFieldOverride;
+use Drupal\block\Entity\Block;
+use Drupal\block_content\Entity\BlockContent;
+use Drupal\media\Entity\Media;
 use Drupal\config_pages\Entity\ConfigPages;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\simple_oauth\Entity\Oauth2Scope;
@@ -351,6 +354,8 @@ function druxt_umami_install() {
     ->set('cache.page.max_age', 300)
     ->save();
 
+  _druxt_umami_front_carousel();
+
   // Content changes send their cache tags through Purge to the frontend's
   // Druxt cache clear endpoint, one request per batch, and the frontend
   // rebuilds. all.settings.php sets the address and the secret.
@@ -381,4 +386,49 @@ function druxt_umami_install() {
     'drush_purge_invalidate',
     'lateruntime',
   ]);
+}
+
+/**
+ * Adds the Umami Go banner and puts the front page's banners in a carousel.
+ *
+ * The carousel is the front_carousel view's block, which lists every banner
+ * block by description, so "Umami Go Banner" comes before the home and recipes
+ * banners. It takes the home banner's place on the front page.
+ */
+function _druxt_umami_front_carousel(): void {
+  $source = \Drupal::service('extension.list.module')->getPath('druxt_umami') . '/assets/umami-go-banner.jpg';
+  $uri = \Drupal::service('file_system')->copy($source, 'public://umami-go-banner.jpg');
+  $file = \Drupal::entityTypeManager()->getStorage('file')->create(['uri' => $uri, 'status' => 1]);
+  $file->save();
+
+  $media = Media::create([
+    'bundle' => 'image',
+    'name' => 'Umami Go',
+    'field_media_image' => ['target_id' => $file->id(), 'alt' => ''],
+    'status' => 1,
+  ]);
+  $media->save();
+
+  $block = BlockContent::create([
+    'type' => 'banner_block',
+    'info' => 'Umami Go Banner',
+    'langcode' => 'en',
+    'reusable' => TRUE,
+    'field_title' => 'Umami Go',
+    'field_summary' => 'A card game for two to five, dealt from this magazine’s recipes. Pick a dish, pass your hand to the left, and plate the best menu over three rounds.',
+    'field_content_link' => ['uri' => 'internal:/play', 'title' => 'Play Umami Go'],
+    'field_media_image' => ['target_id' => $media->id()],
+  ]);
+  $block->save();
+  $block->addTranslation('es', [
+    'info' => 'Umami Go Banner',
+    'field_title' => 'Umami Go',
+    'field_summary' => 'Un juego de cartas para dos a cinco personas, repartido con las recetas de esta revista. Elige un plato, pasa tu mano a la izquierda y sirve el mejor menú en tres rondas.',
+    'field_content_link' => ['uri' => 'internal:/play', 'title' => 'Jugar a Umami Go'],
+    'field_media_image' => ['target_id' => $media->id()],
+  ])->save();
+
+  if ($home = Block::load('umami_banner_home')) {
+    $home->disable()->save();
+  }
 }
