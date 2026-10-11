@@ -85,7 +85,8 @@ test.describe('navigation', () => {
     await visit(page, '/en')
     await page.evaluate(() => window.scrollTo(0, 3000))
     await expect.poll(scrollY(page)).toBeGreaterThan(0)
-    await page.locator('a[href^="/en/recipes/"]').first().click()
+    // The carousel's hidden slides hold recipe links too; take a card's.
+    await page.locator('a[href^="/en/recipes/"]:visible').first().click()
     await page.waitForURL(/\/en\/recipes\/./)
     await expect.poll(scrollY(page)).toBe(0)
   })

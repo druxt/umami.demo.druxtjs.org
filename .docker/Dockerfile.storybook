@@ -1,13 +1,19 @@
-FROM uselagoon/node-16-builder:23.10.0 as builder
+# The same dependency stages as Dockerfile.app, so the two images share them.
+FROM uselagoon/node-16-builder:23.10.0 AS manifests
+COPY ./nuxt/ /nuxt/
+RUN mkdir /manifests && cd /nuxt \
+  && cp package.json yarn.lock /manifests/ \
+  && for dir in patches vendor; do \
+    if [ -d "$dir" ]; then cp -R "$dir" "/manifests/$dir"; fi; \
+  done
 
-COPY ./nuxt/ /app/
+FROM uselagoon/node-16-builder:23.10.0 AS deps
+COPY --from=manifests /manifests /app/
 RUN yarn install --frozen-lockfile
 
 FROM uselagoon/node-16:23.10.0
-
-COPY --from=builder /app/node_modules /app/node_modules
-COPY ./nuxt/ /app/
-RUN fix-permissions /app
+COPY --from=deps --chown=10000:0 /app /app
+COPY --chown=10000:0 ./nuxt/ /app/
 
 # Stories read Drupal from the browser, through this service's own proxy at
 # its storybook route. BASE_URL is the fallback where no such route is listed.
