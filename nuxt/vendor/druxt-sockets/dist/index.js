@@ -54,6 +54,19 @@ function DruxtSocketsModule(moduleOptions = {}) {
     },
   })
 
+  // Without the server: the main entry is this module, `ws` and all.
+  this.options.alias = this.options.alias || {}
+  this.options.alias['@druxt-contrib/sockets/mixins'] = resolve(
+    __dirname,
+    'runtime/mixins.js'
+  )
+
+  this.addPlugin({
+    src: resolve(__dirname, '../templates/directive.js'),
+    fileName: 'druxt-sockets/directive.js',
+    options: { directive: resolve(__dirname, 'runtime/directive.js') },
+  })
+
   this.nuxt.hook('components:dirs', (dirs) => {
     dirs.push({ path: join(__dirname, 'components') })
   })
