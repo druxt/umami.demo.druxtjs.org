@@ -155,7 +155,7 @@ export default {
           .addFields(type, ['field_recipe_category'])
           .addFields('taxonomy_term--recipe_category', ['name']),
       })
-      const term = (resource.included || [])[0]
+      const term = ((resource || {}).included || [])[0]
       return term ? term.attributes.name : null
     },
 
