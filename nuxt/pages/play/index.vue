@@ -4,8 +4,11 @@
       <b-container class="go-hero__inner">
         <div class="go-hero__copy">
           <p class="go-kicker" v-text="$t('play.kicker')" />
-          <h1 class="go-hero__title">Umami Go</h1>
-          <p class="go-hero__lede" v-text="$t('play.lede')" />
+          <h1 class="go-hero__title" v-text="hero.field_title || 'Umami Go'" />
+          <p
+            class="go-hero__lede"
+            v-text="hero.field_summary || $t('play.lede')"
+          />
 
           <div class="go-hero__actions">
             <button
@@ -93,12 +96,35 @@
 </template>
 
 <script>
+import { DrupalJsonApiParams } from 'drupal-jsonapi-params'
 import { seoHead } from '~/utils/seo'
+
+// The Drupal block whose title and summary the hero shows: the same banner
+// the front page's carousel leads with, in the page's language.
+const HERO_BLOCK = 'Umami Go Banner'
 
 export default {
   layout: 'game',
 
-  data: () => ({ busy: false, code: '' }),
+  data: () => ({ busy: false, code: '', hero: {} }),
+
+  async fetch() {
+    const type = 'block_content--banner_block'
+    const query = new DrupalJsonApiParams()
+      .addFilter('info', HERO_BLOCK)
+      .addFields(type, ['field_title', 'field_summary'])
+      .addPageLimit(1)
+    try {
+      const { data } = await this.$druxt.getCollection(
+        type,
+        query,
+        `/${this.$i18n.locale}`
+      )
+      this.hero = ((data || [])[0] || {}).attributes || {}
+    } catch (error) {
+      this.hero = {}
+    }
+  },
 
   head() {
     const description =
@@ -162,6 +188,12 @@ export default {
           img: '/umami-go/fan/dessert.jpg',
         },
       ]
+    },
+  },
+
+  watch: {
+    '$i18n.locale'() {
+      this.$fetch()
     },
   },
 

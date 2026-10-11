@@ -5995,7 +5995,18 @@ $go-kinds: (
 .go-hero {
   overflow: hidden;
   padding: 2rem 0 1.5rem;
-  background: $night;
+  // The night lattice of the Umami Go banner on the front page.
+  background: repeating-linear-gradient(
+      45deg,
+      rgba(125, 74, 26, 0.32) 0 2px,
+      transparent 2px 30px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(125, 74, 26, 0.32) 0 2px,
+      transparent 2px 30px
+    ),
+    $night;
   color: $paper;
 
   &__inner {
@@ -6034,14 +6045,16 @@ $go-kinds: (
     margin: 0 auto 1.5rem;
   }
 
+  // Every card turns about one point well below the fan, so the cards lie
+  // on an arc and the outer ones sit lower, as in a hand.
   &__fan-card {
     --go-zoom: 0.72;
+    --go-fan-step: 9deg;
 
     position: absolute;
     left: 50%;
-    transform: translateX(-50%) translateX(calc(var(--i) * 48px))
-      rotate(calc(var(--i) * 8deg));
-    transform-origin: 50% 120%;
+    transform: translateX(-50%) rotate(calc(var(--i) * var(--go-fan-step)));
+    transform-origin: 50% 330%;
 
     // Three cards at the phone width; all five once there is room.
     &:first-child,
@@ -6112,8 +6125,7 @@ $go-kinds: (
 
     &__fan-card {
       --go-zoom: 0.74;
-      transform: translateX(-50%) translateX(calc(var(--i) * 56px))
-        rotate(calc(var(--i) * 8deg));
+      --go-fan-step: 8deg;
     }
   }
 
@@ -6126,8 +6138,7 @@ $go-kinds: (
 
     &__fan-card {
       --go-zoom: 0.8;
-      transform: translateX(-50%) translateX(calc(var(--i) * 62px))
-        rotate(calc(var(--i) * 8deg));
+      --go-fan-step: 7deg;
 
       &:first-child,
       &:last-child {

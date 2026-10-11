@@ -13,6 +13,9 @@ The demo is a site without releases, so changes are grouped by date.
   banner blocks, from a `front_carousel` view block, with Umami Go first. Each
   slide names itself in its kicker, and it moves by its bars, its arrows, the
   keyboard or a swipe.
+- The Umami Go page's hero takes its title and words from the same Drupal
+  banner block, in the page's language, on the banner's night lattice, with
+  its cards fanned on an arc.
 - Repository tooling at the root: commit message lint, commit hooks, prose
   lint, and the documents the Druxt repository standard asks for.
 - The whole demo runs in one Lagoon environment, `main`, which does not idle.
