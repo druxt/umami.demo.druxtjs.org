@@ -458,6 +458,7 @@ export default {
     updated: 'Updated from Drupal just now',
     whoIsHere: 'Who has this page open',
     you: 'You',
+    someone: 'Someone',
     // A changed field named in the save's pill, where the page shows it
     // without Drupal's own label.
     fields: {

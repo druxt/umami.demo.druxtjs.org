@@ -16,12 +16,17 @@
       v-bind="{ ...item, mode: 'label' }"
     >
       <template #default="{ entity }">
+        <!-- The formatter's "Link label to the referenced entity" setting. -->
         <NuxtLink
+          v-if="linked"
           class="mr-1"
           :to="`${prefix}${(entity.attributes.path || {}).alias}`"
         >
           <b-badge variant="info">{{ entity.attributes.name }}</b-badge>
         </NuxtLink>
+        <b-badge v-else class="mr-1" variant="info">
+          {{ entity.attributes.name }}
+        </b-badge>
       </template>
     </DruxtEntity>
   </component>
@@ -34,5 +39,13 @@ import { draftDiffable } from '~/utils/draft-diff'
 
 export default {
   mixins: [draftDiffable, langMixin, DruxtFieldMixin],
+
+  computed: {
+    /** Saved, the setting is a boolean; unsaved in a preview, 0 or 1. */
+    linked: ({ schema }) => {
+      const { link } = (schema.settings || {}).display || {}
+      return link === undefined || !!Number(link)
+    },
+  },
 }
 </script>

@@ -6,7 +6,7 @@ import DruxtModule from 'druxt/dist/components/DruxtModule.vue'
  * One channel, live, as a Druxt module.
  *
  * Subscribes to a channel of any kind, the current route's page by default,
- * and hands its theme component `channel`, `kind`, `channelKey`, `mode`,
+ * and hands its theme component `channel`, `kind`, `channelKey`, `activity`,
  * `self`, `connected`, `people` (who is there), `messages` (the latest
  * payload of each message type) and `send(type, payload)`, bound to the
  * channel.
@@ -45,8 +45,8 @@ export default {
   props: {
     /** The channel, `kind:key`; the current route's page by default. */
     channel: { type: String, default: '' },
-    /** `editor` while this visitor edits what the channel shows. */
-    mode: { type: String, default: 'reader' },
+    /** What this visitor is doing, such as `editing`: a hint, not a right. */
+    activity: { type: String, default: '' },
   },
 
   data: () => ({ people: [], messages: {} }),
@@ -75,7 +75,7 @@ export default {
         channel,
         kind: this.kind,
         channelKey: this.channelKey,
-        mode: this.mode,
+        activity: this.activity,
         self: this.self,
         connected: this.connected,
         people: this.people,
@@ -92,7 +92,7 @@ export default {
       this.messages = {}
       this.subscribe()
     },
-    mode() {
+    activity() {
       this.subscribe()
     },
     // Released Druxt builds a module's props once; the channel's data changes.
@@ -119,7 +119,7 @@ export default {
       if (!this.$sockets) return
       const off = this.off
       this.off = this.$sockets.subscribe(this.channelName, this.receive, {
-        mode: this.mode,
+        activity: this.activity,
       })
       if (off) off()
     },

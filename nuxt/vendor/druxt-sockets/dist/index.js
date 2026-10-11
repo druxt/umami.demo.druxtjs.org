@@ -14,9 +14,9 @@ const BOOKKEEPING = /^(oauth2_token|consumer|session)(_list)?(:|$)/
  * Options, from `sockets` in nuxt.config or the module's own:
  * - `path`: where the socket listens (`/_sockets`); the purge endpoint is
  *   `<path>/purge`.
- * - `handlers`: a file exporting `(options) => ({ kind: handler })`, for
- *   channels of the site's own.
- * - `drupalUrl`: where an editor's token is checked; `baseUrl` from the druxt
+ * - `handlers`: a file exporting `({ drupalUrl, log }) => ({ kind: handler })`,
+ *   for channels of the site's own.
+ * - `drupalUrl`: where a signed-in visitor's token is checked; `baseUrl` from the druxt
  *   options by default.
  * - `secret`: the purge endpoint's shared secret, else
  *   `DRUXT_SOCKETS_SECRET`. No secret, no endpoint.
@@ -24,6 +24,8 @@ const BOOKKEEPING = /^(oauth2_token|consumer|session)(_list)?(:|$)/
  * - `server`: attach to Nuxt's server (true).
  * - `limits`: `maxPerAddress`, `messagesPerSecond` and `checksPerMinute`, for
  *   the server's defaults of 20, 20 and 5.
+ * - `name`, `describe`, `rolesClaim` and `origins`: identity and origins, as
+ *   `attachSockets` takes them.
  */
 function DruxtSocketsModule(moduleOptions = {}) {
   const options = {
@@ -83,19 +85,25 @@ function DruxtSocketsModule(moduleOptions = {}) {
     })
   }
 
+  const log = (message) => process.stdout.write(`druxt-sockets: ${message}\n`)
+
   this.nuxt.hook('listen', (http) => {
     let handlers = {}
     if (options.handlers) {
       const file = this.nuxt.resolver.resolvePath(options.handlers)
       const factory = require(file)
-      handlers = (factory.default || factory)({ drupalUrl })
+      handlers = (factory.default || factory)({ drupalUrl, log })
     }
     server.attachSockets(http, {
       path: options.path,
       drupalUrl,
       handlers,
       ...(options.limits || {}),
-      log: (message) => process.stdout.write(`druxt-sockets: ${message}\n`),
+      name: options.name,
+      describe: options.describe,
+      rolesClaim: options.rolesClaim,
+      origins: options.origins,
+      log,
     })
   })
 }

@@ -46,6 +46,8 @@ $mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 // Both header bars stick. The masthead offsets by exactly the demo bar's
 // height so the two stack rather than share a strip; both read this.
 $demo-bar-height: 40px;
+// The display preview's bar, sticky under the demo bar while a tab previews.
+$display-preview-height: 48px;
 
 $bp-sm: 575.98px;
 $bp-md: 767.98px;
@@ -154,16 +156,29 @@ h4 {
 }
 
 // Whatever is scrolled into view, by a focus, an anchor or a script, clears
-// the sticky demo bar and masthead: 40px and 60, 64 or 84px, plus a gap.
+// the sticky demo bar and masthead: 40px and 60, 64 or 84px, plus a gap, and
+// the display preview's bar while it shows.
 html {
-  scroll-padding-top: calc(#{$demo-bar-height} + 76px);
+  --display-preview-offset: 0px;
+
+  scroll-padding-top: calc(
+    #{$demo-bar-height} + var(--display-preview-offset) + 76px
+  );
 
   @media (min-width: 768px) {
-    scroll-padding-top: calc(#{$demo-bar-height} + 80px);
+    scroll-padding-top: calc(
+      #{$demo-bar-height} + var(--display-preview-offset) + 80px
+    );
   }
 
   @media (min-width: 992px) {
-    scroll-padding-top: calc(#{$demo-bar-height} + 100px);
+    scroll-padding-top: calc(
+      #{$demo-bar-height} + var(--display-preview-offset) + 100px
+    );
+  }
+
+  &:has(.display-preview) {
+    --display-preview-offset: #{$display-preview-height};
   }
 }
 
@@ -172,7 +187,7 @@ html {
 // bar is sticky at top: 0, so the masthead starts below it.
 .masthead-sticky {
   position: sticky;
-  top: $demo-bar-height;
+  top: calc(#{$demo-bar-height} + var(--display-preview-offset));
   z-index: 1020;
 
   .sticky-top {
@@ -3381,6 +3396,16 @@ html.druxt-inspector {
     grid-template-columns: 4fr 8fr;
     padding: 44px 0;
   }
+
+  // Drupal's display put the method first: the wide column comes first.
+  &--method-first {
+    @media (min-width: 768px) {
+      grid-template-columns: 7fr 5fr;
+    }
+    @media (min-width: 992px) {
+      grid-template-columns: 8fr 4fr;
+    }
+  }
 }
 
 .recipe-ingredients {
@@ -3410,7 +3435,7 @@ html.druxt-inspector {
   @media (min-width: 992px) {
     padding: 26px;
     position: sticky;
-    top: calc(#{$demo-bar-height} + 16px);
+    top: calc(#{$demo-bar-height} + var(--display-preview-offset) + 16px);
 
     .list-group-item {
       font-size: 0.9375rem;
@@ -7070,5 +7095,82 @@ $go-kinds: (
 
   .is-fresh {
     transition: none;
+  }
+}
+
+// ---------------------------------------------------------------- display preview
+// The tab is following an unsaved Manage display form in Drupal.
+
+.display-preview {
+  position: sticky;
+  z-index: 1030;
+  top: $demo-bar-height;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: $display-preview-height;
+  padding: 0 1rem;
+  background: $druxt-navy;
+  color: $paper;
+  font-size: 0.875rem;
+
+  code {
+    color: #bcd7ea;
+  }
+
+  &__dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #8fbfe0;
+  }
+
+  // One line, so the bar keeps the height the sticky offsets allow for.
+  &__text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__stop {
+    flex-shrink: 0;
+    min-height: 32px;
+    white-space: nowrap;
+    margin-left: auto;
+    padding: 0 0.75rem;
+    border: 1px solid rgb(253 251 247 / 50%);
+    border-radius: 0;
+    background: transparent;
+    color: $paper;
+  }
+}
+
+// ---------------------------------------------------------------- rendered term
+// A term rendered as an entity, as Drupal's "Rendered entity" formatter does:
+// its name linked to its page, and its description.
+
+.term-rendered {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid $rule;
+  background: $paper;
+
+  &__name {
+    color: $ink;
+    font-family: $serif;
+    font-size: 1.125rem;
+  }
+
+  &__body {
+    color: $ink-muted;
+    font-size: 0.875rem;
+
+    p {
+      margin: 0;
+    }
   }
 }

@@ -1,0 +1,108 @@
+<?php
+
+/**
+ * @file
+ * Hooks for the Druxt Umami demo.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Component\Serialization\Json;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Site\Settings;
+
+/**
+ * Implements hook_form_FORM_ID_alter() for entity_view_display_edit_form.
+ *
+ * Manage display gets a live preview on the Druxt site: open it beside the
+ * form, and each change shows there before it is saved, whether to the order,
+ * a label, a formatter or a formatter's settings. The form talks to the site
+ * over the site's own WebSocket.
+ */
+function druxt_umami_form_entity_view_display_edit_form_alter(array &$form, FormStateInterface $form_state): void {
+  $display = $form_state->getFormObject()->getEntity();
+  if (!$display instanceof EntityViewDisplayInterface) {
+    return;
+  }
+  $type = $display->getTargetEntityTypeId();
+  $bundle = $display->getTargetBundle();
+  $mode = $display->getMode();
+
+  $form['#after_build'][] = '_druxt_umami_display_preview_draft';
+  $form['druxt_preview'] = [
+    '#type' => 'container',
+    '#weight' => -50,
+    '#attributes' => ['class' => ['druxt-display-preview']],
+    '#attached' => [
+      'library' => ['druxt_umami/display_preview'],
+      'drupalSettings' => [
+        'druxtDisplayPreview' => [
+          'schemaId' => "$type--$bundle--$mode--view",
+          'path' => _druxt_umami_preview_path($type, $bundle, $mode),
+          // Empty when Drupal's admin is served on the site's own origin.
+          'frontend' => rtrim((string) Settings::get('druxt_umami_frontend', ''), '/'),
+        ],
+      ],
+    ],
+  ];
+}
+
+/**
+ * Form #after_build: the display as the form holds it, unsaved.
+ *
+ * Each field's formatter, label and settings, as of the form's last rebuild:
+ * a formatter's settings live only in the form until it is saved. The fields
+ * table carries them, since Field UI's AJAX replaces the table, and the
+ * preview script reads the order, regions and selects from the table itself.
+ */
+function _druxt_umami_display_preview_draft(array $element, FormStateInterface $form_state): array {
+  $display = $form_state->getFormObject()->getEntity();
+  $formatters = \Drupal::service('plugin.manager.field.formatter');
+  $draft = [];
+  foreach (Element::children($element['fields']) as $name) {
+    $component = $display->getComponent($name);
+    $type = $component['type'] ?? ($element['fields'][$name]['plugin']['type']['#default_value'] ?? NULL);
+    $draft[$name] = [
+      'type' => $type,
+      'label' => $component['label'] ?? 'above',
+      // Objects, so no settings encode as {} rather than [].
+      'settings' => (object) ($component['settings'] ?? ($type ? $formatters->getDefaultSettings($type) : [])),
+      'third_party_settings' => (object) ($component['third_party_settings'] ?? []),
+    ];
+  }
+  $element['fields']['#attributes']['data-druxt-draft'] = Json::encode($draft);
+  return $element;
+}
+
+/**
+ * The site page that shows a display: an entity of the bundle in its own
+ * page for the default and full modes, else the bundle's listing.
+ */
+function _druxt_umami_preview_path(string $type, string $bundle, string $mode): string {
+  $listings = ['recipe' => '/en/recipes', 'article' => '/en/articles'];
+  if (!in_array($mode, ['default', 'full'], TRUE) && isset($listings[$bundle])) {
+    return $listings[$bundle];
+  }
+  $storage = \Drupal::entityTypeManager()->getStorage($type);
+  $definition = $storage->getEntityType();
+  // Block content and the like have no page of their own on the site.
+  if (!$definition->hasLinkTemplate('canonical')) {
+    return '/en';
+  }
+  $query = $storage->getQuery()->accessCheck(TRUE)->range(0, 1);
+  if ($key = $definition->getKey('bundle')) {
+    $query->condition($key, $bundle);
+  }
+  if ($key = $definition->getKey('published')) {
+    $query->condition($key, 1);
+  }
+  $ids = $query->execute();
+  if (!$ids) {
+    return '/en';
+  }
+  $entity = $storage->load(reset($ids));
+  $english = \Drupal::languageManager()->getLanguage('en');
+  return $entity->toUrl('canonical', ['language' => $english])->toString();
+}

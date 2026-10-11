@@ -31,6 +31,16 @@ The demo is a site without releases, so changes are grouped by date.
   previews as an invitation to that table. Recipe cards render through
   DruxtEntity, so a recipe edited in Drupal changes in every hand, and the
   server deals the deck with the Druxt client.
+- A display reordered in Drupal's Manage display reaches the site with no
+  rebuild: the server regenerates Druxt schemas after each purge (druxt.js
+  pull request #903, from the npm dev channel), and open pages render the new
+  order. Manage display also opens a live preview on the site, which follows
+  the form before it is saved: the order, labels, formatters and formatter
+  settings.
+- A multi-value reference rendered by the fallback field component, such as
+  recipe categories with Drupal's "Rendered entity" formatter, renders each
+  referenced entity in the formatter's view mode. A term rendered that way
+  shows its name, linked, and its description.
 - Open pages refresh what a content change touches as soon as Drupal purges,
   over a WebSocket through `@druxt-contrib/sockets`, vendored, ahead of the
   rebuild.

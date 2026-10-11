@@ -36,7 +36,7 @@
       <DruxtEntity
         v-for="{ type, id } of relationships"
         :key="id"
-        v-bind="{ type, uuid: id }"
+        v-bind="{ type, uuid: id, mode: viewMode }"
       />
     </template>
 
@@ -182,10 +182,16 @@ export default {
       state,
     }),
 
-    relationships: ({ model }) =>
-      typeof (model || {}).data === 'object'
-        ? [model.data]
-        : (model || {}).data || false,
+    /** The referenced resources: one, or a list of them. */
+    relationships: ({ model }) => {
+      const data = (model || {}).data
+      if (!data) return false
+      return Array.isArray(data) ? data : [data]
+    },
+
+    /** The view mode Drupal's "Rendered entity" formatter renders them in. */
+    viewMode: ({ schema }) =>
+      (((schema || {}).settings || {}).display || {}).view_mode || 'default',
 
     state: ({ errors }) => ((errors || []).length ? false : null),
     stateFeedback: ({ errors }) =>

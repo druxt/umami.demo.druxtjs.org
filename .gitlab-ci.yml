@@ -112,7 +112,7 @@ lint:
     - section_start "prettier" "Prettier"
     - npx --no-install prettier --check .
     - section_end "prettier"
-    - section_start "live" "Umami Go engine tests"
+    - section_start "live" "Live handler and Umami Go engine tests"
     - yarn test:live
     - section_end "live"
 
@@ -468,6 +468,12 @@ test:stack:
       [ -n "$access" ] || fail "no token after the reset: $token"
       code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/druxt-umami/reset")
       [ "$code" = 429 ] || fail "a second reset within a minute answered $code"
+
+      # A display's schema comes regenerated from Drupal, and an unknown one says so.
+      code=$(curl -s -o /dev/null -w '%{http_code}' "$site/_druxt/schema/node--recipe--default--view")
+      [ "$code" = 200 ] || fail "the recipe display's schema answered $code"
+      missing=$(curl -s -D - -o /dev/null "$site/_druxt/schema/node--nope--default--view" | tr -d '\r')
+      grep -qi '^x-druxt-schema: missing' <<<"$missing" || fail "an unknown display's schema was not marked missing"
       echo "All assertions passed."
   artifacts:
     when: always

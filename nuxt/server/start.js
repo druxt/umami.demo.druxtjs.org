@@ -23,8 +23,10 @@ const { proxyEntry } = require('@druxt-contrib/admin')
 const { attachSockets } = require('@druxt-contrib/sockets/server')
 const { createServerMiddleware } = require('druxt-auth/server')
 const { createProxyMiddleware } = require('http-proxy-middleware')
+const { createSchemaRefresh } = require('druxt-schema')
 const { createDrupalProxy, isDrupalPath, waitForDrupal } = require('./drupal')
 const liveHandlers = require('./live/handlers')
+const { name: liveName } = require('./live/names')
 const { tablePage } = require('./table-page')
 const { createStartingHandler } = require('./starting')
 
@@ -308,6 +310,13 @@ const sameSecret = (given) => {
   return a.length === b.length && crypto.timingSafeEqual(a, b)
 }
 
+/**
+ * Druxt schemas regenerated from Drupal, held until the next purge: what
+ * druxt-schema's refresh does on a Nuxt server, here, since a generated site
+ * has none. A display reordered in Drupal reaches the page with no rebuild.
+ */
+const schemas = createSchemaRefresh(drupalUrl)
+
 let quiet = null
 const clearCache = (req, res) => {
   if (!cacheSecret || req.method !== 'POST') {
@@ -342,6 +351,8 @@ const clearCache = (req, res) => {
     res.end()
     // A sign-in purges its tokens' tags too; that is not a content change.
     if (tags.length && tags.every((tag) => BOOKKEEPING.test(tag))) return
+    // Displays may have changed: schemas regenerate on their next request.
+    schemas.clear()
     live.contentChanged(tags)
     // Purge sends one request per batch; an editor saving again restarts the
     // wait, so a run of saves costs one build.
@@ -386,6 +397,10 @@ const server = http.createServer((req, res) => {
   if (isDrupalPath(req.url)) return drupal(req, res)
   if (req.url === '/_regenerate') return regenerate(req, res)
   if (req.url === '/_druxt/cache/clear') return clearCache(req, res)
+  if (req.url.startsWith('/_druxt/schema/')) {
+    req.url = req.url.slice('/_druxt/schema'.length)
+    return schemas.handler(req, res)
+  }
   // Once a build serves, the starting page's status poll must fail, so the
   // page reloads into the site instead of reading the fallback page as JSON.
   if (distDir && req.url.split('?')[0] === '/__status') {
@@ -411,6 +426,7 @@ const live = attachSockets(server, {
   path: '/_live',
   drupalUrl,
   handlers: liveHandlers({ drupalUrl, log }),
+  name: liveName,
   log,
 })
 

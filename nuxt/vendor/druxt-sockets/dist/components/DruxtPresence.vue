@@ -5,18 +5,20 @@ import DruxtSockets from './DruxtSockets.vue'
 /**
  * Who has a channel open, live: a `DruxtSockets` that hands on presence only.
  *
- * Its theme component receives `channel`, `mode`, `self`, `people` and
- * `editors` (everyone else with the editor role). A site themes it the Druxt
+ * Its theme component receives `channel`, `activity`, `self` and `people`,
+ * each `{ id, name, signedIn, roles, activity }` as the server describes
+ * them to this visitor; `roles` are Drupal's. A site themes it the Druxt
  * way: a `DruxtPresence<Kind>` component for the channel's kind
  * (`DruxtPresencePage` for `page:` channels), else `DruxtPresenceDefault`.
- * Without one, it lists who is here in a live status region.
+ * Without one, it lists the names of who is here in a live status region;
+ * the module names nobody, so an unnamed person is not listed.
  *
  * @example <caption>DruxtPresence</caption> @lang vue
- * <DruxtPresence :mode="editing ? 'editor' : 'reader'" />
+ * <DruxtPresence :activity="editing ? 'editing' : ''" />
  *
  * @example <caption>A theme component, components/druxt/presence/Page.vue</caption> @lang vue
  * <template>
- *   <p role="status">{{ people.length }} reading, {{ editors.length }} editing</p>
+ *   <p role="status">{{ people.filter((p) => p.activity === 'editing').length }} editing</p>
  * </template>
  *
  * <script>
@@ -38,20 +40,17 @@ export default {
   extends: DruxtSockets,
 
   computed: {
-    /** Everyone else with the editor role in this channel. */
-    editors() {
-      return this.people.filter(
-        (p) => p.role === 'editor' && p.id !== this.self
-      )
+    /** The people who have a name to show. */
+    named() {
+      return this.people.filter((p) => p.name)
     },
     /** What the theme component receives. */
     presence() {
       return {
         channel: this.channelName,
-        mode: this.mode,
+        activity: this.activity,
         self: this.self,
         people: this.people,
-        editors: this.editors,
       }
     },
   },
@@ -68,11 +67,11 @@ export default {
               class: 'druxt-presence',
               attrs: { role: 'status', 'aria-live': 'polite' },
             },
-            this.people.length
+            this.named.length
               ? [
                   h(
                     'ul',
-                    this.people.map((p) => h('li', { key: p.id }, p.name))
+                    this.named.map((p) => h('li', { key: p.id }, p.name))
                   ),
                 ]
               : []

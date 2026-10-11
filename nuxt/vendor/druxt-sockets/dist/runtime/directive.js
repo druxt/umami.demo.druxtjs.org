@@ -5,7 +5,7 @@
  * `v-druxt-sockets="channel"` subscribes while the element is bound, dispatches
  * each of the channel's messages on the element as a `druxt-sockets:<type>`
  * event with the payload as `detail`, and sets `data-druxt-sockets-connected`
- * while the socket is open. `.editor` joins with the editor mode.
+ * while the socket is open. A modifier is the activity: `.editing`.
  *
  * `v-druxt-sockets:send.<event>="channel"` sends each DOM `<event>` on the
  * element as a message of that type: a form's fields for `submit` on a form
@@ -40,7 +40,7 @@ const receive = (el, channel, sockets, context, modifiers) => {
       el.dispatchEvent(
         new CustomEvent(`druxt-sockets:${type}`, { detail: payload })
       ),
-    { mode: modifiers.editor ? 'editor' : 'reader' }
+    { activity: Object.keys(modifiers)[0] || '' }
   )
   const unwatch = context.$watch(
     () => sockets.state.connected,

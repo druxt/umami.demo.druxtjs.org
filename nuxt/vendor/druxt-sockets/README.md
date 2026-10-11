@@ -6,7 +6,7 @@ channels of its own, such as a room people move through together.
 
 The Drupal side is stock contrib: [Purge](https://www.drupal.org/project/purge)
 and its [Generic HTTP Purger](https://www.drupal.org/project/purge_purger_http),
-sending invalidated cache tags to the site. Signed-in editors are identified
+sending invalidated cache tags to the site. Signed-in visitors are identified
 through [Simple OAuth](https://www.drupal.org/project/simple_oauth)'s userinfo
 endpoint.
 
@@ -78,9 +78,9 @@ receives these props, which `DruxtSocketsMixin` declares:
 | --------------------- | ------------------------------------------------------ |
 | `channel`             | The channel, `kind:key`                                |
 | `kind`, `channelKey`  | The parts either side of the first colon               |
-| `mode`                | `reader` or `editor`, as given to the component        |
+| `activity`            | This visitor's activity, as given to the component     |
 | `self`, `connected`   | This visitor's id, and whether the socket is open      |
-| `people`              | Who is in the channel: `id`, `name`, `role`            |
+| `people`              | Who is in the channel; see [Who is who](#who-is-who)   |
 | `messages`            | The latest payload of each message type on the channel |
 | `send(type, payload)` | Sends a message on the channel                         |
 
@@ -110,20 +110,68 @@ production.
 ## Presence
 
 `DruxtPresence` is a `DruxtSockets` that passes on who is there and nothing
-else: `channel`, `mode`, `self`, `people` and `editors`, everyone else with the
-editor role. `DruxtPresenceMixin` declares them.
+else: `channel`, `activity`, `self` and `people`. `DruxtPresenceMixin` declares
+them.
 
 ```vue
-<DruxtPresence :mode="editing ? 'editor' : 'reader'" />
+<DruxtPresence :activity="editing ? 'editing' : ''" />
 ```
 
 Its theme component is `DruxtPresencePage` for a `page:` channel, else
 `DruxtPresenceDefault`, from `components/druxt/presence/`. Without one, it
-lists who is here in a live status region. Only a signed-in editor's `editor`
-mode counts: the server checks their token with Drupal.
+lists the names of who is here in a live status region.
 
 The server announces presence on `page:` channels, and on a kind of your own
 whose handler sets `presence: true`.
+
+## Who is who
+
+The module classifies nobody and names nobody. Each person in `people` is
+`{ id, name, signedIn, roles, activity }`:
+
+- `name` is Drupal's for a signed-in visitor, `preferred_username` then
+  `name`, and `null` for anyone else, unless the site's `name(user, client)`
+  option says otherwise.
+- `roles` are the Drupal roles from the userinfo claim `rolesClaim` names,
+  `roles` by default. Drupal does not send that claim on its own; a site adds
+  it, and lists it with Simple OAuth's claims, which keeps only those it names:
+
+  ```php
+  /**
+   * Implements hook_simple_oauth_oidc_claims_alter().
+   */
+  function mysite_simple_oauth_oidc_claims_alter(array &$claim_values, array &$context) {
+    $claim_values['roles'] = $context['account']->getRoles(TRUE);
+  }
+  ```
+
+  ```yaml
+  # services.yml: Simple OAuth's own list, and roles
+  parameters:
+    simple_oauth.openid.claims:
+      - sub
+      - name
+      - preferred_username
+      - email
+      - email_verified
+      - locale
+      - profile
+      - updated_at
+      - zoneinfo
+      - roles
+  ```
+
+- `activity` is what the page says the visitor is doing, such as `editing`:
+  a short word, and a hint for display, never a permission. Drupal decides
+  who may save.
+
+Presence reaches each viewer through `describe(person, viewer)`. By default
+an anonymous viewer sees no signed-in person's name and no roles, and a
+signed-in viewer sees everything. A site's own `describe` returns what a
+viewer may see of a person, or `null` to leave them out.
+
+Handlers get the client's `user`, the userinfo, and its `roles`, to check
+access by the site's own roles.
 
 ## The directive
 
@@ -142,12 +190,12 @@ a form's fields for `submit`, without leaving the page, else the event's
 </section>
 ```
 
-`.editor` joins with the editor mode.
+A modifier is the activity: `v-druxt-sockets.editing`.
 
 ## Channels of your own
 
 A handlers file exports a function that returns a handler for each channel
-kind. A channel is `kind:key`; the server refuses any kind without a handler,
+kind. It is called with `drupalUrl` and `log`, the module's logger. A channel is `kind:key`; the server refuses any kind without a handler,
 apart from `page`.
 
 ```js
@@ -165,9 +213,14 @@ module.exports = ({ drupalUrl }) => ({
 ```
 
 A handler may have `join`, `leave`, `resume` and `message`, and
-`presence: true` for its channels to hear who is there. Each function gets the
+`presence: true` for its channels to hear who is there. With `retain: true`,
+or a list of message types, the hub keeps the latest `broadcast` of each type
+on a channel and sends it to whoever joins next, after the handler's `join`;
+it forgets them when the channel empties. Each function gets the
 hub, which can `send` to one client, `broadcast` to a channel, and list a
-channel's `members`. Validate every payload: it comes from the browser.
+channel's `members`. A function may be async. One that throws or rejects is
+logged, and the client hears an `error` on the channel. The server keeps running.
+Validate every payload: it comes from the browser.
 
 In the browser, `$sockets` carries the rest:
 
@@ -208,15 +261,19 @@ sockets: {
 
 ## Options
 
-| Option      | Default                   |                                                                |
-| ----------- | ------------------------- | -------------------------------------------------------------- |
-| `path`      | `/_sockets`               | Where the socket listens; the purge endpoint is `<path>/purge` |
-| `handlers`  | none                      | A file exporting `(options) => ({ kind: handler })`            |
-| `drupalUrl` | `druxt.baseUrl`           | Where an editor's token is checked                             |
-| `secret`    | `DRUXT_SOCKETS_SECRET`    | The purge endpoint's secret; without one there is no endpoint  |
-| `ignore`    | Drupal's bookkeeping tags | Tags no page hears about                                       |
-| `refresh`   | `true`                    | Refetch what a page shows of a purge                           |
-| `server`    | `true`                    | Attach to the server Nuxt runs                                 |
+| Option       | Default                   |                                                                |
+| ------------ | ------------------------- | -------------------------------------------------------------- |
+| `path`       | `/_sockets`               | Where the socket listens; the purge endpoint is `<path>/purge` |
+| `handlers`   | none                      | A file exporting `(options) => ({ kind: handler })`            |
+| `drupalUrl`  | `druxt.baseUrl`           | Where a signed-in visitor's token is checked                   |
+| `secret`     | `DRUXT_SOCKETS_SECRET`    | The purge endpoint's secret; without one there is no endpoint  |
+| `ignore`     | Drupal's bookkeeping tags | Tags no page hears about                                       |
+| `refresh`    | `true`                    | Refetch what a page shows of a purge                           |
+| `server`     | `true`                    | Attach to the server Nuxt runs                                 |
+| `name`       | Drupal's name, else none  | `(user, client) => name`, for every person                     |
+| `rolesClaim` | `roles`                   | The userinfo claim with Drupal roles                           |
+| `describe`   | as above                  | `(person, viewer) => person or null`, for each viewer          |
+| `origins`    | any                       | Origins a socket may open from: a list or `(origin, req) =>`   |
 
 A socket that keeps sending past its rate is closed, and an address past its
 socket limit is refused with a 429. A token already checked on a socket is

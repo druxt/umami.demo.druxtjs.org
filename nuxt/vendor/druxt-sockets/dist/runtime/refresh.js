@@ -4,15 +4,18 @@
  * so the mapping is testable without a browser.
  */
 
-/** The internal id attribute for each entity type a tag names. */
-const INTERNAL_ID = {
-  node: 'drupal_internal__nid',
-  taxonomy_term: 'drupal_internal__tid',
-  media: 'drupal_internal__mid',
-  file: 'drupal_internal__fid',
-  block_content: 'drupal_internal__id',
-  menu_link_content: 'drupal_internal__id',
-}
+/** JSON:API's prefix for an entity's internal ids, whatever its type. */
+const INTERNAL = 'drupal_internal__'
+
+/**
+ * Whether a resource carries this internal id. Its id key varies by entity
+ * type and a revision id shares the prefix, so any of them may match: a
+ * spare refetch, never a missed one.
+ */
+const carries = (attributes, ids) =>
+  Object.keys(attributes).some(
+    (key) => key.startsWith(INTERNAL) && ids.has(Number(attributes[key]))
+  )
 
 /** A tag that changes listings: a list tag, a menu, or a view's config. */
 const LISTS =
@@ -32,7 +35,7 @@ export function affected(tags, resources) {
   const wanted = {}
   for (const tag of tags) {
     const [entityType, id] = tag.split(':')
-    if (INTERNAL_ID[entityType] && /^\d+$/.test(id || '')) {
+    if (entityType && /^\d+$/.test(id || '')) {
       ;(wanted[entityType] = wanted[entityType] || new Set()).add(Number(id))
     }
   }
@@ -44,7 +47,7 @@ export function affected(tags, resources) {
     for (const [uuid, byPrefix] of Object.entries(byId || {})) {
       const match = Object.values(byPrefix || {}).some((doc) => {
         const attributes = ((doc || {}).data || {}).attributes || {}
-        return ids.has(Number(attributes[INTERNAL_ID[entityType]]))
+        return carries(attributes, ids)
       })
       if (match) entities.push({ type, id: uuid })
     }

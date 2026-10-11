@@ -52,3 +52,7 @@ $config[$purger]['hostname'] = getenv('DRUXT_CACHE_CLEAR_HOST') ?: 'app';
 $config[$purger]['port'] = (int) (getenv('DRUXT_CACHE_CLEAR_PORT') ?: 3000);
 $config[$purger]['headers'][0]['field'] = 'X-Druxt-Secret';
 $config[$purger]['headers'][0]['value'] = getenv('DRUXT_CACHE_SECRET') ?: '';
+
+// The Druxt site's public origin, for Manage display's live preview. Empty
+// when Drupal's admin is served on the site's own origin, as on Lagoon.
+$settings['druxt_umami_frontend'] = getenv('DRUXT_FRONTEND_URL') ?: '';

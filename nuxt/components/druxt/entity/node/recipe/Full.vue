@@ -40,22 +40,37 @@
       </div>
     </dl>
 
-    <!-- Ingredients first, then the method; side by side from md. -->
-    <div class="recipe-body">
-      <section class="recipe-ingredients">
-        <h2 class="recipe-body__heading">{{ $t('recipe.ingredients') }}</h2>
-        <slot name="field_ingredients" />
-      </section>
+    <!-- Ingredients and the method, side by side from md, in the order
+         Drupal's display gives them: reorder or hide one in Manage display
+         and the page follows, with no rebuild. -->
+    <div
+      class="recipe-body"
+      :class="{
+        'recipe-body--method-first':
+          (sections[0] || {}).field === 'field_recipe_instruction',
+      }"
+    >
+      <section
+        v-for="section of sections"
+        :key="section.field"
+        :class="section.class"
+      >
+        <h2 class="recipe-body__heading">{{ $t(section.heading) }}</h2>
+        <slot :name="section.field" />
 
-      <section class="recipe-method">
-        <h2 class="recipe-body__heading">{{ $t('recipe.method') }}</h2>
-        <slot name="field_recipe_instruction" />
-
-        <div class="recipe-tags">
+        <div
+          v-if="section.field === 'field_recipe_instruction'"
+          class="recipe-tags"
+        >
           <slot name="field_recipe_category" />
           <slot name="field_tags" />
         </div>
       </section>
+
+      <div v-if="!hasMethod" class="recipe-tags">
+        <slot name="field_recipe_category" />
+        <slot name="field_tags" />
+      </div>
     </div>
 
     <!-- The learning layer follows the recipe: the view modes on one side,
@@ -100,12 +115,35 @@ export default {
       return { type: this.entity.type, id: this.entity.id, langcode: this.lang }
     },
 
+    /** The display's fields in Drupal's order, from the schema. */
+    displayOrder: ({ schema }) =>
+      ((schema || {}).fields || []).map((field) => field.id),
+
+    sections() {
+      return this.inDisplayOrder([
+        {
+          field: 'field_ingredients',
+          heading: 'recipe.ingredients',
+          class: 'recipe-ingredients',
+        },
+        {
+          field: 'field_recipe_instruction',
+          heading: 'recipe.method',
+          class: 'recipe-method',
+        },
+      ])
+    },
+
+    hasMethod() {
+      return this.sections.some((s) => s.field === 'field_recipe_instruction')
+    },
+
     stats() {
       const a = this.entity.attributes
       const level = a.field_difficulty || ''
       const minutes = (n) => (n || n === 0 ? this.$t('recipe.min', { n }) : '')
       // A recipe without a value shows no stat rather than "undefined min".
-      return [
+      return this.inDisplayOrder([
         {
           field: 'field_preparation_time',
           label: this.$t('recipe.prep'),
@@ -126,7 +164,7 @@ export default {
           label: this.$t('recipe.difficulty'),
           value: level && this.$t(`listing.${level}`),
         },
-      ].filter(({ value }) => value || value === 0)
+      ]).filter(({ value }) => value || value === 0)
     },
 
     jsonApiPath: ({ entity, prefix }) =>
@@ -140,6 +178,20 @@ export default {
         '  <span class="a">:uuid</span>=<span class="v">"uuid"</span>',
         '<span class="t">/&gt;</span>',
       ].join('\n'),
+  },
+
+  methods: {
+    /**
+     * Items keyed by field, ordered as the display orders those fields, and
+     * without any the display hides. Without a schema, as they come.
+     */
+    inDisplayOrder(items) {
+      const order = this.displayOrder
+      if (!order.length) return items
+      return items
+        .filter((item) => order.includes(item.field))
+        .sort((a, b) => order.indexOf(a.field) - order.indexOf(b.field))
+    },
   },
 
   // The display carries no title: the page title block does, and this
