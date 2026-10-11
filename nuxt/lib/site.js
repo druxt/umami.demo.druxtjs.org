@@ -44,6 +44,23 @@ const previewRoute = (env = process.env) =>
         .find((r) => /^https?:\/\/app\./.test(r)) || ''
 
 /**
+ * Where browsers open the live socket. Production's domain is behind a CDN
+ * that does not pass WebSockets, so production uses its own generated `app.`
+ * route; anywhere else the page's own host serves it (none named).
+ */
+const liveOrigin = (env = process.env) =>
+  String(
+    env.LIVE_ORIGIN ||
+      (env.LAGOON_ENVIRONMENT_TYPE === 'production'
+        ? String(env.LAGOON_ROUTES || '')
+            .split(',')
+            .map((r) => r.trim())
+            .find((r) => /^https?:\/\/app\./.test(r))
+        : '') ||
+      ''
+  ).replace(/\/+$/, '')
+
+/**
  * The origin visitors reach the site on. The start script hands the build
  * its own origin as LOOPBACK_ORIGIN; on Lagoon that is production's first
  * route or a preview's `app.` one. Production is the fallback.
@@ -109,6 +126,7 @@ module.exports = {
   SITE_DESCRIPTION,
   SITE_CARD,
   TWITTER_HANDLE,
+  liveOrigin,
   previewRoute,
   siteOrigin,
   drupalOrigin,

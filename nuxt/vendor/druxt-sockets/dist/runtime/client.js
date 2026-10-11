@@ -81,8 +81,17 @@ export function createSockets(context, options = {}) {
 
   const connect = () => {
     const resume = read(resumeKey)
+    // Another host for the socket, such as one beside a CDN that does not
+    // pass WebSockets: the `origin` option, or `socketsOrigin` in the public
+    // runtime config, which a generated page carries. The page's own host
+    // otherwise.
+    const origin =
+      options.origin || (context.$config && context.$config.socketsOrigin)
     const { protocol, host } = win.location
-    const url = `${protocol === 'https:' ? 'wss' : 'ws'}://${host}${path}${
+    const base = origin
+      ? String(origin).replace(/^http/, 'ws').replace(/\/+$/, '')
+      : `${protocol === 'https:' ? 'wss' : 'ws'}://${host}`
+    const url = `${base}${path}${
       resume ? `?resume=${encodeURIComponent(resume)}` : ''
     }`
     try {

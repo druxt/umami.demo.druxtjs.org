@@ -1,5 +1,5 @@
 import storybook from './nuxt-storybook.config'
-import { drupalOrigin, siteOrigin } from './lib/site'
+import { drupalOrigin, liveOrigin, siteOrigin } from './lib/site'
 
 const baseUrl = process.env.BASE_URL || 'http://druxt-js-demo-umami.ddev.site'
 
@@ -169,6 +169,9 @@ export default {
     siteOrigin: siteOrigin(),
     // Drupal's public origin: where the admin paths hand through to.
     drupalOrigin: drupalOrigin(),
+    // Where the live socket opens, when not on the page's own host: read when
+    // each page generates, so a reused webpack build still names it.
+    socketsOrigin: liveOrigin(),
   },
 
   // Modules (https://go.nuxtjs.dev/config-modules)
