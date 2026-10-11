@@ -30,6 +30,12 @@ tasks:
           .devtools/provision
         service: cli
 
+    # The fresh demo, kept, so the reset route can put it back in seconds.
+    - run:
+        name: snapshot the fresh demo
+        command: .devtools/snapshot
+        service: cli
+
     # New content means new entity IDs, so the site builds again from it.
     - run:
         name: regenerate the site

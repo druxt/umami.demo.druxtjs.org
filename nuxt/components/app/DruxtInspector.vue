@@ -27,6 +27,8 @@ import { mapState } from 'vuex'
 
 const LABEL_HEIGHT = 18
 const CORNER = 8
+/** The demo bar's height; nothing sits under it. */
+const DEMO_BAR = 40
 
 export default {
   data: () => ({ labels: [] }),
@@ -83,12 +85,18 @@ export default {
         )}`
         const shift = corners[corner] || 0
         corners[corner] = shift + 1
+        // Above the component's edge, so the label covers none of it: a
+        // label over a tab swallows the tap. Inside only at the top of the
+        // page, where above would be under the demo bar.
+        const above = rect.top - (shift + 1) * LABEL_HEIGHT
         labels.push({
           ...item,
           key: key++,
           style: {
             left: `${Math.max(0, rect.left)}px`,
-            top: `${rect.top + shift * LABEL_HEIGHT}px`,
+            top: `${
+              above >= DEMO_BAR ? above : rect.top + shift * LABEL_HEIGHT
+            }px`,
             maxWidth: `${Math.max(120, rect.width)}px`,
           },
         })

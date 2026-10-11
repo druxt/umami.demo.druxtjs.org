@@ -314,7 +314,17 @@ h4 {
   color: $ink;
   font-size: 0.875rem;
   padding: 0.625rem 0.75rem;
+}
 
+// Bootstrap fixes a select's height for its own padding; with this padding
+// the height has to follow the text, or iOS clips it to the top half.
+.custom-select {
+  height: auto;
+  line-height: 1.5;
+}
+
+.form-control,
+.custom-select {
   &:focus {
     border-color: $spice;
     box-shadow: none;
@@ -3985,6 +3995,13 @@ html.druxt-inspector {
   gap: 1.5rem;
   margin-top: 3rem;
 
+  // A grid item is as wide as its widest line unless told otherwise; the
+  // JSON:API drawer's request line pushed the whole page past a phone.
+  > *,
+  &__aside > * {
+    min-width: 0;
+  }
+
   &__aside {
     display: flex;
     flex-direction: column;
@@ -4133,6 +4150,11 @@ html.druxt-inspector {
   }
   &__body {
     padding: 1rem;
+
+    .druxt-code {
+      max-width: 100%;
+      overflow-x: auto;
+    }
   }
   &__tree {
     background: #fff;
@@ -4241,11 +4263,24 @@ html.druxt-inspector {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  // Stays in view while the grid scrolls: the choice is made at the bottom
+  // of a long list, and the buttons must be there when it is.
   &__actions {
+    background: $paper;
     border-top: 1px solid $rule;
+    bottom: -20px;
     display: flex;
     gap: 12px;
-    padding-top: 14px;
+    margin: 0 -16px -20px;
+    padding: 14px 16px 16px;
+    position: sticky;
+    z-index: 1;
+
+    @media (min-width: 768px) {
+      bottom: -24px;
+      margin: 0 -24px -24px;
+      padding: 14px 24px 20px;
+    }
   }
 }
 
@@ -4333,6 +4368,164 @@ button.masthead__account {
   line-height: 1.5;
   margin-top: 10px;
   width: 100%;
+}
+
+// ── Reset demo ───────────────────────────────────────────────────────────────
+// A control in the demo bar: a button, then the question, then the outcome.
+.reset-demo {
+  align-items: center;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  &__button,
+  &__yes,
+  &__no {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 3px;
+    color: inherit;
+    font: inherit;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    padding: 3px 8px;
+  }
+  &__button:hover,
+  &__no:hover {
+    border-color: #fff;
+  }
+  &__yes {
+    background: #fff;
+    border-color: #fff;
+    color: $druxt-navy;
+  }
+  &__ask,
+  &__busy,
+  &__message {
+    align-items: center;
+    display: inline-flex;
+    flex-wrap: wrap;
+    font-size: 0.75rem;
+    gap: 8px;
+  }
+  &__question {
+    max-width: 32em;
+  }
+}
+
+// The reset control at the foot of the drawer's Druxt block.
+.drawer__reset {
+  display: flex;
+  margin-top: 12px;
+}
+
+// A display rendered inside a canvas keeps to it: the full-bleed bands a
+// node draws on its own page (hero, term head) would run out to the
+// viewport's edges from inside the Entity Explorer's stage or the
+// view-mode switcher's preview.
+.explorer__mount,
+.view-modes__stage {
+  overflow: hidden;
+
+  .bleed {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+// ── Draft banner ─────────────────────────────────────────────────────────────
+// Above a node page that shows unsaved changes: the Druxt tint, the switch
+// between the draft and Drupal's version, and the diff on request.
+.draft-banner {
+  background: $druxt-tint;
+  border: 1px solid $druxt-line;
+  border-radius: 6px;
+  color: $druxt-navy;
+  font-size: 0.8125rem;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+
+  &__row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+  &__kicker {
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  &__text {
+    color: $ink-muted;
+    flex: 1 1 18em;
+  }
+  &__switch {
+    border: 1px solid $druxt-line;
+    border-radius: 999px;
+    display: inline-flex;
+    overflow: hidden;
+  }
+  &__option {
+    background: transparent;
+    border: 0;
+    color: $druxt-navy;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 12px;
+
+    &.is-on {
+      background: $druxt-navy;
+      color: #fff;
+    }
+  }
+  &__diff-toggle {
+    background: transparent;
+    border: 0;
+    color: $druxt-blue;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0;
+    text-decoration: underline;
+  }
+  &__diff-toggle[aria-pressed='true'] {
+    text-decoration: none;
+  }
+  &__diff-toggle:disabled {
+    color: $ink-faint;
+    text-decoration: none;
+  }
+}
+
+// The marks in the content: the draft's words against Drupal's, in place.
+// Green and orange with an underline and a strike, so colour is not the
+// only signal.
+ins.v-diff-ins {
+  background: #e3f5ee;
+  border-radius: 3px;
+  box-shadow: inset 0 -1.5px 0 rgb(13 107 79 / 0.55);
+  color: #0d6b4f;
+  padding: 0 2px;
+  text-decoration: none;
+}
+del.v-diff-del {
+  background: #fde9e3;
+  border-radius: 3px;
+  color: #a3361a;
+  padding: 0 2px;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+// Words cut from the end of a field have no word after them to sit before,
+// so they are struck at the end of it, as their own paragraph.
+del.v-diff-del--trailing {
+  display: block;
+  line-height: 1.6;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.625rem;
 }
 
 // ── Basic page ───────────────────────────────────────────────────────────────
