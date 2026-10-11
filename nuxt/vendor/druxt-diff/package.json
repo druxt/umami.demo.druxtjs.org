@@ -1,0 +1,41 @@
+{
+  "name": "@druxt-contrib/diff",
+  "version": "0.0.0",
+  "description": "A decoupled diff for Druxt: a jsonapi_diff revision diff and a no-backend word diff, an inline v-diff directive, and a presentational field view.",
+  "keywords": [
+    "druxt",
+    "diff",
+    "jsonapi"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "require": "./dist/index.ssr.js",
+      "import": "./dist/index.esm.js"
+    },
+    "./lib/*": "./dist/lib/*",
+    "./components/*": "./dist/components/*"
+  },
+  "main": "dist/index.ssr.js",
+  "module": "dist/index.esm.js",
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "peerDependencies": {
+    "vue": "^2.7.0"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": true
+    }
+  },
+  "packageManager": "npm@8.19.4",
+  "engines": {
+    "node": ">=16.20.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

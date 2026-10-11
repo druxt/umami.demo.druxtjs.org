@@ -221,22 +221,27 @@ function druxt_umami_install() {
   $links = [
     // Articles is 20 and Recipes is 30 in the view's own menu settings, so
     // these two sit after them.
-    ['title' => 'About', 'uri' => 'internal:/about-umami', 'menu' => 'main', 'weight' => 40],
-    ['title' => 'Contact', 'uri' => 'internal:/contact', 'menu' => 'main', 'weight' => 41],
-    ['title' => 'Home', 'uri' => 'internal:/', 'menu' => 'footer', 'weight' => 0],
-    ['title' => 'Articles', 'uri' => 'internal:/articles', 'menu' => 'footer', 'weight' => 1],
-    ['title' => 'Recipes', 'uri' => 'internal:/recipes', 'menu' => 'footer', 'weight' => 2],
-    ['title' => 'About', 'uri' => 'internal:/about-umami', 'menu' => 'footer', 'weight' => 3],
-    ['title' => 'Contact', 'uri' => 'internal:/contact', 'menu' => 'footer', 'weight' => 4],
+    ['title' => 'About', 'es' => 'Acerca de', 'uri' => 'internal:/about-umami', 'menu' => 'main', 'weight' => 40],
+    ['title' => 'Contact', 'es' => 'Contacto', 'uri' => 'internal:/contact', 'menu' => 'main', 'weight' => 41],
+    ['title' => 'Home', 'es' => 'Inicio', 'uri' => 'internal:/', 'menu' => 'footer', 'weight' => 0],
+    ['title' => 'Articles', 'es' => 'Artículos', 'uri' => 'internal:/articles', 'menu' => 'footer', 'weight' => 1],
+    ['title' => 'Recipes', 'es' => 'Recetas', 'uri' => 'internal:/recipes', 'menu' => 'footer', 'weight' => 2],
+    ['title' => 'About', 'es' => 'Acerca de', 'uri' => 'internal:/about-umami', 'menu' => 'footer', 'weight' => 3],
+    ['title' => 'Contact', 'es' => 'Contacto', 'uri' => 'internal:/contact', 'menu' => 'footer', 'weight' => 4],
   ];
   foreach ($links as $link) {
-    MenuLinkContent::create([
+    $menu_link = MenuLinkContent::create([
       'title' => $link['title'],
       'link' => ['uri' => $link['uri']],
       'menu_name' => $link['menu'],
       'weight' => $link['weight'],
       'expanded' => TRUE,
-    ])->save();
+    ]);
+    // Umami translates its own menu links; these read the same in Spanish.
+    if (!empty($link['es'])) {
+      $menu_link->addTranslation('es', ['title' => $link['es']]);
+    }
+    $menu_link->save();
   }
 
   // Druxt JSON:API resource access.

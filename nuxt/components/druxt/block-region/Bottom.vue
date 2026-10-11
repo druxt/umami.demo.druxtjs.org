@@ -57,15 +57,18 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+import { storybookMixin } from '~/utils/storybook'
 /**
  * The `bottom` region. It used to render the disclaimer block alone, which
  * left the site with a one-line footer. The footer menu is pulled in here
  * directly (DruxtMenu name="footer"): MenuBlockFooter filters that menu down
  * to a single contact button, so every other item was being discarded.
  */
-import { mapActions } from 'vuex'
 
 export default {
+  mixins: [storybookMixin],
+
   props: {
     /** The region's block resources, from DruxtBlockRegion. */
     blocks: {
@@ -76,15 +79,6 @@ export default {
 
   data: () => ({
     copyright: null,
-    links: [
-      {
-        title: 'View source',
-        href: 'https://github.com/druxt/umami.demo.druxtjs.org',
-      },
-      { title: 'Docs', href: 'https://druxtjs.org' },
-      { title: 'Discord', href: 'https://discord.druxtjs.org' },
-      { title: 'Storybook', href: 'https://storybook.umami.demo.druxtjs.org' },
-    ],
   }),
 
   async fetch() {
@@ -116,6 +110,19 @@ export default {
     const field = (((resource || {}).data || {}).attributes || {})
       .field_copyright
     this.copyright = (field || {}).processed || null
+  },
+
+  computed: {
+    /** The Druxt links, with this environment's own Storybook. */
+    links: ({ storybookOrigin }) => [
+      {
+        title: 'View source',
+        href: 'https://github.com/druxt/umami.demo.druxtjs.org',
+      },
+      { title: 'Docs', href: 'https://druxtjs.org' },
+      { title: 'Discord', href: 'https://discord.druxtjs.org' },
+      { title: 'Storybook', href: storybookOrigin },
+    ],
   },
 
   methods: {
