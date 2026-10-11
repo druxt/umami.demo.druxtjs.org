@@ -49,6 +49,7 @@ function DruxtSocketsModule(moduleOptions = {}) {
     options: {
       // By path: webpack 4 ignores the package's `exports` map.
       client: resolve(__dirname, 'runtime/client.js'),
+      origin: options.origin,
       path: options.path,
       refresh: options.refresh,
     },

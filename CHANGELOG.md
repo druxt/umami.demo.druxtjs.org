@@ -72,6 +72,9 @@ The demo is a site without releases, so changes are grouped by date.
 
 ### Fixed
 
+- On the live domain, Umami Go, live updates and presence connect again. The
+  domain's CDN does not pass WebSockets, so production opens its socket on its
+  own Lagoon route, named in the runtime config as `socketsOrigin`.
 - A Lagoon preview shares and links its own site address, not Drupal's, so
   its share cards show their images.
 - On a wide screen, or zoomed out, a banner image narrower than the screen

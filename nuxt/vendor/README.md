@@ -17,6 +17,9 @@ script, which its `files` list leaves out, so a `file:` install would fail on
 it. The ckeditor copy's fallback textarea takes an `aria-label` from the
 attributes (`dist/components/DruxtCkeditor.vue`), so the field's name reaches
 it before the editor is ready. The fix is reported upstream.
+The sockets copy takes an `origin` for the socket, or `socketsOrigin` from the
+public runtime config, so production can open it beside its CDN
+(`dist/runtime/client.js`). That change goes upstream too.
 
 Replace a directory with the npm release once one exists, and the `file:`
 entry with a version.
