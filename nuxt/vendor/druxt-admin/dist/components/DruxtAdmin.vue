@@ -16,7 +16,7 @@
       passing content in, and so this module never has to know the name of the
       thing that replaced it.
     -->
-    <slot :path="currentPath" :href="href" :mode="mode">
+    <slot :path="currentPath" :href="href" :mode="resolvedMode">
       <p v-if="href" class="druxt-admin__link">
         <a :href="href" rel="noopener" data-testid="druxt-admin-link">{{
           linkText
@@ -35,16 +35,17 @@
 
 <script>
 
-// The package by name, the way this resolves from dist/components/ once
-// published: siroc bundles src/index.js into dist/index.*, while mkdist only
-// transpiles the components, so a relative path out of this directory does not
-// exist in the published package.
+// The path decisions alone, by a relative path that exists once built: siroc
+// copies src/lib/ to dist/lib/ file by file, the way it copies this component.
+// Not the package index: that carries the proxy, and importing it here put
+// Node's http and https, as webpack 4 polyfills, in every reader's bundle for
+// a component that on most pages renders nothing.
 import {
   ADMIN_PATHS,
   backendPath,
   isAdminPath,
   resolveMode,
-} from '@druxt-contrib/admin'
+} from '../lib/admin'
 
 /**
  * The admin slot, resolved inside `DruxtSite`.
@@ -75,16 +76,22 @@ export default {
       default: null,
     },
 
-    /** Prefixes that count as admin, if the site has moved Drupal's. */
+    /**
+     * Prefixes that count as admin, if the site has moved Drupal's.
+     *
+     * Null rather than the default list, so that "nothing was passed" can be
+     * told from "this list was passed" and the module's own configuration gets
+     * a turn in between.
+     */
     paths: {
       type: Array,
-      default: () => ADMIN_PATHS,
+      default: null,
     },
 
     /** `link`, or `proxy` where the deployment has been set up for it. */
     mode: {
       type: String,
-      default: 'link',
+      default: null,
     },
 
     /** The backend, if not the Druxt client's own. */
@@ -105,14 +112,28 @@ export default {
   },
 
   computed: {
+    /** What the Nuxt module published, for the props nobody passed. */
+    config() {
+      return (this.$config || {}).druxtAdmin || {}
+    },
+
     /** The path this is judging: the prop, then the route, then nothing. */
     currentPath() {
       if (this.path) return this.path
       return (this.$route || {}).path || ''
     },
 
+    /** The mode: the prop, then the site's configuration, then `link`. */
+    resolvedMode() {
+      return resolveMode(this.mode || this.config.mode)
+    },
+
+    resolvedPaths() {
+      return this.paths || this.config.paths || ADMIN_PATHS
+    },
+
     isAdmin() {
-      return isAdminPath(this.currentPath, this.paths)
+      return isAdminPath(this.currentPath, this.resolvedPaths)
     },
 
     /**
@@ -124,11 +145,21 @@ export default {
      */
     backend() {
       if (this.baseUrl) return this.baseUrl
-      return ((this.$druxt || {}).options || {}).baseUrl || ''
+      return (
+        ((this.$druxt || {}).options || {}).baseUrl || this.config.baseUrl || ''
+      )
     },
 
+    /**
+     * Where the link goes.
+     *
+     * In proxy mode that is this path on this origin, because the server
+     * middleware answers it with Drupal. It stays a plain link rather than a
+     * router link on purpose: a client-side route change never leaves the
+     * browser, so it would never reach the middleware at all.
+     */
     href() {
-      if (resolveMode(this.mode) !== 'link') return ''
+      if (this.resolvedMode === 'proxy') return this.currentPath
       return backendPath(this.backend, this.currentPath)
     },
   },

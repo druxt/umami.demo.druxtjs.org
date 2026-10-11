@@ -1,0 +1,113 @@
+{
+  "name": "druxt-auth",
+  "version": "0.5.0",
+  "keywords": [
+    "auth",
+    "authentication",
+    "drupal",
+    "druxt",
+    "module",
+    "nuxt",
+    "oauth"
+  ],
+  "repository": "github:druxt/druxt-auth",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "require": "./dist/index.ssr.js",
+      "import": "./dist/index.esm.js"
+    },
+    "./server": {
+      "require": "./dist/server.js"
+    },
+    "./fetch": {
+      "import": "./dist/fetch.mjs",
+      "require": "./dist/fetch.js"
+    },
+    "./components/*": "./dist/components/*"
+  },
+  "main": "dist/index.ssr.js",
+  "module": "dist/index.esm.js",
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "siroc build",
+    "build:watch": "siroc build --watch",
+    "changeset": "changeset",
+    "example": "cd example/nuxt && yarn && yarn dev",
+    "example:assemble": "cd example/drupal && .devtools/assemble",
+    "example:build": "cd example/nuxt && yarn build",
+    "example:info": "cd example/drupal && .devtools/info",
+    "example:install": "cd example/nuxt && yarn install --frozen-lockfile",
+    "example:provision": "cd example/drupal && .devtools/provision",
+    "example:serve": "cd example/nuxt && yarn start",
+    "example:start": "cd example/drupal && .devtools/start",
+    "example:stop": "cd example/drupal && .devtools/stop",
+    "hooks:install": "git config core.hooksPath .githooks",
+    "lint": "yarn lint:js && yarn lint:format && yarn lint:md && yarn lint:cspell && yarn lint:private && yarn lint:attribution && yarn lint:knip",
+    "lint:attribution": "bash .gitlab/scripts/check-attribution.sh",
+    "lint:audit": "yarn audit --groups dependencies --level high",
+    "lint:commit": "commitlint",
+    "lint:cspell": "cspell lint --no-progress --no-must-find-files --gitignore --dot \"**/*.{js,vue,mjs,json,md,yml,yaml}\"",
+    "lint:format": "prettier --check \"**/*.{js,mjs,vue,json,jsonc,md,yml,yaml}\"",
+    "lint:format:fix": "prettier --write \"**/*.{js,mjs,vue,json,jsonc,md,yml,yaml}\"",
+    "lint:js": "eslint --ext .js,.mjs,.vue src test scripts",
+    "lint:knip": "knip --include dependencies,unlisted --no-config-hints",
+    "lint:md": "markdownlint-cli2 \"**/*.md\"",
+    "lint:private": "node scripts/lint-private-refs.mjs",
+    "lint:prose": "PROSE_LINT_GLOB='!{.changeset/**,example/drupal/**,CHANGELOG.md}' bash .gitlab/scripts/lint-prose.sh --all",
+    "lint:prose:install": "bash .gitlab/scripts/install-vale.sh .vale/bin .vale/styles",
+    "release:check": "node scripts/release/check.mjs",
+    "release:check:test": "node --test scripts/release/test/*.test.mjs",
+    "test": "jest",
+    "test:e2e": "node test/e2e/refresh-and-logout.mjs",
+    "test:e2e:ssr": "node test/e2e/revoked-token-ssr.mjs",
+    "test:watch": "jest --watch",
+    "version": "changeset version && node scripts/release/changelog-dates.mjs"
+  },
+  "dependencies": {
+    "@nuxtjs/auth-next": "^5.0.0-1667386184.dfbbb54",
+    "http-proxy-middleware": "^1.0.6"
+  },
+  "devDependencies": {
+    "@babel/core": "7.22.9",
+    "@babel/preset-env": "7.22.9",
+    "@changesets/cli": "^2.26.2",
+    "@commitlint/cli": "16.3.0",
+    "@commitlint/config-conventional": "16.2.4",
+    "babel-core": "7.0.0-bridge.0",
+    "cspell": "7.3.9",
+    "druxt": "0.23.0",
+    "esbuild-jest": "0.5.0",
+    "eslint": "8.45.0",
+    "eslint-config-prettier": "8.10.0",
+    "eslint-plugin-nuxt": "3.2.0",
+    "eslint-plugin-vue": "9.32.0",
+    "jest": "27.5.1",
+    "jest-environment-jsdom": "27.5.1",
+    "jest-junit": "^14.0.1",
+    "knip": "2.43.0",
+    "markdownlint-cli2": "0.10.0",
+    "playwright": "1.44.1",
+    "prettier": "3.3.3",
+    "semver": "^7.3.7",
+    "siroc": "0.16.0",
+    "undici": "5.28.4",
+    "vue-jest": "3.0.7",
+    "vue-template-compiler": "^2.7.14"
+  },
+  "peerDependencies": {
+    "axios": "^0.27.2",
+    "body-parser": "^1.20.2"
+  },
+  "packageManager": "yarn@1.22.22",
+  "publishConfig": {
+    "access": "public"
+  },
+  "jest-junit": {
+    "outputDirectory": "reports/junit",
+    "outputName": "junit.xml"
+  }
+}

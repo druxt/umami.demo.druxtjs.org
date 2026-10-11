@@ -100,12 +100,19 @@ const HOP_BY_HOP = [
   'connection',
   'keep-alive',
   'proxy-connection',
+  'te',
+  'trailer',
   'transfer-encoding',
   'upgrade',
 ]
 const endToEnd = (headers) => {
   const out = { ...headers }
-  for (const name of HOP_BY_HOP) delete out[name]
+  // A header the Connection value names is this hop's too (RFC 9110).
+  const named = String(headers.connection || '')
+    .split(',')
+    .map((name) => name.trim().toLowerCase())
+    .filter(Boolean)
+  for (const name of [...named, ...HOP_BY_HOP]) delete out[name]
   return out
 }
 

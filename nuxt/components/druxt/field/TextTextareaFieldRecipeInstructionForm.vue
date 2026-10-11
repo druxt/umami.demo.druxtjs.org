@@ -71,6 +71,22 @@ export default {
       return v && typeof v === 'object' ? v : { value: v || '' }
     },
 
+    /**
+     * The markup around the list, kept as it is: the steps are the list
+     * alone, and Umami's recipes close with prose on how to serve, which a
+     * save must not drop. It is edited on Drupal's own form.
+     */
+    around: ({ item }) => {
+      const value = item.value || ''
+      const start = value.search(/<ol[\s>]/i)
+      const end = value.search(/<\/ol>/i)
+      if (start < 0 || end < 0) return { before: '', after: value.trim() }
+      return {
+        before: value.slice(0, start).trim(),
+        after: value.slice(end + '</ol>'.length).trim(),
+      }
+    },
+
     /** The list items in the stored markup, as plain text. */
     steps: ({ item }) =>
       (item.value.match(/<li>[\s\S]*?<\/li>/g) || []).map((li) =>
@@ -80,11 +96,13 @@ export default {
 
   methods: {
     write(steps) {
-      const value = steps.length
+      const list = steps.length
         ? `<ol>\n${steps
             .map((s) => `  <li>${encode(s)}</li>`)
             .join('\n')}\n</ol>`
         : ''
+      const { before, after } = this.around
+      const value = [before, list, after].filter(Boolean).join('\n')
       this.$emit('input', { ...this.item, value })
     },
     setStep(index, text) {
