@@ -381,7 +381,23 @@ html {
 
 // ---------------------------------------------------------------- editorial pieces
 
+// The night lattice of the Umami Go banner, drawn in CSS.
+@mixin night-lattice {
+  background: repeating-linear-gradient(
+      45deg,
+      rgba(125, 74, 26, 0.32) 0 2px,
+      transparent 2px 30px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(125, 74, 26, 0.32) 0 2px,
+      transparent 2px 30px
+    ),
+    $night;
+}
+
 .banner {
+  @include night-lattice;
   position: relative;
   min-height: 460px;
   overflow: hidden;
@@ -397,6 +413,21 @@ html {
     position: absolute;
     top: 0;
     width: 100%;
+  }
+
+  // An image narrower than the banner keeps its own width, ends where the
+  // masthead's 1600px column does and fades into the lattice at both sides,
+  // rather than being stretched past its pixels.
+  &__media--held {
+    left: auto;
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 30%,
+      #000 90%,
+      transparent
+    );
+    right: max(0px, calc((100% - 1600px) / 2));
   }
 
   // Wide viewports put the text in the left third, so the scrim runs sideways.
@@ -1615,7 +1646,7 @@ html.druxt-inspector {
     white-space: nowrap;
 
     @media (min-width: 992px) {
-      padding: 0 2rem;
+      padding: 0 max(2rem, calc((100% - 1600px) / 2));
     }
   }
 
@@ -1809,7 +1840,7 @@ html.druxt-inspector {
 
   @media (min-width: 992px) {
     min-height: 84px;
-    padding: 0 2rem;
+    padding: 0 max(2rem, calc((100% - 1600px) / 2));
 
     &__toggle,
     &__search-icon {
@@ -6001,18 +6032,7 @@ $go-kinds: (
 .go-hero {
   overflow: hidden;
   padding: 2rem 0 1.5rem;
-  // The night lattice of the Umami Go banner on the front page.
-  background: repeating-linear-gradient(
-      45deg,
-      rgba(125, 74, 26, 0.32) 0 2px,
-      transparent 2px 30px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(125, 74, 26, 0.32) 0 2px,
-      transparent 2px 30px
-    ),
-    $night;
+  @include night-lattice;
   color: $paper;
 
   &__inner {
