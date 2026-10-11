@@ -13,7 +13,7 @@
         <img v-if="lead.img" :src="lead.img" alt="" />
       </nuxt-link>
       <div class="article-lead__body">
-        <span class="article-lead__kicker">Latest</span>
+        <span class="article-lead__kicker">{{ $t('listing.latest') }}</span>
         <h2 class="article-lead__title">
           <nuxt-link :to="lead.to">{{ lead.title }}</nuxt-link>
         </h2>
@@ -24,9 +24,8 @@
           class="article-lead__cta d-none d-lg-inline-block"
           :to="lead.to"
           variant="outline-dark"
+          >{{ $t('listing.readArticle') }}</b-button
         >
-          Read article
-        </b-button>
       </div>
     </article>
 
@@ -46,9 +45,10 @@
 import { DrupalJsonApiParams } from 'drupal-jsonapi-params'
 import { DruxtViewsViewMixin } from 'druxt-views'
 import { mapActions } from 'vuex'
+import { langMixin } from '~/utils/lang'
 
 export default {
-  mixins: [DruxtViewsViewMixin],
+  mixins: [langMixin, DruxtViewsViewMixin],
 
   data: () => ({
     img: false,
@@ -90,7 +90,7 @@ export default {
             : text,
         title: first.attributes.title,
         /* @todo - Implement proper multilingual support */
-        to: `/en${(first.attributes.path || {}).alias}`,
+        to: `${this.prefix}${(first.attributes.path || {}).alias}`,
       }
     },
 

@@ -51,9 +51,11 @@
       </b-button>
     </template>
 
-    <!-- Other View display fields. -->
+    <!-- Other View display fields. A div, because a text field's HTML holds
+         its own paragraphs, and a p inside a p is re-parsed by the browser
+         into markup the server never sent. -->
     <!-- eslint-disable-next-line -->
-    <p v-else-if="isSchemaView" v-html="html" />
+    <div v-else-if="isSchemaView" v-html="html" />
 
     <!-- Entity reference forms. -->
     <b-card v-else-if="relationship" class="mb-3" no-body>
@@ -135,8 +137,8 @@ export default {
     html: ({ model }) =>
       typeof model === 'string'
         ? model
-        : (model || {}).value
-        ? model.value
+        : (model || {}).processed || (model || {}).value
+        ? model.processed || model.value
         : JSON.stringify(model),
 
     isSchemaForm: ({ schema }) => schema.config.schemaType === 'form',

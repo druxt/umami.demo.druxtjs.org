@@ -18,11 +18,11 @@
         </span>
         <span class="edit-media__actions">
           <button type="button" @click="$bvModal.show(browserId)">
-            Library
+            {{ $t('form.library') }}
           </button>
-          <button type="button" @click="choose">Upload</button>
+          <button type="button" @click="choose">{{ $t('form.upload') }}</button>
           <button class="is-remove" type="button" @click="remove">
-            Remove
+            {{ $t('form.remove') }}
           </button>
         </span>
       </div>
@@ -38,25 +38,26 @@
       @drop.prevent="drop"
     >
       <span class="edit-dropzone__icon" aria-hidden="true">⤓</span>
-      <span>
-        Drop a photograph here,
-        <button class="edit-dropzone__choose" type="button" @click="choose">
-          upload one
-        </button>
-        or
-        <button
+      <span
+        >{{ $t('form.dropBefore')
+        }}<button class="edit-dropzone__choose" type="button" @click="choose">
+          {{ $t('form.uploadOne') }}</button
+        >{{ $t('form.or')
+        }}<button
           class="edit-dropzone__choose"
           type="button"
           @click="$bvModal.show(browserId)"
         >
-          pick one from the library
+          {{ $t('form.pickFromLibrary') }}
         </button>
       </span>
-      <span class="edit-field__description">JPG or PNG, 4:3 works best</span>
+      <span class="edit-field__description">{{ $t('form.imageHint') }}</span>
     </div>
 
     <AppMediaBrowser :id="browserId" :type="mediaType" @select="pick" />
-    <p v-if="uploading" class="edit-field__description">Uploading…</p>
+    <p v-if="uploading" class="edit-field__description">
+      {{ $t('form.uploading') }}
+    </p>
 
     <input
       ref="file"
@@ -71,7 +72,7 @@
       class="edit-field__label edit-media__alt-label"
       :for="`${id}-alt`"
     >
-      Alt text<span class="edit-field__required">*</span>
+      {{ $t('form.altText') }}<span class="edit-field__required">*</span>
     </label>
     <input
       v-if="media"
@@ -87,6 +88,7 @@
 
 <script>
 import formField from '~/utils/form-field'
+import { langMixin } from '~/utils/lang'
 import {
   referenceItems,
   referenceTypes,
@@ -100,7 +102,7 @@ import {
  * recipe at it, so no temporary file is left behind.
  */
 export default {
-  mixins: [formField],
+  mixins: [langMixin, formField],
 
   data: () => ({
     media: null,
@@ -181,7 +183,7 @@ export default {
         const type = this.ref ? this.ref.type : 'media--image'
         const [entity, bundle] = type.split('--')
         const uploaded = await this.$druxt.axios.post(
-          `/en/jsonapi/${entity}/${bundle}/field_media_image`,
+          `${this.prefix}/jsonapi/${entity}/${bundle}/field_media_image`,
           file,
           {
             headers: {
