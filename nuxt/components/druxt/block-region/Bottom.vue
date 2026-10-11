@@ -58,6 +58,7 @@
 
 <script>
 import { mapActions } from 'vuex'
+import { demoMixin } from '~/utils/demo'
 import { storybookMixin } from '~/utils/storybook'
 /**
  * The `bottom` region. It used to render the disclaimer block alone, which
@@ -67,7 +68,7 @@ import { storybookMixin } from '~/utils/storybook'
  */
 
 export default {
-  mixins: [storybookMixin],
+  mixins: [demoMixin, storybookMixin],
 
   props: {
     /** The region's block resources, from DruxtBlockRegion. */
@@ -113,14 +114,11 @@ export default {
   },
 
   computed: {
-    /** The Druxt links, with this environment's own Storybook. */
-    links: ({ storybookOrigin }) => [
-      {
-        title: 'View source',
-        href: 'https://github.com/druxt/umami.demo.druxtjs.org',
-      },
-      { title: 'Docs', href: 'https://druxtjs.org' },
-      { title: 'Discord', href: 'https://discord.druxtjs.org' },
+    /** The Druxt links from Drupal's config page, with this environment's own Storybook. */
+    links: ({ demo, storybookOrigin }) => [
+      demo.source,
+      demo.docs,
+      demo.discord,
       { title: 'Storybook', href: storybookOrigin },
     ],
   },

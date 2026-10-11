@@ -2,7 +2,7 @@
   <div class="demo-bar">
     <div class="demo-bar__inner">
       <span class="demo-bar__id">
-        <span class="demo-bar__dot" />
+        <AppDruxtLogo class="demo-bar__logo" mono />
         <!-- Three lengths of the same sentence, switched by Bootstrap's own
              display utilities so the row never wraps. -->
         <span class="d-none d-lg-inline">{{ $t('demoBar.long') }}</span>
@@ -26,14 +26,14 @@
         </a>
         <a
           class="d-none d-md-flex"
-          href="https://druxtjs.org"
+          :href="demo.docs.href"
           rel="noopener"
           target="_blank"
           >{{ $t('demoBar.docs') }}</a
         >
         <a
           class="d-none d-lg-flex"
-          href="https://discord.druxtjs.org"
+          :href="demo.discord.href"
           rel="noopener"
           target="_blank"
           >{{ $t('demoBar.discord') }}</a
@@ -64,10 +64,11 @@
 
 <script>
 import { mapMutations, mapState } from 'vuex'
-
-const REPO = 'https://github.com/druxt/umami.demo.druxtjs.org'
+import { demoMixin } from '~/utils/demo'
 
 export default {
+  mixins: [demoMixin],
+
   props: {
     /**
      * Repo-relative path of the component that owns the current page, linked
@@ -84,8 +85,10 @@ export default {
       devOverlay: (state) => state.ui.devOverlay,
     }),
 
-    sourceUrl: ({ source }) =>
-      source ? `${REPO}/blob/main/nuxt/${source}` : REPO,
+    sourceUrl: ({ source, demo }) =>
+      source
+        ? `${demo.source.href}/blob/main/nuxt/${source}`
+        : demo.source.href,
   },
 
   methods: {

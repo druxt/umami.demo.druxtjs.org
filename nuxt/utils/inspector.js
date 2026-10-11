@@ -3,8 +3,11 @@
  * shows, and the file in this repository that rendered it.
  */
 
-const REPO = 'https://github.com/druxt/umami.demo.druxtjs.org/blob/main/nuxt/'
-const DOCS = 'https://druxtjs.org/modules/'
+import { demoLinks } from '~/utils/demo'
+
+/** Where a file of this repository is read, and where a module's docs are. */
+const repoOf = (vm) => `${demoLinks(vm).source.href}/blob/main/nuxt/`
+const docsOf = (vm) => `${demoLinks(vm).docs.href}/modules/`
 
 /** Druxt module components, by the name each declares, and their docs page. */
 export const KINDS = {
@@ -108,6 +111,6 @@ export const describe = (vm) => {
     label: `${name}${propsOf(vm, meta.kind)}`,
     // What rendered it: the override file, or Druxt's own template.
     detail: source ? `→ ${resolved}` : resolved ? `→ ${resolved} (druxt)` : '',
-    href: source ? REPO + source : DOCS + meta.docs,
+    href: source ? repoOf(vm) + source : docsOf(vm) + meta.docs,
   }
 }
