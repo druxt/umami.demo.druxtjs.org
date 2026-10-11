@@ -1,0 +1,30 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.front_carousel
+  module:
+    - system
+    - views
+  theme:
+    - umami
+id: umami_views_block__front_carousel_block_1
+theme: umami
+region: banner_top
+weight: -9
+provider: null
+plugin: 'views_block:front_carousel-block_1'
+settings:
+  id: 'views_block:front_carousel-block_1'
+  label: ''
+  label_display: '0'
+  provider: views
+  context_mapping: {  }
+  views_label: ''
+  items_per_page: none
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    context_mapping: {  }
+    pages: '<front>'

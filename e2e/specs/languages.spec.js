@@ -32,7 +32,8 @@ test.describe('languages', () => {
 
   test('the Spanish home banner speaks Spanish', async ({ page }) => {
     await visit(page, '/es/node')
-    const banner = page.locator('.banner')
+    // The recipe of the week is the carousel's second slide, after Umami Go.
+    const banner = page.locator('.carousel__slide').nth(1)
     await expect(banner.locator('.banner__kicker')).toHaveText(
       'Receta de la semana',
     )
@@ -61,9 +62,9 @@ test.describe('languages', () => {
       page.locator('a', { hasText: 'Sin alcohol' }).first(),
     ).toBeVisible({ timeout: 15000 })
     // The banner's block content follows its translation too.
-    await expect(page.locator('.banner__title')).toHaveText(
-      'Pasta vegetariana horneada súper fácil',
-    )
+    await expect(
+      page.locator('.carousel__slide').nth(1).locator('.banner__title'),
+    ).toHaveText('Pasta vegetariana horneada súper fácil')
   })
 
   test('the language switch on a recipe leads to its translation', async ({
