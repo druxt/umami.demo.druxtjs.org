@@ -19,6 +19,7 @@
     "postinstall": "patch-package"
   },
   "resolutions": {
+    "axios": "^0.34.0",
     "druxt": "0.25.0-dev.20261011015353",
     "druxt-blocks": "0.18.0-dev.20261011015353",
     "druxt-breadcrumb": "0.18.0-dev.20261011015353",
