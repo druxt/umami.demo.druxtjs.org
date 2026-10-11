@@ -19,7 +19,14 @@
     "postinstall": "patch-package"
   },
   "resolutions": {
-    "druxt": "0.25.0-dev.20260928061526",
+    "druxt": "0.25.0-dev.20261011015353",
+    "druxt-blocks": "0.18.0-dev.20261011015353",
+    "druxt-breadcrumb": "0.18.0-dev.20261011015353",
+    "druxt-entity": "0.29.0-dev.20261011015353",
+    "druxt-menu": "0.22.0-dev.20261011015353",
+    "druxt-router": "0.32.0-dev.20261011015353",
+    "druxt-schema": "0.12.0-dev.20261011015353",
+    "druxt-views": "0.23.0-dev.20261011015353",
     "vue": "2.7.14"
   },
   "dependencies": {
@@ -32,14 +39,15 @@
     "@nuxtjs/axios": "5.13.6",
     "@nuxtjs/google-analytics": "2.4.0",
     "@nuxtjs/lunr-module": "0.3.2",
+    "axios": "^0.34.0",
     "bootstrap": "5.3.1",
     "bootstrap-vue": "2.23.1",
     "core-js": "3.32.1",
     "css-loader": "5.2.7",
     "drupal-jsonapi-params": "^2.3.1",
-    "druxt-auth": "file:vendor/druxt-auth",
+    "druxt-auth": "0.5.0",
     "druxt-search": "0.1.1",
-    "druxt-site": "0.14.4-dev.20260928061526",
+    "druxt-site": "0.15.0-dev.20261011015353",
     "jsonapi-serializer": "3.6.7",
     "nuxt": "2.17.1",
     "prismjs": "^1.29.0",
