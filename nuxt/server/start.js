@@ -24,6 +24,8 @@ const { attachSockets } = require('@druxt-contrib/sockets/server')
 const { createServerMiddleware } = require('druxt-auth/server')
 const { createProxyMiddleware } = require('http-proxy-middleware')
 const { createDrupalProxy, isDrupalPath, waitForDrupal } = require('./drupal')
+const liveHandlers = require('./live/handlers')
+const { tablePage } = require('./table-page')
 const { createStartingHandler } = require('./starting')
 
 const rootDir = path.join(__dirname, '..')
@@ -96,6 +98,9 @@ const resolveFile = (pathname) => {
   return path.join(distDir, '200.html')
 }
 
+/** Pages only the browser renders: an Umami Go table, `/play/K7QF`. */
+const APP_ONLY = /^\/play\/[A-Z0-9]{4}$/
+
 const serveStatic = (req, res) => {
   const { pathname } = new URL(req.url, 'http://localhost')
   // English is prefixed, so the front page is /en and "/" is not a page.
@@ -132,6 +137,19 @@ const serveStatic = (req, res) => {
   // cache never hands brotli to a client that asked for none.
   if (COMPRESSIBLE.test(headers['Content-Type'])) {
     headers.Vary = 'Accept-Encoding'
+  }
+  // A table's address answers with the game's invitation in its head, so a
+  // link shared in a chat previews as the table, not the front page.
+  if (APP_ONLY.test(decoded) && file.endsWith('200.html')) {
+    const html = tablePage(fs.readFileSync(file, 'utf8'), {
+      code: decoded.split('/').pop(),
+      origin: siteOrigin,
+    })
+    res.writeHead(200, {
+      ...headers,
+      'Content-Length': Buffer.byteLength(html),
+    })
+    return res.end(req.method === 'HEAD' ? undefined : html)
   }
   const encoding = compressionFor(req, headers['Content-Type'])
   if (encoding) headers['Content-Encoding'] = encoding
@@ -389,7 +407,12 @@ const server = http.createServer((req, res) => {
 })
 
 // Live updates on /_live: open pages refresh when Drupal purges.
-const live = attachSockets(server, { path: '/_live', drupalUrl, log })
+const live = attachSockets(server, {
+  path: '/_live',
+  drupalUrl,
+  handlers: liveHandlers({ drupalUrl, log }),
+  log,
+})
 
 const main = async () => {
   // Builds left by an earlier run are never served again.

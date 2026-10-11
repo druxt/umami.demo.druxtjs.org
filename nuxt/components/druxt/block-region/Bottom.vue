@@ -38,6 +38,9 @@
       >
         Entity Explorer
       </nuxt-link>
+      <nuxt-link class="site-footer__link site-footer__link--demo" to="/play">
+        Umami Go
+      </nuxt-link>
       <a
         v-for="link in links"
         :key="link.href"
