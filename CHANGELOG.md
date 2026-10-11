@@ -52,6 +52,11 @@ The demo is a site without releases, so changes are grouped by date.
   and CI.
 - Drupal 11.4.8 and `drupal/druxt` 1.3.1.
 - The druxt.js 0.25.0 dev snapshot.
+- Druxt 0.25.0 from the npm `dev` channel, in place of the older dev
+  snapshot, with axios 0.34. The language prefix and block content patches
+  are upstream.
+- druxt-auth 0.5.0 from npm, with a patch adding its unreleased static-server
+  middleware, in place of the vendored copy.
 - Drupal's responses may be cached for five minutes, and content changes
   rebuild the site through Purge.
 - The site's text is compressed, its images cached and its fonts load beside
