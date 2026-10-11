@@ -1,6 +1,15 @@
 <template>
   <div v-if="!$fetchState.pending" class="banner">
-    <img v-if="img" class="banner__media" :src="img" alt="" />
+    <img
+      v-if="img"
+      ref="media"
+      class="banner__media"
+      :class="{ 'banner__media--held': held }"
+      :style="held ? { width: `${held}px` } : null"
+      :src="img"
+      alt=""
+      @load="hold"
+    />
     <div class="banner__scrim" />
 
     <b-container>
@@ -44,6 +53,8 @@ export default {
   },
 
   data: () => ({
+    // The image's own width while it is narrower than the banner, else 0.
+    held: 0,
     img: false,
   }),
 
@@ -66,10 +77,34 @@ export default {
         .uri.url
   },
 
+  // A generated page's image can finish loading before hydration.
+  mounted() {
+    if (this.$refs.media && this.$refs.media.complete) this.hold()
+  },
+
+  beforeDestroy() {
+    if (this.observer) this.observer.disconnect()
+  },
+
   methods: {
     ...mapActions({
       getResource: 'druxt/getResource',
     }),
+
+    // Holds an image narrower than the banner at its own width (theme.scss).
+    hold() {
+      const media = this.$refs.media
+      if (!media) return
+      const fit = () => {
+        this.held =
+          media.naturalWidth < this.$el.clientWidth ? media.naturalWidth : 0
+      }
+      fit()
+      if (!this.observer && window.ResizeObserver) {
+        this.observer = new ResizeObserver(fit)
+        this.observer.observe(this.$el)
+      }
+    },
   },
 }
 </script>
