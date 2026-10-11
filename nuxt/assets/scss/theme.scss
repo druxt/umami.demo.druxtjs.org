@@ -438,6 +438,12 @@ html {
     font-size: 1.03125rem;
     margin: 0;
     max-width: 440px;
+
+    // The tablet's narrow container would run it into the image's right
+    // half, where the Umami Go banner draws its cards.
+    @media (max-width: $bp-lg) {
+      max-width: 300px;
+    }
   }
   &__meta {
     color: #d8c8b4;
