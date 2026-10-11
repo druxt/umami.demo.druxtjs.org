@@ -57,6 +57,9 @@ The demo is a site without releases, so changes are grouped by date.
   are upstream.
 - druxt-auth 0.5.0 from npm, with a patch adding its unreleased static-server
   middleware, in place of the vendored copy.
+- Every axios in the site is 0.34, including the copies `@nuxtjs/axios` and
+  `@nuxtjs/auth-next` bring, which were 0.21 and 0.26 and open to axios's
+  SSRF and credential leak advisory.
 - Drupal's responses may be cached for five minutes, and content changes
   rebuild the site through Purge.
 - The site's text is compressed, its images cached and its fonts load beside
