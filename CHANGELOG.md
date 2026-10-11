@@ -72,6 +72,8 @@ The demo is a site without releases, so changes are grouped by date.
 
 ### Fixed
 
+- A Lagoon preview shares and links its own site address, not Drupal's, so
+  its share cards show their images.
 - On a wide screen, or zoomed out, a banner image narrower than the screen
   keeps its own size beside the words, fading into the night lattice, rather
   than being stretched and cropped. The masthead and the bar above it keep
@@ -79,6 +81,12 @@ The demo is a site without releases, so changes are grouped by date.
 - The Umami Go share card shows the hero's fan of cards on its arc, over the
   banner's night lattice, rendered from the live page by
   `nuxt/scripts/render-og-umami-go.js`.
+- The sitemap lists content only, leaving out tag listings, Drupal's `/node`
+  and the JSON:API documents the build crawled, and tag pages are `noindex`.
+- Every page points at `llms-full.txt` as well as `llms.txt`, and `llms.txt`
+  links DruxtJS, the source, the Entity Explorer and Umami Go.
+- Analytics is the demo sites' GA4 property, loaded only on the live site, in
+  place of a Universal Analytics tag that every preview reported to.
 - Switching language fetches views and blocks again in the new language,
   even while the first fetch is still running.
 - A Spanish front page is the home page, with its banner and in Spanish.

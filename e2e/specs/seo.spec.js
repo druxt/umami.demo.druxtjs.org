@@ -89,6 +89,10 @@ test.describe('seo', () => {
     expect(xml).toContain(`<loc>${baseURL}/es/recipes/pizza-sin-gluten</loc>`)
     expect(xml).not.toContain('/node/preview')
     expect(xml).not.toContain('/login')
+    // Content only: no tag listings, JSON:API documents or Drupal's /node.
+    expect(xml).not.toContain('/tags/')
+    expect(xml).not.toContain('/jsonapi/')
+    expect(xml).not.toMatch(/\/node<\/loc>/)
 
     const llms = await request.get('/llms.txt')
     expect(llms.status()).toBe(200)
@@ -99,6 +103,8 @@ test.describe('seo', () => {
     expect(index).toContain(`(${baseURL}${RECIPE}?utm_source=llms-txt`)
     expect(index).toContain('## Optional')
     expect(index).toContain(`- [Full text](${baseURL}/llms-full.txt)`)
+    expect(index).toContain('## DruxtJS')
+    expect(index).toContain('- [DruxtJS](https://druxtjs.org)')
 
     const full = await request.get('/llms-full.txt')
     expect(full.status()).toBe(200)
@@ -116,17 +122,30 @@ test.describe('seo', () => {
     expect(text).not.toMatch(/<\/?(p|li|ol|ul|strong)\b|<!--/)
   })
 
+  test('a tag listing is crawled but stays out of the index', async ({
+    page,
+  }) => {
+    await page.goto('/en/tags/vegan')
+    expect(await meta(page, 'name="robots"')).toBe('noindex, follow')
+  })
+
   // llms.txt discovery: the page's own <link>, and a Link header for any
-  // client that never reads the page.
-  test('every page points at llms.txt', async ({ page, request }) => {
+  // client that never reads the page. Both files describe every page.
+  test('every page points at llms.txt and llms-full.txt', async ({
+    page,
+    request,
+  }) => {
     for (const path of ['/en', RECIPE, '/es']) {
       await page.goto(path)
-      await expect(
-        page.locator('link[rel="describedby"][href="/llms.txt"]'),
-      ).toHaveAttribute('type', 'text/markdown')
+      for (const file of ['/llms.txt', '/llms-full.txt']) {
+        await expect(
+          page.locator(`link[rel="describedby"][href="${file}"]`),
+        ).toHaveAttribute('type', 'text/markdown')
+      }
       const response = await request.get(path)
       expect(response.headers().link).toBe(
-        '</llms.txt>; rel="describedby"; type="text/markdown"',
+        '</llms.txt>; rel="describedby"; type="text/markdown", ' +
+          '</llms-full.txt>; rel="describedby"; type="text/markdown"',
       )
     }
   })

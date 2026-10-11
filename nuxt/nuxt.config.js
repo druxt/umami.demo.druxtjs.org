@@ -3,6 +3,13 @@ import { drupalOrigin, siteOrigin } from './lib/site'
 
 const baseUrl = process.env.BASE_URL || 'http://druxt-js-demo-umami.ddev.site'
 
+// GA4 for the demo sites, as a plain gtag.js snippet: the Nuxt analytics
+// modules need Universal Analytics or Nuxt 3. Lagoon types only `main` as
+// production, and the hostname check keeps its Lagoon routes out too.
+const GA_MEASUREMENT_ID = 'G-FZN8SH6YQR'
+const GA_HOSTNAME = 'umami.demo.druxtjs.org'
+const analytics = process.env.LAGOON_ENVIRONMENT_TYPE === 'production'
+
 export default {
   target: 'static',
 
@@ -33,7 +40,21 @@ export default {
     __dangerouslyDisableSanitizersByTagID: {
       fonts: ['onload'],
       'fonts-noscript': ['innerHTML'],
+      ...(analytics ? { 'ga-init': ['innerHTML'] } : {}),
     },
+    script: analytics
+      ? [
+          {
+            hid: 'ga-src',
+            src: `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`,
+            async: true,
+          },
+          {
+            hid: 'ga-init',
+            innerHTML: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());if(location.hostname==='${GA_HOSTNAME}'){gtag('config','${GA_MEASUREMENT_ID}');}`,
+          },
+        ]
+      : [],
     title: 'Umami — a decoupled food magazine, built with DruxtJS',
     meta: [
       { charset: 'utf-8' },
@@ -55,8 +76,10 @@ export default {
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       // llms.txt discovery (https://llmstxt.org): every page points at the
-      // index that covers it. The server sends the same as a Link header.
+      // index that covers it, and at the full text beside it. The server
+      // sends the same as a Link header.
       { rel: 'describedby', type: 'text/markdown', href: '/llms.txt' },
+      { rel: 'describedby', type: 'text/markdown', href: '/llms-full.txt' },
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
       {
         rel: 'preconnect',
@@ -116,7 +139,6 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/eslint
     '@nuxtjs/eslint-module',
-    ['@nuxtjs/google-analytics', { id: 'UA-172677199-2' }],
     // https://go.nuxtjs.dev/stylelint
     '@nuxtjs/stylelint-module',
     // The demo's share links and commands, from Drupal's config page. The
