@@ -393,6 +393,68 @@ const anchorUuid = (block, side = "right") => {
   return block.uuid || null;
 };
 
+const MARKED = ["changed", "added", "moved"];
+const resolveAnchor = (uuid) => typeof document === "undefined" ? null : document.querySelector(`[data-druxt-entity="${uuid}"]`);
+const anchorsOf = (block) => {
+  const right = anchorUuid(block, "right");
+  const left = anchorUuid(block, "left");
+  return [right, left].filter((uuid, index, all) => uuid && all.indexOf(uuid) === index);
+};
+const blockFor = (blocks, uuid, status) => {
+  if (!uuid)
+    return null;
+  return (blocks || []).find((block) => anchorsOf(block).includes(uuid) && (!status || block.status === status)) || null;
+};
+const elementFor = (block, resolve) => anchorsOf(block).map((uuid) => resolve(uuid, block)).find(Boolean) || null;
+const viewOf = (document2) => {
+  if (!document2)
+    return null;
+  return Array.isArray(document2.blocks) ? document2 : normaliseDiff(document2);
+};
+const rendered = (el) => Boolean(el && (String(el.textContent || "").trim() || el.children && el.children.length > 0));
+const waitRendered = (blocks, resolve, { timeout = 6e3, interval = 150, settle = 0 } = {}) => {
+  const changed = (blocks || []).filter((b) => b.status === "changed");
+  const ready = () => changed.every((block) => rendered(elementFor(block, resolve)));
+  return new Promise((done) => {
+    const started = Date.now();
+    const check = () => {
+      if (ready())
+        return setTimeout(() => done(true), settle);
+      if (Date.now() - started > timeout)
+        return setTimeout(() => done(false), settle);
+      setTimeout(check, interval);
+    };
+    check();
+  });
+};
+const groupRemoved = (view, resolve, fallback = null) => {
+  const blocks = view && view.blocks || [];
+  const groups = new Map();
+  const lastOnPage = () => {
+    const els = blocks.filter((b) => b.status !== "removed").map((b) => elementFor(b, resolve)).filter(Boolean);
+    return els[els.length - 1] || fallback || null;
+  };
+  for (const block of view && view.rebuilt ? [] : blocks) {
+    if (block.status !== "removed")
+      continue;
+    const hasNeighbour = Boolean(block.placeAfter || block.placeBefore);
+    const neighbour = {
+      placeUuids: block.placeUuids,
+      uuid: block.placeAfter || block.placeBefore
+    };
+    const anchor = hasNeighbour ? anchorsOf(neighbour).find((uuid) => resolve(uuid, block)) : null;
+    const el = anchor ? resolve(anchor, block) : lastOnPage();
+    if (!el)
+      continue;
+    const side = block.placeBefore && anchor ? "before" : "after";
+    const key = anchor ? `${side}:${anchor}` : `after:${block.field || "page"}`;
+    if (!groups.has(key))
+      groups.set(key, { key, el, side, blocks: [] });
+    groups.get(key).blocks.push(block);
+  }
+  return [...groups.values()];
+};
+
 const pin = (value) => Math.min(100, Math.max(0, value || 0));
 const MIN_HEIGHT = 0.6;
 const placeMarks = (boxes, total, minHeight = MIN_HEIGHT) => {
@@ -457,17 +519,20 @@ const mark = (root, diff) => {
   const edits = new Map();
   const matches = (token, rw) => token.type !== "-" && token.word === rw.word;
   const blocks = new Set();
+  const placed = new Set();
   let p = 0;
   for (const rw of words) {
     let scan = p;
     let skipped = 0;
     const removed = [];
+    const blocksBefore = [];
     while (scan < tokens.length && skipped < LOOKAHEAD && !matches(tokens[scan], rw)) {
       if (tokens[scan].type === "-") {
         if (tokens[scan].word) {
-          if (tokens[scan].block)
+          if (tokens[scan].block) {
             blocks.add(scan);
-          else
+            blocksBefore.push(scan);
+          } else
             removed.push(tokens[scan].text);
         }
       } else
@@ -477,24 +542,58 @@ const mark = (root, diff) => {
     if (scan >= tokens.length || skipped >= LOOKAHEAD || !matches(tokens[scan], rw))
       continue;
     const token = tokens[scan];
-    if (token.type === "+" || removed.length) {
+    const before = blocksBefore.filter((index) => !placed.has(index));
+    if (token.type === "+" || removed.length || before.length) {
       const list = edits.get(rw.node) || [];
       list.push({
         index: rw.index,
         length: rw.text.length,
         ins: token.type === "+",
-        removedBefore: removed
+        removedBefore: removed,
+        blocksBefore: before.map((index) => tokens[index].text)
       });
       edits.set(rw.node, list);
+      for (const index of before)
+        placed.add(index);
     }
     p = scan + 1;
   }
-  const removedBlocks = [...blocks].sort((a, b) => a - b).map((index) => tokens[index].text);
+  const removedBlocks = [...blocks].filter((index) => !placed.has(index)).sort((a, b) => a - b).map((index) => tokens[index].text);
   const trailing = [...removedBlocks, ...trailingRemovals(tokens, p)];
   const bridgeable = (s) => !/[\p{L}\p{N}]/u.test(s);
-  const del = (words2) => {
+  const BLOCKS = new Set([
+    "P",
+    "LI",
+    "DIV",
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6",
+    "BLOCKQUOTE",
+    "PRE",
+    "SECTION",
+    "ARTICLE",
+    "TD",
+    "TH",
+    "DD",
+    "DT",
+    "FIGURE",
+    "TABLE",
+    "UL",
+    "OL"
+  ]);
+  const blockOf = (node) => {
+    let el = node.parentNode;
+    while (el && el !== root && !BLOCKS.has(el.tagName))
+      el = el.parentNode;
+    return el && el !== root ? el : null;
+  };
+  const beforeBlocks = [];
+  const del = (words2, kind) => {
     const el = document.createElement("del");
-    el.className = "v-diff-del";
+    el.className = kind ? `v-diff-del v-diff-del--${kind}` : "v-diff-del";
     el.textContent = `${readableWords(words2).join(" ")} `;
     return el;
   };
@@ -521,6 +620,13 @@ const mark = (root, diff) => {
         if (/^\s*$/.test(value.slice(end)))
           end = value.length;
         frag.appendChild(document.createTextNode(value.slice(cursor, start)));
+        if (edit.blocksBefore.length) {
+          const holder = blockOf(node);
+          if (holder)
+            beforeBlocks.push({ holder, words: edit.blocksBefore });
+          else
+            frag.appendChild(del(edit.blocksBefore, "block"));
+        }
         if (removed.length)
           frag.appendChild(del(removed));
         const ins = document.createElement("ins");
@@ -531,6 +637,13 @@ const mark = (root, diff) => {
         i = j;
       } else {
         frag.appendChild(document.createTextNode(value.slice(cursor, edit.index)));
+        if (edit.blocksBefore.length) {
+          const holder = blockOf(node);
+          if (holder)
+            beforeBlocks.push({ holder, words: edit.blocksBefore });
+          else
+            frag.appendChild(del(edit.blocksBefore, "block"));
+        }
         if (edit.removedBefore.length)
           frag.appendChild(del(edit.removedBefore));
         frag.appendChild(document.createTextNode(value.slice(edit.index, edit.index + edit.length)));
@@ -541,11 +654,10 @@ const mark = (root, diff) => {
     frag.appendChild(document.createTextNode(value.slice(cursor)));
     node.parentNode.replaceChild(frag, node);
   }
-  if (trailing.length) {
-    const el = del(trailing);
-    el.className = "v-diff-del v-diff-del--trailing";
-    root.appendChild(el);
-  }
+  for (const { holder, words: words2 } of beforeBlocks)
+    holder.parentNode.insertBefore(del(words2, "block"), holder);
+  if (trailing.length)
+    root.appendChild(del(trailing, "trailing"));
 };
 const apply = (el, diff) => {
   el.__vdiffOriginal = el.innerHTML;
@@ -574,6 +686,29 @@ const directive = {
   }
 };
 
+const diffable = {
+  inject: {
+    druxtDiff: { default: null }
+  },
+  computed: {
+    diffUuid() {
+      const entity = this.entity || this.resource || null;
+      return entity && entity.id || null;
+    },
+    diffBlock() {
+      if (!this.druxtDiff || !this.diffUuid)
+        return null;
+      return this.druxtDiff.blockFor(this.diffUuid, "changed");
+    }
+  },
+  methods: {
+    fieldDiff(name) {
+      const block = this.diffBlock;
+      return block ? block.fields.find((f) => f.name === name) || null : null;
+    }
+  }
+};
+
 const DEFAULTS = {
   directive: true
 };
@@ -599,11 +734,17 @@ const NuxtModule = function(moduleOptions = {}) {
 };
 
 exports.DEFAULTS = DEFAULTS;
+exports.MARKED = MARKED;
 exports.anchorUuid = anchorUuid;
+exports.anchorsOf = anchorsOf;
+exports.blockFor = blockFor;
 exports.changedFields = changedFields;
 exports.condenseRuns = condenseRuns;
 exports["default"] = NuxtModule;
 exports.diffDirective = directive;
+exports.diffable = diffable;
+exports.elementFor = elementFor;
+exports.groupRemoved = groupRemoved;
 exports.groupRuns = groupRuns;
 exports.label = label;
 exports.looksLikeMarkup = looksLikeMarkup;
@@ -612,6 +753,10 @@ exports.placeMarks = placeMarks;
 exports.placeViewport = placeViewport;
 exports.readableWord = readableWord;
 exports.readableWords = readableWords;
+exports.rendered = rendered;
+exports.resolveAnchor = resolveAnchor;
 exports.resolveOptions = resolveOptions;
 exports.trailingRemovals = trailingRemovals;
+exports.viewOf = viewOf;
+exports.waitRendered = waitRendered;
 exports.wordDiff = wordDiff;

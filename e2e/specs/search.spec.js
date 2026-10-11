@@ -1,14 +1,8 @@
 const { test, expect } = require('@playwright/test')
-const { visit } = require('./helpers')
+const { openSearch, visit } = require('./helpers')
 
 /** Open whichever search control the viewport shows: the icon opens the
  * drawer's field below lg, the pill opens the panel at lg. */
-const openSearch = (page) =>
-  page
-    .locator('.masthead__search-icon:visible, .masthead__search:visible')
-    .first()
-    .click()
-
 // Search runs on a Lunr index built into the site. The index has to be in
 // the build and be JSON; a page served in its place is a search that finds
 // nothing, and once was.
@@ -29,6 +23,8 @@ test.describe('search', () => {
     await visit(page, '/en')
     await openSearch(page)
     const bar = page.locator('.searchbar:visible').first()
+    // The field has the cursor as soon as the panel is open.
+    await expect(bar.locator('input')).toBeFocused()
     await bar.locator('input').fill('chili')
     const results = bar.locator('.searchbar__results a')
     await expect(results.first()).toBeVisible()
@@ -50,7 +46,7 @@ test.describe('search', () => {
     const results = bar.locator('.searchbar__results a')
     await expect(results.first()).toBeVisible()
     const hrefs = await results.evaluateAll((links) =>
-      links.map((a) => a.getAttribute('href'))
+      links.map((a) => a.getAttribute('href')),
     )
     expect(hrefs.every((href) => href.startsWith('/es/'))).toBe(true)
 

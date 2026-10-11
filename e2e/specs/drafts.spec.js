@@ -54,6 +54,13 @@ test.describe('drafts', () => {
     await expect(swap.locator('img')).toHaveAttribute('src', new RegExp(before))
     await page.locator('.draft-banner__diff-toggle').click()
     await expect(page.locator('.v-diff-swap')).toHaveCount(0)
+    // Marks off, the photograph is still the draft's; Drupal's version shows
+    // the old one, and the draft comes back whole.
+    await expect.poll(hero).toBe(picked)
+    await page.locator('.draft-banner__option').nth(1).click()
+    await expect.poll(hero).toBe(before)
+    await page.locator('.draft-banner__option').nth(0).click()
+    await expect.poll(hero).toBe(picked)
 
     // A reload finds the draft on both tabs.
     await page.reload()
@@ -106,6 +113,34 @@ test.describe('drafts', () => {
     await expect(page.locator('#title')).toHaveValue(`${original} draft`)
     await page.click('.edit-actions__cancel')
     await expect(page.locator('#title')).toHaveValue(original)
+  })
+
+  test('a draft can be thrown away from the banner', async ({ page }) => {
+    await signIn(page)
+    await openEdit(page, RECIPE)
+    const original = await page.locator('#title').inputValue()
+    await page.fill('#title', `${original} to discard`)
+    await expect(page.locator('.draft-banner')).toBeVisible()
+    // It asks once; keeping it changes nothing.
+    await page.click('.draft-banner__discard')
+    await page.click('.draft-banner__discard-no')
+    await expect(page.locator('.draft-banner')).toBeVisible()
+    // From the keyboard: focus moves to the question, Escape hands it back.
+    await page.focus('.draft-banner__discard')
+    await page.keyboard.press('Enter')
+    await expect(page.locator('.draft-banner__discard-no')).toBeFocused()
+    await page.keyboard.press('Escape')
+    await expect(page.locator('.draft-banner__confirm')).toHaveCount(0)
+    await expect(page.locator('.draft-banner__discard')).toBeFocused()
+    await page.click('.draft-banner__discard')
+    await page.click('.draft-banner__discard-yes')
+    await expect(page.locator('.draft-banner')).toHaveCount(0)
+    // The open form shows Drupal's title again, and a reload finds no draft.
+    await expect(page.locator('#title')).toHaveValue(original)
+    await page.reload()
+    await hydrated(page)
+    await expect(page.locator('.draft-banner')).toHaveCount(0)
+    await expect(page.locator('h1').first()).toContainText(original)
   })
 
   test('a draft on the English page stays off the Spanish one', async ({

@@ -10,15 +10,26 @@ test.describe('languages', () => {
   }) => {
     await visit(page, '/es/node')
     await expect(
-      page.locator('.collections h2', { hasText: 'Colecciones' })
+      page.locator('.collections h2', { hasText: 'Colecciones' }),
     ).toBeVisible()
     await expect(
-      page.locator('a', { hasText: 'Sin alcohol' }).first()
+      page.locator('a', { hasText: 'Sin alcohol' }).first(),
     ).toBeVisible()
     await expect(page.locator('a', { hasText: 'Alcohol free' })).toHaveCount(0)
     const footer = page.locator('.site-footer')
     await expect(footer).toContainText('Recetas')
     await expect(footer).not.toContainText('Recipes')
+  })
+
+  test('the Spanish home banner speaks Spanish', async ({ page }) => {
+    await visit(page, '/es/node')
+    const banner = page.locator('.banner')
+    await expect(banner.locator('.banner__kicker')).toHaveText(
+      'Receta de la semana',
+    )
+    // The button carries the banner's title, so its text names where it goes.
+    const title = (await banner.locator('.banner__title').textContent()).trim()
+    await expect(banner.locator('a.btn')).toContainText(title)
   })
 
   test('switching to Spanish in the browser fetches Spanish views', async ({
@@ -36,9 +47,14 @@ test.describe('languages', () => {
       await page.locator('.drawer__lang-btn', { hasText: 'ES' }).click()
     }
     await page.waitForURL(/\/es/)
+    // The views refetch after the switch; give the collections their time.
     await expect(
-      page.locator('a', { hasText: 'Sin alcohol' }).first()
-    ).toBeVisible()
+      page.locator('a', { hasText: 'Sin alcohol' }).first(),
+    ).toBeVisible({ timeout: 15000 })
+    // The banner's block content follows its translation too.
+    await expect(page.locator('.banner__title')).toHaveText(
+      'Pasta vegetariana horneada súper fácil',
+    )
   })
 
   test('the language switch on a recipe leads to its translation', async ({
@@ -63,7 +79,7 @@ test.describe('languages', () => {
   test('the English home stays English', async ({ page }) => {
     await visit(page, '/en')
     await expect(
-      page.locator('a', { hasText: 'Alcohol free' }).first()
+      page.locator('a', { hasText: 'Alcohol free' }).first(),
     ).toBeVisible()
     await expect(page.locator('.site-footer')).toContainText('Recipes')
   })

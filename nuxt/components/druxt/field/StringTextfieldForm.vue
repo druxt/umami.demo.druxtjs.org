@@ -22,6 +22,7 @@
           <span class="edit-list__grip" aria-hidden="true">⋮⋮</span>
           <input
             :ref="`row-${index}`"
+            :aria-label="`${label} ${index + 1}`"
             class="edit-list__input"
             type="text"
             :value="item"

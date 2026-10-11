@@ -131,29 +131,82 @@ another way. Nothing renders on the server, where there is no page to measure.
 The default slot hands over `{ marks, viewport, scrollTo }` for a site that
 wants its own markup, and `go` is emitted when a reader takes a mark.
 
-## The adapter (the injection seam)
+## `DiffHost` component
 
-A full panel and overlay need orchestration. This package owns none of it: not
-the current diff, not whether a comparison is on, not the fetch for an entity's
-diff, not the way a block resolves to its rendered element. A library must stay
-out of a host's store, and it must not claim the field-wrapper name the Druxt
-cascade resolves, because two libraries claiming that name collide and the
-loser does not render.
+The orchestration of a diff on a rendered page, so a site does not write its
+own. Where the diff comes from is the host's business, whether that is a
+backend's revision comparison or an edit staged in the browser. The component
+takes the diff and a way to find the element rendering an entity, and does
+the rest:
 
-Instead the host provides an adapter, and a feature that needs a method it does
-not have is simply absent, never broken:
+- waits for the changed blocks to render (text, or an element, because an
+  image block never has any text), with a cap;
+- marks each changed, added or moved block in place with a `data-diff`
+  attribute and includes the rule that draws it in the margin, on custom
+  properties (`--druxt-diff-changed`, `-added`, `-moved`, `-removed`,
+  `-card`, `-card-border`, `-moved-label`) a site can restate;
+- places a marker beside the block each removed block sat next to, or after
+  the last block still on the page when it has no neighbour, or at
+  `fallback` when nothing of the page rendered; the marker opens to a card of
+  `DiffField`s;
+- draws `DiffMinimap`, and re-marks when the diff or the viewport changes;
+- provides itself as `druxtDiff` for the `diffable` mixin below.
 
-| Method              | Returns / does                              |
-| ------------------- | ------------------------------------------- |
-| `getDiff()`         | the current `normaliseDiff` result, or null |
-| `isComparing()`     | whether a comparison is active              |
-| `fetchDiff(entity)` | fetch a `jsonapi_diff` document and set it  |
-| `findBlock(uuid)`   | the block for a rendered entity id          |
+```vue
+<DruxtDiffHost :document="diff" :active="comparing" :labels="{ removed: 'Not in this revision' }" />
+```
 
-This mirrors ICE's adapter/feature negotiation: declare `findBlock` (and the
-rest) as adapter methods, and the diff controls gate themselves through the same
-mechanism as every other capability. A standalone consumer passes an object with
-those methods and nothing else.
+| Prop        | Default                        | What it is                                                                 |
+| ----------- | ------------------------------ | -------------------------------------------------------------------------- |
+| `document`  | `null`                         | a `jsonapi_diff` document, or a view from `normaliseDiff()`; null for none |
+| `active`    | `true`                         | off, the page is left as rendered                                          |
+| `resolve`   | the `data-druxt-entity` anchor | `(uuid, block) => Element \| null`                                         |
+| `side`      | `'right'`                      | the side the page renders, for the minimap                                 |
+| `labels`    | `{}`                           | `removed`, `minimap`, `empty`                                              |
+| `minimap`   | `true`                         | whether to draw the rail                                                   |
+| `container` | the window                     | the scrolling element the minimap measures against                         |
+| `fallback`  | `null`                         | where a removed block with no neighbour goes on an empty page              |
+| `wait`      | `6000`                         | ms to wait for the changed blocks to render                                |
+| `settle`    | `250`                          | ms after the view is in before marking, so layout has settled              |
+
+Events: `view` with the view once the page is ready (null when cleared), and
+`marked` with `{ marked, removed }` counts after each pass. A document whose
+`meta.staged` is true names the draft in the removed label (`Removed in this
+draft`) unless `labels.removed` says otherwise. The default slot receives
+`{ view, removed }`.
+
+The lib behind it is exported for a host that uses the arithmetic without the
+component: `viewOf`, `anchorsOf`, `blockFor`, `elementFor`, `rendered`,
+`waitRendered`, `groupRemoved`, `resolveAnchor`.
+
+## `diffable` mixin
+
+A field wrapper's own diff, from the host above it. The wrapper reads its block
+through the injected host and hands a field's `{ left, right }` to `v-diff` or
+`DiffField`, so a field renders its diff as its own output and nothing is
+painted over markup Vue may redraw.
+
+```vue
+<template>
+  <div :data-druxt-entity="entity.id" v-diff="fieldDiff('field_text')">
+    <slot />
+  </div>
+</template>
+
+<script>
+import { diffable } from '@druxt-contrib/diff'
+export default { mixins: [diffable], props: { entity: Object } }
+</script>
+```
+
+`diffUuid` reads `entity.id` or `resource.id`; a wrapper that names its entity
+another way overrides it. `fieldDiff(name)` is null unless the host is active
+and this block's content changed, and a wrapper rendered outside any host
+behaves as if no diff existed.
+
+A host with its own store can skip the component and provide an object with
+`blockFor(uuid, status)` under the `druxtDiff` key; the mixin asks for nothing
+else.
 
 ## Anchors
 
