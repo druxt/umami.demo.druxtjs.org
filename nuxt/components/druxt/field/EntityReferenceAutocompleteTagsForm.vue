@@ -49,6 +49,7 @@
 </template>
 
 <script>
+import { DrupalJsonApiParams } from 'drupal-jsonapi-params'
 import formField from '~/utils/form-field'
 import { langMixin } from '~/utils/lang'
 import {
@@ -126,22 +127,17 @@ export default {
         return
       }
       const { operator, limit } = matchSettings(this.schema)
-      const [entity, bundle] = this.type.split('--')
-      const params = new URLSearchParams({
-        'filter[name][operator]': operator,
-        'filter[name][value]': q,
-        'page[limit]': String(limit),
-        [`fields[${this.type}]`]: 'name',
-        sort: 'name',
-      })
-      const url = `${this.prefix}/jsonapi/${entity}/${bundle}?${params}`
+      const query = new DrupalJsonApiParams()
+        .addFilter('name', q, operator)
+        .addPageLimit(limit)
+        .addFields(this.type, ['name'])
+        .addSort('name')
       try {
-        const response = await this.$druxt.get(url)
+        const { data } =
+          (await this.$druxt.getCollection(this.type, query, this.lang)) || {}
         if (this.query.trim() !== q) return
         const taken = this.items.map((o) => o.id)
-        this.suggestions = ((response || {}).data || {}).data
-          ? response.data.data.filter((o) => !taken.includes(o.id))
-          : (response.data || []).filter((o) => !taken.includes(o.id))
+        this.suggestions = (data || []).filter((o) => !taken.includes(o.id))
       } catch (e) {
         this.suggestions = []
       }

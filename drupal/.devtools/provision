@@ -65,6 +65,11 @@ chmod -R u+w web/sites/default 2>/dev/null || true
   --yes \
   --no-interaction
 
+# Rebuild before the modules install. On Lagoon, where a cache service
+# outlives the reinstall, the install once died on a layout plugin of the
+# umami theme "not existing": the discovery cache was the old site's.
+"$DRUSH" cache:rebuild
+
 echo "==> Enabling the Druxt layer"
 # druxt_umami depends on druxt, druxt_node_preview, jsonapi_hypermedia,
 # search_api_lunr, simple_oauth, gin_login and anonymous_redirect, so Drupal

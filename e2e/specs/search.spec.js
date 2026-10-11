@@ -33,6 +33,10 @@ test.describe('search', () => {
     const results = bar.locator('.searchbar__results a')
     await expect(results.first()).toBeVisible()
     await expect(results.first()).toContainText(/chili/i)
+    // The panel's teaser once collapsed to nothing: the row was there and
+    // its text was in the DOM, but the card had no size.
+    const box = await results.first().boundingBox()
+    expect(box.height).toBeGreaterThan(40)
     expect(index && index.status()).toBe(200)
     expect(index.headers()['content-type']).toContain('json')
     expect(errors).toEqual([])

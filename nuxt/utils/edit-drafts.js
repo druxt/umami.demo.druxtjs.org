@@ -1,7 +1,28 @@
-import {
-  changedFields,
-  withoutComputed,
-} from '@druxt-contrib/inline-content-edit'
+/** What Drupal computes from a value and never takes back: left out of a comparison. */
+const COMPUTED = ['processed']
+
+/** A field value without what Drupal computed from it. */
+export function withoutComputed(value) {
+  if (Array.isArray(value)) return value.map(withoutComputed)
+  if (!value || typeof value !== 'object') return value
+  const kept = {}
+  for (const [key, item] of Object.entries(value)) {
+    if (!COMPUTED.includes(key)) kept[key] = item
+  }
+  return kept
+}
+
+/** The fields whose value differs between two attribute sets, with the edited value. */
+export function changedFields(original = {}, edited = {}) {
+  const changed = {}
+  for (const [field, value] of Object.entries(edited)) {
+    const next = withoutComputed(value)
+    if (!same(withoutComputed(original[field]), next)) changed[field] = next
+  }
+  return changed
+}
+
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
 /** Where an editor's unsaved changes wait for the next visit. */
 export const DRAFTS_KEY = 'umamiDrafts'
@@ -25,8 +46,6 @@ export function writeDrafts(drafts) {
     // No storage: the draft lasts as long as the page does.
   }
 }
-
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
 /**
  * What the form changed: the fields that differ from the entity as Drupal

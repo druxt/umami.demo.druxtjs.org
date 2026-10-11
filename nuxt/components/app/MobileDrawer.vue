@@ -59,9 +59,10 @@
         <!-- The promo layer stays confined to blue. Moving these four links
              here is what lets the demo bar hold one row on a phone. -->
         <div class="drawer__druxt">
-          <span class="drawer__druxt-kicker">{{
-            $t('demoBar.builtWith')
-          }}</span>
+          <span class="drawer__druxt-kicker">
+            <AppDruxtLogo class="drawer__druxt-logo" />
+            {{ $t('demoBar.builtWith') }}
+          </span>
 
           <a
             v-for="link in links"
@@ -93,27 +94,23 @@
 
 <script>
 import { BIconX } from 'bootstrap-vue'
+import { demoMixin } from '~/utils/demo'
 import { langSwitchMixin } from '~/utils/lang'
 
 export default {
   components: { BIconX },
 
   // The language buttons: each one to that language's version of the page.
-  mixins: [langSwitchMixin],
+  mixins: [demoMixin, langSwitchMixin],
 
   fetchKey: 'lang-switch-drawer',
 
-  data: () => ({
-    focusSearch: false,
-    links: [
-      {
-        title: 'View source',
-        href: 'https://github.com/druxt/umami.demo.druxtjs.org',
-      },
-      { title: 'Docs', href: 'https://druxtjs.org' },
-      { title: 'Discord', href: 'https://discord.druxtjs.org' },
-    ],
-  }),
+  data: () => ({ focusSearch: false }),
+
+  computed: {
+    /** The Druxt links, from Drupal's config page. */
+    links: ({ demo }) => [demo.source, demo.docs, demo.discord],
+  },
 
   watch: {
     /** A link in the drawer opens a new page, which starts at the top. */

@@ -8,6 +8,7 @@
 use Drupal\consumers\Entity\Consumer;
 use Drupal\contact\Entity\ContactForm;
 use Drupal\Core\Field\Entity\BaseFieldOverride;
+use Drupal\config_pages\Entity\ConfigPages;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\simple_oauth\Entity\Oauth2Scope;
 use Drupal\purge_purger_http\Entity\HttpPurgerSettings;
@@ -35,10 +36,11 @@ function druxt_umami_install() {
   // JSON:API settings.
   \Drupal::service('config.factory')->getEditable('jsonapi.settings')->set('read_only', FALSE)->save();
 
-  // The edit form's editor reads each text format's toolbar and filters.
+  // The edit form's editor reads each text format's toolbar and filters, and
+  // the frontend reads the demo's share links from its config page.
   $druxt = \Drupal::service('config.factory')->getEditable('druxt.settings');
   $resources = $druxt->get('resources') ?: [];
-  foreach (['editor--editor', 'filter_format--filter_format'] as $resource) {
+  foreach (['editor--editor', 'filter_format--filter_format', 'config_pages--druxt_demo'] as $resource) {
     if (!in_array($resource, $resources, TRUE)) {
       $resources[] = $resource;
     }
@@ -242,6 +244,28 @@ function druxt_umami_install() {
       $menu_link->addTranslation('es', ['title' => $link['es']]);
     }
     $menu_link->save();
+  }
+
+  // The demo's share links and commands: one config page, edited at
+  // /admin/config/system/druxt-demo and read by the frontend over JSON:API,
+  // instead of the same URLs repeated through its components.
+  if (!ConfigPages::config('druxt_demo')) {
+    ConfigPages::create([
+      'type' => 'druxt_demo',
+      'label' => 'Druxt demo',
+      'context' => serialize([]),
+      'field_site_source' => ['uri' => 'https://github.com/druxt/umami.demo.druxtjs.org', 'title' => 'View source'],
+      'field_druxt_docs' => ['uri' => 'https://druxtjs.org', 'title' => 'Docs'],
+      'field_druxt_source' => ['uri' => 'https://github.com/druxt/druxt.js', 'title' => 'Druxt on GitHub'],
+      'field_druxt_module' => ['uri' => 'https://www.drupal.org/project/druxt', 'title' => 'Druxt on drupal.org'],
+      'field_discord' => ['uri' => 'https://discord.druxtjs.org', 'title' => 'Discord'],
+      'field_devpod' => ['uri' => 'https://devpod.sh/open#https://github.com/druxt/umami.demo.druxtjs.org', 'title' => 'Open in DevPod'],
+      'field_quickstart' => 'npx giget@1 gh:druxt/quickstart#develop my-druxt-site --install',
+      'field_twitter' => '@DruxtJS',
+    ])->save();
+  }
+  foreach ([RoleInterface::ANONYMOUS_ID, RoleInterface::AUTHENTICATED_ID] as $role_id) {
+    user_role_grant_permissions($role_id, ['view druxt_demo config page entity']);
   }
 
   // Druxt JSON:API resource access.

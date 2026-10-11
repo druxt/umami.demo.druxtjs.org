@@ -100,7 +100,11 @@ export default {
       const model = form.model
       const draft =
         this.$drafts && !saved
-          ? this.$drafts.draftFor(model.type, model.id)
+          ? this.$drafts.draftFor(
+              model.type,
+              model.id,
+              (model.attributes || {}).langcode || 'en'
+            )
           : null
       this.pristine = JSON.stringify(withoutDraft(model, draft))
     },
