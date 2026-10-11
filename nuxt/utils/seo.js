@@ -74,6 +74,8 @@ export function seoHead({
   title,
   description,
   image,
+  // A share card of the page's own, 1200x630 like the site's.
+  card,
   type = 'website',
   robots,
   graphs = [],
@@ -83,7 +85,9 @@ export function seoHead({
   const url = canonicalUrl(origin, path)
   const heading = title || SITE_TITLE[langcode]
   const summary = clampDescription(description || SITE_DESCRIPTION[langcode])
-  const shareImage = image ? absolute(origin, image) : origin + SITE_CARD
+  const shareImage = image
+    ? absolute(origin, image)
+    : absolute(origin, card || SITE_CARD)
   const shareTitle = title ? `${title} · ${SITE_NAME}` : heading
 
   return {
