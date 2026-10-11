@@ -1,10 +1,21 @@
 <?php
 
 /**
+ * @file
  * Install functions for the DruxtJS Umami module.
  */
 
 use Drupal\consumers\Entity\Consumer;
+use Drupal\contact\Entity\ContactForm;
+use Drupal\Core\Field\Entity\BaseFieldOverride;
+use Drupal\block\Entity\Block;
+use Drupal\block_content\Entity\BlockContent;
+use Drupal\media\Entity\Media;
+use Drupal\config_pages\Entity\ConfigPages;
+use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\simple_oauth\Entity\Oauth2Scope;
+use Drupal\purge_purger_http\Entity\HttpPurgerSettings;
+use Drupal\user\RoleInterface;
 
 /**
  * Implements hook_install().
@@ -28,6 +39,247 @@ function druxt_umami_install() {
   // JSON:API settings.
   \Drupal::service('config.factory')->getEditable('jsonapi.settings')->set('read_only', FALSE)->save();
 
+  // The edit form's editor reads each text format's toolbar and filters, and
+  // the frontend reads the demo's share links from its config page.
+  $druxt = \Drupal::service('config.factory')->getEditable('druxt.settings');
+  $resources = $druxt->get('resources') ?: [];
+  foreach (['editor--editor', 'filter_format--filter_format', 'config_pages--druxt_demo'] as $resource) {
+    if (!in_array($resource, $resources, TRUE)) {
+      $resources[] = $resource;
+    }
+  }
+  $druxt->set('resources', $resources)->save();
+
+  // Remove the taxonomy term view displays druxt_install() auto-creates.
+  //
+  // druxt_ensure_entity_view_displays() creates one per bundle so DruxtSchema
+  // always has a display to read. For a term that display holds only
+  // `description`, because a term's name is its label and its path is not a
+  // display component at all. DruxtEntity's schema-filtered query then asks
+  // for terms without `name` or `path`, so a tag reference renders as an empty
+  // badge linking to `/en` plus undefined, and every tag page stops being
+  // linked and so stops being generated. A site with no term display has no
+  // schema to filter by and works, which is why this never showed up before.
+  //
+  // Workaround, not a fix. The fix belongs upstream in the schema-filtered
+  // query, which should always carry the entity's label and path.
+  $displays = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+  foreach ($displays->loadByProperties(['targetEntityType' => 'taxonomy_term']) as $display) {
+    $display->delete();
+  }
+
+  // Skip the two recipes the banner already shows.
+  //
+  // The promoted_items attachment and the frontpage grid both list promoted
+  // recipes newest first. Since Drupal 11 (core #3399970) every demo node has
+  // its own created date, so the grid's first two cards repeat the banner.
+  $view = \Drupal::entityTypeManager()->getStorage('view')->load('frontpage');
+  $display = &$view->getDisplay('default');
+  $display['display_options']['pager']['options']['offset'] = 2;
+  $view->save();
+
+  // Card and teaser displays ship with an image and a title and nothing else,
+  // so every card in the frontend renders as a bare headline: no category
+  // kicker, no difficulty badge, no cooking time, no standfirst. The frontend
+  // has a component per field for all of them. Put the fields on the displays
+  // that feed the cards.
+  $image = [
+    'type' => 'entity_reference_entity_view',
+    'label' => 'hidden',
+    'settings' => ['view_mode' => 'medium_3_2_2x'],
+    'weight' => -10,
+  ];
+  $displays = [
+    'node.recipe.card' => [
+      'field_media_image' => $image,
+      'field_recipe_category' => ['type' => 'entity_reference_label', 'label' => 'hidden', 'settings' => ['link' => FALSE], 'weight' => -5],
+      'field_difficulty' => ['type' => 'list_default', 'label' => 'hidden', 'weight' => 5],
+      'field_cooking_time' => ['type' => 'number_integer', 'label' => 'hidden', 'weight' => 6],
+    ],
+    'node.article.card' => [
+      'field_media_image' => $image,
+      'field_tags' => ['type' => 'entity_reference_label', 'label' => 'hidden', 'settings' => ['link' => FALSE], 'weight' => -5],
+      'field_body' => ['type' => 'text_summary_or_trimmed', 'label' => 'hidden', 'settings' => ['trim_length' => 130], 'weight' => 5],
+    ],
+    'node.recipe.teaser' => [
+      'field_media_image' => $image,
+    ],
+  ];
+
+  $storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+  foreach ($displays as $id => $components) {
+    $display = $storage->load($id);
+    if (!$display) {
+      continue;
+    }
+    foreach ($components as $field => $options) {
+      $display->setComponent($field, $options);
+    }
+    $display->save();
+  }
+
+  // The node templates set their own headings, so Drupal's field labels
+  // would print twice. The route renders the default display.
+  foreach (['node.recipe.default', 'node.recipe.full', 'node.article.default', 'node.article.full'] as $id) {
+    $display = $storage->load($id);
+    if (!$display) {
+      continue;
+    }
+    foreach (array_keys($display->getComponents()) as $field) {
+      $options = $display->getComponent($field);
+      $options['label'] = 'hidden';
+      $display->setComponent($field, $options);
+    }
+    $display->save();
+  }
+
+  // The contact module ships the personal form only, and its site-wide form
+  // setting points at a `feedback` form that no profile here creates, so
+  // /contact fatals and every link to it is filtered out as inaccessible.
+  if (!ContactForm::load('feedback')) {
+    ContactForm::create([
+      'id' => 'feedback',
+      'label' => 'Website feedback',
+      'recipients' => ['hello@druxtjs.org'],
+      'message' => 'Your message has been sent.',
+      'reply' => '',
+      'weight' => 0,
+    ])->save();
+  }
+  // The footer's base line, worded as the design has it.
+  $blocks = \Drupal::entityTypeManager()
+    ->getStorage('block_content')
+    ->loadByProperties(['type' => 'disclaimer_block']);
+  foreach ($blocks as $block) {
+    $block->set('field_copyright', [
+      'value' => '&copy; ' . date('Y') . ' Umami Publications &middot; Terms &amp; Conditions',
+      'format' => 'basic_html',
+    ])->save();
+  }
+
+  // The demo's contact form says no email is sent. Core's test collector
+  // keeps each message in state instead of handing it to a mail server.
+  \Drupal::configFactory()
+    ->getEditable('system.mail')
+    ->set('interface.default', 'test_mail_collector')
+    ->save();
+  user_role_grant_permissions(RoleInterface::ANONYMOUS_ID, ['access site-wide contact form']);
+  user_role_grant_permissions(RoleInterface::AUTHENTICATED_ID, ['access site-wide contact form']);
+
+  // DruxtEntityForm builds itself from the form display, and a form created
+  // in code has none, so the contact page rendered as two bare buttons.
+  $form_display = \Drupal::entityTypeManager()
+    ->getStorage('entity_form_display')
+    ->load('contact_message.feedback.default');
+  if (!$form_display) {
+    $form_display = \Drupal::entityTypeManager()
+      ->getStorage('entity_form_display')
+      ->create([
+        'targetEntityType' => 'contact_message',
+        'bundle' => 'feedback',
+        'mode' => 'default',
+        'status' => TRUE,
+      ]);
+    $weight = 0;
+    foreach (['name' => 'string_textfield', 'mail' => 'email_default', 'subject' => 'string_textfield', 'message' => 'string_textarea', 'copy' => 'boolean_checkbox'] as $field => $type) {
+      $form_display->setComponent($field, ['type' => $type, 'weight' => $weight++]);
+    }
+    $form_display->save();
+  }
+
+  // A visitor submitting an article through the demo should not be able to
+  // publish it. The frontend's save button says "Save as unpublished", and
+  // this is what makes that true.
+  BaseFieldOverride::createFromBaseFieldDefinition(
+    \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('node')['status'],
+    'article'
+  )->setDefaultValue(FALSE)->save();
+
+  // Every card on the site is the same card. The profile ships three view
+  // modes for it (card, card_common, card_common_alt) which differ only in
+  // which fields somebody remembered to enable, and each one needs its own
+  // frontend component. Point the views that feed cards at `card`.
+  $rows = [
+    'frontpage' => ['default'],
+    'featured_articles' => ['default'],
+    'articles_aside' => ['default'],
+  ];
+  foreach ($rows as $view_id => $display_ids) {
+    $view = \Drupal::entityTypeManager()->getStorage('view')->load($view_id);
+    if (!$view) {
+      continue;
+    }
+    $display = $view->get('display');
+    foreach ($display_ids as $display_id) {
+      if (isset($display[$display_id]['display_options']['row']['options']['view_mode'])) {
+        $display[$display_id]['display_options']['row']['options']['view_mode'] = 'card';
+      }
+    }
+    $view->set('display', $display)->save();
+  }
+
+  // Menu links for the pages the frontend already renders.
+  //
+  // demo_umami ships the About page and the contact form, but links to
+  // neither: the main menu is three view routes and the footer menu is empty,
+  // so the footer's Magazine column had nothing to list.
+  $links = [
+    // Articles is 20 and Recipes is 30 in the view's own menu settings, so
+    // these sit after them. Play is the frontend's own page, not Drupal's.
+    ['title' => 'Play', 'es' => 'Jugar', 'uri' => 'internal:/play', 'menu' => 'main', 'weight' => 35],
+    ['title' => 'About', 'es' => 'Acerca de', 'uri' => 'internal:/about-umami', 'menu' => 'main', 'weight' => 40],
+    ['title' => 'Contact', 'es' => 'Contacto', 'uri' => 'internal:/contact', 'menu' => 'main', 'weight' => 41],
+    ['title' => 'Home', 'es' => 'Inicio', 'uri' => 'internal:/', 'menu' => 'footer', 'weight' => 0],
+    ['title' => 'Articles', 'es' => 'Artículos', 'uri' => 'internal:/articles', 'menu' => 'footer', 'weight' => 1],
+    ['title' => 'Recipes', 'es' => 'Recetas', 'uri' => 'internal:/recipes', 'menu' => 'footer', 'weight' => 2],
+    ['title' => 'About', 'es' => 'Acerca de', 'uri' => 'internal:/about-umami', 'menu' => 'footer', 'weight' => 3],
+    ['title' => 'Contact', 'es' => 'Contacto', 'uri' => 'internal:/contact', 'menu' => 'footer', 'weight' => 4],
+  ];
+  foreach ($links as $link) {
+    $menu_link = MenuLinkContent::create([
+      'title' => $link['title'],
+      'link' => ['uri' => $link['uri']],
+      'menu_name' => $link['menu'],
+      'weight' => $link['weight'],
+      'expanded' => TRUE,
+    ]);
+    // Umami translates its own menu links; these read the same in Spanish.
+    if (!empty($link['es'])) {
+      $menu_link->addTranslation('es', ['title' => $link['es']]);
+    }
+    $menu_link->save();
+  }
+
+  // The demo's share links and commands: one config page, edited at
+  // /admin/config/system/druxt-demo and read by the frontend over JSON:API,
+  // instead of the same URLs repeated through its components.
+  if (!ConfigPages::config('druxt_demo')) {
+    ConfigPages::create([
+      'type' => 'druxt_demo',
+      'label' => 'Druxt demo',
+      'context' => serialize([]),
+      'field_site_source' => ['uri' => 'https://github.com/druxt/umami.demo.druxtjs.org', 'title' => 'View source'],
+      'field_druxt_docs' => ['uri' => 'https://druxtjs.org', 'title' => 'Docs'],
+      'field_druxt_source' => ['uri' => 'https://github.com/druxt/druxt.js', 'title' => 'Druxt on GitHub'],
+      'field_druxt_module' => ['uri' => 'https://www.drupal.org/project/druxt', 'title' => 'Druxt on drupal.org'],
+      'field_discord' => ['uri' => 'https://discord.druxtjs.org', 'title' => 'Discord'],
+      'field_devpod' => ['uri' => 'https://devpod.sh/open#https://github.com/druxt/umami.demo.druxtjs.org', 'title' => 'Open in DevPod'],
+      'field_quickstart' => 'npx giget@1 gh:druxt/quickstart#develop my-druxt-site --install',
+      'field_twitter' => '@DruxtJS',
+    ])->save();
+  }
+  foreach ([RoleInterface::ANONYMOUS_ID, RoleInterface::AUTHENTICATED_ID] as $role_id) {
+    user_role_grant_permissions($role_id, ['view druxt_demo config page entity']);
+  }
+
+  // Druxt JSON:API resource access.
+  // druxt_entity_access() gates view--view, menu--menu and the display config
+  // the frontend builds its components from on this permission, so without it
+  // an anonymous DruxtView cannot read the view it is rendering.
+  foreach ([RoleInterface::ANONYMOUS_ID, RoleInterface::AUTHENTICATED_ID] as $role_id) {
+    user_role_grant_permissions($role_id, ['access druxt resources']);
+  }
+
   // Simple Oauth settings.
   \Drupal::service('config.factory')
     ->getEditable('simple_oauth.settings')
@@ -36,17 +288,147 @@ function druxt_umami_install() {
     ->set('use_implicit', TRUE)
     ->save();
 
+  // Simple OAuth 6 refuses every grant until a scope exists that the request
+  // can resolve. One scope, the authenticated role, for both flows. Simple
+  // OAuth was installed in this same batch, so its entity type is not in the
+  // cached definitions yet.
+  \Drupal::entityTypeManager()->clearCachedDefinitions();
+  if (!Oauth2Scope::load('authenticated')) {
+    Oauth2Scope::create([
+      'id' => 'authenticated',
+      'name' => 'authenticated',
+      'description' => 'A signed-in account.',
+      'grant_types' => [
+        'authorization_code' => ['status' => TRUE, 'description' => ''],
+        'password' => ['status' => TRUE, 'description' => ''],
+        'refresh_token' => ['status' => TRUE, 'description' => ''],
+      ],
+      'umbrella' => FALSE,
+      'granularity_id' => 'role',
+      'granularity_configuration' => ['role' => RoleInterface::AUTHENTICATED_ID],
+    ])->save();
+  }
+
   // Create consumer client.
+  // Simple OAuth 6 resolves the client by the consumer's client_id field, not
+  // by its uuid the way Simple OAuth 5 did. An empty client_id matches nothing
+  // and every token request answers invalid_client.
+  // A public client with PKCE needs no secret, so the id can be a known one
+  // that the frontend and its server default to as well.
+  $client_id = getenv('OAUTH_CLIENT_ID') ?: 'umami_druxt';
   $consumer = Consumer::create([
     'owner_id'     => 1,
-    'uuid'         => getenv('OAUTH_CLIENT_ID') ?: \Drupal::service('uuid')->generate(),
+    'uuid'         => $client_id,
+    'client_id'    => $client_id,
     'label'        => 'Druxt',
     'description'  => "DruxtJS is a bridge between frameworks, Drupal in the back, Nuxt in the front.\n\nhttps://druxtjs.org",
     'confidential' => FALSE,
     'pkce'         => TRUE,
+    // Simple OAuth 6 gates every grant on this field, and an empty one means
+    // the token endpoint answers invalid_client for all of them. The site's
+    // own form uses the password grant; the authorization code flow stays
+    // for a browser that is sent to Drupal.
+    'grant_types'  => ['authorization_code', 'password', 'refresh_token'],
+    'scopes'       => [['scope_id' => 'authenticated']],
     'redirect'     => getenv('OAUTH_CALLBACK') ?: 'http://localhost:3000/callback',
     'image_styles' => [],
-    'roles'        => [],
   ]);
   $consumer->save();
+  // Drupal's responses may be cached for five minutes, and Druxt's cache
+  // takes its lifetime from them. At the default 0 nothing is cached.
+  // The page's URL picks the interface language, so configuration labels,
+  // such as the main menu's Home, Articles and Recipes, match the page. With
+  // the account's own preference first, a signed-in editor reads them in that
+  // language on every page. Drupal's admin screens keep the admin preference.
+  \Drupal::configFactory()
+    ->getEditable('language.types')
+    ->set('negotiation.language_interface.enabled', [
+      'language-user-admin' => -20,
+      'language-url' => -18,
+      'language-selected' => -15,
+    ])
+    ->save();
+
+  \Drupal::configFactory()
+    ->getEditable('system.performance')
+    ->set('cache.page.max_age', 300)
+    ->save();
+
+  _druxt_umami_front_carousel();
+
+  // Content changes send their cache tags through Purge to the frontend's
+  // Druxt cache clear endpoint, one request per batch, and the frontend
+  // rebuilds. all.settings.php sets the address and the secret.
+  $purger = 'druxt_frontend';
+  HttpPurgerSettings::load($purger)
+    ->set('name', 'Druxt frontend')
+    ->set('invalidationtype', 'tag')
+    ->set('hostname', 'app')
+    ->set('port', 3000)
+    ->set('path', '/_druxt/cache/clear')
+    ->set('request_method', 'POST')
+    ->set('scheme', 'http')
+    ->set('headers', [['field' => 'X-Druxt-Secret', 'value' => '']])
+    // The purged tags, comma separated, so open pages refresh only what
+    // they show of them.
+    ->set('body', '[invalidations:separated_comma]')
+    ->set('body_content_type', 'text/plain')
+    ->set('timeout', 3.0)
+    ->set('connect_timeout', 1.0)
+    ->set('max_requests', 100)
+    // A refused secret counts as a failure, so Purge keeps and retries it.
+    ->set('http_errors', TRUE)
+    ->save();
+  \Drupal::service('purge.purgers')->setPluginsEnabled([$purger => 'httpbundled']);
+  \Drupal::service('purge.queuers')->setPluginsEnabled(['coretags']);
+  \Drupal::service('purge.processors')->setPluginsEnabled([
+    'drush_purge_queue_work',
+    'drush_purge_invalidate',
+    'lateruntime',
+  ]);
+}
+
+/**
+ * Adds the Umami Go banner and puts the front page's banners in a carousel.
+ *
+ * The carousel is the front_carousel view's block, which lists every banner
+ * block by description, so "Umami Go Banner" comes before the home and recipes
+ * banners. It takes the home banner's place on the front page.
+ */
+function _druxt_umami_front_carousel(): void {
+  $source = \Drupal::service('extension.list.module')->getPath('druxt_umami') . '/assets/umami-go-banner.jpg';
+  $uri = \Drupal::service('file_system')->copy($source, 'public://umami-go-banner.jpg');
+  $file = \Drupal::entityTypeManager()->getStorage('file')->create(['uri' => $uri, 'status' => 1]);
+  $file->save();
+
+  $media = Media::create([
+    'bundle' => 'image',
+    'name' => 'Umami Go',
+    'field_media_image' => ['target_id' => $file->id(), 'alt' => ''],
+    'status' => 1,
+  ]);
+  $media->save();
+
+  $block = BlockContent::create([
+    'type' => 'banner_block',
+    'info' => 'Umami Go Banner',
+    'langcode' => 'en',
+    'reusable' => TRUE,
+    'field_title' => 'Umami Go',
+    'field_summary' => 'A card game for two to five, dealt from this magazine’s recipes. Pick a dish, pass your hand to the left, and plate the best menu over three rounds.',
+    'field_content_link' => ['uri' => 'internal:/play', 'title' => 'Play Umami Go'],
+    'field_media_image' => ['target_id' => $media->id()],
+  ]);
+  $block->save();
+  $block->addTranslation('es', [
+    'info' => 'Umami Go Banner',
+    'field_title' => 'Umami Go',
+    'field_summary' => 'Un juego de cartas para dos a cinco personas, repartido con las recetas de esta revista. Elige un plato, pasa tu mano a la izquierda y sirve el mejor menú en tres rondas.',
+    'field_content_link' => ['uri' => 'internal:/play', 'title' => 'Jugar a Umami Go'],
+    'field_media_image' => ['target_id' => $media->id()],
+  ])->save();
+
+  if ($home = Block::load('umami_banner_home')) {
+    $home->disable()->save();
+  }
 }

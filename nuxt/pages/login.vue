@@ -1,47 +1,49 @@
 <template>
-  <b-row>
-    <b-container>
-      <b-row class="mb-3">
-        <b-col>
-          <h1>Login</h1>
-        </b-col>
-      </b-row>
+  <div class="auth">
+    <span class="auth__kicker">{{ $t('login.kicker') }}</span>
+    <h1 class="auth__title">{{ $t('login.title') }}</h1>
+    <p class="auth__blurb">{{ $t('login.blurb') }}</p>
 
-      <b-row>
-        <b-col cols="12" sm="6" class="mb-3">
-          <b-card title="Contribute">
-            <p>Test Druxt content editing capabilities.</p>
-            <!-- <b-button
-              block
-              variant="success"
-              @click="$auth.loginWith('github')"
-            >
-              Login with Github
-            </b-button> -->
-          </b-card>
-        </b-col>
+    <AppSignInForm :destination="redirect" />
 
-        <b-col cols="12" sm="6">
-          <b-card title="Administer">
-            <p>Edit content with live Drupal backend.</p>
-            <!-- <b-button
-              block
-              variant="primary"
-              @click="$auth.loginWith('drupal')"
-            >
-              Login with Drupal
-            </b-button> -->
-          </b-card>
-        </b-col>
-      </b-row>
-    </b-container>
-  </b-row>
+    <AppDruxtNote file="pages/login.vue" :kicker="$t('note.howThisWorks')">
+      <i18n path="login.noteBody" tag="span">
+        <template #module><code>druxt-auth</code></template>
+      </i18n>
+    </AppDruxtNote>
+  </div>
 </template>
 
 <script>
+import { seoHead } from '~/utils/seo'
+import { langMixin } from '~/utils/lang'
 export default {
-  layout: 'plain',
-  // middleware: 'auth',
-  // auth: 'guest',
+  mixins: [langMixin],
+
+  head() {
+    return seoHead({
+      origin: this.$config.siteOrigin,
+      path: this.$route.path,
+      title: this.$t('login.title'),
+      robots: 'noindex, nofollow',
+    })
+  },
+
+  computed: {
+    /**
+     * Where to go afterwards: where the visitor came from, else home. Only a
+     * path on this site: `//host` or `/\\host` would leave it.
+     */
+    redirect: ({ $route, prefix }) => {
+      const to = String($route.query.redirect || '')
+      return /^\/(?![/\\])/.test(to) ? to : prefix
+    },
+  },
+
+  mounted() {
+    if (this.$auth && this.$auth.loggedIn) {
+      this.$router.replace(this.redirect)
+    }
+  },
 }
 </script>

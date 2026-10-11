@@ -1,5 +1,10 @@
 <template>
-  <component :is="wrapper.component" v-bind="wrapper.props">
+  <!-- A form field with no widget, such as a computed one, has nothing to edit. -->
+  <component
+    :is="wrapper.component"
+    v-if="!(isSchemaForm && !schema.type)"
+    v-bind="wrapper.props"
+  >
     <!-- Image fields. -->
     <template v-if="isSchemaView && isTypeImage">
       <DruxtEntity
@@ -7,8 +12,13 @@
         :key="id"
         v-bind="{ type, uuid: id }"
       >
+        <!-- A plain image with native lazy loading: it is in the page
+             before JavaScript runs, and the browser decides when to fetch. -->
         <template #default="{ entity }">
-          <b-card-img-lazy
+          <img
+            alt=""
+            class="card-img"
+            loading="lazy"
             :src="
               $config.baseUrl +
               entity.attributes.uri.value.replace(
@@ -41,9 +51,11 @@
       </b-button>
     </template>
 
-    <!-- Other View display fields. -->
+    <!-- Other View display fields. A div, because a text field's HTML holds
+         its own paragraphs, and a p inside a p is re-parsed by the browser
+         into markup the server never sent. -->
     <!-- eslint-disable-next-line -->
-    <p v-else-if="isSchemaView" v-html="html" />
+    <div v-else-if="isSchemaView" v-diff="textDiff(schema.id)" v-html="html" />
 
     <!-- Entity reference forms. -->
     <b-card v-else-if="relationship" class="mb-3" no-body>
@@ -53,7 +65,9 @@
         </b-button>
       </b-card-header>
       <b-collapse :id="`collapse-${schema.id}`">
-        <b-card-body v-if="Array.isArray(relationships) && relationships[0].type">
+        <b-card-body
+          v-if="Array.isArray(relationships) && relationships[0].type"
+        >
           <DruxtEntityForm
             v-for="{ type, id } of relationships"
             :key="id"
@@ -67,20 +81,33 @@
     <b-form-group
       v-else
       :id="schema.id"
+      :label-for="`${schema.id}-field`"
       :description="schema.description || ''"
       :invalid-feedback="stateFeedback"
       :label="label"
       :state="state"
     >
       <!-- Checkboxes -->
-      <b-form-checkbox v-if="isTypeCheckbox" v-model="model" v-bind="props" />
+      <b-form-checkbox
+        v-if="isTypeCheckbox"
+        :id="`${schema.id}-field`"
+        v-model="model"
+        v-bind="props"
+      />
 
       <!-- Input fields -->
-      <b-input v-else-if="isTypeInput" v-model="model" v-bind="props" />
+      <b-input
+        v-else-if="isTypeInput"
+        :id="`${schema.id}-field`"
+        v-model="model"
+        :type="inputType"
+        v-bind="props"
+      />
 
       <!-- Textarea -->
       <b-textarea
         v-else
+        :id="`${schema.id}-field`"
         v-model="model"
         v-bind="{
           rows: schema.settings.display.rows || undefined,
@@ -95,11 +122,12 @@
 import { BFormCheckbox } from 'bootstrap-vue'
 import { DruxtFieldMixin } from 'druxt-entity'
 import DruxtEntity from 'druxt-entity/dist/components/DruxtEntity.vue'
+import { draftDiffable } from '~/utils/draft-diff'
 
 export default {
   components: { BFormCheckbox, DruxtEntity },
 
-  mixins: [DruxtFieldMixin],
+  mixins: [draftDiffable, DruxtFieldMixin],
 
   data: ({ relationship, schema, value }) => ({
     model:
@@ -115,12 +143,17 @@ export default {
      * One size fits all HTML to render for View displays, with JSON.stringify() as a fallback.
      * @returns {string}
      */
-    html: ({ model }) =>
-      typeof model === 'string'
-        ? model
-        : (model || {}).value
-        ? model.value
-        : JSON.stringify(model),
+    html: ({ model }) => {
+      if (typeof model === 'string') return model
+      if (
+        model &&
+        typeof model === 'object' &&
+        ('processed' in model || 'value' in model)
+      ) {
+        return model.processed || model.value || ''
+      }
+      return model == null ? '' : JSON.stringify(model)
+    },
 
     isSchemaForm: ({ schema }) => schema.config.schemaType === 'form',
     isSchemaView: ({ schema }) => schema.config.schemaType === 'view',
@@ -128,7 +161,15 @@ export default {
     isTypeCheckbox: ({ schema }) => ['boolean_checkbox'].includes(schema.type),
     isTypeLink: ({ schema }) => ['link'].includes(schema.type),
     isTypeImage: ({ schema }) => ['responsive_image'].includes(schema.type),
-    isTypeInput: ({ schema }) => ['string_textfield'].includes(schema.type),
+    // Anything not listed here renders as a textarea, which is how the
+    // contact form's email field became a five-line box.
+    isTypeInput: ({ schema }) =>
+      ['email_default', 'string_textfield', 'telephone_default'].includes(
+        schema.type
+      ),
+    inputType: ({ schema }) =>
+      ({ email_default: 'email', telephone_default: 'tel' }[schema.type] ||
+      'text'),
 
     label: ({ schema }) =>
       ((string) => string.charAt(0).toUpperCase() + string.slice(1))(

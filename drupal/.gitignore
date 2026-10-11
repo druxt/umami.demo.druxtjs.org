@@ -13,6 +13,8 @@
 
 # Ingore files that are only for the current local environment
 /keys/*.key
+# Written alongside the keys by simple-oauth:generate-keys.
+/keys/.htaccess
 web/sites/*/settings.local.php
 web/sites/*/services.local.yml
 
@@ -25,3 +27,7 @@ web/sites/simpletest
 /.gitattributes
 .vscode/*
 !.vscode/launch.json
+
+# Ignore the Docker-free dev database and PHPUnit's cache
+/.devtools/db.sqlite*
+/.phpunit.cache/

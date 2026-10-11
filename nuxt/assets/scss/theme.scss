@@ -1,0 +1,6918 @@
+// Umami demo — editorial theme layer.
+//
+// Bootstrap 4.6 still arrives from the CDN (see nuxt.config.js head.link) and
+// bootstrap-vue keeps emitting its own class names; this file re-skins those
+// classes rather than replacing them. Druxt blue is reserved for .druxt-* only.
+//
+// Follow-up if you want variable-level theming: add bootstrap@4.6.2 + sass,
+// drop the CDN link and @import "bootstrap/scss/bootstrap" under these vars.
+
+// ---------------------------------------------------------------- tokens
+
+$paper: #fdfbf7;
+$paper-warm: #faf4ea;
+$paper-deep: #f6efe4;
+$paper-sand: #f4eee3; // the phone design's warm band ground
+$rule: #e6ddcd;
+$rule-strong: #e0d6c6;
+$rule-faint: #f0e7d8;
+
+$ink: #241f1a;
+$ink-soft: #55504a;
+$ink-muted: #6b625a;
+$ink-faint: #6f6454; // 5.40:1 on $paper, 4.97:1 on $paper-warm; was #776c5e at 4.44:1 on warm
+$ink-ghost: #6f6454; // 4.97:1 on $paper-warm, 5.40:1 on $paper
+$ink-ghost-dark: #b3a894; // for ghost text on the $ink band — 6.9:1
+
+$spice: #7d4a1a; // single editorial accent
+$spice-dark: #5f3813;
+$ember: #c9a880;
+$night: #3a2f24;
+
+// Promo layer only.
+$druxt-navy: #2f495e;
+$druxt-blue: #0678be; // solid fills only — behind white it is fine
+$druxt-blue-ink: #05619a; // 6.09:1 on $druxt-tint, for type on the tint
+$druxt-teal: #108775;
+$druxt-tint: #eff7fc;
+$druxt-line: #bfdff2;
+$druxt-code: #0f2233;
+
+$serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+$sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+$mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+// Bootstrap 4 breakpoints, which is what bootstrap-vue emits against.
+// Both header bars stick. The masthead offsets by exactly the demo bar's
+// height so the two stack rather than share a strip; both read this.
+$demo-bar-height: 40px;
+
+$bp-sm: 575.98px;
+$bp-md: 767.98px;
+$bp-lg: 991.98px;
+
+// Smallest comfortable touch target.
+$tap: 44px;
+
+// ---------------------------------------------------------------- base
+
+html {
+  font-family: $sans;
+  font-size: 16px;
+  word-spacing: normal; // the old layout added 1px and it hurt the serif
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  background: $paper;
+  color: $ink;
+  line-height: 1.6;
+  // A full-bleed band that overshoots by a pixel must not make the whole page
+  // drag sideways on a phone. clip, not hidden, so sticky headers still work.
+  overflow-x: clip;
+}
+
+// Drawers fit the visible viewport, not 100vh, which on iOS Safari runs under
+// the toolbar and leaves the last rows out of reach.
+.b-sidebar {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.b-sidebar-body {
+  overscroll-behavior: contain;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+// Nothing in this design is allowed to be wider than its column.
+img,
+video,
+pre,
+table {
+  max-width: 100%;
+}
+
+a {
+  color: $spice;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: $spice-dark;
+    text-decoration: underline;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+.card-title,
+.card-subtitle {
+  font-family: $serif;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1.15;
+  text-wrap: pretty;
+}
+
+// The middle term has to do real work below 900px, or the clamp is decorative
+// and every phone renders the floor: 4vw does not exceed 2.25rem until 900px.
+h1 {
+  font-size: clamp(2rem, 6vw, 3.25rem);
+  line-height: 1.06;
+}
+h2 {
+  font-size: clamp(1.625rem, 4.5vw, 2rem);
+}
+h3 {
+  font-size: clamp(1.4375rem, 3.5vw, 1.625rem);
+}
+h4 {
+  font-size: 1.25rem;
+}
+
+:focus-visible {
+  outline: 2px solid $druxt-blue;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Whatever is scrolled into view, by a focus, an anchor or a script, clears
+// the sticky demo bar and masthead: 40px and 60, 64 or 84px, plus a gap.
+html {
+  scroll-padding-top: calc(#{$demo-bar-height} + 76px);
+
+  @media (min-width: 768px) {
+    scroll-padding-top: calc(#{$demo-bar-height} + 80px);
+  }
+
+  @media (min-width: 992px) {
+    scroll-padding-top: calc(#{$demo-bar-height} + 100px);
+  }
+}
+
+// The masthead's wrapper is the sticky element: the navbar inside it could
+// only stick within the wrapper's own height, which scrolled away. The demo
+// bar is sticky at top: 0, so the masthead starts below it.
+.masthead-sticky {
+  position: sticky;
+  top: $demo-bar-height;
+  z-index: 1020;
+
+  .sticky-top {
+    margin: 0;
+    position: static;
+  }
+}
+
+// ---------------------------------------------------------------- bootstrap re-skin
+
+.bg-light {
+  background-color: $paper !important;
+}
+.bg-white {
+  background-color: $paper !important;
+}
+.bg-secondary {
+  background-color: $night !important;
+}
+.bg-dark {
+  background-color: $paper !important;
+  color: $ink !important;
+}
+
+.btn {
+  border-radius: 3px;
+  font-family: $sans;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.75rem 1.5rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-primary,
+.btn-danger {
+  background: $spice;
+  border-color: $spice;
+  color: #fff;
+
+  &:hover,
+  &:focus {
+    background: $spice-dark;
+    border-color: $spice-dark;
+  }
+}
+
+.btn-secondary,
+.btn-outline-secondary {
+  background: transparent;
+  border-color: $spice;
+  color: $spice;
+
+  &:hover,
+  &:focus {
+    background: $spice;
+    color: #fff;
+  }
+}
+
+.card {
+  background: $paper;
+  border: 1px solid $rule;
+  border-radius: 0;
+  box-shadow: none;
+
+  &.shadow {
+    box-shadow: 0 6px 20px rgba(36, 31, 26, 0.1) !important;
+  }
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+.card-title {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.card-img,
+.card-img-top {
+  border-radius: 0;
+}
+
+.badge {
+  border-radius: 3px;
+  font-family: $sans;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.3em 0.6em;
+  text-transform: uppercase;
+}
+
+.badge-pill {
+  border-radius: 999px;
+}
+.badge-info {
+  background: transparent;
+  border: 1px solid $rule-strong;
+  color: $ink-muted;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.badge-success {
+  background: #eaf1e6;
+  color: #3f6b3a;
+}
+.badge-warning {
+  background: #f7efe0;
+  color: #8a5a12;
+}
+.badge-danger {
+  background: #f8e9e6;
+  color: #8f2f22;
+}
+
+.breadcrumb {
+  background: transparent;
+  font-size: 0.8125rem;
+  flex-wrap: wrap;
+  padding: 0;
+  margin-bottom: 1.5rem;
+
+  .breadcrumb-item {
+    color: $ink-faint;
+
+    + .breadcrumb-item::before {
+      color: $ink-ghost;
+    }
+    a {
+      color: $ink-faint;
+    }
+    &.active {
+      color: $ink-soft;
+    }
+  }
+}
+
+.list-group-item {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid $rule-faint;
+  color: #40392f;
+  font-size: 0.9375rem;
+  padding: 0.6875rem 0;
+}
+
+.form-control,
+.custom-select {
+  background: #fff;
+  border: 1px solid $rule-strong;
+  border-radius: 4px;
+  color: $ink;
+  font-size: 0.875rem;
+  padding: 0.625rem 0.75rem;
+}
+
+// Bootstrap fixes a select's height for its own padding; with this padding
+// the height has to follow the text, or iOS clips it to the top half.
+.custom-select {
+  height: auto;
+  line-height: 1.5;
+}
+
+.form-control,
+.custom-select {
+  &:focus {
+    border-color: $spice;
+    box-shadow: none;
+  }
+}
+
+// iOS zooms the viewport when a focused field is under 16px.
+@media (max-width: $bp-md) {
+  .form-control,
+  .custom-select {
+    font-size: 1rem;
+  }
+}
+
+// Prose inside body/summary fields.
+.field--body,
+.field--field-summary {
+  p {
+    font-family: $serif;
+    font-size: 1.1875rem;
+    line-height: 1.75;
+    color: #332d26;
+  }
+  p + p {
+    margin-top: 1.25rem;
+  }
+  blockquote {
+    border-left: 3px solid $spice;
+    font-family: $serif;
+    font-size: 1.4375rem;
+    font-style: italic;
+    line-height: 1.5;
+    padding: 0.375rem 0 0.375rem 1.5rem;
+  }
+}
+
+// The masthead is in the re-pass section at the end of this file: the drawer
+// replaced the collapse, so its rules are one block rather than a desktop
+// block plus responsive overrides.
+
+// ---------------------------------------------------------------- editorial pieces
+
+.banner {
+  position: relative;
+  min-height: 460px;
+  overflow: hidden;
+
+  @media (max-width: $bp-lg) {
+    min-height: 380px;
+  }
+
+  &__media {
+    height: 100%;
+    left: 0;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  // Wide viewports put the text in the left third, so the scrim runs sideways.
+  // The responsive section swaps this for a vertical one — see below.
+  &__scrim {
+    inset: 0;
+    position: absolute;
+    background: linear-gradient(
+      90deg,
+      rgba(28, 20, 14, 0.72) 0%,
+      rgba(28, 20, 14, 0.45) 46%,
+      rgba(28, 20, 14, 0) 72%
+    );
+  }
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.125rem;
+    justify-content: center;
+    max-width: 560px;
+    min-height: 460px;
+    padding: 3rem 0 3rem 2rem;
+    position: relative;
+  }
+  &__kicker {
+    color: #e8b98f;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  &__title {
+    color: #fff;
+    font-size: clamp(1.9rem, 6.5vw, 3.25rem);
+    margin: 0;
+  }
+  &__summary {
+    color: #efe4d6;
+    font-size: 1.03125rem;
+    margin: 0;
+    max-width: 440px;
+
+    // The tablet's narrow container would run it into the image's right
+    // half, where the Umami Go banner draws its cards.
+    @media (max-width: $bp-lg) {
+      max-width: 300px;
+    }
+  }
+  &__meta {
+    color: #d8c8b4;
+    font-size: 0.84375rem;
+  }
+}
+
+// The front page's banners, one at a time: Drupal's front_carousel view.
+// Spec: "Umami Front Carousel.dc.html" in the Umami demo design project.
+//
+// The slides share one grid cell and cross-fade. The photograph settles from
+// a slight zoom and the words rise in after it. The bars and arrows are a
+// layer of their own over the slides, and every slide's words stand on the
+// same line at its foot, so nothing on screen moves but the slide. It loops
+// and never moves on its own.
+$carousel-btn: 13.5rem; // every slide's button, so the arrows keep their place
+$carousel-foot: 3.5rem; // from the slide's foot to its button
+
+.carousel {
+  position: relative;
+
+  &__track {
+    display: grid;
+  }
+
+  &__slide {
+    grid-area: 1 / 1;
+    opacity: 0;
+    transition: opacity 600ms ease, visibility 0s linear 600ms;
+    visibility: hidden;
+
+    .banner__media {
+      transform: scale(1.04);
+      transition: transform 1200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+
+    .banner__body > * {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 400ms ease,
+        transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+  }
+
+  &__slide--on {
+    opacity: 1;
+    transition: opacity 600ms ease, visibility 0s;
+    visibility: visible;
+    z-index: 1;
+
+    .banner__media {
+      transform: none;
+    }
+
+    .banner__body > * {
+      opacity: 1;
+      transform: none;
+
+      @for $i from 1 through 4 {
+        &:nth-child(#{$i}) {
+          transition-delay: #{120 + 60 * $i}ms;
+        }
+      }
+    }
+  }
+
+  // Every slide fills the cell the tallest one sets, and its words stand on
+  // the cell's foot, below the bars, so every button lands on one line.
+  &__slide,
+  &__slide > div,
+  .banner,
+  .banner > .container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__slide > div,
+  .banner,
+  .banner > .container,
+  .banner__body {
+    flex: 1 1 auto;
+  }
+
+  .banner__body {
+    justify-content: flex-end;
+    padding-bottom: $carousel-foot;
+    padding-top: 5rem;
+  }
+
+  .banner .btn {
+    min-width: $carousel-btn;
+  }
+
+  &__controls {
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 2;
+  }
+
+  &__frame {
+    height: 100%;
+    position: relative;
+  }
+
+  &__bars,
+  &__nav {
+    align-items: center;
+    display: flex;
+    pointer-events: auto;
+    position: absolute;
+  }
+
+  &__bars {
+    gap: 6px;
+    left: calc(15px + 2rem);
+    top: 2rem;
+  }
+
+  &__bar {
+    align-items: center;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    display: flex;
+    height: 44px;
+    padding: 0;
+    width: 40px;
+
+    span {
+      background: rgba(253, 251, 247, 0.38);
+      display: block;
+      height: 3px;
+      transition: background-color 300ms ease;
+      width: 100%;
+    }
+  }
+
+  &__bar--on span {
+    background: #e8b98f;
+  }
+
+  &__nav {
+    bottom: calc(#{$carousel-foot} + 4px);
+    gap: 8px;
+    left: calc(15px + 2rem + #{$carousel-btn} + 1.75rem);
+  }
+
+  &__arrow {
+    align-items: center;
+    background: transparent;
+    border: 1.5px solid rgba(253, 251, 247, 0.7);
+    color: $paper;
+    display: flex;
+    font-size: 1.125rem;
+    height: 44px;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    transition: background-color 200ms ease, color 200ms ease;
+    width: 44px;
+
+    &:hover {
+      background: $paper;
+      border-color: $paper;
+      color: #241f1a;
+    }
+  }
+
+  &__bar:focus-visible,
+  &__arrow:focus-visible {
+    outline: 2px solid #e8b98f;
+    outline-offset: 3px;
+  }
+
+  &__count {
+    color: #efe4d6;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    margin-left: 4px;
+  }
+
+  // Below md the button spans the slide, and swipe and the bars move it.
+  @media (max-width: $bp-md) {
+    // The banner's own foot, with the button set off from the headline.
+    .banner__body {
+      padding-bottom: 1.25rem;
+      padding-top: 4rem;
+
+      > :last-child {
+        margin-top: 0.5rem;
+      }
+    }
+
+    .banner .btn {
+      min-width: 0;
+    }
+
+    &__bars {
+      left: 15px;
+      top: 0.75rem;
+    }
+
+    &__nav {
+      display: none;
+    }
+  }
+
+  // Reduced motion: the slides swap with a short fade, and nothing moves.
+  @media (prefers-reduced-motion: reduce) {
+    &__slide {
+      transition: opacity 120ms ease, visibility 0s linear 120ms;
+    }
+
+    &__slide--on {
+      transition: opacity 120ms ease, visibility 0s;
+    }
+
+    &__slide .banner__media,
+    &__slide .banner__body > * {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}
+
+.section {
+  padding: 4.5rem 0;
+
+  &--warm {
+    background: $paper-warm;
+    border-top: 1px solid $rule-faint;
+  }
+  &__head {
+    align-items: flex-end;
+    display: flex;
+    gap: 2rem;
+    justify-content: space-between;
+    margin-bottom: 2.125rem;
+  }
+  &__lede {
+    color: $ink-muted;
+    font-size: 0.9375rem;
+    margin: 0;
+  }
+}
+
+.recipe-card .kicker {
+  color: $spice;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+
+  // The category renders as a badge elsewhere; here it is a line of type.
+  .badge {
+    background: none;
+    border: 0;
+    color: inherit;
+    font-size: inherit;
+    letter-spacing: inherit;
+    padding: 0;
+  }
+
+  a {
+    color: inherit;
+  }
+}
+
+.kicker {
+  color: $spice;
+  font-size: 0.65625rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.recipe-card {
+  background: $paper;
+  border: 1px solid $rule;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+
+  // The image arrives through b-card-img-lazy, which starts as a 1px
+  // placeholder: without a reserved box the card collapses to its title until
+  // the real file loads.
+  img {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  &:hover {
+    border-color: $ember;
+    transform: translateY(-2px);
+  }
+  &__media {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  // NB: this block must never share a selector list with .banner__body. The
+  // card body is sized by its content; only the banner reserves height.
+  &__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.6875rem;
+    padding: 1.125rem;
+  }
+  &__kicker {
+    color: $spice;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  &__title {
+    font-size: 1.1875rem;
+    margin: 0;
+  }
+  &__meta {
+    color: $ink-faint;
+    font-size: 0.8125rem;
+    margin: auto 0 0;
+  }
+
+  // An article's standfirst sits where a recipe's meta row would.
+  &__summary {
+    color: $ink-muted;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+}
+
+// Four labelled numbers on one strip: two across on a phone, four from md.
+.stat-grid {
+  border-bottom: 1px solid $rule;
+  border-top: 1px solid $rule;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  &__cell {
+    border-right: 1px solid $rule;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 12px 16px;
+
+    @media (min-width: 768px) {
+      padding: 14px 24px;
+    }
+    @media (min-width: 992px) {
+      gap: 4px;
+      padding: 18px 32px;
+    }
+
+    // No rule on the strip's own edge.
+    &:nth-child(2n) {
+      border-right: 0;
+    }
+    @media (max-width: $bp-md) {
+      &:nth-child(-n + 2) {
+        border-bottom: 1px solid $rule;
+      }
+    }
+    @media (min-width: 768px) {
+      &:nth-child(2n) {
+        border-right: 1px solid $rule;
+      }
+      &:last-child {
+        border-right: 0;
+      }
+    }
+  }
+  &__label {
+    color: $ink-ghost;
+    font-size: 0.59375rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    margin: 0;
+    text-transform: uppercase;
+
+    @media (min-width: 992px) {
+      font-size: 0.625rem;
+    }
+  }
+  &__value {
+    font-size: 0.90625rem;
+    line-height: 1.3;
+    margin: 0;
+
+    @media (min-width: 768px) {
+      font-size: 0.9375rem;
+    }
+    @media (min-width: 992px) {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Numbered steps: a serif numeral in spice beside the text.
+.method-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  @media (min-width: 768px) {
+    gap: 14px;
+  }
+  @media (min-width: 992px) {
+    gap: 18px;
+  }
+}
+.method-step {
+  display: flex;
+  gap: 12px;
+
+  @media (min-width: 768px) {
+    gap: 14px;
+  }
+  @media (min-width: 992px) {
+    gap: 18px;
+  }
+
+  &__n {
+    color: $spice;
+    flex-shrink: 0;
+    font-family: $serif;
+    font-size: 1.375rem;
+    line-height: 1.2;
+    min-width: 0.75em;
+
+    @media (min-width: 768px) {
+      font-size: 1.5rem;
+    }
+    @media (min-width: 992px) {
+      font-size: 1.75rem;
+      line-height: 1.15;
+    }
+  }
+  &__text {
+    color: #3a342d;
+    font-size: 0.90625rem;
+    line-height: 1.65;
+
+    @media (min-width: 768px) {
+      font-size: 0.9375rem;
+      line-height: 1.7;
+    }
+    @media (min-width: 992px) {
+      font-size: 1rem;
+      line-height: 1.75;
+    }
+  }
+}
+
+// The method's prose around its steps, set like the steps' own text.
+.method-prose {
+  color: #3a342d;
+  font-size: 0.90625rem;
+  line-height: 1.65;
+  margin-block: 1rem;
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+  }
+  @media (min-width: 992px) {
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-block: 1.5rem;
+  }
+}
+
+// The band owns the ground now (`band band--warm`), so these pills sit on
+// paper: the cream-on-night colours left the labels invisible.
+.collections {
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: flex-end;
+  }
+  &__link {
+    align-items: center;
+    border: 1px solid $rule-strong;
+    border-radius: 999px;
+    color: $ink-soft;
+    display: flex;
+    font-size: 0.875rem;
+    min-height: $tap;
+    padding: 0 1.125rem;
+    &:hover {
+      background: $ink;
+      border-color: $ink;
+      color: $paper;
+      text-decoration: none;
+    }
+  }
+}
+
+// ------------------------------------------------------- recipes filter bar
+
+.recipe-filters {
+  align-items: center;
+  background: $paper-warm;
+  border-bottom: 1px solid $rule;
+  border-top: 1px solid $rule;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.625rem;
+  margin-bottom: 1.5rem;
+  padding: 0.875rem 1rem;
+
+  &__group {
+    align-items: center;
+    display: flex;
+    gap: 0.5625rem;
+  }
+
+  &__field {
+    max-width: 230px;
+  }
+
+  // The sort control and its count read as one line.
+  &__row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5625rem 1rem;
+  }
+
+  &__count {
+    color: $druxt-blue-ink;
+    font-family: $mono;
+    font-size: 0.75rem;
+  }
+
+  .btn-sm {
+    border-radius: 999px;
+    padding: 0.375rem 0.875rem;
+  }
+}
+
+// ---------------------------------------------------------------- promo layer
+
+.druxt-note {
+  background: $druxt-tint;
+  border: 1px solid $druxt-line;
+  border-radius: 8px;
+  padding: 1.625rem 1.875rem;
+
+  &__kicker {
+    color: $druxt-blue-ink;
+    font-size: 0.65625rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  &__title {
+    color: $druxt-navy;
+    font-family: $sans;
+    font-size: 1.1875rem;
+    font-weight: 600;
+    margin: 0.5rem 0 0;
+  }
+  &__body {
+    color: #3c5566;
+    font-size: 0.90625rem;
+    margin: 0.5rem 0 0;
+    max-width: 60ch;
+
+    code {
+      color: $druxt-blue-ink;
+    }
+  }
+  &__link {
+    color: $druxt-blue-ink;
+    font-size: 0.84375rem;
+    font-weight: 600;
+  }
+
+  &__file {
+    color: $druxt-blue-ink;
+    font-family: $mono;
+    font-size: 0.75rem;
+  }
+}
+
+.druxt-code {
+  background: $druxt-code;
+  border-radius: 6px;
+  color: #cfe0ec;
+  font-family: $mono;
+  font-size: 0.78125rem;
+  line-height: 1.75;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 1.125rem 1.25rem;
+  white-space: pre;
+
+  .t {
+    color: #7fb3d5;
+  }
+  .a {
+    color: #9fd2a0;
+  }
+  .v {
+    color: #e8b98f;
+  }
+  // Beside a note's prose: as tall as the card, the sample centred in it.
+  &--fill {
+    align-items: flex-start;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+.druxt-cta {
+  background: $druxt-navy;
+  color: #fff;
+  padding: 3.5rem 0;
+
+  h2,
+  h3 {
+    color: #fff;
+  }
+  p {
+    color: #cfe0ec;
+  }
+
+  &__kicker {
+    color: #8fbfe0;
+    font-size: 0.65625rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  &__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    a {
+      color: #8fbfe0;
+    }
+  }
+
+  // `npx create-druxt-app@latest` in mono plus a button is wider than a small
+  // phone, so the row wraps and the string is allowed to break.
+  &__devpod {
+    color: #cfe0ec;
+    font-size: 0.78125rem;
+
+    a {
+      color: #a8c2d6;
+      text-decoration: underline;
+    }
+  }
+
+  &__command {
+    align-items: center;
+    background: $druxt-code;
+    border: 1px solid #3f5f78;
+    border-radius: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    font-family: $mono;
+    font-size: 0.84375rem;
+    gap: 0.5rem 1rem;
+    justify-content: space-between;
+    padding: 1rem 1.125rem;
+
+    > span {
+      overflow-wrap: anywhere;
+    }
+
+    .prompt {
+      color: #9fd2a0;
+    }
+
+    // The copy button, as druxtjs.org draws it over a code block: a shade
+    // lighter than the block, lighter again under the pointer, and green
+    // once it has copied. Wide enough for the longer label, so the swap to
+    // "Copied" moves nothing.
+    button {
+      background: #223443; // $druxt-code lifted 8% towards white
+      border: 1px solid rgb(255 255 255 / 0.15);
+      border-radius: 6px;
+      color: rgb(229 236 241 / 0.85);
+      font-size: 0.6875rem;
+      font-weight: 500;
+      line-height: 1.5;
+      min-width: 5.5em;
+      padding: 4px 10px;
+      text-align: center;
+      transition: background-color 150ms, border-color 150ms, color 150ms;
+
+      &:hover,
+      &:focus-visible {
+        background: #334352; // 15% towards white
+        color: #fff;
+      }
+
+      &[data-state='copied'] {
+        border-color: rgb(159 210 160 / 0.5);
+        color: #9fd2a0;
+      }
+    }
+  }
+}
+
+.view-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4375rem;
+
+  button {
+    background: #fff;
+    border: 1px solid $druxt-line;
+    border-radius: 4px;
+    color: $druxt-blue;
+    font-size: 0.78125rem;
+    font-weight: 600;
+    padding: 6px 13px;
+
+    &.is-active {
+      background: $druxt-blue;
+      color: #fff;
+    }
+  }
+}
+
+// The search panel is a b-sidebar with width="min(520px, 100vw)". This is the
+// safety net for the case where that inline width is ever overridden.
+#search {
+  max-width: 100vw;
+}
+
+// ---------------------------------------------------------- entity explorer
+//
+// A grid rather than a b-row, so the preview can span the full height of the
+// left-hand stack at md+ while the DOM order stays the one a phone wants:
+// controls, preview, snippet, note.
+
+.explorer {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+
+  &__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__head {
+    align-items: center;
+    border-bottom: 1px solid $rule;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    justify-content: space-between;
+    padding-bottom: 0.5rem;
+  }
+
+  &__stage {
+    align-items: flex-start;
+    background: $paper-warm;
+    border: 1px solid $rule;
+    display: flex;
+    justify-content: center;
+    padding: 2.5rem;
+  }
+
+  // The rendered entity is a card design, so it is capped rather than fluid.
+  &__mount {
+    max-width: 320px;
+    width: 100%;
+  }
+
+  // A JSON:API path is one long unbreakable token.
+  &__request {
+    color: $ink-faint;
+    font-family: $mono;
+    font-size: 0.71875rem;
+    line-height: 1.5;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  // vue-live's editor is a textarea over a highlighted <pre>; both need to be
+  // allowed to wrap, and it should not be able to grow taller than the screen.
+  &__code {
+    .prism-editor-wrapper,
+    .prism-editor__container,
+    .prism-editor__editor,
+    .prism-editor__textarea {
+      font-family: $mono !important;
+      font-size: 0.8125rem !important;
+      white-space: pre-wrap !important;
+      word-break: break-word !important;
+    }
+
+    .prism-editor-wrapper {
+      border: 1px solid #24435c;
+      border-radius: 6px;
+      max-height: 45vh;
+      overflow: auto;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .explorer {
+    align-items: start;
+    gap: 2rem;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+
+    &__controls {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    &__preview {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+    }
+    &__snippet {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    &__note {
+      grid-column: 1;
+      grid-row: 3;
+    }
+  }
+}
+
+// ---------------------------------------------------------------- dev overlay
+
+// ── Dev overlay ──────────────────────────────────────────────────────────────
+// plugins/druxt-inspector.client.js tags every Druxt component with
+// data-druxt="<kind>" once mounted; the switch adds the class on <html>.
+// Outlines live on the elements, labels in AppDruxtInspector's layer.
+$inspector-colors: (
+  router: #6f42c1,
+  region: $druxt-blue,
+  block: #3f8fd0,
+  menu: #3f8fd0,
+  view: #6f42c1,
+  entity: $druxt-teal,
+  form: #c2410c,
+  field: #8a7f70,
+);
+
+html.druxt-inspector {
+  @each $kind, $color in $inspector-colors {
+    [data-druxt='#{$kind}'] {
+      outline: 1px dashed $color;
+      outline-offset: -1px;
+    }
+  }
+
+  [data-druxt='field'] {
+    outline-style: dotted;
+  }
+}
+
+.druxt-inspector-layer {
+  height: 0;
+  left: 0;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  // Above the sticky masthead, which is its own stacking context at 1020.
+  z-index: 1025;
+}
+
+.druxt-inspector-label {
+  background: $druxt-blue;
+  border-radius: 0 0 3px;
+  color: #fff;
+  display: block;
+  font-family: $mono;
+  font-size: 0.6875rem;
+  line-height: 18px;
+  overflow: hidden;
+  padding: 0 6px;
+  pointer-events: auto;
+  position: fixed;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    color: #fff;
+    max-width: none !important;
+    text-decoration: none;
+    z-index: 1;
+  }
+
+  &__detail {
+    margin-left: 0.5em;
+    opacity: 0.8;
+  }
+
+  @each $kind, $color in $inspector-colors {
+    &.is-#{$kind} {
+      background: $color;
+    }
+  }
+}
+
+.dev-summary {
+  align-items: center;
+  background: $druxt-tint;
+  border: 1px solid $druxt-line;
+  border-radius: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  font-family: $mono;
+  font-size: 0.75rem;
+  gap: 0.875rem;
+  color: $druxt-blue-ink;
+  padding: 0.875rem 1.125rem;
+}
+
+// ================================================================ responsive
+//
+// Breakpoints are Bootstrap 4's, because that is what bootstrap-vue emits
+// against: sm 576, md 768, lg 992.
+//
+// The masthead turns at lg, where the drawer gives way to the editorial row.
+// Everything else turns at md, and a few details at sm.
+//
+// Spec: "Umami Demo Mobile.dc.html" — 2a is the 375px column, 2b is 768px.
+
+// ------------------------------------------------------------ md and below
+@media (max-width: $bp-md) {
+  // The banner owns its height here — the component's scoped rule was removed
+  // so there is one source of truth.
+  .banner {
+    min-height: 320px;
+
+    &__body {
+      justify-content: flex-end; // text sits on the darkest part of the scrim
+      max-width: none;
+      min-height: 320px;
+      padding: 1.5rem 0;
+    }
+
+    // Text is full-width now, so a sideways gradient leaves its right half
+    // unbacked. Scrim from the bottom instead.
+    &__scrim {
+      background: linear-gradient(
+        180deg,
+        rgba(28, 20, 14, 0.22) 0%,
+        rgba(28, 20, 14, 0.52) 44%,
+        rgba(28, 20, 14, 0.87) 100%
+      );
+    }
+
+    // 375 leads with the headline and the button; the summary is the first
+    // thing to go when the banner is 320px tall.
+    &__summary {
+      display: none;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  // Content-sized, as it always should have been. See the note on the block.
+  .recipe-card__body {
+    padding: 1rem;
+  }
+
+  .section {
+    padding: 2.5rem 0;
+
+    &__head {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+  }
+
+  // Right-aligned pills read as ragged when they wrap onto three lines.
+  .collections {
+    &__list {
+      justify-content: flex-start;
+    }
+  }
+
+  .field--body,
+  .field--field-summary {
+    p {
+      font-size: 1.0625rem;
+      line-height: 1.7;
+    }
+    blockquote {
+      font-size: 1.25rem;
+      padding-left: 1rem;
+    }
+  }
+
+  .druxt-note {
+    border-radius: 6px;
+    padding: 1.125rem;
+
+    &__title {
+      font-size: 1.0625rem;
+    }
+  }
+
+  .druxt-cta {
+    padding: 2.25rem 0;
+  }
+
+  .view-modes button {
+    flex: 1 0 auto;
+    min-height: $tap;
+    padding: 6px 16px;
+  }
+
+  // 3rem of padding around a 320px card leaves it 230px to render in.
+  .explorer__stage {
+    padding: 1.25rem 1rem;
+  }
+
+  // The filter bar's four groups each take a line at this width, and the
+  // right-aligned count strands itself on a fifth.
+  .recipe-filters {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    &__field {
+      max-width: none;
+    }
+
+    // Difficulty and duration scroll sideways rather than wrapping.
+    &__group--scroll {
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -1rem;
+      overflow-x: auto;
+      padding: 0 1rem 0.125rem;
+
+      .btn {
+        white-space: nowrap;
+      }
+    }
+
+    &__row {
+      align-items: center;
+      display: flex;
+      gap: 0.625rem;
+      justify-content: space-between;
+    }
+
+    &__count {
+      margin-left: 0;
+      text-align: right;
+    }
+
+    .btn-sm {
+      min-height: 38px;
+      padding: 0.5rem 1rem;
+    }
+  }
+}
+
+// ------------------------------------------------------------ sm and below
+@media (max-width: $bp-sm) {
+  .druxt-note {
+    padding: 1rem;
+  }
+
+  .druxt-code {
+    font-size: 0.71875rem;
+    padding: 0.875rem;
+  }
+
+  // Below sm the search panel is the whole viewport, so there is no backdrop
+  // sliver to mis-tap. See layouts/default.vue.
+  #search {
+    width: 100vw !important;
+  }
+}
+
+// ================================================================ re-pass
+//
+// Bands, the drawer-era masthead and demo bar, the three-column footer, and
+// the screens that had no design. Last in the file so these win over the
+// rules they replace.
+
+// ── Bands ────────────────────────────────────────────────────────────────────
+// Every band is full-bleed with its own ground; the content inside every band
+// sits in the same b-container. Replaces the mix of full-bleed / fluid /
+// `px-0 fluid` / fixed containers in layouts/default.vue.
+
+.band {
+  padding: 4rem 0;
+
+  &--paper {
+    background: $paper;
+  }
+  &--warm {
+    background: $paper-warm;
+  }
+
+  + .band--paper {
+    border-top: 1px solid $rule;
+  }
+
+  @media (max-width: $bp-md) {
+    padding: 2.5rem 0;
+  }
+}
+
+// ── Demo bar ─────────────────────────────────────────────────────────────────
+// REPLACES the existing .demo-bar block. One row at every width; the identity
+// string has three lengths and Docs / Discord drop below lg (they live in the
+// drawer instead).
+
+.demo-bar {
+  background: $druxt-navy;
+  color: #fff;
+  font-size: 0.75rem;
+  position: sticky;
+  top: 0;
+  // Above .sticky-top (1020) so the masthead scrolls under it. The masthead
+  // offsets by $demo-bar-height, which is this bar's 40px row.
+  z-index: 1030;
+
+  // The same gutter as the masthead, so the two chrome bars share an edge.
+  &__inner {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    height: 40px;
+    justify-content: space-between;
+    padding: 0 1rem;
+    white-space: nowrap;
+
+    @media (min-width: 992px) {
+      padding: 0 2rem;
+    }
+  }
+
+  &__id {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__logo {
+    flex-shrink: 0;
+    height: 0.9em;
+    width: auto;
+  }
+
+  &__links {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    gap: 0.25rem;
+
+    a {
+      align-items: center;
+      color: #cfe0ec;
+      display: flex;
+      height: 40px;
+      padding: 0 0.5rem;
+
+      &:hover {
+        color: #fff;
+        text-decoration: none;
+      }
+    }
+  }
+
+  &__primary {
+    font-weight: 600;
+  }
+
+  // Dev overlay: a switch, not a word. 44px target, 5.1:1 knob on the navy.
+  &__toggle {
+    align-items: center;
+    background: none;
+    border: 0;
+    color: #cfe0ec;
+    display: flex;
+    gap: 0.5rem;
+    height: 40px;
+    min-width: $tap;
+    justify-content: center;
+    padding: 0 0.5rem;
+
+    &.is-on {
+      color: #fff;
+    }
+    &.is-on .demo-bar__switch {
+      background: $druxt-blue;
+      border-color: $druxt-blue;
+    }
+    &.is-on .demo-bar__knob {
+      background: #fff;
+      transform: translateX(14px);
+    }
+  }
+
+  &__switch {
+    align-items: center;
+    border: 1px solid #59748a;
+    border-radius: 999px;
+    display: flex;
+    height: 18px;
+    padding: 0 2px;
+    width: 32px;
+  }
+
+  &__knob {
+    background: #a8c2d6;
+    border-radius: 50%;
+    height: 12px;
+    transition: transform 0.15s ease;
+    width: 12px;
+  }
+}
+
+// ── Masthead ─────────────────────────────────────────────────────────────────
+// REPLACES the masthead rules in the `max-width: $bp-lg` block. The collapse
+// is gone: below lg the masthead is toggle / wordmark / search on one row.
+
+.masthead {
+  align-items: center;
+  background: $paper;
+  border-bottom: 1px solid $rule;
+  display: flex;
+  gap: 0.5rem;
+  min-height: 60px;
+  padding: 0 1rem;
+  width: 100%;
+
+  // The main menu, at lg and up. Below that the drawer owns these links.
+  .nav-link {
+    color: $ink-soft;
+    font-size: 0.90625rem;
+    font-weight: 500;
+    padding: 0;
+
+    &:hover {
+      color: $ink;
+      text-decoration: none;
+    }
+
+    &.nuxt-link-exact-active {
+      border-bottom: 2px solid $spice;
+      color: $ink;
+      padding-bottom: 2px;
+    }
+  }
+
+  // Bootstrap's navbar-light colours outrank a plain .nav-link and paint the
+  // links half-black, 3.9:1 on paper. Only the colours take the heavier
+  // selector: its padding is what spaces the menu.
+  .navbar-nav .nav-item .nav-link {
+    color: $ink-soft;
+
+    &:hover,
+    &.nuxt-link-exact-active {
+      color: $ink;
+    }
+  }
+
+  &__toggle,
+  &__search-icon {
+    align-items: center;
+    background: none;
+    border: 0;
+    color: $ink;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    height: 48px;
+    justify-content: center;
+    width: 48px;
+  }
+
+  &__search-icon {
+    font-size: 1.1rem;
+  }
+
+  // Two rules, not three: editorial, not app chrome.
+  &__toggle-bar {
+    background: $ink;
+    height: 1.5px;
+    width: 20px;
+  }
+
+  // DruxtBlock renders each block inside a div of its own, so the element
+  // that grows has to be the wrapper this component controls.
+  &__brand-slot {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  &__brand {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  &__wordmark {
+    font-family: $serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  &__tagline {
+    color: $ink-faint;
+    font-size: 0.53rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  &__desktop {
+    display: none;
+  }
+
+  @media (min-width: 992px) {
+    min-height: 84px;
+    padding: 0 2rem;
+
+    &__toggle,
+    &__search-icon {
+      display: none;
+    }
+
+    &__brand-slot {
+      flex: 0 0 auto;
+      margin-right: 2.5rem;
+    }
+
+    &__brand {
+      align-items: flex-start;
+    }
+
+    &__wordmark {
+      font-size: 2rem;
+    }
+
+    &__desktop {
+      align-items: center;
+      display: flex;
+      flex: 1;
+      gap: 2rem;
+      justify-content: space-between;
+    }
+  }
+
+  // Tablet keeps a search pill in the masthead — there is room.
+  @media (min-width: 768px) and (max-width: $bp-lg) {
+    min-height: 64px;
+    padding-right: 0.25rem;
+
+    &__brand {
+      align-items: flex-start;
+    }
+    &__brand-slot {
+      justify-content: flex-start;
+    }
+    &__search-icon {
+      display: none;
+    }
+
+    // Wordmark left, then the pill, then the toggle at the right edge.
+    &__desktop {
+      display: flex;
+      flex: 0 0 auto;
+      order: 3;
+    }
+    &__toggle {
+      order: 4;
+    }
+
+    .masthead__menu,
+    .masthead__lang {
+      display: none;
+    }
+  }
+
+  &__utils {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__search {
+    align-items: center;
+    background: $paper;
+    border: 1px solid $rule-strong;
+    border-radius: 999px;
+    color: $ink-soft;
+    display: flex;
+    font-size: 0.8rem;
+    gap: 0.5rem;
+    min-height: $tap;
+    padding: 0 1rem;
+  }
+
+  &__account {
+    align-items: center;
+    color: $ink-soft;
+    display: flex;
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-height: $tap;
+
+    &:hover {
+      color: $spice;
+    }
+  }
+
+  &__lang {
+    display: flex;
+    gap: 0.75rem;
+
+    a {
+      color: $ink-ghost; // was an inline #a2988a at 2.75:1
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      min-height: $tap;
+      align-items: center;
+      display: flex;
+
+      &.is-active {
+        color: $ink;
+      }
+    }
+  }
+}
+
+// b-navbar brings Bootstrap's own padding, which inset the masthead and left
+// its bottom rule short of both edges. The masthead owns its gutter.
+.masthead-wrapper {
+  padding: 0;
+}
+
+// ── Search panel ─────────────────────────────────────────────────────────────
+// One component, two homes: the #search sidebar at lg and up, and the drawer
+// below it, where `compact` drops the heading, the close and the footer note.
+
+.searchbar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &__head {
+    border-bottom: 1px solid $rule;
+    padding: 1.5rem;
+  }
+
+  &__close {
+    color: $ink-ghost;
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 0 0.5rem;
+  }
+
+  &__field {
+    align-items: center;
+    display: flex;
+    position: relative;
+
+    .form-control {
+      padding-left: 2.25rem;
+    }
+  }
+
+  &__icon {
+    color: $ink-faint;
+    left: 0.875rem;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  &__meta {
+    align-items: baseline;
+    color: $ink-muted;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    gap: 0.25rem 0.75rem;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+  }
+
+  &__engine {
+    color: $druxt-blue-ink;
+    font-family: $mono;
+    font-size: 0.71875rem;
+  }
+
+  // The suggestion reads as a link in the hint and fills the field.
+  &__example {
+    background: none;
+    border: 0;
+    color: $spice;
+    font: inherit;
+    padding: 0;
+    text-decoration: underline;
+
+    &:hover,
+    &:focus-visible {
+      color: $ink;
+    }
+  }
+
+  // The facets sit above the list and stay put while it scrolls.
+  &__facets {
+    border-bottom: 1px solid $rule;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+  }
+
+  &__facet {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  &__chip {
+    background: transparent;
+    border: 1px solid $rule;
+    border-radius: 999px;
+    color: $ink-soft;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.65rem;
+
+    &:hover,
+    &:focus-visible {
+      border-color: $ink;
+      color: $ink;
+    }
+
+    &[aria-pressed='true'] {
+      background: $ink;
+      border-color: $ink;
+      color: $paper;
+    }
+
+    // Nothing to show under the other filters: there, but not a choice.
+    &:disabled {
+      border-color: $rule;
+      border-style: dashed;
+      color: $ink-faint;
+      cursor: default;
+    }
+  }
+
+  &__count {
+    opacity: 0.75;
+  }
+
+  &__results {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  &__result {
+    align-items: center;
+    border-bottom: 1px solid $rule-faint;
+    color: inherit;
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+
+    > * {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    &:hover {
+      background: $paper-warm;
+      color: inherit;
+      text-decoration: none;
+    }
+  }
+
+  &__note {
+    background: $druxt-tint;
+    border-top: 1px solid $druxt-line;
+    padding: 1rem;
+  }
+}
+
+// ── Mobile drawer ────────────────────────────────────────────────────────────
+
+.drawer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+
+  &__head {
+    align-items: center;
+    border-bottom: 1px solid $rule;
+    display: flex;
+    justify-content: space-between;
+    min-height: 60px;
+    padding: 0 0.375rem 0 1.25rem;
+  }
+
+  &__brand {
+    display: flex;
+    flex-direction: column;
+  }
+  &__wordmark {
+    font-family: $serif;
+    font-size: 1.4rem;
+    font-weight: 500;
+    line-height: 1;
+  }
+  &__tagline {
+    color: $ink-faint;
+    font-size: 0.53rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  &__close {
+    align-items: center;
+    background: none;
+    border: 0;
+    color: $ink-soft;
+    display: flex;
+    height: 48px;
+    justify-content: center;
+    width: 48px;
+  }
+
+  &__search {
+    border-bottom: 1px solid $rule;
+
+    // Its own height in the drawer, not the panel's full one, or the facets
+    // push the list over the menu below.
+    .searchbar {
+      height: auto;
+    }
+
+    .searchbar__head {
+      border-bottom: 0;
+      padding: 1rem 1.25rem;
+    }
+
+    .searchbar__facets {
+      border-bottom: 0;
+      padding: 0 1.25rem 0.75rem;
+    }
+
+    .searchbar__results {
+      max-height: 40vh;
+    }
+
+    .searchbar__result {
+      font-size: 0.9375rem;
+      min-height: $tap;
+      padding: 0.5rem 1.25rem;
+    }
+
+    .form-control {
+      font-size: 1rem; // no iOS zoom on focus
+      min-height: 48px;
+    }
+  }
+
+  &__menu {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__link {
+    align-items: center;
+    border-bottom: 1px solid $rule-faint;
+    border-left: 3px solid transparent;
+    color: $ink;
+    display: flex;
+    font-family: $serif;
+    font-size: 1.1875rem;
+    font-weight: 500;
+    min-height: 48px;
+    padding: 0 1.25rem;
+
+    &:hover {
+      text-decoration: none;
+    }
+
+    &.nuxt-link-exact-active {
+      border-left-color: $spice;
+      color: $spice;
+    }
+  }
+
+  &__lang {
+    display: flex;
+    padding: 1rem 1.25rem;
+  }
+
+  &__lang-btn {
+    align-items: center;
+    border: 1px solid $rule-strong;
+    color: $ink-ghost;
+    display: flex;
+    flex: 1;
+    font-size: 0.8rem;
+    font-weight: 600;
+    justify-content: center;
+    letter-spacing: 0.06em;
+    min-height: $tap;
+
+    &:hover {
+      text-decoration: none;
+    }
+    + .drawer__lang-btn {
+      border-left: 0;
+    }
+
+    &.is-active {
+      background: $ink;
+      border-color: $ink;
+      color: $paper;
+    }
+  }
+
+  // The promo layer stays confined to blue, and follows the language pair
+  // rather than being pinned to the bottom of a half-empty panel.
+  &__druxt {
+    background: $druxt-tint;
+    border-top: 1px solid $druxt-line;
+    display: flex;
+    flex-direction: column;
+    padding: 0.875rem 1.25rem 1.25rem;
+  }
+
+  &__druxt-kicker {
+    align-items: center;
+    color: $druxt-blue-ink;
+    display: flex;
+    font-size: 0.59rem;
+    font-weight: 700;
+    gap: 0.5em;
+    letter-spacing: 0.14em;
+    padding-bottom: 0.375rem;
+    text-transform: uppercase;
+  }
+
+  &__druxt-logo {
+    flex-shrink: 0;
+    height: 1.4em;
+    width: auto;
+  }
+
+  &__druxt-link {
+    align-items: center;
+    border-bottom: 1px solid #d6e8f4;
+    color: $druxt-blue-ink;
+    display: flex;
+    font-size: 0.875rem;
+    font-weight: 500;
+    justify-content: space-between;
+    min-height: $tap;
+
+    &:hover {
+      color: $druxt-blue-ink;
+      text-decoration: underline;
+    }
+  }
+}
+
+// ── Site footer (the `bottom` region) ────────────────────────────────────────
+// REPLACES .disclaimer.
+
+.site-footer {
+  background: $ink;
+  color: $ink-ghost-dark;
+  padding: 3rem 0 1.5rem;
+
+  &__grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1.4fr 1fr 1fr;
+  }
+
+  &__col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__wordmark {
+    color: $paper;
+    font-family: $serif;
+    font-size: 1.4rem;
+    font-weight: 500;
+  }
+
+  &__kicker {
+    color: $ink-ghost-dark;
+    font-size: 0.59rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+
+    &--demo {
+      color: #a8c2d6;
+    }
+  }
+
+  &__link {
+    color: #efe4d6;
+    font-size: 0.8rem;
+    min-height: 32px;
+    align-items: center;
+    display: flex;
+
+    &:hover {
+      color: #fff;
+    }
+    &--demo {
+      color: #cfe0ec;
+    }
+  }
+
+  &__base {
+    align-items: center;
+    border-top: 1px solid #3a332b;
+    display: flex;
+    font-size: 0.7rem;
+    grid-column: 1 / -1;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding-top: 0.875rem;
+
+    a {
+      color: $ink-ghost-dark;
+    }
+  }
+
+  strong {
+    color: #efe4d6;
+    font-weight: 600;
+  }
+
+  @media (max-width: $bp-md) {
+    padding: 2rem 0 1.25rem;
+
+    &__grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    &__base {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.375rem;
+    }
+    &__link {
+      min-height: $tap;
+    }
+  }
+}
+
+// ── Footer promo + feedback ──────────────────────────────────────────────────
+
+.promo {
+  align-items: center;
+  display: flex;
+  gap: 1.75rem;
+
+  &__cover {
+    flex-shrink: 0;
+    height: auto;
+    width: 180px;
+  }
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__kicker {
+    color: $spice;
+    font-size: 0.59rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-size: 1.6rem;
+    margin: 0;
+  }
+  &__summary {
+    color: $ink-muted;
+    font-size: 0.9rem;
+  }
+
+  // The field formatters wrap their text in <p>, whose margins open gaps.
+  &__title p,
+  &__summary p {
+    margin: 0;
+  }
+
+  // Below md the cover spans the band, and the text and button follow it.
+  @media (max-width: $bp-md) {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
+
+    &__cover {
+      background: $paper;
+      height: 180px;
+      margin: 0 -15px;
+      max-width: none;
+      object-fit: contain;
+      width: calc(100% + 30px);
+    }
+
+    &__body {
+      gap: 0.625rem;
+      padding-top: 0.5rem;
+    }
+
+    &__kicker {
+      font-size: 0.59375rem;
+      letter-spacing: 0.16em;
+    }
+
+    &__title {
+      font-size: 1.625rem;
+      line-height: 1.12;
+    }
+
+    &__summary {
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    .btn {
+      border-color: $ink;
+      border-radius: 0;
+      color: $ink;
+      display: block;
+      font-size: 0.875rem;
+      padding: 0.75rem 0;
+      width: 100%;
+    }
+  }
+}
+
+.feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__title {
+    font-size: 1.4rem;
+    margin: 0;
+  }
+  &__copy {
+    color: $ink-muted;
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  code {
+    color: $spice-dark;
+    font-family: $mono;
+    font-size: 0.8rem;
+  }
+
+  .btn {
+    align-self: flex-start;
+    min-height: $tap;
+  }
+
+  // Below md it is its own warm band to the page edges, as in the design.
+  // The region's band pads 2.5rem, so the negative margins reach its edges.
+  @media (max-width: $bp-md) {
+    background: $paper-sand;
+    border-top: 1px solid $rule;
+    gap: 0.625rem;
+    margin: 0 -15px -2.5rem;
+    padding: 1.5rem 15px;
+
+    &__title {
+      font-size: 1.5rem;
+    }
+
+    &__copy {
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    code {
+      color: $ink;
+      font-size: 0.78125rem;
+    }
+
+    // The button sits inside DruxtMenu's wrapper, so it is not the flex item.
+    .btn {
+      border-radius: 0;
+      display: block;
+      font-size: 0.875rem;
+      padding: 0.8125rem 0;
+      width: 100%;
+    }
+  }
+}
+
+// ── Featured strip ───────────────────────────────────────────────────────────
+// The view renders three teasers. Below md they become a snap scroller rather
+// than three stacked headlines.
+
+.contents {
+  display: contents;
+}
+
+.featured-strip {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  // Teaser scale: image, kicker, headline. The card's meta row belongs on a
+  // card, not in a strip.
+  .recipe-card__title {
+    font-size: 1.25rem;
+  }
+
+  .recipe-card__meta {
+    display: none;
+  }
+
+  @media (max-width: $bp-md) {
+    display: flex;
+    gap: 0.75rem;
+    // Exactly the container's gutter, so the strip meets the screen edges
+    // without widening the page.
+    margin: 0 -15px;
+    overflow-x: auto;
+    padding: 0 15px 0.5rem;
+    scroll-padding-left: 15px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+
+    // Each row sits inside one or more display: contents wrappers, so the
+    // first element under them is the flex item, whatever its depth.
+    > :not(.contents),
+    .contents > :not(.contents) {
+      flex: 0 0 250px;
+      max-width: 80vw;
+      scroll-snap-align: start;
+    }
+
+    .teaser__title {
+      font-size: 1.1875rem;
+    }
+  }
+}
+
+// ── Band furniture ───────────────────────────────────────────────────────────
+// A small label above a strip, the view's own title above a grid, and one
+// outline button below it.
+
+.band {
+  &__label {
+    color: $spice;
+
+    @media (max-width: $bp-md) {
+      color: $ink-faint;
+      font-size: 0.59375rem;
+      margin-bottom: 0.75rem;
+    }
+
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    margin-bottom: 1.25rem;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    margin: 0 0 1.75rem;
+    max-width: 34ch;
+  }
+
+  &__cta {
+    margin-top: 0.5rem;
+
+    @media (max-width: $bp-md) {
+      display: block;
+      width: 100%;
+    }
+  }
+}
+
+// ── Section head ─────────────────────────────────────────────────────────────
+// Title, one line of lede, and a link to the full listing, on every band that
+// shows a slice of a view.
+
+.section-head {
+  align-items: baseline;
+  border-bottom: 1px solid $rule;
+  display: flex;
+  gap: 1.5rem;
+  justify-content: space-between;
+  margin-bottom: 1.75rem;
+  padding-bottom: 0.875rem;
+
+  &__title {
+    font-size: clamp(1.5rem, 4vw, 1.875rem);
+    margin: 0;
+  }
+
+  &__lede {
+    color: $ink-muted;
+    font-size: 0.9375rem;
+    margin: 0.25rem 0 0;
+  }
+
+  &__cta {
+    color: $spice;
+    flex-shrink: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  @media (max-width: $bp-md) {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+// ── Teaser ───────────────────────────────────────────────────────────────────
+// Image, kicker, headline. The card is the link.
+
+// Photo-led: the meta chip on the image, kicker and headline on a scrim at
+// its foot, nothing below. A card keeps its text under the picture.
+.teaser {
+  color: inherit;
+  display: block;
+
+  &:hover,
+  &:focus {
+    color: inherit;
+    text-decoration: none;
+
+    .teaser__media img {
+      transform: scale(1.04);
+    }
+  }
+
+  &__media {
+    aspect-ratio: 4 / 3;
+    background: $night;
+    overflow: hidden;
+    position: relative;
+
+    // The image arrives through nested field wrappers, so it is placed by
+    // itself rather than by its parents.
+    img {
+      display: block;
+      height: 100%;
+      inset: 0;
+      object-fit: cover;
+      position: absolute;
+      transition: transform 0.4s ease;
+      width: 100%;
+    }
+  }
+
+  &__scrim {
+    background: linear-gradient(
+      180deg,
+      rgba(28, 20, 14, 0) 34%,
+      rgba(28, 20, 14, 0.56) 64%,
+      rgba(28, 20, 14, 0.88) 100%
+    );
+    inset: 0;
+    position: absolute;
+  }
+
+  &__meta {
+    background: rgba(253, 251, 247, 0.94);
+    color: $ink;
+    font-size: 0.65625rem;
+    font-weight: 600;
+    left: 10px;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    padding: 6px 8px;
+    position: absolute;
+    top: 10px;
+  }
+
+  &__text {
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    left: 0;
+    padding: 14px;
+    position: absolute;
+    right: 0;
+  }
+
+  &__kicker {
+    color: #e8b98f;
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    color: #fff;
+    font-size: 1.25rem;
+    line-height: 1.12;
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  @media (min-width: 992px) {
+    &__meta {
+      font-size: 0.6875rem;
+      left: 12px;
+      top: 12px;
+    }
+    &__text {
+      gap: 6px;
+      padding: 18px;
+    }
+    &__kicker {
+      font-size: 0.625rem;
+    }
+    &__title {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+// ── Auth, forms and term pages ───────────────────────────────────────────────
+// Screens that already exist in the repo and were rendering as raw
+// bootstrap-vue. See REPASS.md §4.
+
+// The sign-in dialog: the auth screen's form on paper, a sheet from the
+// bottom on a phone, where the keyboard takes the top of the screen.
+.sign-in__dialog {
+  max-width: 420px;
+
+  .modal-content {
+    background: $paper;
+    border: 1px solid $rule;
+    border-radius: 12px;
+  }
+
+  .modal-header {
+    border-bottom: 0;
+    padding: 1.25rem 1.5rem 0;
+  }
+
+  .sign-in__title {
+    font-family: $serif;
+    font-size: 1.75rem;
+    font-weight: 400;
+  }
+
+  .sign-in__body {
+    padding: 0.5rem 1.5rem 1.5rem;
+  }
+
+  @media (max-width: 575.98px) {
+    align-items: flex-end;
+    margin: 0;
+    max-width: none;
+    min-height: 100%;
+
+    .modal-content {
+      border-radius: 16px 16px 0 0;
+    }
+  }
+}
+
+.auth,
+.form-page,
+.term-page {
+  // A reading width from the container's edge, where every page starts.
+  max-width: 640px;
+
+  &__kicker {
+    color: $spice;
+    font-size: 0.59rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-family: $serif;
+    font-size: clamp(1.9rem, 6vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.12;
+    margin: 0.5rem 0 0.75rem;
+  }
+
+  &__blurb {
+    color: $ink-muted;
+    font-size: 0.95rem;
+  }
+
+  // b-form-group renders a fieldset with a legend when it has no label-for,
+  // and the site's own widgets draw an edit-field label: one rule for all.
+  .form-group label,
+  .form-group legend,
+  .edit-field__label {
+    color: $ink-ghost;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    padding-bottom: 0.25rem;
+    text-transform: uppercase;
+  }
+
+  .form-control {
+    border: 1px solid $rule-strong;
+    border-radius: 3px;
+    min-height: $tap;
+
+    @media (max-width: $bp-md) {
+      font-size: 1rem;
+    }
+  }
+
+  textarea.form-control {
+    min-height: 92px;
+  }
+
+  // A field drawn by the site's own widget sits in the column like a
+  // b-form-group: the same gap under its label, below it and around its box.
+  .edit-field {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .edit-control {
+    border: 1px solid $rule-strong;
+    border-radius: 3px;
+  }
+
+  .btn-primary {
+    min-height: 48px;
+    width: 100%;
+  }
+
+  // The answer Drupal sent back, as code: each line whole, the box scrolls.
+  &__sent .vjs-tree {
+    background: #fff;
+    border: 1px solid $rule;
+    font-family: $mono;
+    font-size: 0.75rem;
+    overflow-x: auto;
+    padding: 0.75rem;
+  }
+}
+
+// A JSON tree reads as code: a row keeps its value on its own line instead
+// of wrapping it in a narrow column beside the key, and its box scrolls.
+.vjs-tree-node {
+  white-space: nowrap;
+}
+
+.vjs-value {
+  word-break: normal;
+}
+
+.term-page {
+  max-width: none;
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0 2rem;
+  }
+
+  &__chip {
+    background: $paper;
+    border: 1px solid $rule-strong;
+    border-radius: 999px;
+    color: $ink-soft;
+    font-size: 0.75rem;
+    min-height: $tap;
+    align-items: center;
+    display: flex;
+    padding: 0 0.875rem;
+  }
+}
+
+// The brand kicker and More replace the wordmark and the full pill list below
+// md only, in the section after this.
+.site-footer__kicker--brand,
+.collections__more {
+  display: none;
+}
+
+// ── Phone front page ─────────────────────────────────────────────────────────
+// The front page below md, to the phone design's measurements. Each block
+// keeps its wider layout above md; this section only narrows it.
+
+@media (max-width: $bp-md) {
+  .band--warm {
+    background: $paper-sand;
+    padding: 1.5rem 0;
+  }
+
+  .band--paper {
+    padding: 1.75rem 0;
+  }
+
+  // The magazine cover opens the footer band, edge to edge.
+  .band--footer {
+    padding-top: 0;
+  }
+
+  // Recipe of the week: a 300px photograph, the words at its foot.
+  .banner {
+    height: 300px;
+    min-height: 0;
+
+    &__scrim {
+      background: linear-gradient(
+        180deg,
+        rgba(28, 20, 14, 0.15) 0%,
+        rgba(28, 20, 14, 0.88) 72%
+      );
+    }
+
+    &__body {
+      gap: 0.625rem;
+      height: 300px;
+      justify-content: flex-end;
+      min-height: 0;
+      padding: 1.25rem 0;
+    }
+
+    &__kicker {
+      font-size: 0.59375rem;
+      letter-spacing: 0.18em;
+    }
+
+    &__title {
+      font-size: 1.875rem;
+      font-weight: 500;
+      line-height: 1.08;
+    }
+
+    &__summary,
+    &__meta {
+      display: none;
+    }
+
+    .btn {
+      border-radius: 0;
+      flex: 1;
+      font-size: 0.875rem;
+      padding: 0.8125rem 0;
+    }
+  }
+
+  // Explore: two columns of photograph, category and title.
+  .band__title {
+    font-size: 1.5625rem;
+    line-height: 1.18;
+    margin-bottom: 1rem;
+    text-wrap: pretty;
+  }
+
+  .band--paper .row {
+    margin: 0 -6px;
+
+    > [class*='col'] {
+      margin-bottom: 0.75rem !important;
+      padding: 0 6px;
+    }
+  }
+
+  .recipe-card {
+    background: none;
+    border: 0;
+
+    &:hover {
+      transform: none;
+    }
+
+    &__body {
+      gap: 0.4375rem;
+      padding: 0.4375rem 0 0;
+    }
+
+    &__kicker {
+      color: $spice;
+      font-size: 0.53125rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    &__title {
+      font-size: 1.0625rem;
+      line-height: 1.15;
+    }
+
+    &__meta {
+      display: none;
+    }
+  }
+
+  .band__cta {
+    align-items: center;
+    border-color: $ink;
+    border-radius: 0;
+    color: $ink;
+    display: flex;
+    font-size: 0.90625rem;
+    font-weight: 600;
+    height: 52px;
+    justify-content: center;
+    margin-top: 0.25rem;
+  }
+
+  // Recipe collections: square pills, the first eight, then More.
+  .collections {
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    &__list {
+      gap: 0.5rem;
+      justify-content: flex-start;
+    }
+
+    &__link {
+      background: $paper;
+      border-color: #d8cfc0;
+      border-radius: 0;
+      color: $ink;
+      font-size: 0.84375rem;
+      min-height: 40px;
+      padding: 0 0.875rem;
+
+      &:nth-child(n + 9) {
+        display: none;
+      }
+    }
+
+    &__more {
+      align-items: center;
+      background: $ink;
+      color: $paper;
+      display: flex;
+      font-size: 0.84375rem;
+      font-weight: 600;
+      min-height: 40px;
+      padding: 0 0.875rem;
+
+      &:hover {
+        color: $paper;
+        text-decoration: none;
+      }
+    }
+  }
+
+  // Built with DruxtJS: the words and the command, on paper.
+  .druxt-cta {
+    padding: 1.75rem 0;
+
+    [class*='col'] {
+      margin-top: 0 !important;
+    }
+
+    h2 {
+      margin-top: 0.75rem !important;
+    }
+
+    p {
+      margin: 0.75rem 0 !important;
+    }
+
+    h2 {
+      font-size: 1.5625rem;
+      line-height: 1.14;
+    }
+
+    p {
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    &__kicker {
+      color: #a8c2d6;
+      font-size: 0.59375rem;
+      letter-spacing: 0.16em;
+    }
+
+    &__command {
+      background: $paper;
+      border: 0;
+      border-radius: 0;
+      color: $druxt-navy;
+      flex-wrap: nowrap;
+      font-size: 0.78125rem;
+      padding: 0.875rem;
+
+      // One line, as in the design; a long command scrolls sideways.
+      > span {
+        overflow-wrap: normal;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .prompt {
+        color: $druxt-navy;
+      }
+
+      button {
+        background: transparent;
+        border: 0;
+        color: $druxt-navy;
+        font-size: 0.78125rem;
+        padding: 0;
+
+        &:hover,
+        &:focus-visible {
+          background: transparent;
+          color: $druxt-blue;
+        }
+      }
+    }
+  }
+
+  // Footer: three stacked lists, then the base line.
+  .site-footer {
+    color: #efe4d6;
+    padding: 1.75rem 0;
+
+    &__grid {
+      gap: 1.5rem;
+    }
+
+    &__wordmark {
+      display: none;
+    }
+
+    &__kicker {
+      color: #a49887;
+      font-size: 0.59375rem;
+      letter-spacing: 0.16em;
+    }
+
+    &__kicker--brand {
+      display: block;
+    }
+
+    &__link {
+      color: #efe4d6;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      min-height: 30px;
+    }
+
+    // DruxtMenu wraps its items, so the column's gap would miss the links.
+    &__col--menu > div {
+      display: contents;
+    }
+
+    .disclaimer {
+      font-size: 0.875rem;
+      line-height: 1.6;
+
+      p {
+        margin: 0;
+      }
+
+      strong {
+        font-weight: inherit;
+      }
+    }
+
+    &__base {
+      border-top-color: #3d3630;
+      color: #a49887;
+      font-size: 0.75rem;
+      margin-top: 0;
+      padding-top: 1rem;
+
+      p {
+        margin: 0;
+      }
+    }
+  }
+}
+
+// ── Node pages ───────────────────────────────────────────────────────────────
+// The recipe and article screens of the master spec: the photograph leads,
+// then the head, then the body in one measure.
+
+// Out to the screen edges from inside the container.
+.bleed {
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+.node-hero {
+  overflow: hidden;
+
+  img {
+    display: block;
+    height: 240px;
+    object-fit: cover;
+    width: 100%;
+  }
+  &--article img {
+    height: 220px;
+  }
+
+  @media (min-width: 768px) {
+    img {
+      height: 340px;
+    }
+    &--article img {
+      height: 320px;
+    }
+  }
+  @media (min-width: 992px) {
+    img {
+      height: 460px;
+    }
+    &--article img {
+      height: 440px;
+    }
+    // The recipe's head sits on this frame at lg: with no photograph, a
+    // draft that removed it, the frame keeps its height and a dark ground,
+    // or the title would float up over the page tabs on bare paper.
+    &--recipe {
+      background: $night;
+      min-height: 460px;
+    }
+  }
+}
+
+// Breadcrumb, title and standfirst under the photograph.
+.node-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 20px;
+  padding-top: 20px;
+
+  .breadcrumb {
+    font-size: 0.71875rem;
+    margin: 0;
+  }
+  &__title {
+    font-size: 2rem;
+    line-height: 1.06;
+    margin: 0;
+  }
+  &__summary p {
+    color: $ink-muted;
+    font-family: $sans;
+    font-size: 0.90625rem;
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  @media (min-width: 768px) {
+    gap: 12px;
+    max-width: 600px;
+    padding-bottom: 28px;
+    padding-top: 28px;
+
+    .breadcrumb {
+      font-size: 0.75rem;
+    }
+    &__title {
+      font-size: 2.75rem;
+      line-height: 1.04;
+    }
+    &__summary p {
+      font-size: 1rem;
+    }
+  }
+}
+
+// At lg the recipe's head sits on the photograph behind a sideways scrim.
+.recipe-hero {
+  position: relative;
+
+  &__scrim {
+    display: none;
+  }
+
+  @media (min-width: 992px) {
+    &__scrim {
+      background: linear-gradient(
+        90deg,
+        rgba(28, 20, 14, 0.88) 0%,
+        rgba(28, 20, 14, 0.5) 44%,
+        rgba(28, 20, 14, 0) 76%
+      );
+      display: block;
+      inset: 0;
+      position: absolute;
+    }
+    &__head {
+      bottom: 0;
+      justify-content: center;
+      left: 0;
+      max-width: 1140px;
+      padding-bottom: 0;
+      padding-top: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+
+      > * {
+        max-width: 620px;
+      }
+      .breadcrumb,
+      .breadcrumb-item,
+      .breadcrumb-item a,
+      .breadcrumb-item.active {
+        color: #d6c6b2;
+      }
+      .breadcrumb-item + .breadcrumb-item::before {
+        color: #d6c6b2;
+      }
+      .node-head__title {
+        color: #fff;
+        font-size: 3.5rem;
+        line-height: 1.02;
+      }
+      // The summary as a block: Drupal hands it over in a <p> or, for a
+      // draft and the saved version beside it, a <div>, and either sits on
+      // the photograph.
+      .node-head__summary,
+      .node-head__summary p {
+        color: #efe4d6;
+        font-size: 1.0625rem;
+        line-height: 1.6;
+        max-width: 470px;
+      }
+    }
+  }
+}
+
+// Ingredients on the warm ground, the method beside them from md.
+.recipe-body {
+  display: grid;
+  gap: 0;
+  grid-template-columns: 1fr;
+
+  &__heading {
+    font-size: 1.375rem;
+    margin: 0;
+
+    @media (min-width: 768px) {
+      font-size: 1.5rem;
+    }
+    @media (min-width: 992px) {
+      font-size: 1.75rem;
+    }
+  }
+
+  @media (max-width: $bp-md) {
+    margin-left: -15px;
+    margin-right: -15px;
+  }
+  @media (min-width: 768px) {
+    align-items: start;
+    gap: 32px;
+    grid-template-columns: 5fr 7fr;
+    padding: 28px 0;
+  }
+  @media (min-width: 992px) {
+    gap: 56px;
+    grid-template-columns: 4fr 8fr;
+    padding: 44px 0;
+  }
+}
+
+.recipe-ingredients {
+  background: $paper-sand;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 16px;
+
+  .list-group-item {
+    background: transparent;
+    border-bottom: 1px solid $rule;
+    color: inherit;
+    font-size: 0.90625rem;
+    line-height: 1.5;
+    padding: 7px 0;
+  }
+
+  @media (min-width: 768px) {
+    gap: 9px;
+    padding: 20px;
+
+    .list-group-item {
+      border-bottom-color: $rule-strong;
+    }
+  }
+  @media (min-width: 992px) {
+    padding: 26px;
+    position: sticky;
+    top: calc(#{$demo-bar-height} + 16px);
+
+    .list-group-item {
+      font-size: 0.9375rem;
+      padding: 9px 0;
+    }
+  }
+}
+
+.recipe-method {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 16px;
+
+  @media (min-width: 768px) {
+    gap: 14px;
+    padding: 0;
+  }
+  @media (min-width: 992px) {
+    gap: 18px;
+    max-width: 640px;
+  }
+}
+
+// Category and tags as quiet pills.
+.recipe-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  > div,
+  > div > div {
+    display: contents;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .badge {
+    align-items: center;
+    background: transparent;
+    border: 1px solid #d8cfc0;
+    border-radius: 0;
+    color: $ink;
+    display: inline-flex;
+    font-size: 0.84375rem;
+    font-weight: 400;
+    height: 40px;
+    line-height: 1;
+    padding: 0 14px;
+  }
+  a:hover .badge {
+    background: $ink;
+    border-color: $ink;
+    color: $paper;
+  }
+
+  @media (min-width: 992px) {
+    gap: 9px;
+    padding-top: 12px;
+
+    .badge {
+      font-size: 0.875rem;
+      height: $tap;
+      padding: 0 18px;
+    }
+  }
+}
+
+// ── Article ──────────────────────────────────────────────────────────────────
+
+.article-page {
+  &__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  &__rail {
+    display: none;
+  }
+  &__column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px 0;
+  }
+  &__kicker {
+    color: $spice;
+    font-size: 0.59375rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  &__title {
+    font-size: 1.875rem;
+    line-height: 1.08;
+    margin: 0;
+  }
+  &__byline {
+    color: $ink-faint;
+    font-size: 0.78125rem;
+    margin: 0;
+  }
+  &__body p {
+    color: #3a342d;
+    font-family: $sans;
+    font-size: 0.96875rem;
+    line-height: 1.75;
+    margin: 0 0 1rem;
+  }
+  &__more {
+    margin-top: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    &__column {
+      gap: 14px;
+      max-width: 640px;
+      padding: 36px 0;
+      width: 100%;
+    }
+    &__kicker {
+      font-size: 0.625rem;
+    }
+    &__title {
+      font-size: 2.5rem;
+      line-height: 1.06;
+    }
+    &__byline {
+      font-size: 0.8125rem;
+    }
+    &__body p {
+      font-size: 1.03125rem;
+      line-height: 1.8;
+    }
+  }
+  @media (min-width: 992px) {
+    &__grid {
+      gap: 32px;
+      // The rail from the container's edge, as every page starts; the
+      // column beside it keeps its measure.
+      grid-template-columns: 160px minmax(0, 680px);
+      padding: 56px 0;
+    }
+    &__rail {
+      color: $ink-faint;
+      display: block;
+      font-size: 0.78125rem;
+      line-height: 1.7;
+    }
+    &__column {
+      gap: 16px;
+      margin: 0;
+      max-width: none;
+      padding: 0;
+    }
+    &__kicker,
+    &__date {
+      display: none;
+    }
+    &__title {
+      font-size: 3.125rem;
+      line-height: 1.04;
+    }
+    &__byline {
+      font-size: 0.84375rem;
+    }
+    &__body p {
+      font-size: 1.125rem;
+    }
+  }
+}
+
+// ── Articles listing ─────────────────────────────────────────────────────────
+
+// The listing's head band and the breadcrumb inside it.
+.band--head {
+  padding: 20px 0;
+
+  .breadcrumb {
+    font-size: 0.71875rem;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 2rem;
+    line-height: 1.08;
+    margin: 0;
+  }
+
+  @media (min-width: 768px) {
+    padding: 28px 0;
+
+    .breadcrumb {
+      font-size: 0.75rem;
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-size: 2.625rem;
+      line-height: 1.06;
+    }
+  }
+  @media (min-width: 992px) {
+    padding: 44px 0;
+
+    .breadcrumb {
+      font-size: 0.78125rem;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 3.5rem;
+      line-height: 1.04;
+    }
+  }
+}
+
+.article-lead {
+  border-bottom: 1px solid $rule;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0 -15px 16px;
+  padding: 16px 15px;
+
+  &__media {
+    display: block;
+    height: 200px;
+    overflow: hidden;
+
+    img {
+      display: block;
+      height: 100%;
+      object-fit: cover;
+      width: 100%;
+    }
+  }
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  &__kicker {
+    color: $spice;
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  &__title {
+    font-size: 1.6875rem;
+    line-height: 1.12;
+    margin: 0;
+
+    a {
+      color: inherit;
+    }
+  }
+  &__summary {
+    color: $ink-muted;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+  &__cta {
+    align-self: flex-start;
+    border-color: $ink;
+    border-radius: 0;
+    color: $ink;
+    font-size: 0.90625rem;
+    font-weight: 600;
+    margin-top: 4px;
+    padding: 13px 28px;
+
+    &:hover,
+    &:focus {
+      background: $ink;
+      color: $paper;
+    }
+  }
+
+  @media (min-width: 768px) {
+    align-items: center;
+    gap: 24px;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 24px;
+    padding: 24px 15px;
+
+    &__media {
+      height: 230px;
+    }
+    &__body {
+      gap: 9px;
+    }
+    &__kicker {
+      font-size: 0.59375rem;
+    }
+    &__title {
+      font-size: 1.875rem;
+      line-height: 1.1;
+    }
+    &__summary {
+      font-size: 0.90625rem;
+    }
+  }
+  @media (min-width: 992px) {
+    gap: 40px;
+    grid-template-columns: 7fr 5fr;
+    margin-bottom: 32px;
+    padding: 32px 15px;
+
+    &__media {
+      height: 340px;
+    }
+    &__body {
+      gap: 12px;
+    }
+    &__kicker {
+      font-size: 0.65625rem;
+    }
+    &__title {
+      font-size: 2.5rem;
+      line-height: 1.08;
+    }
+    &__summary {
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+  }
+}
+
+// Cards without their frame: image, kicker, headline.
+.article-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  .recipe-card {
+    background: transparent;
+    border: 0;
+
+    &:hover {
+      transform: none;
+    }
+  }
+  .recipe-card__body {
+    gap: 7px;
+    padding: 7px 0 0;
+  }
+  .recipe-card__kicker {
+    font-size: 0.53125rem;
+  }
+  .recipe-card__title {
+    font-size: 1.0625rem;
+    line-height: 1.15;
+  }
+  .recipe-card__summary {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    .recipe-card__body {
+      gap: 8px;
+      padding-top: 8px;
+    }
+    .recipe-card__kicker {
+      font-size: 0.5625rem;
+    }
+    .recipe-card__title {
+      font-size: 1.25rem;
+    }
+  }
+  @media (min-width: 992px) {
+    gap: 28px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    .recipe-card__body {
+      gap: 9px;
+      padding-top: 9px;
+    }
+    .recipe-card__kicker {
+      font-size: 0.59375rem;
+    }
+    .recipe-card__title {
+      font-size: 1.375rem;
+    }
+  }
+
+  // Inside the article column the related cards stay two across.
+  &--aside {
+    gap: 16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 12px;
+
+    .recipe-card__title {
+      font-size: 1.0625rem;
+    }
+  }
+}
+
+// ── Edit form ────────────────────────────────────────────────────────────────
+// The Edit tab: one column of content in reading order, a settings drawer,
+// two actions. Label above, 52px control, description below, the error takes
+// the description's slot.
+
+// As wide as the tab bar above it: the form is the page, not a column in it.
+.edit-form {
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    @media (min-width: 768px) {
+      gap: 22px;
+    }
+  }
+
+  // Beside each other from lg: the content holds the design's 640 measure
+  // and the settings take the column on its right, open and in reach while
+  // the page scrolls. Below lg the settings follow the content as a drawer.
+  &__layout {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    @media (min-width: 992px) {
+      align-items: start;
+      display: grid;
+      gap: 44px 64px;
+      grid-template-columns: minmax(0, 640px) minmax(240px, 1fr);
+    }
+  }
+
+  &__aside {
+    @media (min-width: 992px) {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+
+  &__numbers {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    @media (min-width: 768px) {
+      gap: 14px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  &__settings {
+    border-bottom: 1px solid $rule;
+    border-top: 1px solid $rule;
+
+    > summary {
+      align-items: center;
+      cursor: pointer;
+      display: flex;
+      font-size: 0.875rem;
+      font-weight: 600;
+      justify-content: space-between;
+      list-style: none;
+      min-height: 52px;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+      &::after {
+        color: $ink-faint;
+        content: '▼';
+        font-size: 0.75rem;
+      }
+    }
+    &[open] > summary::after {
+      content: '▲';
+    }
+  }
+  &__settings-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 4px 0 20px;
+  }
+
+  // In its own column the drawer is a panel: framed, open, no rules.
+  @media (min-width: 992px) {
+    &__settings {
+      border: 1px solid $rule;
+      padding: 0 18px;
+
+      > summary {
+        pointer-events: none;
+
+        &::after {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &__alert {
+    background: #fff5f3;
+    border: 1px solid #8f2f22;
+    color: #8f2f22;
+    font-size: 0.84375rem;
+    line-height: 1.5;
+    margin-bottom: 18px;
+    padding: 12px 14px;
+
+    a {
+      color: inherit;
+      text-decoration: underline;
+    }
+  }
+
+  &__actions {
+    margin-top: 22px;
+  }
+
+  // On a phone the actions stay in reach.
+  @media (max-width: $bp-md) {
+    &__actions {
+      background: $paper;
+      border-top: 1px solid $rule;
+      bottom: 0;
+      margin: 22px -15px 0;
+      padding: 12px 15px;
+      position: sticky;
+      z-index: 5;
+    }
+  }
+}
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  &__required {
+    color: #8f2f22;
+    margin-left: 3px;
+  }
+  &__description {
+    color: $ink-faint;
+    font-size: 0.78125rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+  &__error {
+    color: #8f2f22;
+    font-size: 0.78125rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+  &__format {
+    align-self: flex-end;
+    color: $ink-faint;
+    font-family: $mono;
+    font-size: 0.6875rem;
+  }
+  &--invalid .edit-control {
+    border-color: #8f2f22;
+  }
+}
+
+.edit-control {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d8cfc0;
+  border-radius: 0;
+  color: $ink;
+  display: flex;
+  font-family: $sans;
+  font-size: 0.9375rem;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 14px;
+  width: 100%;
+
+  &:focus,
+  &:focus-within {
+    border-color: $ink;
+    outline: none;
+  }
+
+  &--title {
+    font-family: $serif;
+    font-size: 1.5rem;
+    min-height: 60px;
+  }
+  &--area {
+    display: block;
+    line-height: 1.6;
+    min-height: 92px;
+    padding: 14px;
+    resize: vertical;
+  }
+  &--small {
+    font-size: 0.875rem;
+    min-height: 44px;
+  }
+  &--select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, $ink-faint 50%),
+      linear-gradient(135deg, $ink-faint 50%, transparent 50%);
+    background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%;
+    background-repeat: no-repeat;
+    background-size: 5px 5px;
+    padding-right: 36px;
+  }
+  &--readonly {
+    background: $paper-warm;
+    color: $ink-soft;
+    justify-content: space-between;
+  }
+  &--unit input,
+  &--reference input {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    flex: 1;
+    font: inherit;
+    min-width: 0;
+    outline: none;
+    padding: 0;
+  }
+  &__unit {
+    color: $ink-faint;
+    font-size: 0.8125rem;
+    margin-left: auto;
+  }
+  &--unit .edit-control__unit:first-child {
+    margin-left: 0;
+    margin-right: -4px;
+  }
+  &__avatar {
+    background: $rule;
+    border-radius: 50%;
+    flex-shrink: 0;
+    height: 24px;
+    width: 24px;
+  }
+  &__action {
+    background: none;
+    border: 0;
+    color: $ink-faint;
+    font-size: 0.8125rem;
+    margin-left: auto;
+    padding: 0;
+  }
+}
+
+// One row an item: a grip, the text, a remove.
+.edit-list {
+  background: #fff;
+  border: 1px solid #d8cfc0;
+  padding: 2px 14px;
+
+  &__row {
+    align-items: center;
+    border-bottom: 1px solid $rule;
+    display: flex;
+    gap: 10px;
+    min-height: 44px;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+  &__grip {
+    color: $ink-ghost-dark;
+    cursor: grab;
+    font-size: 1rem;
+    letter-spacing: -2px;
+  }
+  &__input {
+    background: transparent;
+    border: 0;
+    flex: 1;
+    font: inherit;
+    font-size: 0.9375rem;
+    min-width: 0;
+    outline: none;
+    padding: 0;
+  }
+  &__remove {
+    background: none;
+    border: 0;
+    color: $ink-faint;
+    font-size: 1.125rem;
+    line-height: 1;
+    margin-left: auto;
+    padding: 0 2px;
+  }
+  &__add {
+    align-self: flex-start;
+    background: none;
+    border: 0;
+    color: $spice;
+    font-size: 0.84375rem;
+    font-weight: 600;
+    padding: 4px 0 0;
+  }
+}
+
+.edit-steps {
+  background: #fff;
+  border: 1px solid #d8cfc0;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 6px 14px;
+
+  &__row {
+    align-items: flex-start;
+    border-bottom: 1px solid $rule;
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+  &__n {
+    color: $spice;
+    cursor: grab;
+    flex-shrink: 0;
+    font-family: $serif;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    min-width: 0.75em;
+  }
+  &__input {
+    background: transparent;
+    border: 0;
+    flex: 1;
+    font: inherit;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    min-width: 0;
+    outline: none;
+    padding: 0;
+    resize: vertical;
+  }
+}
+
+.edit-segments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  &__option {
+    background: transparent;
+    border: 1px solid #d8cfc0;
+    color: $ink;
+    font-size: 0.84375rem;
+    height: 40px;
+    padding: 0 14px;
+
+    &.is-on {
+      background: $ink;
+      border-color: $ink;
+      color: $paper;
+    }
+  }
+}
+
+.edit-chips {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d8cfc0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 52px;
+  padding: 8px 10px;
+
+  &:focus-within {
+    border-color: $ink;
+  }
+
+  &__chip {
+    align-items: center;
+    background: $paper;
+    border: 1px solid #d8cfc0;
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 0.8125rem;
+    gap: 6px;
+    height: 32px;
+    padding: 0 6px 0 12px;
+  }
+  &__remove {
+    background: none;
+    border: 0;
+    color: $ink-faint;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0 4px;
+  }
+  &__input {
+    background: transparent;
+    border: 0;
+    flex: 1;
+    font: inherit;
+    font-size: 0.9375rem;
+    min-width: 120px;
+    outline: none;
+    padding: 4px 0;
+  }
+  &__list {
+    background: #fff;
+    border: 1px solid $ink;
+    border-top: 0;
+    list-style: none;
+    margin: -6px 0 0;
+    padding: 0;
+
+    button {
+      background: none;
+      border: 0;
+      border-bottom: 1px solid $rule;
+      display: block;
+      font-size: 0.9375rem;
+      min-height: 44px;
+      padding: 0 14px;
+      text-align: left;
+      width: 100%;
+
+      &.is-create {
+        color: $spice;
+        font-weight: 600;
+      }
+    }
+    li:last-child button {
+      border-bottom: 0;
+    }
+  }
+}
+
+.edit-media {
+  background: #fff;
+  border: 1px solid #d8cfc0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 110px 1fr;
+  padding: 10px;
+
+  @media (min-width: 768px) {
+    gap: 16px;
+    grid-template-columns: 180px 1fr;
+    padding: 12px;
+  }
+
+  &__thumb {
+    aspect-ratio: 4 / 3;
+    background: $paper-warm;
+    overflow: hidden;
+
+    img {
+      display: block;
+      height: 100%;
+      object-fit: cover;
+      width: 100%;
+    }
+  }
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+    min-width: 0;
+  }
+  &__name {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &__actions {
+    display: flex;
+    gap: 14px;
+
+    button {
+      background: none;
+      border: 0;
+      color: $spice;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      padding: 0;
+
+      &.is-remove {
+        color: #8f2f22;
+      }
+    }
+  }
+  &__alt-label {
+    margin-top: 6px;
+  }
+}
+
+.edit-dropzone {
+  align-items: center;
+  background: #fff;
+  border: 1px dashed $ember;
+  color: $ink-faint;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.84375rem;
+  gap: 6px;
+  justify-content: center;
+  min-height: 140px;
+  text-align: center;
+
+  &.is-over {
+    border-color: $ink;
+  }
+  &__icon {
+    color: $ink-ghost-dark;
+    font-size: 1.375rem;
+  }
+  &__choose {
+    background: none;
+    border: 0;
+    color: $spice;
+    font-weight: 600;
+    // The buttons sit inside a sentence; the template's whitespace between
+    // the words and them is condensed away, so the gap is theirs to make.
+    margin: 0 0.3em;
+    padding: 0;
+  }
+}
+
+.edit-switch {
+  align-items: center;
+  border-top: 1px solid $rule-faint;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  min-height: 44px;
+
+  &:first-child {
+    border-top: 0;
+  }
+  &__input {
+    appearance: none;
+    background: #d8cfc0;
+    border-radius: 999px;
+    height: 22px;
+    margin: 0;
+    position: relative;
+    width: 40px;
+
+    &::after {
+      background: #fff;
+      border-radius: 50%;
+      content: '';
+      height: 16px;
+      left: 3px;
+      position: absolute;
+      top: 3px;
+      transition: left 0.15s ease;
+      width: 16px;
+    }
+    &:checked {
+      background: $spice;
+      &::after {
+        left: 21px;
+      }
+    }
+  }
+  .edit-field__error {
+    flex-basis: 100%;
+  }
+}
+
+.edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  .btn {
+    border-radius: 0;
+    font-size: 0.90625rem;
+    font-weight: 600;
+    min-height: 52px;
+    padding: 0 28px;
+  }
+  &__save.btn-primary {
+    background: $spice;
+    border-color: $spice;
+    width: auto;
+
+    &:disabled {
+      background: $ember;
+      border-color: $ember;
+      opacity: 1;
+    }
+  }
+  &__cancel.btn-outline-secondary {
+    border-color: #d8cfc0;
+    color: $ink-muted;
+    padding: 0 24px;
+
+    &:hover:not(:disabled) {
+      background: $ink;
+      border-color: $ink;
+      color: $paper;
+    }
+  }
+  &__signin {
+    color: $ink-muted;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  @media (max-width: $bp-md) {
+    .btn {
+      flex: 1;
+      padding: 0;
+    }
+    flex-direction: row-reverse;
+  }
+}
+
+.edit-field__sublabel {
+  margin-top: 6px;
+}
+.edit-control--summary {
+  min-height: 64px;
+}
+
+// Drupal's CKEditor 5 inside the edit form: the frame is ours, the toolbar
+// is whatever the text format is configured with.
+.edit-editor {
+  .ck.ck-toolbar {
+    background: $paper-warm;
+    border: 1px solid #d8cfc0;
+    border-bottom: 0;
+    border-radius: 0;
+  }
+  .ck.ck-editor__editable_inline {
+    background: #fff;
+    border: 1px solid #d8cfc0;
+    border-radius: 0;
+    font-family: $sans;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    min-height: 180px;
+    padding: 0 14px;
+
+    &.ck-focused {
+      border-color: $ink;
+      box-shadow: none;
+    }
+  }
+  .ck.ck-editor__editable_inline > :first-child {
+    margin-top: 14px;
+  }
+}
+
+// A swap in place (components/app/SteadyBox.vue): the box eases from the old
+// height to the new, and the content dips while the new one arrives.
+.steady {
+  transition: min-height 0.25s ease;
+
+  &__inner {
+    transition: opacity 0.2s ease;
+  }
+
+  &--changing &__inner {
+    opacity: 0.4;
+  }
+}
+
+// The View / Edit bar on a node page.
+.page-tabs {
+  border-bottom: 1px solid $rule;
+  display: flex;
+  gap: 4px;
+  margin-bottom: 1.5rem;
+
+  &__tab {
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: $spice;
+    font-size: 0.9375rem;
+    margin-bottom: -1px;
+    min-height: $tap;
+    padding: 0 12px;
+
+    &.is-active {
+      border-bottom-color: $ink;
+      color: $ink;
+      font-weight: 600;
+    }
+  }
+
+  &__list {
+    display: flex;
+    gap: 4px;
+  }
+}
+
+// Drupal's own screens for the node, at the tab bar's far end: the
+// operations druxt-admin reads from Drupal, as a small menu.
+.drupal-links {
+  align-self: center;
+  margin-left: auto;
+
+  &__menu {
+    position: relative;
+  }
+
+  &__toggle {
+    background: none;
+    border: 0;
+    color: $ink-soft;
+    font-size: 0.875rem;
+    min-height: $tap;
+    padding: 0 8px;
+
+    &:hover,
+    &:focus-visible,
+    &[aria-expanded='true'] {
+      color: $ink;
+      text-decoration: underline;
+    }
+  }
+
+  &__list {
+    background: $paper;
+    border: 1px solid $rule;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(36, 31, 26, 0.12);
+    list-style: none;
+    margin: 4px 0 0;
+    min-width: 200px;
+    padding: 6px;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 30;
+  }
+
+  &__item {
+    border-radius: 4px;
+    color: $ink;
+    display: block;
+    font-size: 0.875rem;
+    padding: 8px 10px;
+
+    &:hover,
+    &:focus-visible {
+      background: $paper-warm;
+      color: $ink;
+      text-decoration: none;
+    }
+
+    &--destructive {
+      color: #a3361a;
+    }
+  }
+}
+
+// The filter bar's sort control: a fixed-height select clips its text in
+// Safari, so the height comes from the line and the padding.
+.recipe-filters .custom-select {
+  font-size: 0.875rem;
+  height: auto;
+  line-height: 1.25;
+  min-height: 40px;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+}
+
+// The learning layer on a node page: view modes beside the request and the
+// note from lg, stacked below it.
+.learn-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 3rem;
+
+  // A grid item is as wide as its widest line unless told otherwise; the
+  // JSON:API drawer's request line pushed the whole page past a phone.
+  > *,
+  &__aside > * {
+    min-width: 0;
+  }
+
+  &__aside {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 992px) {
+    align-items: start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+// ── Term page ────────────────────────────────────────────────────────────────
+// Screen 6: the head band carries the breadcrumb, kicker, name, description
+// and the count; the referencing content follows as cards.
+.term-head {
+  background: $paper-sand;
+  border-bottom: 1px solid $rule;
+  margin-bottom: 16px;
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding-bottom: 20px;
+    padding-top: 20px;
+  }
+  .breadcrumb {
+    font-size: 0.71875rem;
+    margin: 0;
+  }
+  &__kicker {
+    color: $spice;
+    font-size: 0.59375rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  &__title {
+    font-size: 2rem;
+    line-height: 1.06;
+    margin: 0;
+  }
+  &__blurb {
+    color: $ink-muted;
+    font-size: 0.875rem;
+    line-height: 1.65;
+
+    p {
+      margin: 0;
+    }
+  }
+  &__count {
+    color: $ink-faint;
+    font-family: $mono;
+    font-size: 0.71875rem;
+  }
+
+  @media (min-width: 768px) {
+    margin-bottom: 24px;
+
+    &__inner {
+      gap: 10px;
+      padding-bottom: 28px;
+      padding-top: 28px;
+    }
+    &__title {
+      font-size: 2.625rem;
+    }
+    &__blurb {
+      font-size: 0.9375rem;
+      max-width: 640px;
+    }
+  }
+  @media (min-width: 992px) {
+    margin-bottom: 32px;
+
+    &__inner {
+      gap: 12px;
+      padding-bottom: 44px;
+      padding-top: 44px;
+    }
+    &__title {
+      font-size: 3.5rem;
+      line-height: 1.04;
+    }
+  }
+}
+
+// Cards 2 / 3 / 4 across, the grid the design uses on every listing.
+// A listing cell fills its row, so a title that wraps does not leave its
+// card shorter than the rest.
+.card-cell {
+  display: flex;
+  flex-direction: column;
+
+  > * {
+    flex: 1 1 auto;
+  }
+}
+
+.card-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  @media (min-width: 768px) {
+    gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  @media (min-width: 992px) {
+    gap: 28px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  > [data-fetch-key] {
+    height: 100%;
+  }
+}
+
+.term-page {
+  &__empty {
+    color: $ink-muted;
+  }
+  .druxt-note {
+    margin-top: 2.5rem;
+  }
+}
+
+// The band whose page draws its own head: room for the tab bar, no more.
+.band.band--flush {
+  padding-top: 1.5rem;
+}
+
+// ── JSON:API drawer ──────────────────────────────────────────────────────────
+.jsonapi-drawer {
+  border: 1px solid $rule;
+  border-radius: 8px;
+  overflow: hidden;
+
+  &__toggle {
+    align-items: center;
+    background: $paper-warm;
+    border: 0;
+    color: $ink-soft;
+    display: flex;
+    font-size: 0.84375rem;
+    font-weight: 600;
+    justify-content: space-between;
+    padding: 0.875rem 1.125rem;
+    text-align: left;
+    width: 100%;
+
+    span {
+      color: $ink-ghost-dark;
+    }
+  }
+  &__body {
+    padding: 1rem;
+
+    .druxt-code {
+      max-width: 100%;
+      overflow-x: auto;
+    }
+  }
+  &__tree {
+    background: #fff;
+    border: 1px solid $rule;
+    font-size: 0.75rem;
+    margin-bottom: 0.75rem;
+    max-height: 480px;
+    overflow: auto;
+    padding: 0.75rem;
+
+    .vjs-tree {
+      font-family: $mono;
+      font-size: 0.75rem;
+    }
+  }
+  &__hint {
+    color: $ink-faint;
+    font-size: 0.75rem;
+    margin: 0;
+  }
+}
+
+// ── Media browser ────────────────────────────────────────────────────────────
+// The library in a dialog: search, 4:3 tiles, one selected, two actions.
+.media-browser {
+  border: 1px solid #d8cfc0;
+  border-radius: 0;
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px 16px;
+
+    @media (min-width: 768px) {
+      padding: 24px;
+    }
+  }
+  &__head {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+  }
+  &__title {
+    font-family: $serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+  &__close {
+    background: none;
+    border: 0;
+    color: $ink-faint;
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 0 4px;
+  }
+  &__search {
+    min-height: 44px;
+  }
+  &__grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    @media (min-width: 576px) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    @media (min-width: 992px) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  &__item {
+    background: none;
+    border: 2px solid transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 4px;
+    text-align: left;
+
+    &:hover {
+      border-color: $rule-strong;
+    }
+    &.is-selected {
+      border-color: $ink;
+    }
+  }
+  &__thumb {
+    aspect-ratio: 4 / 3;
+    background: $paper-warm;
+    display: block;
+    overflow: hidden;
+
+    img {
+      display: block;
+      height: 100%;
+      object-fit: cover;
+      width: 100%;
+    }
+  }
+  &__name {
+    color: $ink;
+    font-size: 0.78125rem;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  // Stays in view while the grid scrolls: the choice is made at the bottom
+  // of a long list, and the buttons must be there when it is.
+  &__actions {
+    background: $paper;
+    border-top: 1px solid $rule;
+    bottom: -20px;
+    display: flex;
+    gap: 12px;
+    margin: 0 -16px -20px;
+    padding: 14px 16px 16px;
+    position: sticky;
+    z-index: 1;
+
+    @media (min-width: 768px) {
+      bottom: -24px;
+      margin: 0 -24px -24px;
+      padding: 14px 24px 20px;
+    }
+  }
+}
+
+// The account control is a link when signed out and a button when signed
+// in; the button takes the link's look wherever it sits.
+button.masthead__account,
+button.drawer__druxt-link {
+  background: none;
+  border: 0;
+  font: inherit;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+}
+button.masthead__account {
+  width: auto;
+}
+.account-link__name {
+  color: $ink-faint;
+  font-weight: 400;
+}
+
+// The sign-in page's form: the site's controls, the site's button.
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 1.5rem 0 2rem;
+
+  .btn.auth__submit {
+    background: $spice;
+    border: 0;
+    border-radius: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    min-height: 52px;
+
+    &:hover:not(:disabled),
+    &:focus {
+      background: $spice-dark;
+    }
+    &:disabled {
+      background: $ember;
+      opacity: 1;
+    }
+  }
+}
+
+// The debug panel: opened by #debug, over everything, plain and readable.
+.debug-panel {
+  background: #fff;
+  border: 2px solid #8f2f22;
+  bottom: 0;
+  color: $ink;
+  font-family: $mono;
+  font-size: 0.75rem;
+  left: 0;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 12px 16px;
+  position: fixed;
+  right: 0;
+  z-index: 2000;
+
+  &__row {
+    margin: 0 0 6px;
+    overflow-wrap: anywhere;
+  }
+  &__row--error {
+    color: #8f2f22;
+  }
+  &__close {
+    background: $ink;
+    border: 0;
+    color: #fff;
+    padding: 6px 12px;
+  }
+}
+
+// The draft note beside Save and Cancel.
+.edit-actions__kept {
+  color: $ink-faint;
+  display: block;
+  font-size: 0.78125rem;
+  line-height: 1.5;
+  margin-top: 10px;
+  width: 100%;
+}
+
+// ── Reset demo ───────────────────────────────────────────────────────────────
+// A control in the demo bar: a button, then the question, then the outcome.
+.reset-demo {
+  align-items: center;
+  display: inline-flex;
+
+  &__button {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 3px;
+    color: inherit;
+    font: inherit;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    padding: 3px 8px;
+
+    &:hover:not(:disabled) {
+      border-color: #fff;
+    }
+  }
+}
+
+// The reset question, in the sign-in dialog's frame.
+.reset-dialog {
+  &__text {
+    color: $ink-muted;
+    margin-bottom: 1.25rem;
+  }
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+
+    .btn {
+      flex: 1 1 10rem;
+      min-height: 48px;
+    }
+  }
+}
+
+// The reset control at the foot of the drawer's Druxt block.
+.drawer__reset {
+  display: flex;
+  margin-top: 12px;
+}
+
+// A display rendered inside a canvas keeps to it: the full-bleed bands a
+// node draws on its own page (hero, term head) would run out to the
+// viewport's edges from inside the Entity Explorer's stage or the
+// view-mode switcher's preview.
+.explorer__mount,
+.view-modes__stage {
+  overflow: hidden;
+
+  .bleed {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+// ── Draft banner ─────────────────────────────────────────────────────────────
+// Above a node page that shows unsaved changes: the Druxt tint, the switch
+// between the draft and Drupal's version, and the diff on request.
+.draft-banner {
+  background: $druxt-tint;
+  border: 1px solid $druxt-line;
+  border-radius: 6px;
+  color: $druxt-navy;
+  font-size: 0.8125rem;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+
+  &__row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+  &__kicker {
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  &__text {
+    color: $ink-muted;
+    flex: 1 1 18em;
+  }
+  &__switch {
+    border: 1px solid $druxt-line;
+    border-radius: 999px;
+    display: inline-flex;
+    overflow: hidden;
+  }
+  &__option {
+    background: transparent;
+    border: 0;
+    color: $druxt-navy;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 12px;
+
+    &.is-on {
+      background: $druxt-navy;
+      color: #fff;
+    }
+  }
+  // The cross that throws the draft away: quiet until the pointer finds
+  // it, then red; it asks before it acts.
+  &__discard {
+    align-items: center;
+    background: transparent;
+    border: 1px solid $rule;
+    border-radius: 50%;
+    color: $ink-muted;
+    display: inline-flex;
+    font-size: 1.125rem;
+    height: 1.75rem;
+    justify-content: center;
+    margin-left: auto;
+    padding: 0;
+    width: 1.75rem;
+
+    &:hover,
+    &:focus-visible {
+      border-color: #a3361a;
+      color: #a3361a;
+    }
+  }
+
+  &__confirm {
+    align-items: center;
+    display: inline-flex;
+    font-size: 0.8125rem;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+
+  &__discard-yes,
+  &__discard-no {
+    background: transparent;
+    border: 1px solid $rule;
+    border-radius: 999px;
+    color: $ink-muted;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.7rem;
+
+    &:hover,
+    &:focus-visible {
+      border-color: $ink;
+      color: $ink;
+    }
+  }
+
+  &__discard-no {
+    border-color: $druxt-navy;
+    color: $druxt-navy;
+
+    &:hover,
+    &:focus-visible {
+      background: $druxt-navy;
+      border-color: $druxt-navy;
+      color: #fff;
+    }
+  }
+
+  &__discard-yes {
+    border-color: #a3361a;
+    color: #a3361a;
+
+    &:hover,
+    &:focus-visible {
+      background: #a3361a;
+      color: #fff;
+    }
+  }
+
+  &__diff-toggle {
+    background: transparent;
+    border: 0;
+    color: $druxt-blue-ink;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0;
+    text-decoration: underline;
+  }
+  &__diff-toggle[aria-pressed='true'] {
+    text-decoration: none;
+  }
+  &__diff-toggle:disabled {
+    color: $ink-faint;
+    text-decoration: none;
+  }
+  &__removed {
+    border-top: 1px solid $druxt-line;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 10px 0 0;
+
+    li {
+      align-items: center;
+      display: inline-flex;
+      gap: 8px;
+    }
+    img {
+      border-radius: 4px;
+      height: 44px;
+      object-fit: cover;
+      width: 66px;
+    }
+  }
+  &__removed-name {
+    font-family: $mono;
+    font-size: 0.71875rem;
+  }
+}
+
+// The marks in the content: the draft's words against Drupal's, in place.
+// Green and orange with an underline and a strike, so colour is not the
+// only signal.
+ins.v-diff-ins {
+  background: #e3f5ee;
+  border-radius: 3px;
+  box-shadow: inset 0 -1.5px 0 rgb(13 107 79 / 0.55);
+  color: #0d6b4f;
+  padding: 0 2px;
+  text-decoration: none;
+}
+del.v-diff-del {
+  background: #fde9e3;
+  border-radius: 3px;
+  color: #a3361a;
+  padding: 0 2px;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+// Words cut from the end of a field have no word after them to sit before,
+// so they are struck at the end of it, as their own paragraph.
+del.v-diff-del--trailing {
+  display: block;
+  line-height: 1.6;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.625rem;
+}
+
+// A removed paragraph or bullet is struck as a block where it stood.
+del.v-diff-del--block {
+  display: block;
+  line-height: 1.6;
+  margin: 0.75rem 0;
+  padding: 0.5rem 0.625rem;
+}
+
+// A title's struck tail reads on from the words kept, not as a block below.
+h1 del.v-diff-del--trailing,
+h2 del.v-diff-del--trailing,
+h3 del.v-diff-del--trailing {
+  display: inline;
+  line-height: inherit;
+  margin: 0;
+  padding: 0 0.1em;
+}
+// A replaced photograph has no words to mark: the field is outlined and a
+// chip in its corner shows what it replaced.
+.v-diff-swapped {
+  outline: 3px solid #0d6b4f;
+  outline-offset: 3px;
+  position: relative;
+}
+.v-diff-swap {
+  align-items: center;
+  background: rgb(250 248 243 / 0.94);
+  border-radius: 6px;
+  bottom: 12px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.18);
+  display: inline-flex;
+  font-family: $sans;
+  font-size: 0.75rem;
+  gap: 8px;
+  left: 12px;
+  padding: 6px 10px 6px 6px;
+  position: absolute;
+  z-index: 2;
+
+  img {
+    border-radius: 4px;
+    height: 44px;
+    object-fit: cover;
+    width: 66px;
+  }
+  ins,
+  del {
+    padding: 0 4px;
+  }
+}
+
+// ── Basic page ───────────────────────────────────────────────────────────────
+// Screen 12: the term head band, then prose in the article's measure. The
+// About page adds the site's own section and a resource band below it.
+.page-node {
+  // The reading width from the container's edge, under the title band.
+  &__measure {
+    max-width: 680px;
+    padding-bottom: 32px;
+  }
+  &__body {
+    color: #3a342d;
+    font-size: 0.96875rem;
+    line-height: 1.75;
+
+    p {
+      margin: 0 0 14px;
+    }
+    a {
+      color: $spice;
+    }
+  }
+
+  @media (min-width: 768px) {
+    &__measure {
+      padding-bottom: 48px;
+    }
+    &__body {
+      font-size: 1.03125rem;
+      line-height: 1.8;
+
+      p {
+        margin-bottom: 16px;
+      }
+    }
+  }
+}
+
+.about-druxt {
+  border-top: 1px solid $rule;
+  color: #3a342d;
+  font-size: 0.96875rem;
+  line-height: 1.75;
+  margin-top: 28px;
+  padding-top: 24px;
+
+  p {
+    margin: 0 0 14px;
+  }
+  &__head {
+    align-items: center;
+    display: flex;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  &__mark {
+    flex: none;
+    height: 36px;
+    width: 48px;
+  }
+  &__kicker {
+    color: $spice;
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  &__title {
+    font-size: 1.625rem;
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 1.03125rem;
+    line-height: 1.8;
+    margin-top: 36px;
+    padding-top: 32px;
+
+    p {
+      margin-bottom: 16px;
+    }
+    &__head {
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    &__mark {
+      height: 42px;
+      width: 56px;
+    }
+    &__title {
+      font-size: 1.875rem;
+    }
+  }
+}
+
+.about-resources {
+  background: $paper-sand;
+  border-top: 1px solid $rule;
+  // The last thing in the content band: it takes the band's bottom padding.
+  margin-bottom: -4rem;
+  padding: 32px 0 40px;
+
+  &__kicker {
+    color: $spice;
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+  &__grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr;
+  }
+  &__card {
+    background: $paper;
+    border: 1px solid #d8cfc0;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px 16px 14px;
+    text-decoration: none;
+
+    &:hover {
+      border-color: $spice;
+      color: inherit;
+      text-decoration: none;
+    }
+  }
+  &__name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+  &__blurb {
+    color: $ink-muted;
+    font-size: 0.84375rem;
+    line-height: 1.55;
+  }
+  &__host {
+    color: $ink-faint;
+    font-family: $mono;
+    font-size: 0.6875rem;
+    margin-top: auto;
+    overflow: hidden;
+    padding-top: 4px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 768px) {
+    padding: 40px 0 48px;
+
+    &__grid {
+      gap: 16px;
+      grid-template-columns: repeat(2, 1fr);
+    }
+    &__card {
+      padding: 18px 18px 16px;
+    }
+  }
+  @media (min-width: 992px) {
+    &__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+}
+
+// ── Error page ───────────────────────────────────────────────────────────────
+// A reinstalling demo says so and retries; anything else gets a way home.
+.error-page {
+  padding: 4rem 0 5rem;
+
+  &__kicker {
+    color: $ink-muted;
+    display: block;
+    font-family: $sans;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  &__title {
+    font-family: $serif;
+    font-size: 2.5rem;
+    margin: 0.5rem 0 1rem;
+  }
+  &__text,
+  &__detail {
+    color: $ink-muted;
+    max-width: 40rem;
+  }
+  &__detail {
+    font-family: $mono;
+    font-size: 0.8125rem;
+    overflow-wrap: anywhere;
+  }
+  &__status {
+    color: $ink-faint;
+    font-family: $mono;
+    font-size: 0.8125rem;
+  }
+  &__home {
+    display: inline-block;
+    font-weight: 600;
+    margin-top: 1rem;
+  }
+}
+
+// ---------------------------------------------------------------- umami go
+// The card game at /play, from the "Umami demo" design handover: a night
+// ground for the game's own chrome, spice for its one call to action, and
+// cards whose kinds differ by colour and pattern together.
+
+$go-lg: 992px;
+$go-amber: #e8b98f; // the code and the winner's ring, on night
+$go-frame: #d8cfc0;
+
+// Each kind: a solid for badges and tiles, and a ground with its pattern.
+$go-kinds: (
+  dish: (
+    #7d4a1a,
+    #7d4a1a,
+  ),
+  sauce: (
+    oklch(0.46 0.11 28),
+    (
+      radial-gradient(rgb(253 251 247 / 17%) 1.2px, transparent 1.7px) 0 0 / 9px
+        9px,
+      oklch(0.46 0.11 28)
+    ),
+  ),
+  starter: (
+    oklch(0.46 0.085 150),
+    (
+      repeating-linear-gradient(
+        45deg,
+        rgb(253 251 247 / 13%) 0 2px,
+        transparent 2px 9px
+      ),
+      oklch(0.46 0.085 150)
+    ),
+  ),
+  feast: (
+    oklch(0.44 0.085 300),
+    (
+      repeating-linear-gradient(
+        0deg,
+        rgb(253 251 247 / 13%) 0 2px,
+        transparent 2px 8px
+      ),
+      oklch(0.44 0.085 300)
+    ),
+  ),
+  snack: (
+    oklch(0.47 0.085 85),
+    (
+      radial-gradient(rgb(253 251 247 / 20%) 1px, transparent 1.5px) 0 0 / 5px
+        5px,
+      oklch(0.47 0.085 85)
+    ),
+  ),
+  side: (
+    oklch(0.46 0.085 120),
+    (
+      repeating-linear-gradient(
+        90deg,
+        rgb(253 251 247 / 13%) 0 2px,
+        transparent 2px 9px
+      ),
+      oklch(0.46 0.085 120)
+    ),
+  ),
+  dessert: (
+    oklch(0.46 0.1 350),
+    (
+      repeating-linear-gradient(
+        45deg,
+        rgb(253 251 247 / 11%) 0 1.5px,
+        transparent 1.5px 8px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        rgb(253 251 247 / 11%) 0 1.5px,
+        transparent 1.5px 8px
+      ),
+      oklch(0.46 0.1 350)
+    ),
+  ),
+  swap: (
+    #3a2f24,
+    (
+      repeating-linear-gradient(
+        -45deg,
+        rgb(253 251 247 / 9%) 0 6px,
+        transparent 6px 12px
+      ),
+      #3a2f24
+    ),
+  ),
+);
+
+// Buttons the game shares: spice to act, ink to commit, outlines to leave.
+.go-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 0;
+  font-family: $sans;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  &--spice {
+    background: $spice;
+    color: $paper;
+
+    &:hover:not(:disabled) {
+      background: $spice-dark;
+      color: $paper;
+    }
+  }
+
+  &--ink {
+    background: $ink;
+    color: $paper;
+
+    &:hover:not(:disabled) {
+      background: #000;
+    }
+  }
+
+  &--outline {
+    border-color: $rule-strong;
+    background: $paper;
+    color: $ink;
+
+    &:hover {
+      border-color: $ink;
+      color: $ink;
+    }
+  }
+
+  &--outline-paper {
+    border-color: rgb(253 251 247 / 60%);
+    background: transparent;
+    color: $paper;
+  }
+
+  &--small {
+    min-height: $tap;
+    padding: 0 1.1rem;
+    font-size: 0.875rem;
+  }
+
+  &--block {
+    width: 100%;
+  }
+}
+
+.go-kicker {
+  margin: 0 0 0.5rem;
+  color: $go-amber;
+  font-family: $sans;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+// ---- the card
+
+.go-card {
+  // A full card is laid out at 170px and scaled whole with zoom: its type
+  // is a fixed size, so narrowing the card alone crops the recipe's name.
+  --go-zoom: 1;
+
+  position: relative;
+  width: calc(170px * var(--go-zoom));
+  transition: transform 0.22s ease;
+
+  &--full &__face,
+  &--full &__back {
+    width: 170px;
+    zoom: var(--go-zoom);
+  }
+
+  &__face {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    aspect-ratio: 5 / 7;
+    padding: 6px;
+    border-radius: 9px;
+    box-shadow: 0 2px 6px rgb(36 31 26 / 16%);
+  }
+
+  &__art {
+    position: relative;
+    flex-shrink: 0;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 4px;
+    background: $night;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__badge {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 7px;
+    border: 2px solid $paper;
+    border-radius: 999px;
+    color: $paper;
+    font-family: $mono;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  &__badge-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  &__kind {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 2px;
+    color: $paper;
+    font-family: $sans;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+  }
+
+  &__name {
+    flex: 1;
+    min-height: 0;
+    padding: 0 2px;
+    overflow: hidden;
+    color: $paper;
+    font-family: $serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.12;
+  }
+
+  &__score {
+    padding: 5px 7px;
+    border-radius: 4px;
+    background: $paper;
+    color: $ink;
+    font-family: $sans;
+    font-size: 10.5px;
+    font-weight: 500;
+    line-height: 1.28;
+  }
+
+  &__tab {
+    position: absolute;
+    z-index: 2;
+    top: -12px;
+    left: 50%;
+    padding: 5px 9px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: $ink;
+    color: $paper;
+    font-family: $sans;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  &__back {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12%;
+    aspect-ratio: 5 / 7;
+    padding: 6px;
+    border-radius: 9px;
+    background: repeating-linear-gradient(
+        45deg,
+        #4d3f31 0 1px,
+        transparent 1px 10px
+      ),
+      repeating-linear-gradient(-45deg, #4d3f31 0 1px, transparent 1px 10px),
+      $night;
+    box-shadow: inset 0 0 0 6px $night, inset 0 0 0 8px $spice;
+  }
+
+  &__back-mark {
+    width: 46%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, $paper 0 19%, transparent 19.5%),
+      radial-gradient(
+        circle,
+        transparent 0 34%,
+        $paper 34.5% 39%,
+        transparent 39.5%
+      ),
+      $spice;
+  }
+
+  &__back-word {
+    color: $paper;
+    font-family: $serif;
+    font-size: 19px;
+    font-style: italic;
+  }
+
+  // The small size, on the table: art, icon, and the number that matters.
+  &--sm {
+    width: 46px;
+
+    .go-card__face {
+      gap: 3px;
+      aspect-ratio: auto;
+      padding: 3px;
+      border-radius: 6px;
+      box-shadow: none;
+    }
+
+    .go-card__art {
+      border-radius: 3px;
+    }
+
+    .go-card__back {
+      aspect-ratio: 46 / 60;
+      padding: 3px;
+      border-radius: 6px;
+      box-shadow: inset 0 0 0 3px $night, inset 0 0 0 4px $spice;
+    }
+  }
+
+  &__sm-foot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 18px;
+    color: $paper;
+    font-family: $mono;
+    font-size: 11px;
+    font-weight: 600;
+
+    .go-card__icon {
+      width: 13px;
+      height: 13px;
+    }
+  }
+
+  @each $kind, $values in $go-kinds {
+    &--#{$kind} {
+      .go-card__face {
+        background: nth($values, 2);
+      }
+
+      .go-card__badge {
+        background: nth($values, 1);
+      }
+    }
+  }
+
+  // States: a pick lifts and is outlined, the rest of a locked hand waits.
+  &.is-picked {
+    transform: translateY(-14px);
+
+    .go-card__face {
+      outline: 3px solid $ink;
+      outline-offset: 2px;
+      box-shadow: 0 14px 24px rgb(36 31 26 / 28%);
+    }
+  }
+
+  &.is-played .go-card__face {
+    box-shadow: none;
+  }
+
+  &.is-dim {
+    opacity: 0.4;
+  }
+
+  // The reveal: every new card flips over together, staggered by seat.
+  &.is-revealed,
+  .go-recipe-card.is-revealed > & {
+    animation: go-flip 280ms ease-out both;
+    animation-delay: calc(var(--seat, 0) * 60ms);
+  }
+}
+
+@keyframes go-flip {
+  from {
+    transform: perspective(400px) rotateY(90deg);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@keyframes go-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes go-pass {
+  from {
+    transform: translateX(40%);
+    opacity: 0;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+// ---- avatars
+
+.go-avatar {
+  --go-avatar: 36px;
+
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--go-avatar);
+  height: var(--go-avatar);
+  border-radius: 50%;
+  background: $spice;
+  color: $paper;
+  font-family: $sans;
+  font-size: calc(var(--go-avatar) * 0.36);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+
+  &--seat-1 {
+    background: $ink;
+  }
+
+  &--seat-2 {
+    background: $ink-muted;
+  }
+
+  &--seat-3 {
+    background: #5a4636;
+  }
+
+  &--empty {
+    border: 1px dashed $go-frame;
+    background: transparent;
+  }
+}
+
+// ---- /play
+
+.go-hero {
+  overflow: hidden;
+  padding: 2rem 0 1.5rem;
+  // The night lattice of the Umami Go banner on the front page.
+  background: repeating-linear-gradient(
+      45deg,
+      rgba(125, 74, 26, 0.32) 0 2px,
+      transparent 2px 30px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(125, 74, 26, 0.32) 0 2px,
+      transparent 2px 30px
+    ),
+    $night;
+  color: $paper;
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__title {
+    margin: 0 0 1rem;
+    color: $paper;
+    font-family: $serif;
+    font-size: 3.5rem;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  &__lede {
+    max-width: 36rem;
+    margin-bottom: 1.5rem;
+    color: $paper;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__fan {
+    position: relative;
+    order: 0;
+    height: 210px;
+    margin: 0 auto 1.5rem;
+  }
+
+  // Every card turns about one point well below the fan, so the cards lie
+  // on an arc and the outer ones sit lower, as in a hand.
+  &__fan-card {
+    --go-zoom: 0.72;
+    --go-fan-step: 9deg;
+
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) rotate(calc(var(--i) * var(--go-fan-step)));
+    transform-origin: 50% 330%;
+
+    // Three cards at the phone width; all five once there is room.
+    &:first-child,
+    &:last-child {
+      display: none;
+    }
+  }
+
+  &__copy {
+    display: contents;
+  }
+
+  .go-kicker {
+    order: -3;
+  }
+
+  &__title {
+    order: -2;
+  }
+
+  &__lede {
+    order: -1;
+  }
+
+  &__actions {
+    order: 1;
+  }
+
+  @media (min-width: $go-lg) {
+    padding: 5rem 0;
+
+    &__inner {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    // The words stay on top: the fan never covers the title or the lede.
+    &__copy {
+      position: relative;
+      z-index: 1;
+      display: block;
+      flex: 1 1 auto;
+      min-width: 0;
+      max-width: 34rem;
+    }
+
+    &__title {
+      font-size: 6rem;
+    }
+
+    &__lede {
+      font-size: 1.125rem;
+    }
+
+    &__actions {
+      flex-direction: row;
+      align-items: flex-end;
+    }
+
+    // Three smaller cards until the page is wide enough for five.
+    &__fan {
+      flex: 0 0 360px;
+      width: 360px;
+      height: 240px;
+      margin: 0;
+    }
+
+    &__fan-card {
+      --go-zoom: 0.74;
+      --go-fan-step: 8deg;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    &__fan {
+      flex-basis: 460px;
+      width: 460px;
+      height: 280px;
+    }
+
+    &__fan-card {
+      --go-zoom: 0.8;
+      --go-fan-step: 7deg;
+
+      &:first-child,
+      &:last-child {
+        display: block;
+      }
+    }
+  }
+}
+
+.go-join {
+  &__label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: $paper;
+    font-size: 0.8125rem;
+  }
+
+  &__row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    height: 52px;
+    padding: 0 1rem;
+    border: 0;
+    border-radius: 0;
+    background: $paper;
+    color: $ink;
+    font-family: $mono;
+    font-size: 1.25rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+
+    &::placeholder {
+      color: $ink-muted;
+    }
+
+    @media (min-width: $go-lg) {
+      width: 170px;
+      flex: none;
+    }
+  }
+}
+
+.go-guide {
+  padding: 2rem 0 3rem;
+  background: $paper;
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  &__heading {
+    margin-bottom: 1rem;
+    font-family: $serif;
+    font-size: 1.5rem;
+  }
+
+  &__note {
+    margin-top: 1.5rem;
+  }
+
+  @media (min-width: $go-lg) {
+    padding: 3rem 0 4rem;
+
+    &__inner {
+      flex-direction: row;
+      gap: 3.5rem;
+    }
+
+    &__rules {
+      flex: 0 0 22rem;
+    }
+
+    &__heading {
+      font-size: 2rem;
+    }
+  }
+}
+
+.go-kinds {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 64px;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid $rule;
+  }
+
+  &__icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: $tap;
+    height: $tap;
+    border-radius: 6px;
+
+    img {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    color: $ink-muted;
+    font-size: 0.8125rem;
+
+    strong {
+      color: $ink;
+      font-size: 0.9375rem;
+      font-weight: 600;
+    }
+  }
+
+  @each $kind, $values in $go-kinds {
+    &__item--#{$kind} .go-kinds__icon {
+      background: nth($values, 1);
+    }
+  }
+
+  @media (min-width: $go-lg) {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+
+    &__item {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1rem;
+      border: 0;
+      background: $paper-warm;
+    }
+  }
+}
+
+// ---- a table: the game bar, then the lobby, the play or the scores
+
+.go-table-layout {
+  min-height: 100vh;
+  background: $paper;
+}
+
+.go-bar {
+  background: $night;
+  color: $paper;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 56px;
+  }
+
+  &__word {
+    flex: 1;
+    font-family: $serif;
+    font-size: 1.375rem;
+    font-style: italic;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    font-family: $mono;
+    font-size: 0.875rem;
+  }
+
+  &__code {
+    color: $go-amber;
+  }
+
+  &__leave {
+    color: $paper;
+    font-family: $sans;
+    font-size: 0.875rem;
+
+    &:hover {
+      color: $go-amber;
+    }
+  }
+
+  // At the phone width the lobby leads with Leave, and the table keeps
+  // only the turn: there is no room for everything.
+  @media (max-width: $bp-lg) {
+    .go-table--lobby &__word {
+      text-align: center;
+    }
+
+    .go-table--lobby &__meta &__leave,
+    .go-table--picking &__code,
+    .go-table--picking &__leave,
+    .go-table--scored &__leave,
+    .go-table--over &__code,
+    .go-table--over &__leave {
+      display: none;
+    }
+  }
+
+  @media (min-width: $go-lg) {
+    &__inner {
+      min-height: 64px;
+    }
+
+    &__leave--start {
+      display: none;
+    }
+  }
+}
+
+.go-missing {
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.go-lobby {
+  padding-top: 1.5rem;
+  padding-bottom: 7rem;
+
+  &__join {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  &__scan {
+    margin-bottom: 0.75rem;
+    color: $ink-muted;
+  }
+
+  &__qr {
+    width: 260px;
+  }
+
+  &__code {
+    margin: 0.75rem 0;
+    font-family: $mono;
+    font-size: 2.875rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    line-height: 1;
+  }
+
+  &__seats {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid $rule;
+  }
+
+  &__heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-family: $serif;
+    font-size: 1.375rem;
+  }
+
+  &__count {
+    color: $ink-muted;
+    font-family: $mono;
+    font-size: 0.8125rem;
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__player {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 56px;
+    border-bottom: 1px solid $rule;
+  }
+
+  &__name {
+    flex: 1;
+    font-size: 1rem;
+
+    .go-lobby__player--empty & {
+      color: $ink-muted;
+    }
+  }
+
+  &__tag {
+    color: $ink-muted;
+    font-size: 0.8125rem;
+  }
+
+  // The host's deal sits at the foot of the phone screen, under a thumb.
+  &__deal {
+    position: fixed;
+    z-index: 10;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid $rule;
+    background: $paper;
+    text-align: center;
+  }
+
+  &__hint {
+    margin: 0.35rem 0 0;
+    color: $ink-muted;
+    font-size: 0.8125rem;
+  }
+
+  &__waiting {
+    margin: 0;
+    padding: 0.9rem 0;
+    color: $ink-muted;
+  }
+
+  @media (min-width: $go-lg) {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+
+    &__join {
+      flex: 1;
+      flex-direction: row;
+      gap: 2.5rem;
+      text-align: left;
+    }
+
+    &__qr {
+      width: 340px;
+    }
+
+    &__code {
+      font-size: 5.25rem;
+    }
+
+    &__seats {
+      flex: 0 0 26rem;
+      margin: 0;
+      padding: 1.75rem;
+      border: 0;
+      background: $paper-warm;
+    }
+
+    &__deal {
+      position: static;
+      margin-top: 1.25rem;
+      padding: 0;
+      border: 0;
+      background: none;
+    }
+  }
+}
+
+.go-qr__code svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid $rule;
+}
+
+.go-seats-band {
+  padding: 1rem 0;
+  background: $paper-warm;
+}
+
+.go-status {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.go-status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $spice;
+}
+
+.go-seats {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: $bp-md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: $go-lg) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.go-seat {
+  padding: 1rem;
+  border: 1px solid $rule;
+  background: $paper;
+
+  &.is-you {
+    border-color: $ink;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  &__who {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+
+  &__name {
+    font-weight: 600;
+  }
+
+  &__state {
+    color: $ink-muted;
+    font-size: 0.8125rem;
+  }
+
+  &__score {
+    font-family: $mono;
+    font-size: 1.375rem;
+  }
+
+  &__cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 0.75rem;
+  }
+
+  &__swap {
+    margin: 0.6rem 0 0;
+    color: $ink-muted;
+    font-size: 0.8125rem;
+  }
+}
+
+.go-hand-band {
+  padding: 1.25rem 0 2rem;
+}
+
+.go-hand {
+  display: flex;
+  gap: 12px;
+  margin: 0 -15px;
+  padding: 24px 24px 12px;
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x mandatory;
+
+  li {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  // About two and a third cards in view at the phone width.
+  .go-card {
+    --go-zoom: 0.85;
+  }
+
+  &.is-passing li {
+    animation: go-pass 240ms ease-out both;
+  }
+
+  &__heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.75rem;
+    font-family: $serif;
+    font-size: 1.375rem;
+  }
+
+  &__meta {
+    color: $ink-muted;
+    font-family: $sans;
+    font-size: 0.8125rem;
+  }
+
+  &__passed {
+    margin: 0;
+    color: $spice;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  &__card {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  @media (min-width: $go-lg) {
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 24px 0 12px;
+    overflow: visible;
+
+    li {
+      flex: 0 0 auto;
+    }
+
+    .go-card {
+      --go-zoom: 0.94;
+    }
+
+    &__actions {
+      flex-direction: row;
+      justify-content: flex-end;
+
+      .go-lock {
+        flex: 0 0 22rem;
+        width: auto;
+      }
+    }
+  }
+}
+
+.go-swap {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 56px;
+  margin: 0;
+  padding: 0 1rem;
+  border: 1px solid $rule;
+  background: $paper;
+  cursor: pointer;
+
+  span {
+    flex: 1;
+  }
+
+  &__icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  &__switch {
+    width: 48px;
+    height: 28px;
+    appearance: none;
+    border-radius: 999px;
+    background: radial-gradient(
+        circle at 14px 50%,
+        $paper 0 10px,
+        transparent 10.5px
+      ),
+      $rule-strong;
+    cursor: pointer;
+    transition: background-position 0.2s;
+
+    &:checked {
+      background: radial-gradient(
+          circle at 34px 50%,
+          $paper 0 10px,
+          transparent 10.5px
+        ),
+        $spice;
+    }
+  }
+}
+
+.go-scores {
+  @media (min-width: $go-lg) {
+    display: flex;
+  }
+
+  &__winner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    background: $night;
+    color: $paper;
+    text-align: center;
+
+    @media (min-width: $go-lg) {
+      flex: 0 0 420px;
+      align-items: flex-start;
+      padding: 3rem 2rem;
+      text-align: left;
+    }
+  }
+
+  &__avatar {
+    box-shadow: 0 0 0 3px $night, 0 0 0 5px $go-amber;
+  }
+
+  &__line {
+    margin: 1rem 0 0.25rem;
+    color: $paper;
+    font-family: $serif;
+    font-size: 2.25rem;
+
+    @media (min-width: $go-lg) {
+      font-size: 3.25rem;
+    }
+  }
+
+  &__points {
+    color: $go-amber;
+    font-family: $mono;
+    font-size: 1.125rem;
+  }
+
+  &__last {
+    display: none;
+
+    @media (min-width: $go-lg) {
+      display: block;
+      margin-top: 1rem;
+      font-size: 0.8125rem;
+    }
+  }
+
+  &__last-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 0.5rem;
+  }
+
+  &__table {
+    flex: 1;
+    padding: 1.5rem 1rem 2rem;
+
+    @media (min-width: $go-lg) {
+      padding: 3rem 2.5rem;
+    }
+  }
+
+  &__actions {
+    margin-top: 1.5rem;
+
+    .go-button {
+      width: 100%;
+
+      @media (min-width: $go-lg) {
+        width: auto;
+      }
+    }
+  }
+}
+
+.go-score-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.9rem 0.4rem;
+    border-bottom: 1px solid $rule;
+  }
+
+  thead th {
+    border-bottom-color: $ink;
+    color: $ink-muted;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  tbody th {
+    font-weight: 600;
+  }
+
+  &__who {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .num {
+    text-align: right;
+  }
+
+  td.num {
+    font-family: $mono;
+  }
+
+  .total {
+    color: $ink;
+    font-weight: 600;
+  }
+
+  &__icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .go-card {
+    transition: none;
+
+    &.is-revealed,
+    .go-recipe-card.is-revealed > & {
+      animation: go-fade 120ms linear both;
+      animation-delay: 0ms;
+    }
+  }
+
+  .go-hand.is-passing li {
+    animation: none;
+  }
+}
+
+// A recipe's card as Druxt renders it lies exactly over the dealt copy, which
+// holds the space until the recipe arrives through the Druxt store.
+.go-recipe-card {
+  position: relative;
+
+  &__druxt {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+}
+
+// The recipe's own image field, rendered by Druxt, filling the art area.
+.go-card__druxt-art,
+.go-card__druxt-art * {
+  height: 100%;
+  margin: 0;
+}
+
+.go-card__druxt-art img {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+}

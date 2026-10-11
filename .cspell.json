@@ -1,0 +1,37 @@
+{
+  "files": ["**/*.{js,vue,json,md,yml,yaml}"],
+  "dictionaryDefinitions": [
+    {
+      "name": "project-words",
+      "path": "./.cspell-project-words.txt"
+    }
+  ],
+  "dictionaries": ["project-words", "bash", "misc", "node", "softwareTerms"],
+  "ignorePaths": [
+    ".git/",
+    "node_modules/",
+    "**/node_modules/",
+    "nuxt/.nuxt/",
+    "nuxt/.nuxt-storybook/",
+    "nuxt/dist/",
+    "nuxt/dist-*/",
+    "nuxt/storybook-static/",
+    "nuxt/modules/templates/",
+    "nuxt/vendor/",
+    "nuxt/locales/es.js",
+    "drupal/",
+    "**/CHANGELOG.md",
+    "*.lock",
+    "yarn.lock",
+    "package-lock.json",
+    "*.svg",
+    "*.png",
+    "*.jpg",
+    "*.gif",
+    "*.ico",
+    "*.min.*",
+    "e2e/test-results/",
+    "e2e/lighthouse/",
+    "e2e/.lighthouseci/"
+  ]
+}

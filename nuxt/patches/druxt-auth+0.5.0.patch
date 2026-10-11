@@ -1,0 +1,1089 @@
+diff --git a/node_modules/druxt-auth/dist/fetch.d.ts b/node_modules/druxt-auth/dist/fetch.d.ts
+new file mode 100644
+index 0000000..d251b47
+--- /dev/null
++++ b/node_modules/druxt-auth/dist/fetch.d.ts
+@@ -0,0 +1,65 @@
++/** The route a request is for, if any. */
++declare function routeFor(method: any, path: any): {
++    path: string;
++    methods: string[];
++} | {
++    path: string;
++    methods?: undefined;
++};
++/**
++ * A `Set-Cookie` value, made to belong to this origin: the backend's `Domain`
++ * goes, and `Secure` goes too when the reader came over plain HTTP, where a
++ * browser would refuse to store it.
++ */
++declare function rewriteCookie(value: any, { secure }?: {
++    secure?: boolean;
++}): string;
++/**
++ * The handler.
++ *
++ * @param {object} options - Options.
++ * @param {string} options.baseUrl - Drupal's own origin.
++ * @param {string} [options.clientId] - The consumer.
++ * @param {string} [options.passwordClientId] - The password grant's consumer.
++ * @param {string} [options.clientSecret] - A confidential consumer's secret.
++ * @param {boolean} [options.proxy=true] - Whether to proxy Drupal's paths.
++ * @param {Function} [options.fetch] - The fetch to reach Drupal with.
++ * @returns {Function} `(request) => Promise<Response>`, 404 for anything else.
++ */
++declare function createFetchHandler(options?: {
++    baseUrl: string;
++    clientId?: string;
++    passwordClientId?: string;
++    clientSecret?: string;
++    proxy?: boolean;
++    fetch?: Function;
++}): Function;
++/**
++ * The module's server routes, as a web-standard handler: a `Request` in, a
++ * `Response` out.
++ *
++ * `druxt-auth/server` gives a Node server these routes as middleware. This is
++ * the same set for hosts that speak the Fetch API instead: Netlify and Vercel
++ * functions, Cloudflare Workers, Deno. The module writes a Netlify or Vercel
++ * function around it on its own after a static generate on those platforms.
++ *
++ * No dependencies and no Node built-ins, so a copy of the built file runs
++ * wherever `fetch`, `Request` and `Response` exist.
++ */
++/** Where the password grant's browser half posts. */
++declare const TOKEN_PATH: "/_auth/drupal-password/token";
++/**
++ * Every path these routes answer, and the methods they answer it for. The
++ * JSON login, logout and password routes are Drupal's for POST alone: a GET
++ * has to reach whatever page the site renders there, the login page this
++ * module adds among them.
++ */
++declare const ROUTES: ({
++    path: string;
++    methods: string[];
++} | {
++    path: string;
++    methods?: undefined;
++})[];
++
++export { ROUTES, TOKEN_PATH, createFetchHandler, rewriteCookie, routeFor };
+diff --git a/node_modules/druxt-auth/dist/fetch.js b/node_modules/druxt-auth/dist/fetch.js
+new file mode 100644
+index 0000000..dfbed53
+--- /dev/null
++++ b/node_modules/druxt-auth/dist/fetch.js
+@@ -0,0 +1,135 @@
++'use strict';
++
++Object.defineProperty(exports, '__esModule', { value: true });
++
++const TOKEN_PATH = "/_auth/drupal-password/token";
++const ROUTES = [
++  { path: TOKEN_PATH, methods: ["POST"] },
++  { path: "/user/login", methods: ["POST"] },
++  { path: "/user/logout", methods: ["POST"] },
++  { path: "/user/password", methods: ["POST"] },
++  { path: "/oauth/authorize" },
++  { path: "/oauth/token" },
++  { path: "/oauth/userinfo" },
++  { path: "/session/token" }
++];
++const GRANT_FIELDS = new Map([
++  ["password", ["username", "password", "scope"]],
++  ["refresh_token", ["refresh_token", "scope"]]
++]);
++const HOP_BY_HOP = [
++  "connection",
++  "keep-alive",
++  "proxy-connection",
++  "te",
++  "trailer",
++  "transfer-encoding",
++  "upgrade",
++  "host"
++];
++function routeFor(method, path) {
++  return ROUTES.find((route) => route.path === path && (!route.methods || route.methods.includes(String(method).toUpperCase())));
++}
++const json = (body, status = 200) => new Response(JSON.stringify(body), {
++  status,
++  headers: { "content-type": "application/json" }
++});
++function rewriteCookie(value, { secure = true } = {}) {
++  return String(value).split(";").map((part) => part.trim()).filter((part) => !/^domain=/i.test(part)).filter((part) => secure || !/^secure$/i.test(part)).join("; ");
++}
++async function token(request, options) {
++  let data;
++  try {
++    data = await request.json();
++  } catch (e) {
++    return json({ error: "invalid_request" }, 400);
++  }
++  const fields = GRANT_FIELDS.get((data || {}).grant_type);
++  if (!fields)
++    return json({ error: "unsupported_grant_type" }, 400);
++  if (data.grant_type === "password" && (!data.username || !data.password)) {
++    return json({ error: "invalid_request" }, 400);
++  }
++  const secret = options.clientSecret;
++  const body = new URLSearchParams({
++    ...Object.fromEntries(fields.filter((field) => data[field] !== void 0).map((field) => [field, data[field]])),
++    grant_type: data.grant_type,
++    client_id: options.passwordClientId || options.clientId,
++    ...secret ? { client_secret: secret } : {}
++  });
++  const response = await options.fetch(`${options.baseUrl}/oauth/token`, {
++    method: "POST",
++    headers: { "content-type": "application/x-www-form-urlencoded" },
++    body: body.toString()
++  });
++  return new Response(await response.text(), {
++    status: response.status,
++    headers: {
++      "content-type": "application/json",
++      "cache-control": "no-store"
++    }
++  });
++}
++async function proxy(request, url, options) {
++  const headers = new Headers();
++  for (const [name, value] of request.headers) {
++    if (!HOP_BY_HOP.includes(name.toLowerCase()))
++      headers.set(name, value);
++  }
++  headers.set("x-forwarded-host", url.host);
++  headers.set("x-forwarded-proto", url.protocol.replace(":", ""));
++  const method = request.method.toUpperCase();
++  const answer = await options.fetch(`${options.baseUrl}${url.pathname}${url.search}`, {
++    method,
++    headers,
++    body: ["GET", "HEAD"].includes(method) ? void 0 : await request.arrayBuffer(),
++    redirect: "manual"
++  });
++  const out = new Headers();
++  for (const [name, value] of answer.headers) {
++    const key = name.toLowerCase();
++    if (HOP_BY_HOP.includes(key) || ["set-cookie", "content-encoding", "content-length"].includes(key)) {
++      continue;
++    }
++    out.set(name, value);
++  }
++  const secure = url.protocol === "https:";
++  const cookies = typeof answer.headers.getSetCookie === "function" ? answer.headers.getSetCookie() : [answer.headers.get("set-cookie")].filter(Boolean);
++  for (const cookie of cookies) {
++    out.append("set-cookie", rewriteCookie(cookie, { secure }));
++  }
++  const location = out.get("location");
++  if (location && location.startsWith(options.baseUrl)) {
++    out.set("location", location.slice(options.baseUrl.length) || "/");
++  }
++  return new Response(answer.body, { status: answer.status, headers: out });
++}
++function createFetchHandler(options = {}) {
++  const baseUrl = String(options.baseUrl || "").replace(/\/+$/, "");
++  if (!baseUrl) {
++    throw new Error("druxt-auth: createFetchHandler needs a baseUrl.");
++  }
++  const settings = {
++    ...options,
++    baseUrl,
++    fetch: options.fetch || ((...args) => fetch(...args))
++  };
++  return async (request) => {
++    const url = new URL(request.url);
++    const route = routeFor(request.method, url.pathname);
++    if (!route)
++      return new Response("Not found", { status: 404 });
++    if (route.path === TOKEN_PATH)
++      return token(request, settings);
++    if (settings.proxy === false) {
++      return new Response("Not found", { status: 404 });
++    }
++    return proxy(request, url, settings);
++  };
++}
++
++exports.ROUTES = ROUTES;
++exports.TOKEN_PATH = TOKEN_PATH;
++exports.createFetchHandler = createFetchHandler;
++exports.rewriteCookie = rewriteCookie;
++exports.routeFor = routeFor;
+diff --git a/node_modules/druxt-auth/dist/fetch.mjs b/node_modules/druxt-auth/dist/fetch.mjs
+new file mode 100644
+index 0000000..6b3266f
+--- /dev/null
++++ b/node_modules/druxt-auth/dist/fetch.mjs
+@@ -0,0 +1,127 @@
++const TOKEN_PATH = "/_auth/drupal-password/token";
++const ROUTES = [
++  { path: TOKEN_PATH, methods: ["POST"] },
++  { path: "/user/login", methods: ["POST"] },
++  { path: "/user/logout", methods: ["POST"] },
++  { path: "/user/password", methods: ["POST"] },
++  { path: "/oauth/authorize" },
++  { path: "/oauth/token" },
++  { path: "/oauth/userinfo" },
++  { path: "/session/token" }
++];
++const GRANT_FIELDS = new Map([
++  ["password", ["username", "password", "scope"]],
++  ["refresh_token", ["refresh_token", "scope"]]
++]);
++const HOP_BY_HOP = [
++  "connection",
++  "keep-alive",
++  "proxy-connection",
++  "te",
++  "trailer",
++  "transfer-encoding",
++  "upgrade",
++  "host"
++];
++function routeFor(method, path) {
++  return ROUTES.find((route) => route.path === path && (!route.methods || route.methods.includes(String(method).toUpperCase())));
++}
++const json = (body, status = 200) => new Response(JSON.stringify(body), {
++  status,
++  headers: { "content-type": "application/json" }
++});
++function rewriteCookie(value, { secure = true } = {}) {
++  return String(value).split(";").map((part) => part.trim()).filter((part) => !/^domain=/i.test(part)).filter((part) => secure || !/^secure$/i.test(part)).join("; ");
++}
++async function token(request, options) {
++  let data;
++  try {
++    data = await request.json();
++  } catch (e) {
++    return json({ error: "invalid_request" }, 400);
++  }
++  const fields = GRANT_FIELDS.get((data || {}).grant_type);
++  if (!fields)
++    return json({ error: "unsupported_grant_type" }, 400);
++  if (data.grant_type === "password" && (!data.username || !data.password)) {
++    return json({ error: "invalid_request" }, 400);
++  }
++  const secret = options.clientSecret;
++  const body = new URLSearchParams({
++    ...Object.fromEntries(fields.filter((field) => data[field] !== void 0).map((field) => [field, data[field]])),
++    grant_type: data.grant_type,
++    client_id: options.passwordClientId || options.clientId,
++    ...secret ? { client_secret: secret } : {}
++  });
++  const response = await options.fetch(`${options.baseUrl}/oauth/token`, {
++    method: "POST",
++    headers: { "content-type": "application/x-www-form-urlencoded" },
++    body: body.toString()
++  });
++  return new Response(await response.text(), {
++    status: response.status,
++    headers: {
++      "content-type": "application/json",
++      "cache-control": "no-store"
++    }
++  });
++}
++async function proxy(request, url, options) {
++  const headers = new Headers();
++  for (const [name, value] of request.headers) {
++    if (!HOP_BY_HOP.includes(name.toLowerCase()))
++      headers.set(name, value);
++  }
++  headers.set("x-forwarded-host", url.host);
++  headers.set("x-forwarded-proto", url.protocol.replace(":", ""));
++  const method = request.method.toUpperCase();
++  const answer = await options.fetch(`${options.baseUrl}${url.pathname}${url.search}`, {
++    method,
++    headers,
++    body: ["GET", "HEAD"].includes(method) ? void 0 : await request.arrayBuffer(),
++    redirect: "manual"
++  });
++  const out = new Headers();
++  for (const [name, value] of answer.headers) {
++    const key = name.toLowerCase();
++    if (HOP_BY_HOP.includes(key) || ["set-cookie", "content-encoding", "content-length"].includes(key)) {
++      continue;
++    }
++    out.set(name, value);
++  }
++  const secure = url.protocol === "https:";
++  const cookies = typeof answer.headers.getSetCookie === "function" ? answer.headers.getSetCookie() : [answer.headers.get("set-cookie")].filter(Boolean);
++  for (const cookie of cookies) {
++    out.append("set-cookie", rewriteCookie(cookie, { secure }));
++  }
++  const location = out.get("location");
++  if (location && location.startsWith(options.baseUrl)) {
++    out.set("location", location.slice(options.baseUrl.length) || "/");
++  }
++  return new Response(answer.body, { status: answer.status, headers: out });
++}
++function createFetchHandler(options = {}) {
++  const baseUrl = String(options.baseUrl || "").replace(/\/+$/, "");
++  if (!baseUrl) {
++    throw new Error("druxt-auth: createFetchHandler needs a baseUrl.");
++  }
++  const settings = {
++    ...options,
++    baseUrl,
++    fetch: options.fetch || ((...args) => fetch(...args))
++  };
++  return async (request) => {
++    const url = new URL(request.url);
++    const route = routeFor(request.method, url.pathname);
++    if (!route)
++      return new Response("Not found", { status: 404 });
++    if (route.path === TOKEN_PATH)
++      return token(request, settings);
++    if (settings.proxy === false) {
++      return new Response("Not found", { status: 404 });
++    }
++    return proxy(request, url, settings);
++  };
++}
++
++export { ROUTES, TOKEN_PATH, createFetchHandler, rewriteCookie, routeFor };
+diff --git a/node_modules/druxt-auth/dist/index.esm.js b/node_modules/druxt-auth/dist/index.esm.js
+index 7c8880c..f5090e7 100644
+--- a/node_modules/druxt-auth/dist/index.esm.js
++++ b/node_modules/druxt-auth/dist/index.esm.js
+@@ -1,7 +1,8 @@
+-import { resolve } from 'path';
++import { join, resolve } from 'path';
++import { createProxyMiddleware } from 'http-proxy-middleware';
++import { readFileSync, mkdirSync, writeFileSync, cpSync } from 'fs';
+ import axios from 'axios';
+ import bodyParser from 'body-parser';
+-import { createProxyMiddleware } from 'http-proxy-middleware';
+ 
+ const proxyEntries = (baseUrl) => [
+   ["/oauth/userinfo", { target: baseUrl }],
+@@ -14,6 +15,142 @@ const proxyEntries = (baseUrl) => [
+   ["/session/token", { target: baseUrl }]
+ ];
+ 
++const TOKEN_PATH$1 = "/_auth/drupal-password/token";
++const ROUTES = [
++  { path: TOKEN_PATH$1, methods: ["POST"] },
++  { path: "/user/login", methods: ["POST"] },
++  { path: "/user/logout", methods: ["POST"] },
++  { path: "/user/password", methods: ["POST"] },
++  { path: "/oauth/authorize" },
++  { path: "/oauth/token" },
++  { path: "/oauth/userinfo" },
++  { path: "/session/token" }
++];
++
++function detectPlatform(env = process.env) {
++  if (env.NETLIFY === "true")
++    return "netlify";
++  if (env.VERCEL)
++    return "vercel";
++  return null;
++}
++function entry(settings) {
++  const value = (v) => JSON.stringify(v === void 0 ? null : v);
++  return `
++const druxtAuthHandle = createFetchHandler({
++  baseUrl: process.env.DRUXT_AUTH_BASE_URL || ${value(settings.baseUrl)},
++  clientId: ${value(settings.clientId)} || process.env.DRUXT_AUTH_CLIENT_ID,
++  passwordClientId: ${value(settings.passwordClientId)},
++  clientSecret: process.env.DRUXT_AUTH_CLIENT_SECRET,
++})
++`;
++}
++function routeGroups() {
++  const post = ROUTES.filter((r) => (r.methods || []).join() === "POST");
++  const any = ROUTES.filter((r) => !r.methods);
++  return { post, any };
++}
++function writeNetlify({ rootDir, source, settings }) {
++  const dir = join(rootDir, ".netlify", "v1", "functions");
++  mkdirSync(dir, { recursive: true });
++  const { post, any } = routeGroups();
++  const files = [];
++  for (const [name, routes, method] of [
++    ["druxt-auth-post", post, ["POST"]],
++    ["druxt-auth", any, null]
++  ]) {
++    const config = {
++      path: routes.map((r) => r.path),
++      ...method ? { method } : {}
++    };
++    const file = join(dir, `${name}.mjs`);
++    writeFileSync(file, `${source}
++${entry(settings)}
++export default (request) => druxtAuthHandle(request)
++
++export const config = ${JSON.stringify(config, null, 2)}
++`);
++    files.push(file);
++  }
++  return files;
++}
++function writeVercel({ rootDir, staticDir, source, settings }) {
++  const out = join(rootDir, ".vercel", "output");
++  const func = join(out, "functions", "druxt-auth.func");
++  mkdirSync(func, { recursive: true });
++  cpSync(staticDir, join(out, "static"), { recursive: true });
++  writeFileSync(join(func, "index.js"), `${source}
++${entry(settings)}
++export default (request) => druxtAuthHandle(request)
++`);
++  writeFileSync(join(func, ".vc-config.json"), JSON.stringify({ runtime: "edge", entrypoint: "index.js" }, null, 2));
++  const escape = (path) => path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
++  const config = {
++    version: 3,
++    routes: [
++      ...ROUTES.map((r) => ({
++        src: `^${escape(r.path)}$`,
++        ...r.methods ? { methods: r.methods } : {},
++        dest: "/druxt-auth"
++      })),
++      { handle: "filesystem" }
++    ]
++  };
++  writeFileSync(join(out, "config.json"), JSON.stringify(config, null, 2));
++  return [join(func, "index.js"), join(out, "config.json")];
++}
++function writePlatformFunctions(args) {
++  const platform = args.platform === void 0 || args.platform === "auto" ? detectPlatform(args.env) : args.platform;
++  if (!platform)
++    return null;
++  const source = readFileSync(args.handlerFile, "utf8");
++  const write = { netlify: writeNetlify, vercel: writeVercel }[platform];
++  if (!write)
++    throw new Error(`druxt-auth: unknown platform "${platform}".`);
++  return { platform, files: write({ ...args, source }) };
++}
++
++const TOKEN_PATH = "/_auth/drupal-password/token";
++const GRANT_FIELDS = new Map([
++  ["password", ["username", "password", "scope"]],
++  ["refresh_token", ["refresh_token", "scope"]]
++]);
++function passwordTokenHandler(options = {}) {
++  const parse = bodyParser.json();
++  return (req, res, next) => {
++    if (req.method !== "POST")
++      return next();
++    return parse(req, res, async () => {
++      const data = req.body || {};
++      const fields = GRANT_FIELDS.get(data.grant_type);
++      if (!fields)
++        return next(new Error("Unsupported grant type"));
++      if (data.grant_type === "password" && (!data.username || !data.password)) {
++        return next(new Error("Invalid username or password"));
++      }
++      try {
++        const secret = options.clientSecret || process.env.DRUXT_AUTH_CLIENT_SECRET;
++        const postData = new URLSearchParams({
++          ...Object.fromEntries(fields.filter((field) => data[field] !== void 0).map((field) => [field, data[field]])),
++          grant_type: data.grant_type,
++          client_id: options.passwordClientId || options.clientId || process.env.DRUXT_AUTH_CLIENT_ID,
++          ...secret ? { client_secret: secret } : {}
++        }).toString();
++        res.setHeader("Content-Type", "application/json");
++        res.setHeader("Cache-Control", "no-store");
++        const response = await axios.post(options.tokenEndpoint, postData, {
++          headers: { "Content-Type": "application/x-www-form-urlencoded" }
++        });
++        res.end(JSON.stringify(response.data));
++      } catch (err) {
++        console.error(err);
++        res.statusCode = (err.response || {}).status || 500;
++        res.end(JSON.stringify({ ...(err.response || {}).data || {} }));
++      }
++    });
++  };
++}
++
+ const isPlainObject = (value) => !!value && typeof value === "object" && !Array.isArray(value);
+ const extend = (base, over) => {
+   if (!isPlainObject(base) || !isPlainObject(over))
+@@ -127,46 +264,13 @@ const NuxtModule = function(moduleOptions = {}) {
+   };
+   this.options.auth.strategies = extendStrategies(this.options.auth.strategies, siteStrategies);
+   this.options.serverMiddleware.unshift({
+-    path: "/_auth/drupal-password/token",
+-    handler: async (req, res, next) => {
+-      if (req.method !== "POST") {
+-        return next();
+-      }
+-      const formMiddleware = bodyParser.json();
+-      await formMiddleware(req, res, async () => {
+-        const data = req.body;
+-        const grantFields = new Map([
+-          ["password", ["username", "password", "scope"]],
+-          ["refresh_token", ["refresh_token", "scope"]]
+-        ]);
+-        const fields = grantFields.get(data.grant_type);
+-        if (!fields) {
+-          return next(new Error("Unsupported grant type"));
+-        }
+-        if (data.grant_type === "password" && (!data.username || !data.password)) {
+-          return next(new Error("Invalid username or password"));
+-        }
+-        try {
+-          const secret = (options.auth || {}).clientSecret || process.env.DRUXT_AUTH_CLIENT_SECRET;
+-          const postData = new URLSearchParams({
+-            ...Object.fromEntries(fields.filter((field) => data[field] !== void 0).map((field) => [field, data[field]])),
+-            grant_type: data.grant_type,
+-            client_id: (options.auth || {}).passwordClientId || (options.auth || {}).clientId || process.env.DRUXT_AUTH_CLIENT_ID,
+-            ...secret ? { client_secret: secret } : {}
+-          }).toString();
+-          const response = await axios.post(this.options.auth.strategies["drupal-password"].endpoints.token, postData, {
+-            headers: {
+-              "Content-Type": "application/x-www-form-urlencoded"
+-            }
+-          });
+-          res.end(JSON.stringify(response.data));
+-        } catch (err) {
+-          console.error(err);
+-          res.statusCode = (err.response || {}).status || 500;
+-          res.end(JSON.stringify({ ...(err.response || {}).data || {} }));
+-        }
+-      });
+-    }
++    path: TOKEN_PATH,
++    handler: passwordTokenHandler({
++      tokenEndpoint: this.options.auth.strategies["drupal-password"].endpoints.token,
++      clientId: (options.auth || {}).clientId,
++      passwordClientId: (options.auth || {}).passwordClientId,
++      clientSecret: (options.auth || {}).clientSecret
++    })
+   });
+   this.options.store = true;
+   this.addModule("@nuxtjs/auth-next");
+@@ -176,6 +280,33 @@ const NuxtModule = function(moduleOptions = {}) {
+     mode: "all",
+     options
+   });
++  this.addPlugin({
++    src: resolve(__dirname, "../templates/csrf.js"),
++    fileName: "druxt-auth-csrf.js",
++    mode: "client",
++    options: {
++      csrfToken: ((options.auth || {}).csrfToken || "/session/token").replace(/'/g, "\\'")
++    }
++  });
++  this.nuxt.hook("generate:done", () => {
++    const written = writePlatformFunctions({
++      platform: (options.auth || {}).platform,
++      rootDir: this.options.rootDir,
++      staticDir: this.options.generate.dir,
++      handlerFile: resolve(__dirname, "fetch.mjs"),
++      settings: {
++        baseUrl,
++        clientId: (options.auth || {}).clientId,
++        passwordClientId: (options.auth || {}).passwordClientId
++      }
++    });
++    const log = this.nuxt.options.consola || console;
++    if (written) {
++      log.info(`druxt-auth: wrote ${written.platform} functions for the token route and the Drupal proxy.`);
++      return;
++    }
++    log.warn("druxt-auth: the password grant's token route and the Drupal proxy are server middleware, which a static build does not run. Mount createServerMiddleware() from 'druxt-auth/server' in the server that serves the generated files, or createFetchHandler() from 'druxt-auth/fetch' in a function.");
++  });
+   this.nuxt.hook("components:dirs", (dirs) => {
+     dirs.push({ path: resolve(__dirname, "components") });
+   });
+diff --git a/node_modules/druxt-auth/dist/index.ssr.js b/node_modules/druxt-auth/dist/index.ssr.js
+index 2193363..9b130b1 100644
+--- a/node_modules/druxt-auth/dist/index.ssr.js
++++ b/node_modules/druxt-auth/dist/index.ssr.js
+@@ -1,9 +1,10 @@
+ 'use strict';
+ 
+ const path = require('path');
++const httpProxyMiddleware = require('http-proxy-middleware');
++const fs = require('fs');
+ const axios = require('axios');
+ const bodyParser = require('body-parser');
+-const httpProxyMiddleware = require('http-proxy-middleware');
+ 
+ function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+ 
+@@ -21,6 +22,142 @@ const proxyEntries = (baseUrl) => [
+   ["/session/token", { target: baseUrl }]
+ ];
+ 
++const TOKEN_PATH$1 = "/_auth/drupal-password/token";
++const ROUTES = [
++  { path: TOKEN_PATH$1, methods: ["POST"] },
++  { path: "/user/login", methods: ["POST"] },
++  { path: "/user/logout", methods: ["POST"] },
++  { path: "/user/password", methods: ["POST"] },
++  { path: "/oauth/authorize" },
++  { path: "/oauth/token" },
++  { path: "/oauth/userinfo" },
++  { path: "/session/token" }
++];
++
++function detectPlatform(env = process.env) {
++  if (env.NETLIFY === "true")
++    return "netlify";
++  if (env.VERCEL)
++    return "vercel";
++  return null;
++}
++function entry(settings) {
++  const value = (v) => JSON.stringify(v === void 0 ? null : v);
++  return `
++const druxtAuthHandle = createFetchHandler({
++  baseUrl: process.env.DRUXT_AUTH_BASE_URL || ${value(settings.baseUrl)},
++  clientId: ${value(settings.clientId)} || process.env.DRUXT_AUTH_CLIENT_ID,
++  passwordClientId: ${value(settings.passwordClientId)},
++  clientSecret: process.env.DRUXT_AUTH_CLIENT_SECRET,
++})
++`;
++}
++function routeGroups() {
++  const post = ROUTES.filter((r) => (r.methods || []).join() === "POST");
++  const any = ROUTES.filter((r) => !r.methods);
++  return { post, any };
++}
++function writeNetlify({ rootDir, source, settings }) {
++  const dir = path.join(rootDir, ".netlify", "v1", "functions");
++  fs.mkdirSync(dir, { recursive: true });
++  const { post, any } = routeGroups();
++  const files = [];
++  for (const [name, routes, method] of [
++    ["druxt-auth-post", post, ["POST"]],
++    ["druxt-auth", any, null]
++  ]) {
++    const config = {
++      path: routes.map((r) => r.path),
++      ...method ? { method } : {}
++    };
++    const file = path.join(dir, `${name}.mjs`);
++    fs.writeFileSync(file, `${source}
++${entry(settings)}
++export default (request) => druxtAuthHandle(request)
++
++export const config = ${JSON.stringify(config, null, 2)}
++`);
++    files.push(file);
++  }
++  return files;
++}
++function writeVercel({ rootDir, staticDir, source, settings }) {
++  const out = path.join(rootDir, ".vercel", "output");
++  const func = path.join(out, "functions", "druxt-auth.func");
++  fs.mkdirSync(func, { recursive: true });
++  fs.cpSync(staticDir, path.join(out, "static"), { recursive: true });
++  fs.writeFileSync(path.join(func, "index.js"), `${source}
++${entry(settings)}
++export default (request) => druxtAuthHandle(request)
++`);
++  fs.writeFileSync(path.join(func, ".vc-config.json"), JSON.stringify({ runtime: "edge", entrypoint: "index.js" }, null, 2));
++  const escape = (path) => path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
++  const config = {
++    version: 3,
++    routes: [
++      ...ROUTES.map((r) => ({
++        src: `^${escape(r.path)}$`,
++        ...r.methods ? { methods: r.methods } : {},
++        dest: "/druxt-auth"
++      })),
++      { handle: "filesystem" }
++    ]
++  };
++  fs.writeFileSync(path.join(out, "config.json"), JSON.stringify(config, null, 2));
++  return [path.join(func, "index.js"), path.join(out, "config.json")];
++}
++function writePlatformFunctions(args) {
++  const platform = args.platform === void 0 || args.platform === "auto" ? detectPlatform(args.env) : args.platform;
++  if (!platform)
++    return null;
++  const source = fs.readFileSync(args.handlerFile, "utf8");
++  const write = { netlify: writeNetlify, vercel: writeVercel }[platform];
++  if (!write)
++    throw new Error(`druxt-auth: unknown platform "${platform}".`);
++  return { platform, files: write({ ...args, source }) };
++}
++
++const TOKEN_PATH = "/_auth/drupal-password/token";
++const GRANT_FIELDS = new Map([
++  ["password", ["username", "password", "scope"]],
++  ["refresh_token", ["refresh_token", "scope"]]
++]);
++function passwordTokenHandler(options = {}) {
++  const parse = bodyParser__default["default"].json();
++  return (req, res, next) => {
++    if (req.method !== "POST")
++      return next();
++    return parse(req, res, async () => {
++      const data = req.body || {};
++      const fields = GRANT_FIELDS.get(data.grant_type);
++      if (!fields)
++        return next(new Error("Unsupported grant type"));
++      if (data.grant_type === "password" && (!data.username || !data.password)) {
++        return next(new Error("Invalid username or password"));
++      }
++      try {
++        const secret = options.clientSecret || process.env.DRUXT_AUTH_CLIENT_SECRET;
++        const postData = new URLSearchParams({
++          ...Object.fromEntries(fields.filter((field) => data[field] !== void 0).map((field) => [field, data[field]])),
++          grant_type: data.grant_type,
++          client_id: options.passwordClientId || options.clientId || process.env.DRUXT_AUTH_CLIENT_ID,
++          ...secret ? { client_secret: secret } : {}
++        }).toString();
++        res.setHeader("Content-Type", "application/json");
++        res.setHeader("Cache-Control", "no-store");
++        const response = await axios__default["default"].post(options.tokenEndpoint, postData, {
++          headers: { "Content-Type": "application/x-www-form-urlencoded" }
++        });
++        res.end(JSON.stringify(response.data));
++      } catch (err) {
++        console.error(err);
++        res.statusCode = (err.response || {}).status || 500;
++        res.end(JSON.stringify({ ...(err.response || {}).data || {} }));
++      }
++    });
++  };
++}
++
+ const isPlainObject = (value) => !!value && typeof value === "object" && !Array.isArray(value);
+ const extend = (base, over) => {
+   if (!isPlainObject(base) || !isPlainObject(over))
+@@ -134,46 +271,13 @@ const NuxtModule = function(moduleOptions = {}) {
+   };
+   this.options.auth.strategies = extendStrategies(this.options.auth.strategies, siteStrategies);
+   this.options.serverMiddleware.unshift({
+-    path: "/_auth/drupal-password/token",
+-    handler: async (req, res, next) => {
+-      if (req.method !== "POST") {
+-        return next();
+-      }
+-      const formMiddleware = bodyParser__default["default"].json();
+-      await formMiddleware(req, res, async () => {
+-        const data = req.body;
+-        const grantFields = new Map([
+-          ["password", ["username", "password", "scope"]],
+-          ["refresh_token", ["refresh_token", "scope"]]
+-        ]);
+-        const fields = grantFields.get(data.grant_type);
+-        if (!fields) {
+-          return next(new Error("Unsupported grant type"));
+-        }
+-        if (data.grant_type === "password" && (!data.username || !data.password)) {
+-          return next(new Error("Invalid username or password"));
+-        }
+-        try {
+-          const secret = (options.auth || {}).clientSecret || process.env.DRUXT_AUTH_CLIENT_SECRET;
+-          const postData = new URLSearchParams({
+-            ...Object.fromEntries(fields.filter((field) => data[field] !== void 0).map((field) => [field, data[field]])),
+-            grant_type: data.grant_type,
+-            client_id: (options.auth || {}).passwordClientId || (options.auth || {}).clientId || process.env.DRUXT_AUTH_CLIENT_ID,
+-            ...secret ? { client_secret: secret } : {}
+-          }).toString();
+-          const response = await axios__default["default"].post(this.options.auth.strategies["drupal-password"].endpoints.token, postData, {
+-            headers: {
+-              "Content-Type": "application/x-www-form-urlencoded"
+-            }
+-          });
+-          res.end(JSON.stringify(response.data));
+-        } catch (err) {
+-          console.error(err);
+-          res.statusCode = (err.response || {}).status || 500;
+-          res.end(JSON.stringify({ ...(err.response || {}).data || {} }));
+-        }
+-      });
+-    }
++    path: TOKEN_PATH,
++    handler: passwordTokenHandler({
++      tokenEndpoint: this.options.auth.strategies["drupal-password"].endpoints.token,
++      clientId: (options.auth || {}).clientId,
++      passwordClientId: (options.auth || {}).passwordClientId,
++      clientSecret: (options.auth || {}).clientSecret
++    })
+   });
+   this.options.store = true;
+   this.addModule("@nuxtjs/auth-next");
+@@ -183,6 +287,33 @@ const NuxtModule = function(moduleOptions = {}) {
+     mode: "all",
+     options
+   });
++  this.addPlugin({
++    src: path.resolve(__dirname, "../templates/csrf.js"),
++    fileName: "druxt-auth-csrf.js",
++    mode: "client",
++    options: {
++      csrfToken: ((options.auth || {}).csrfToken || "/session/token").replace(/'/g, "\\'")
++    }
++  });
++  this.nuxt.hook("generate:done", () => {
++    const written = writePlatformFunctions({
++      platform: (options.auth || {}).platform,
++      rootDir: this.options.rootDir,
++      staticDir: this.options.generate.dir,
++      handlerFile: path.resolve(__dirname, "fetch.mjs"),
++      settings: {
++        baseUrl,
++        clientId: (options.auth || {}).clientId,
++        passwordClientId: (options.auth || {}).passwordClientId
++      }
++    });
++    const log = this.nuxt.options.consola || console;
++    if (written) {
++      log.info(`druxt-auth: wrote ${written.platform} functions for the token route and the Drupal proxy.`);
++      return;
++    }
++    log.warn("druxt-auth: the password grant's token route and the Drupal proxy are server middleware, which a static build does not run. Mount createServerMiddleware() from 'druxt-auth/server' in the server that serves the generated files, or createFetchHandler() from 'druxt-auth/fetch' in a function.");
++  });
+   this.nuxt.hook("components:dirs", (dirs) => {
+     dirs.push({ path: path.resolve(__dirname, "components") });
+   });
+diff --git a/node_modules/druxt-auth/dist/server.d.ts b/node_modules/druxt-auth/dist/server.d.ts
+new file mode 100644
+index 0000000..e04259e
+--- /dev/null
++++ b/node_modules/druxt-auth/dist/server.d.ts
+@@ -0,0 +1,63 @@
++/**
++ * The password grant's server half: it adds the consumer, and its secret
++ * where there is one, and asks Drupal for the token.
++ *
++ * @param {object} options - Options.
++ * @param {string} options.tokenEndpoint - Drupal's `/oauth/token`.
++ * @param {string} [options.clientId] - The consumer.
++ * @param {string} [options.passwordClientId] - The password grant's own
++ *   consumer, where the browser flow has a public one.
++ * @param {string} [options.clientSecret] - A confidential consumer's secret.
++ * @returns {Function} Connect-style middleware for POST requests.
++ */
++declare function passwordTokenHandler(options?: {
++    tokenEndpoint: string;
++    clientId?: string;
++    passwordClientId?: string;
++    clientSecret?: string;
++}): Function;
++/**
++ * One connect-style middleware with every route the module adds to a
++ * server: the password grant's token route, and, unless `proxy` is false,
++ * Drupal's sign-in, session and OAuth paths answered on this origin.
++ *
++ * A request none of them answers goes to `next`, so the site's own handler
++ * serves its files after this.
++ *
++ * @param {object} options - Options.
++ * @param {string} options.baseUrl - Drupal's own origin.
++ * @param {string} [options.clientId] - The consumer.
++ * @param {string} [options.passwordClientId] - The password grant's consumer.
++ * @param {string} [options.clientSecret] - A confidential consumer's secret.
++ * @param {boolean} [options.proxy=true] - Whether to proxy Drupal's paths.
++ * @returns {Function} Connect-style middleware.
++ *
++ * @example
++ * const { createServerMiddleware } = require('druxt-auth/server')
++ * const auth = createServerMiddleware({ baseUrl, clientId })
++ * http.createServer((req, res) => auth(req, res, () => serveFiles(req, res)))
++ */
++declare function createServerMiddleware(options?: {
++    baseUrl: string;
++    clientId?: string;
++    passwordClientId?: string;
++    clientSecret?: string;
++    proxy?: boolean;
++}): Function;
++/**
++ * What this module needs from a server, for a site that brings its own.
++ *
++ * The Nuxt module registers these as server middleware, which `nuxt dev` and
++ * `nuxt start` on a server target run. A static build runs neither: its files
++ * are served by something else, a Node server of the site's own or a CDN with
++ * a function in front. That server mounts `createServerMiddleware()` and gets
++ * the same routes, so a static site signs in the way a server-rendered one
++ * does, sessions and all.
++ *
++ * Node only. Imported from `druxt-auth/server`, never from the module's
++ * index, so nothing here reaches a browser bundle.
++ */
++/** Where the password grant's browser half posts. */
++declare const TOKEN_PATH: "/_auth/drupal-password/token";
++
++export { TOKEN_PATH, createServerMiddleware, passwordTokenHandler };
+diff --git a/node_modules/druxt-auth/dist/server.js b/node_modules/druxt-auth/dist/server.js
+new file mode 100644
+index 0000000..2bf46a6
+--- /dev/null
++++ b/node_modules/druxt-auth/dist/server.js
+@@ -0,0 +1,91 @@
++'use strict';
++
++Object.defineProperty(exports, '__esModule', { value: true });
++
++const axios = require('axios');
++const bodyParser = require('body-parser');
++const httpProxyMiddleware = require('http-proxy-middleware');
++
++function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
++
++const axios__default = /*#__PURE__*/_interopDefaultLegacy(axios);
++const bodyParser__default = /*#__PURE__*/_interopDefaultLegacy(bodyParser);
++
++const proxyEntries = (baseUrl) => [
++  ["/oauth/userinfo", { target: baseUrl }],
++  ...["/user/login", "/user/logout", "/user/password"].map((path) => [
++    (candidate, req) => candidate === path && req.method === "POST",
++    { target: baseUrl }
++  ]),
++  ["/oauth/authorize", { target: baseUrl }],
++  ["/oauth/token", { target: baseUrl }],
++  ["/session/token", { target: baseUrl }]
++];
++
++const TOKEN_PATH = "/_auth/drupal-password/token";
++const GRANT_FIELDS = new Map([
++  ["password", ["username", "password", "scope"]],
++  ["refresh_token", ["refresh_token", "scope"]]
++]);
++function passwordTokenHandler(options = {}) {
++  const parse = bodyParser__default["default"].json();
++  return (req, res, next) => {
++    if (req.method !== "POST")
++      return next();
++    return parse(req, res, async () => {
++      const data = req.body || {};
++      const fields = GRANT_FIELDS.get(data.grant_type);
++      if (!fields)
++        return next(new Error("Unsupported grant type"));
++      if (data.grant_type === "password" && (!data.username || !data.password)) {
++        return next(new Error("Invalid username or password"));
++      }
++      try {
++        const secret = options.clientSecret || process.env.DRUXT_AUTH_CLIENT_SECRET;
++        const postData = new URLSearchParams({
++          ...Object.fromEntries(fields.filter((field) => data[field] !== void 0).map((field) => [field, data[field]])),
++          grant_type: data.grant_type,
++          client_id: options.passwordClientId || options.clientId || process.env.DRUXT_AUTH_CLIENT_ID,
++          ...secret ? { client_secret: secret } : {}
++        }).toString();
++        res.setHeader("Content-Type", "application/json");
++        res.setHeader("Cache-Control", "no-store");
++        const response = await axios__default["default"].post(options.tokenEndpoint, postData, {
++          headers: { "Content-Type": "application/x-www-form-urlencoded" }
++        });
++        res.end(JSON.stringify(response.data));
++      } catch (err) {
++        console.error(err);
++        res.statusCode = (err.response || {}).status || 500;
++        res.end(JSON.stringify({ ...(err.response || {}).data || {} }));
++      }
++    });
++  };
++}
++function createServerMiddleware(options = {}) {
++  const baseUrl = String(options.baseUrl || "").replace(/\/+$/, "");
++  if (!baseUrl) {
++    throw new Error("druxt-auth: createServerMiddleware needs a baseUrl.");
++  }
++  const token = passwordTokenHandler({
++    ...options,
++    tokenEndpoint: options.tokenEndpoint || `${baseUrl}/oauth/token`
++  });
++  const proxies = options.proxy === false ? [] : proxyEntries(baseUrl).map(([context, entry]) => httpProxyMiddleware.createProxyMiddleware(context, {
++    changeOrigin: false,
++    ws: false,
++    logLevel: "warn",
++    ...entry
++  }));
++  return (req, res, next) => {
++    const path = String(req.url || "").split("?")[0];
++    if (path === TOKEN_PATH)
++      return token(req, res, next);
++    const run = (index) => index < proxies.length ? proxies[index](req, res, () => run(index + 1)) : next();
++    return run(0);
++  };
++}
++
++exports.TOKEN_PATH = TOKEN_PATH;
++exports.createServerMiddleware = createServerMiddleware;
++exports.passwordTokenHandler = passwordTokenHandler;
+diff --git a/node_modules/druxt-auth/package.json b/node_modules/druxt-auth/package.json
+index 15f3428..158604c 100644
+--- a/node_modules/druxt-auth/package.json
++++ b/node_modules/druxt-auth/package.json
+@@ -17,6 +17,13 @@
+       "require": "./dist/index.ssr.js",
+       "import": "./dist/index.esm.js"
+     },
++    "./server": {
++      "require": "./dist/server.js"
++    },
++    "./fetch": {
++      "import": "./dist/fetch.mjs",
++      "require": "./dist/fetch.js"
++    },
+     "./components/*": "./dist/components/*"
+   },
+   "main": "dist/index.ssr.js",
+diff --git a/node_modules/druxt-auth/templates/csrf.js b/node_modules/druxt-auth/templates/csrf.js
+new file mode 100644
+index 0000000..1219160
+--- /dev/null
++++ b/node_modules/druxt-auth/templates/csrf.js
+@@ -0,0 +1,61 @@
++/**
++ * Drupal's CSRF token on writes, while a sign-in holds a Drupal session.
++ *
++ * A strategy that opens a session (the authorization code flow, or the
++ * password grant with `passwordSession`) leaves a Drupal session cookie in
++ * the browser. With that cookie on the request, Drupal counts a write as
++ * cookie authenticated, whatever bearer token rides beside it, and refuses
++ * it with a 403 unless it carries an X-CSRF-Token header. A token-only
++ * sign-in opens no session, sends no cookie, and gets no header.
++ *
++ * The token comes from Drupal's /session/token on this origin, once per page,
++ * and again when Drupal answers that the one sent is no longer valid. Applied
++ * to the Druxt client's axios and to the app's own.
++ */
++const WRITES = ['post', 'patch', 'put', 'delete']
++const CSRF_PATH = '<%= options.csrfToken %>'
++
++export default (context) => {
++  const { $axios, $druxt } = context
++  // The session step stores Drupal's logout token: its presence is the
++  // session's. Read from the context on each request: auth-next's plugin runs
++  // after this one, so `$auth` is not there yet when this one does.
++  const sessionOpen = () => {
++    const $auth = context.$auth
++    const name = (($auth || {}).strategy || {}).name
++    return !!(name && $auth.$storage.getUniversal(`${name}.logout_token`))
++  }
++
++  let token = null
++  const fetchToken = async () => {
++    const response = await fetch(CSRF_PATH, { credentials: 'same-origin' })
++    token = response.ok ? await response.text() : null
++    return token
++  }
++
++  const clients = [($druxt || {}).axios, $axios].filter(
++    (client, index, all) =>
++      client && client.interceptors && all.indexOf(client) === index
++  )
++  for (const client of clients) {
++    client.interceptors.request.use(async (config) => {
++      const method = String(config.method || 'get').toLowerCase()
++      if (!WRITES.includes(method) || !sessionOpen()) return config
++      config.headers = config.headers || {}
++      config.headers['X-CSRF-Token'] = token || (await fetchToken())
++      return config
++    })
++    client.interceptors.response.use(undefined, async (error) => {
++      const { config, response } = error || {}
++      const refused =
++        response &&
++        response.status === 403 &&
++        /X-CSRF-Token/i.test(JSON.stringify(response.data || ''))
++      if (!refused || !config || config.__druxtCsrfRetried || !sessionOpen())
++        throw error
++      config.__druxtCsrfRetried = true
++      config.headers['X-CSRF-Token'] = await fetchToken()
++      return client.request(config)
++    })
++  }
++}

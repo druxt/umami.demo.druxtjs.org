@@ -1,12 +1,17 @@
 <template>
   <b-form-group
     :id="schema.id"
+    :label-for="`${schema.id}-field`"
     description="Send yourself a copy"
     :invalid-feedback="stateFeedback"
     :label="label"
     :state="state"
   >
-    <b-form-checkbox v-model="model" :state="state" />
+    <b-form-checkbox
+      :id="`${schema.id}-field`"
+      v-model="model"
+      :state="state"
+    />
   </b-form-group>
 </template>
 

@@ -1,22 +1,24 @@
-# DruxtJS Umami demo - Drupal JSON:API backend.
+# Druxt Umami demo: the Drupal backend
 
-This is the Drupal 9 codebase for the JSON:API backend used by the DruxtJS Umami demonstration site.
+The Drupal 11 backend of the [Druxt Umami demo](https://umami.demo.druxtjs.org).
+It installs Drupal's Umami demo profile, and the `druxt_umami` module sets up
+Druxt: JSON:API access, the OAuth consumer, the search index and the demo's
+menus.
 
-The site uses the Drupal Umami installaton profile with the DruxtJS module pre-configured and ready to be access with the DruxtJS demo frontend:
-- https://github.com/druxt/demo.druxtjs.org
+## Run it
 
+The quickest way is the whole demo in a dev container. The
+[repository README](../README.md) links it for DevPod.
 
-## Get started
+Without one, PHP 8.3 and Composer are enough. The site runs on SQLite and PHP's
+built-in server:
 
-### Gitpod
+```bash
+composer install
+.devtools/provision   # a fresh Umami, with the Druxt layer enabled
+.devtools/start       # serves it on http://127.0.0.1:8888
+.devtools/test        # the API contract the frontend depends on
+```
 
-This repository is setup to be run on Gitpod:
-
-1. Goto https://gitpod.io/#https://github.com/druxt/demo-api.druxtjs.org  
-1a. Login with Github/Gitlab
-2. Wait
-3. Open the one-time login link
-
-#### tl;dr
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#github.com/druxt/demo-api.druxtjs.org)   
+Every provision installs Umami from scratch, so the demo always starts from
+its known content.

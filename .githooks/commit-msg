@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+# Conventional Commits and no AI attribution, checked before the commit exists.
+exec npx --no -- commitlint --edit "$1"

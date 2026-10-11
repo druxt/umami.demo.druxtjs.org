@@ -1,27 +1,25 @@
-FROM uselagoon/node-16-builder:latest as builder
+# Only what the install reads, so a code change reuses the installed
+# dependencies. Dockerfile.storybook repeats these stages to share them.
+FROM uselagoon/node-16-builder:23.10.0 AS manifests
+COPY ./nuxt/ /nuxt/
+RUN mkdir /manifests && cd /nuxt \
+  && cp package.json yarn.lock /manifests/ \
+  && for dir in patches vendor; do \
+    if [ -d "$dir" ]; then cp -R "$dir" "/manifests/$dir"; fi; \
+  done
 
-COPY ./nuxt/ /app/
-RUN yarn
+FROM uselagoon/node-16-builder:23.10.0 AS deps
+COPY --from=manifests /manifests /app/
+RUN yarn install --frozen-lockfile
 
-FROM uselagoon/node-16:latest
+# Dependencies first, as a layer of their own that a code change leaves as it
+# was. Owned by Lagoon's runtime user, so the build at start can write to /app
+# without a fix-permissions pass over node_modules.
+FROM uselagoon/node-16:23.10.0
+COPY --from=deps --chown=10000:0 /app /app
+COPY --chown=10000:0 ./nuxt/ /app/
 
-COPY --from=builder /app/node_modules /app/node_modules
-COPY ./nuxt/ /app/
-COPY ./.env /app/
-
-ARG BASE_URL
-ARG GITHUB_CLIENT_ID
-ARG GITHUB_CLIENT_SECRET
-ARG OAUTH_CLIENT_ID
-
-ENV BASE_URL ${BASE_URL}
-ENV GITHUB_CLIENT_ID ${GITHUB_CLIENT_ID}
-ENV GITHUB_CLIENT_SECRET ${GITHUB_CLIENT_SECRET}
-ENV OAUTH_CLIENT_ID ${OAUTH_CLIENT_ID}
-
-RUN yarn build && yarn generate
-
-ENV HOST 0.0.0.0
+ENV HOST=0.0.0.0 PORT=3000 DRUPAL_URL=http://nginx:8080
 EXPOSE 3000
 
-CMD ["yarn", "start"]
+CMD ["node", "server/start.js"]

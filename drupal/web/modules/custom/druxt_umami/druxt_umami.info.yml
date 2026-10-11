@@ -2,13 +2,30 @@ name: DruxtJS Umami
 description: Enhancements, tweaks and configuration for the Druxt Umami demo.
 
 type: module
-core_version_requirement: ^8.8 || ^9
+core_version_requirement: ^10 || ^11
 
 dependencies:
   - drupal:anonymous_redirect
+  # The demo's share links and commands, edited in one place and read by
+  # the frontend through JSON:API.
+  - config_pages:config_pages
+  - drupal:link
+  # demo_umami leaves contact out, so /contact 404s and the frontend's
+  # contact form has no contact_message bundle to build itself from.
+  - drupal:contact
   - drupal:druxt
   - drupal:druxt_node_preview
   - drupal:gin_login
   - drupal:jsonapi_hypermedia
+  # Content changes reach the frontend through Purge, which rebuilds.
+  - purge:purge
+  - purge:purge_drush
+  - purge:purge_processor_lateruntime
+  - purge:purge_queuer_coretags
+  - purge:purge_tokens
+  - purge_purger_http:purge_purger_http
   - drupal:search_api_lunr
   - drupal:simple_oauth
+  # Editors sign in on the site with a username and password: the password
+  # grant, which Simple OAuth 6 moved out of core.
+  - simple_oauth_password_grant:simple_oauth_password_grant

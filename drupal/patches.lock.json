@@ -1,0 +1,49 @@
+{
+    "_hash": "8dd4d784ae95366a82064498129a14b750ffdfe3659ab9586c9f74f42ce64efe",
+    "patches": {
+        "drupal/decoupled_router": [
+            {
+                "package": "drupal/decoupled_router",
+                "description": "#3111456 Resolve the language from the requested path",
+                "url": "https://git.drupalcode.org/project/decoupled_router/-/merge_requests/35.diff",
+                "sha256": "dde4025339e5e35aa25b5383721eda654aef6205838ae195e166e5d6875aa7c2",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            }
+        ],
+        "drupal/druxt": [
+            {
+                "package": "drupal/druxt",
+                "description": "#3273228 Add langcode to Views Decoupled Router integration (MR!9, code for 1.3.1)",
+                "url": "patches/druxt-mr9-views-langcode.patch",
+                "sha256": "df74df1ce62f1d0517c27e0575dde3846d840b413def4cc9e921c6516a349bc5",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            },
+            {
+                "package": "drupal/druxt",
+                "description": "#3264181 Node Preview (MR!8, rerolled for 1.2.2, applies to 1.3.1)",
+                "url": "patches/druxt-mr8-node-preview.patch",
+                "sha256": "ef3fca6f13cfeae336ac2c063d853b4484499935aec15b3eecd7580f1f0ca1eb",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            },
+            {
+                "package": "drupal/druxt",
+                "description": "The front page of a prefixed language is the home path",
+                "url": "patches/druxt-front-page-language.patch",
+                "sha256": "d8ea008559ab4466010f7e02d34ab1c5bb370035e059f7b93bac71836b52a30c",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            }
+        ]
+    }
+}

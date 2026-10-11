@@ -1,68 +1,135 @@
 <template>
-  <article>
-    <b-row>
-      <b-col>
-        <b-row class="mb-3">
-          <b-col>
-            <slot name="field_tags" />
-          </b-col>
-        </b-row>
+  <article class="article-page">
+    <div
+      class="node-hero node-hero--article bleed"
+      :class="{ 'v-diff-swapped': fieldDiff('field_media_image') }"
+    >
+      <slot name="field_media_image" />
+      <AppDraftSwap
+        :entity="draftEntity"
+        :field="fieldDiff('field_media_image')"
+        name="field_media_image"
+      />
+    </div>
 
-        <b-row class="mb-3">
-          <b-col>
-            <slot name="field_summary" />
-          </b-col>
-        </b-row>
+    <!-- One measure at every width. At lg the meta moves into the left rail
+         and the column holds at 680px. -->
+    <div class="article-page__grid">
+      <aside class="article-page__rail">
+        {{ $t('bundle.article') }}<br />{{
+          $t('article.readTime', { n: readTime })
+        }}<br />{{ shortDate }}
+      </aside>
 
-        <b-row class="mb-3">
-          <b-col>
-            <slot name="field_media_image" />
-          </b-col>
-        </b-row>
+      <div class="article-page__column">
+        <span class="article-page__kicker">
+          {{ $t('bundle.article') }} ·
+          {{ $t('article.readTime', { n: readTime }) }}
+        </span>
 
-        <b-row class="mb-3">
-          <b-col>
-            <slot name="body" />
-          </b-col>
-        </b-row>
-      </b-col>
+        <h1
+          v-diff="fieldDiff('title')"
+          class="article-page__title"
+          v-text="entity.attributes.title"
+        />
 
-      <b-col md="4">
-        <DruxtView
-          :arguments="[entity.attributes.drupal_internal__nid]"
-          display-id="block_1"
-          view-id="articles_aside"
+        <p class="article-page__byline">
+          {{ $t('article.byline')
+          }}<span class="article-page__date"> · {{ longDate }}</span>
+        </p>
+
+        <div class="field--body article-page__body">
+          <slot name="field_body" />
+        </div>
+
+        <div class="recipe-tags">
+          <slot name="field_tags" />
+        </div>
+
+        <div class="article-page__more">
+          <DruxtView
+            :arguments="[entity.attributes.drupal_internal__nid]"
+            display-id="block_1"
+            view-id="articles_aside"
+          >
+            <template #default="{ display, results }">
+              <h2
+                class="recipe-body__heading"
+                v-text="display.display_options.title"
+              />
+              <div class="article-grid article-grid--aside">
+                <DruxtEntity
+                  v-for="result of results"
+                  :key="result.id"
+                  mode="card"
+                  :type="result.type"
+                  :uuid="result.id"
+                />
+              </div>
+            </template>
+          </DruxtView>
+        </div>
+
+        <AppDruxtNote
+          class="mt-4"
+          :title="$t('note.articleTitle')"
+          :cta="$t('note.articleCta')"
+          href="https://druxtjs.org/modules/views"
+          :code="code"
+          >{{ $t('note.articleBody') }}</AppDruxtNote
         >
-          <template #default="{ display, results }">
-            <h3 class="mt-4 mb-3" v-text="display.display_options.title" />
-            <DruxtEntity
-              v-for="result of results"
-              :key="result.id"
-              class="mb-3"
-              mode="card"
-              :type="result.type"
-              :uuid="result.id"
-            />
-          </template>
-        </DruxtView>
-      </b-col>
-    </b-row>
+      </div>
+    </div>
   </article>
 </template>
 
 <script>
+import { diffable } from '@druxt-contrib/diff'
 import { DruxtEntityMixin } from 'druxt-entity'
+import { langMixin } from '~/utils/lang'
 
 export default {
-  mixins: [DruxtEntityMixin],
+  mixins: [langMixin, DruxtEntityMixin, diffable],
 
   computed: {
+    /** This entity as the draft helpers name it. */
+    draftEntity() {
+      return { type: this.entity.type, id: this.entity.id, langcode: this.lang }
+    },
+
     theme: () => 'umami',
+
+    /** Words in the body at 200 a minute, never under one. */
+    readTime: ({ entity }) => {
+      const html = ((entity.attributes || {}).field_body || {}).processed || ''
+      const words = html
+        .replace(/<[^>]+>/g, ' ')
+        .split(/\s+/)
+        .filter(Boolean)
+      return Math.max(1, Math.round(words.length / 200))
+    },
+
+    created: ({ entity }) => new Date((entity.attributes || {}).created),
+
+    longDate() {
+      return this.formatDate(this.created, 'long')
+    },
+    shortDate() {
+      return this.formatDate(this.created, 'short')
+    },
+
+    code: () =>
+      [
+        '<span class="t">&lt;DruxtView</span>',
+        '  <span class="a">view-id</span>=<span class="v">"articles_aside"</span>',
+        '  <span class="a">:arguments</span>=<span class="v">"[nid]"</span>',
+        '<span class="t">/&gt;</span>',
+      ].join('\n'),
   },
 
   druxt: {
     query: {
-      fields: ['drupal_internal__nid'],
+      fields: ['created', 'drupal_internal__nid', 'field_body', 'title'],
     },
   },
 }

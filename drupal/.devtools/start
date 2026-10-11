@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+#
+# Serve the provisioned site on PHP's built-in server.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+PORT="${DRUPAL_PORT:-8888}"
+export PHP_INI_SCAN_DIR="$PWD/.devtools/etc:${PHP_INI_SCAN_DIR:-}"
+echo "Serving http://127.0.0.1:$PORT (ctrl-c to stop)"
+# The router script path must be absolute: it chdirs into the docroot, and the
+# built-in server reopens the script by the path given here on every request.
+exec php -d memory_limit=512M -S "127.0.0.1:$PORT" -t web "$PWD/.devtools/router.php"

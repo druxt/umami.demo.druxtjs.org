@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+#
+# Put the demo back to the snapshot `.devtools/snapshot` took: every edit,
+# upload and setting change since is gone. Web requests answer 503 for the
+# seconds it takes. Then the frontend is told to drop its cache and rebuild.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+DRUSH="$PWD/vendor/bin/drush"
+export PHP_INI_SCAN_DIR="$PWD/.devtools/etc:${PHP_INI_SCAN_DIR:-}"
+FILES="$PWD/web/sites/default/files"
+DIR="${DRUXT_RESET_DIR:-$FILES/private/druxt-reset}"
+
+DB="${DRUPAL_SQLITE_PATH:-$PWD/.devtools/db.sqlite}"
+{ [ -f "$DIR/database.sql" ] || [ -f "$DIR/database.sqlite" ]; } && [ -f "$DIR/files.tgz" ] || {
+  echo "no snapshot in $DIR; run .devtools/snapshot first" >&2
+  exit 1
+}
+
+FLAG="$FILES/.provisioning"
+touch "$FLAG"
+trap 'rm -f "$FLAG"' EXIT
+
+echo "==> Database back to the snapshot of $(cat "$DIR/taken" 2>/dev/null || echo '?')"
+if [ -f "$DIR/database.sqlite" ]; then
+  # The file, whole; nothing reads it while the flag is up.
+  rm -f "$DB" "$DB-wal" "$DB-shm"
+  cp "$DIR/database.sqlite" "$DB"
+else
+  "$DRUSH" sql:drop --yes >/dev/null
+  "$DRUSH" sql:query --file="$DIR/database.sql"
+fi
+
+echo "==> Files back to the snapshot"
+for name in "$FILES"/*; do
+  case "$(basename "$name")" in private|php|css|js|styles) ;; *) rm -rf "$name" ;; esac
+done
+tar -C "$FILES" -xzf "$DIR/files.tgz"
+rm -rf "$FILES/css" "$FILES/js" "$FILES/styles" "$FILES/php"
+
+"$DRUSH" cache:rebuild >/dev/null
+rm -f "$FLAG"
+trap - EXIT
+
+# The frontend: forget what it read, then build the fresh content. Neither
+# is fatal; the site is back either way.
+HOST="${DRUXT_CACHE_CLEAR_HOST:-app}"
+PORT="${DRUXT_CACHE_CLEAR_PORT:-3000}"
+if [ -n "${DRUXT_CACHE_SECRET:-}" ]; then
+  curl -fsS -o /dev/null -X POST -H "X-Druxt-Secret: $DRUXT_CACHE_SECRET" \
+    "http://$HOST:$PORT/_druxt/cache/clear" || echo "cache clear not accepted" >&2
+fi
+curl -fsS -o /dev/null -X POST "http://$HOST:$PORT/_regenerate" || echo "regenerate not accepted" >&2
+
+echo "==> Reset done"

@@ -1,0 +1,124 @@
+#!/usr/bin/env node
+/**
+ * Start Storybook once Drupal is provisioned: its build reads the backend, and
+ * fails outright while Drupal is still installing.
+ *
+ * The port answers from the start, with a starting page, so the platform
+ * counts the service as up. Drupal is installed after every service is up,
+ * so a port held back until Drupal answers is never opened at all.
+ */
+const http = require('http')
+const path = require('path')
+const { spawn } = require('child_process')
+const { createDrupalProxy, isDrupalPath, waitForDrupal } = require('./drupal')
+const { createStartingHandler } = require('./starting')
+
+const env = process.env
+const port = Number(env.PORT) || 3000
+const host = env.HOST || '0.0.0.0'
+const inner = port + 1
+const drupalUrl = env.DRUPAL_URL || 'http://nginx:8080'
+const log = (message) => process.stdout.write(`storybook: ${message}\n`)
+
+/**
+ * The address a browser reaches this Storybook on. Stories read Drupal from
+ * the browser, through this server's own proxy, so each environment's
+ * Storybook reads its own Drupal. Lagoon lists the environment's routes; the
+ * one for this service starts with `storybook.`.
+ */
+const publicOrigin = () => {
+  if (env.STORYBOOK_ORIGIN) return env.STORYBOOK_ORIGIN
+  const route = String(env.LAGOON_ROUTES || '')
+    .split(',')
+    .map((r) => r.trim())
+    .find((r) => /^https?:\/\/storybook\./.test(r))
+  return route ? route.replace(/\/+$/, '') : env.BASE_URL
+}
+const drupal = createDrupalProxy(drupalUrl)
+
+// druxtjs.org's starting page, until Storybook answers.
+const state = { phase: 'waiting', since: new Date().toISOString() }
+const setPhase = (phase) => {
+  state.phase = phase
+  state.since = new Date().toISOString()
+}
+const starting = createStartingHandler(state)
+
+let handler = starting
+const server = http.createServer((req, res) =>
+  isDrupalPath(req.url) ? drupal(req, res) : handler(req, res)
+)
+
+/** Resolves once Storybook answers on its own port. */
+const waitForStorybook = async () => {
+  for (;;) {
+    const up = await new Promise((resolve) => {
+      http
+        .get(
+          { host: '127.0.0.1', port: inner, path: '/iframe.html' },
+          (res) => {
+            res.resume()
+            resolve(res.statusCode === 200)
+          }
+        )
+        .on('error', () => resolve(false))
+    })
+    if (up) return
+    await new Promise((resolve) => setTimeout(resolve, 5000))
+  }
+}
+
+const main = async () => {
+  await new Promise((resolve) => server.listen(port, host, resolve))
+  log(`starting page on http://${host}:${port}`)
+
+  await waitForDrupal(drupalUrl, log)
+  log(`Drupal is ready at ${drupalUrl}`)
+  setPhase('building')
+
+  child = spawn(
+    'yarn',
+    ['storybook', '-p', String(inner), '-h', '127.0.0.1', '--ci'],
+    {
+      cwd: path.join(__dirname, '..'),
+      env: { ...env, BASE_URL: publicOrigin() || env.BASE_URL },
+      stdio: 'inherit',
+    }
+  )
+  child.on('error', (error) => {
+    setPhase('failed')
+    log(`Storybook could not start: ${error.message}`)
+    process.exit(1)
+  })
+  child.on('exit', (code, signal) => {
+    // Stopped on purpose, with the server: not a failure.
+    if (stopping) return
+    setPhase('failed')
+    log(`Storybook exited with ${signal || code}`)
+    process.exit(code || 1)
+  })
+
+  await waitForStorybook()
+  setPhase('starting')
+  handler = createDrupalProxy(`http://127.0.0.1:${inner}`)
+  log(`serving Storybook from port ${inner}`)
+}
+
+// Storybook runs in a child, which a signal to this process does not reach:
+// it is passed on, so the child stops with the server, not after it.
+let child = null
+let stopping = false
+
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.on(signal, () => {
+    stopping = true
+    if (child && child.exitCode === null) child.kill(signal)
+    server.close(() => process.exit(0))
+    setTimeout(() => process.exit(0), 10000).unref()
+  })
+}
+
+main().catch((error) => {
+  process.stderr.write(`storybook: ${error.stack || error}\n`)
+  process.exit(1)
+})

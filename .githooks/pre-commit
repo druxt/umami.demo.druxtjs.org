@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# The fast half of CI. The Drupal suite and the stack test stay in the pipeline.
+set -e
+npm run --silent lint

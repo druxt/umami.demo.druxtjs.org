@@ -1,55 +1,45 @@
 <template>
-  <div>
-    <b-alert show>
-      <p>
-        This website is a demonstration of the DruxtJS decoupled framework for
-        Drupal.
-      </p>
-      <p>
-        Emails will not be sent, but the form is still functional for testing
-        purposes.
-      </p>
-      <p>Find more information and support at:</p>
-      <ul>
-        <li>
-          <a href="https://druxtjs.org" target="_blank">DruxtJS.org</a>
-        </li>
-        <li>
-          <a href="https://discord.druxtjs.org" target="_blank">
-            Druxt Discord server
-          </a>
-        </li>
-        <li>
-          <a href="https://github.com/druxt" target="_blank">Github</a>
-        </li>
-      </ul>
-    </b-alert>
+  <div class="form-page">
+    <span class="form-page__kicker">{{ $t('contact.kicker') }}</span>
+    <h1 class="form-page__title">{{ $t('contact.title') }}</h1>
+    <p class="form-page__blurb">{{ $t('contact.blurb') }}</p>
 
     <b-overlay :show="submitting">
-      <b-card>
-        <b-form v-if="!(response || {}).data">
-          <b-alert v-if="errors.length" show variant="warning">
-            <h4 class="alert-heading">
-              {{ errors[0].status }}: {{ errors[0].title }}
-            </h4>
-            {{ errors[0].detail }}
-          </b-alert>
+      <b-form v-if="!(response || {}).data">
+        <b-alert v-if="errors.length" show variant="warning">
+          <h4 class="alert-heading">
+            {{ errors[0].status }}: {{ errors[0].title }}
+          </h4>
+          {{ errors[0].detail }}
+        </b-alert>
 
-          <slot name="name" />
-          <slot name="mail" />
-          <slot name="subject" />
-          <slot name="message" />
-          <slot name="copy" />
-          <slot name="buttons" />
-        </b-form>
+        <slot name="name" />
+        <slot name="mail" />
+        <slot name="subject" />
+        <slot name="message" />
+        <slot name="copy" />
+        <slot name="buttons" />
+      </b-form>
 
-        <div v-else>
-          <p><strong>Thank you for your feedback</strong></p>
-          <p>The following is the response data recieved from Drupal:</p>
-          <VueJsonPretty :data="response.data" />
-        </div>
-      </b-card>
+      <div v-else class="form-page__sent">
+        <p>
+          <strong>{{ $t('contact.thanks') }}</strong>
+        </p>
+        <p>{{ $t('contact.response') }}</p>
+        <VueJsonPretty :data="response.data" />
+      </div>
     </b-overlay>
+
+    <AppDruxtNote
+      class="mt-4"
+      file="entity-form/contact-message/Feedback.vue"
+      :kicker="$t('note.howThisWorks')"
+    >
+      <i18n path="contact.noteBody" tag="span">
+        <template #component><code>DruxtEntityForm</code></template>
+        <template #form><code>contact_message</code></template>
+      </i18n>
+    </AppDruxtNote>
   </div>
 </template>
 
@@ -67,7 +57,7 @@ export default {
   computed: {
     errors: ({ $parent }) => ($parent.errors || []).filter((o) => !o.source),
     response: ({ $parent }) => $parent.response,
-    submitting: ({ $parent }) => $parent.submitting || false,
+    submitting: ({ $parent }) => $parent.submitting,
   },
 }
 </script>

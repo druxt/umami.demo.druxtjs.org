@@ -1,0 +1,729 @@
+---
+# CI for umami.demo.druxtjs.org.
+#
+# Two jobs matter here. `lint` guards the existing eslint/stylelint/prettier
+# setup, which nothing was running on merge requests. `pages` publishes a real,
+# browsable preview of the site per branch, which is the thing a diff cannot
+# give you for a visual change.
+#
+# Toolchain notes, both deliberate:
+#
+#   * Node 16 and Yarn 1, not the node 22 + pnpm the newer repos use. This is a
+#     Nuxt 2 / Vue 2.7 codebase on a frozen toolchain with a v1 lockfile.
+#     Corepack forces Yarn 3 against that lockfile and fails with YN0028, so
+#     `yarn` is pinned rather than taken from corepack.
+#   * The build needs a reachable Drupal. The stack jobs provision a fresh
+#     Drupal 11 in the job and start the site the way Lagoon does, through
+#     nuxt/server/start.js.
+
+stages:
+  - lint
+  - secret-detection
+  - test
+  - preview
+
+variables:
+  # The app is pinned to Node 16 with the rest of the frozen Nuxt 2 stack.
+  NODE_IMAGE: node:16.20.2
+  # Repo-level tooling has no reason to share that pin, and current
+  # markdownlint-cli2 needs Node 20+ (it uses the `v` regex flag).
+  TOOLS_IMAGE: node:22.23.2
+  BACKEND_URL: https://api.umami.demo.druxtjs.org
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+default:
+  tags: [docker]
+  timeout: 30m
+  before_script:
+    - 'section_start() { local n="$1" t="${2:-$1}"; printf "\e[0Ksection_start:%s:%s\r\e[0K%s\n" "$(date +%s)" "$n" "$t"; }'
+    - 'section_end() { printf "\e[0Ksection_end:%s:%s\r\e[0K\n" "$(date +%s)" "$1"; }'
+
+# Shared node setup. Corepack is explicitly disabled: this repo has a Yarn 1
+# lockfile, and corepack would activate Yarn 3 and refuse it.
+.node:
+  image: $NODE_IMAGE
+  interruptible: true
+  # The downloads only: a cached node_modules keeps the patches it was built
+  # with, and patch-package cannot lay a changed patch over an applied one.
+  cache:
+    key:
+      files:
+        - nuxt/yarn.lock
+      # A new prefix, so no job restores an archive that held node_modules.
+      prefix: yarn-only
+    paths:
+      - .yarn-cache/
+  before_script:
+    - !reference [default, before_script]
+    - section_start "install" "Installing dependencies (Yarn 1)"
+    # nuxt/package.json pins packageManager to yarn@1.22.22, so corepack
+    # provisions Yarn 1 there, rather than Yarn 3, which cannot read a v1
+    # lockfile. The root pins npm, so yarn only runs inside nuxt/.
+    - corepack enable
+    - cd nuxt
+    - yarn --version
+    - yarn config set cache-folder "$CI_PROJECT_DIR/.yarn-cache"
+    # Yarn 1 keys a file: package by its version, which the vendored copies
+    # never change, so a cached one outlives edits to vendor/. Drop them.
+    - for p in admin ckeditor diff; do yarn cache clean "@druxt-contrib/$p"; done
+    - yarn install --frozen-lockfile --network-timeout 600000
+    - section_end "install"
+
+# The root tooling: commitlint, the root eslint config and markdownlint, on
+# the npm the root package.json pins. It runs on the app's Node 16, which the
+# tooling versions are held to.
+.root:
+  image: $NODE_IMAGE
+  interruptible: true
+  needs: []
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - .npm/
+  before_script:
+    - !reference [default, before_script]
+    - section_start "install" "Installing the root tooling"
+    - corepack enable
+    - npm ci --cache .npm --prefer-offline --no-audit --no-fund
+    - section_end "install"
+
+#
+# --- Lint ---
+#
+
+lint:
+  extends: .node
+  stage: lint
+  script:
+    - section_start "eslint" "ESLint"
+    - yarn lint:js
+    - section_end "eslint"
+    - section_start "stylelint" "Stylelint"
+    - yarn lint:style
+    - section_end "stylelint"
+    - section_start "prettier" "Prettier"
+    - npx --no-install prettier --check .
+    - section_end "prettier"
+    - section_start "live" "Umami Go engine tests"
+    - yarn test:live
+    - section_end "live"
+
+# The root ESLint config: the tooling's own config files and scripts.
+lint:root:
+  extends: .root
+  stage: lint
+  script:
+    - npm run lint:js
+
+# No AI tool credited in the merge request's commits, its description or any
+# tracked file.
+lint:attribution:
+  image: $TOOLS_IMAGE
+  stage: lint
+  interruptible: true
+  needs: []
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - bash .gitlab/scripts/check-attribution.sh
+
+# Vale with the ai-tells style: the markdown a change touches, its commit
+# messages and the merge request description, then the text every Vue
+# template shows. The code of conduct is the Contributor Covenant, quoted.
+lint:prose:
+  image: $TOOLS_IMAGE
+  stage: lint
+  interruptible: true
+  needs: []
+  variables:
+    GIT_DEPTH: 0
+    PROSE_LINT_GLOB: '!CODE_OF_CONDUCT.md'
+  cache:
+    key: vale-3.17.1
+    paths:
+      - .vale/
+  script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - section_start "prose" "Linting prose with Vale"
+    - bash .gitlab/scripts/install-vale.sh .vale/bin .vale/styles
+    - bash .gitlab/scripts/lint-prose.sh
+    - bash .gitlab/scripts/lint-prose-templates.sh
+    - section_end "prose"
+
+lint:json:
+  stage: lint
+  image: $TOOLS_IMAGE
+  interruptible: true
+  needs: []
+  before_script:
+    - !reference [default, before_script]
+  script:
+    - section_start "json-lint" "Validating JSON files"
+    - |
+      rc=0; count=0
+      while IFS= read -r -d '' f; do
+        count=$((count + 1))
+        if python3 -m json.tool "$f" > /dev/null 2>&1; then
+          echo "  [PASS] $f"
+        else
+          echo "  [FAIL] $f"; rc=1
+        fi
+      done < <(find . -name '*.json' -not -path '*/.git/*' -not -path '*/node_modules/*' \
+        -not -path '*/dist/*' -not -path '*/.nuxt/*' -not -path '*/drupal/*' \
+        -not -path '*/templates/*' -not -path '*/.vscode/*' -print0)
+      echo "--- $count JSON file(s) checked ---"
+      exit "$rc"
+    - section_end "json-lint"
+
+lint:yaml:
+  stage: lint
+  image: python:3.12-slim
+  interruptible: true
+  needs: []
+  before_script:
+    - !reference [default, before_script]
+  script:
+    - section_start "yaml-lint" "Linting YAML"
+    - pip install yamllint -q
+    - yamllint -c .yamllint .gitlab-ci.yml
+    - section_end "yaml-lint"
+
+# Repo tooling runs on current Node rather than the app's pinned 16: the
+# markdownlint-cli2 release line uses the `v` regex flag, which Node 16 cannot
+# parse, and markdown linting has nothing to do with the frozen Nuxt stack.
+lint:markdown:
+  stage: lint
+  image: $TOOLS_IMAGE
+  interruptible: true
+  needs: []
+  before_script:
+    - !reference [default, before_script]
+  script:
+    - section_start "md-lint" "Linting Markdown"
+    - npx --yes markdownlint-cli2 "**/*.md"
+    - section_end "md-lint"
+
+lint:cspell:
+  stage: lint
+  image: $TOOLS_IMAGE
+  interruptible: true
+  needs: []
+  before_script:
+    - !reference [default, before_script]
+  script:
+    - section_start "cspell" "Spell checking"
+    - npx --yes cspell@8 --no-progress --config .cspell.json "**/*.{js,vue,json,md,yml,yaml}"
+    - section_end "cspell"
+
+commitlint:
+  extends: .root
+  stage: lint
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  script:
+    # git-raw-commits shells out to `git log`, which refuses to run when the
+    # checkout's owning UID differs from the container's.
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - npm run lint:commit -- --from "$CI_MERGE_REQUEST_DIFF_BASE_SHA" --to "$CI_COMMIT_SHA" --verbose
+
+#
+# --- Preview ---
+#
+# A browsable copy of the site per branch, at
+#   http://druxt.pages.gitlab.local/umami.demo.druxtjs.org/<branch-slug>/
+#
+# `pages.path_prefix` keeps each branch's deployment separate rather than
+# overwriting one shared site (GitLab 16.7+; this instance is 18.9).
+#
+# Two settings make it work off-origin:
+#   * ROUTER_BASE tells Nuxt the site is served from a subdirectory. Without
+#     it every /_nuxt/ asset 404s under the prefix.
+#   * API_PROXY=0 makes Druxt call the backend absolutely. There is no proxy
+#     layer on Pages the way the start script provides one on Lagoon, and the
+#     backend does send permissive CORS headers, so direct calls work.
+# The demo as Lagoon runs it: a fresh Drupal 11, and the site's start script
+# generating against it and serving the result with Drupal's paths proxied.
+# PHP's built-in server and SQLite stand in for nginx and MariaDB.
+.stack:
+  image: php:8.3-cli
+  interruptible: true
+  needs: []
+  variables:
+    COMPOSER_ALLOW_SUPERUSER: "1"
+    DRUPAL_PORT: "8888"
+    SITE_PORT: "8080"
+    # Drupal's purger and the site share this to clear the site's cache.
+    DRUXT_CACHE_SECRET: ci-test
+    DRUXT_CACHE_CLEAR_HOST: 127.0.0.1
+    DRUXT_CACHE_CLEAR_PORT: "8080"
+  cache:
+    - key:
+        files:
+          - drupal/composer.lock
+      paths:
+        - .composer-cache/
+    - key:
+        files:
+          - nuxt/yarn.lock
+        prefix: yarn-only
+      paths:
+        - .yarn-cache/
+  before_script:
+    - !reference [test:drupal, before_script]
+    - section_start "node" "Installing Node 16"
+    - |
+      node_version="16.20.2"
+      case "$(uname -m)" in
+        aarch64|arm64)
+          node_arch=arm64
+          node_sha256=e88d86154d1ce53dc52fd74d79d4bfdf0b05f58c0bb2639adfa36e9378b770c4
+          ;;
+        x86_64)
+          node_arch=x64
+          node_sha256=874463523f26ed528634580247f403d200ba17a31adf2de98a7b124c6eb33d87
+          ;;
+        *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+      esac
+      tarball="node-v${node_version}-linux-${node_arch}.tar.xz"
+      curl -fsSL "https://nodejs.org/dist/v${node_version}/${tarball}" -o "/tmp/${tarball}"
+      echo "${node_sha256}  /tmp/${tarball}" | sha256sum -c -
+      tar -xJf "/tmp/${tarball}" -C /usr/local --strip-components=1
+      corepack enable
+      node --version
+    - section_end "node"
+    - section_start "drupal" "Provisioning a fresh umami"
+    - cd drupal
+    - composer config cache-dir "$CI_PROJECT_DIR/.composer-cache"
+    - composer install --no-interaction --no-progress
+    # The site's proxy forwards the visitor's host and scheme, as Lagoon's
+    # router does; Drupal trusts them from the proxy, as it does on Lagoon.
+    - >-
+      printf '%s\n' '<?php' "\$settings['reverse_proxy'] = TRUE;"
+      "\$settings['reverse_proxy_addresses'] = ['127.0.0.1'];"
+      > web/sites/default/settings.local.php
+    - .devtools/provision
+    - (.devtools/start > "$CI_PROJECT_DIR/drupal.log" 2>&1 &)
+    - cd ..
+    - section_end "drupal"
+    - section_start "install" "Installing the site (Yarn 1)"
+    - cd nuxt
+    - yarn --version
+    - yarn config set cache-folder "$CI_PROJECT_DIR/.yarn-cache"
+    # Yarn 1 keys a file: package by its version, which the vendored copies
+    # never change, so a cached one outlives edits to vendor/. Drop them.
+    - for p in admin ckeditor diff; do yarn cache clean "@druxt-contrib/$p"; done
+    - yarn install --frozen-lockfile --network-timeout 600000
+    - section_end "install"
+
+# Starts the site and waits until it serves /en. SITE_ORIGIN, when set, is the
+# origin visitors reach it on.
+.start-site:
+  script:
+    - section_start "start" "Starting the site"
+    - >-
+      (PORT="$SITE_PORT" HOST=127.0.0.1 DRUPAL_URL="http://127.0.0.1:$DRUPAL_PORT"
+      node server/start.js > "$CI_PROJECT_DIR/start.log" 2>&1 &)
+    - |
+      # Until the build is served the site answers 503 with its starting page.
+      for i in $(seq 1 120); do
+        code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$SITE_PORT/en" || echo 000)
+        [ "$code" = 200 ] && break
+        grep -q '^start: .*trying again' "$CI_PROJECT_DIR/start.log" && break
+        sleep 10
+      done
+      grep '^start:' "$CI_PROJECT_DIR/start.log" || true
+      [ "$code" = 200 ] || { tail -50 "$CI_PROJECT_DIR/start.log"; echo "The site never served /en (last $code)." >&2; exit 1; }
+    - section_end "start"
+
+# Asserts what Lagoon relies on from the start script.
+test:stack:
+  extends: .stack
+  stage: test
+  script:
+    - !reference [.start-site, script]
+    - |
+      site="http://127.0.0.1:$SITE_PORT"
+      fail() { echo "FAIL: $*" >&2; exit 1; }
+      # Responses are read whole and handed to grep without a pipe: under
+      # pipefail, grep -q closing a pipe early fails the writer, and the line,
+      # even on a match.
+
+      # The front page is real content, not a client-side stub.
+      body=$(curl -fsS "$site/en")
+      grep -qi '<title>' <<<"$body" || fail "/en has no title"
+      grep -q 'Umami' <<<"$body" || fail "/en does not render umami"
+
+      # "/" is not a page: English is prefixed.
+      headers=$(curl -sSI "$site/" | tr -d '\r')
+      grep -q '^HTTP/1.1 301' <<<"$headers" || fail "/ is not a 301"
+      grep -qi '^location: /en$' <<<"$headers" || fail "/ does not redirect to /en"
+
+      # Drupal's paths reach Drupal from the site's own origin.
+      api=$(curl -fsS -H 'Accept: application/vnd.api+json' "$site/en/jsonapi")
+      grep -q '"jsonapi"' <<<"$api" || fail "/en/jsonapi is not proxied to JSON:API"
+
+      # An article shows its body, which Drupal 11 names field_body.
+      article=$(curl -fsS "$site/en/articles/give-your-oatmeal-the-ultimate-makeover")
+      grep -q 'gluten-free' <<<"$article" || fail "an article page does not render its body"
+
+      # Drupal's own saves can reach the site through Purge while this runs,
+      # so builds are counted as they rise, not as exact totals.
+      log="$CI_PROJECT_DIR/start.log"
+      count() { grep -c "$1" "$log" || true; }
+
+      # A regenerate request from a public host is a request for a path with no page.
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Host: umami.demo.druxtjs.org' "$site/_regenerate")
+      [ "$code" = 404 ] || fail "a public regenerate answered $code, not the not-found page"
+      [ "$(count '^start: regenerate requested')" = 0 ] || fail "a public host requested a build"
+
+      # From the internal network it builds again, serving the old copy meanwhile.
+      built=$(count '^start: generated in')
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/_regenerate")
+      [ "$code" = 202 ] || fail "an internal regenerate answered $code"
+      curl -fsS -o /dev/null "$site/en" || fail "/en stopped serving during the rebuild"
+      for i in $(seq 1 60); do
+        [ "$(count '^start: generated in')" -gt "$built" ] && [ "$(ls -d dist-* | wc -l)" = 1 ] && break
+        sleep 10
+      done
+      [ "$(count '^start: generated in')" -gt "$built" ] || fail "the rebuild never finished"
+      [ "$(ls -d dist-* | wc -l)" = 1 ] || fail "the previous build was not removed"
+      body=$(curl -fsS "$site/en")
+      grep -q 'Umami' <<<"$body" || fail "/en does not render after the rebuild"
+
+      # Drupal's responses may be cached for five minutes, which Druxt follows.
+      headers=$(curl -sSI "http://127.0.0.1:$DRUPAL_PORT/en/jsonapi/node/recipe" | tr -d '\r')
+      grep -qi '^cache-control: .*max-age=300' <<<"$headers" || fail "Drupal does not send max-age=300"
+
+      # The search index is in the build and is JSON, not a page; a build
+      # asset that is missing is a 404, never a page cached as the asset.
+      index_file=$(find "$CI_PROJECT_DIR/nuxt" -path '*/_nuxt/search-index*/en.json' | head -1)
+      [ -n "$index_file" ] || fail "no search index in the build"
+      [ -f "$(dirname "$index_file")/es.json" ] || fail "no Spanish search index in the build"
+      index=$(curl -sS "$site/_nuxt/$(basename "$(dirname "$index_file")")/en.json")
+      grep -q '"documentStore"\|"fields"\|"index"' <<<"$index" || fail "the search index is not served as JSON: $(head -c 120 <<<"$index")"
+      grep -q 'brownie\|quiche' <<<"$index" || fail "the search index has no recipes in it"
+      code=$(curl -s -o /dev/null -w '%{http_code}' "$site/_nuxt/not-a-real-asset.js")
+      [ "$code" = 404 ] || fail "a missing build asset answered $code"
+      code=$(curl -s -o /dev/null -w '%{http_code}' "$site/en/recipes/no-such-recipe")
+      [ "$code" = 404 ] || fail "a path with no page answered $code"
+
+      # Purge's cache clear: refused without the secret, accepted with it.
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'X-Druxt-Secret: wrong' "$site/_druxt/cache/clear")
+      [ "$code" = 401 ] || fail "a wrong cache secret answered $code"
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "X-Druxt-Secret: $DRUXT_CACHE_SECRET" "$site/_druxt/cache/clear")
+      [ "$code" = 204 ] || fail "the cache secret answered $code"
+      # An accepted clear rebuilds once its quiet period ends.
+      for i in $(seq 1 30); do
+        [ "$(count '^start: content changed; rebuilding')" -gt 0 ] && break
+        sleep 1
+      done
+      [ "$(count '^start: content changed; rebuilding')" -gt 0 ] || fail "an accepted cache clear never started a rebuild"
+      # Open pages hear a content purge on /_live, but not a sign-in's.
+      (cd "$CI_PROJECT_DIR/nuxt" && node server/check-live.js "$site" "$DRUXT_CACHE_SECRET") || fail "a purge did not reach an open page"
+
+      # The fresh demo, kept before any token exists: the reset below must
+      # take the editor's session with it.
+      (cd "$CI_PROJECT_DIR/drupal" && .devtools/snapshot) || fail "the snapshot could not be taken"
+
+      # An editor signs in on the site: the password grant through the
+      # site's own token route, then Drupal's userinfo with the token.
+      token=$(curl -sS -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"admin"}' "$site/_auth/drupal-password/token")
+      grep -q '"access_token"' <<<"$token" || fail "the password grant did not issue a token: $token"
+      access=$(sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p' <<<"$token")
+      [ -n "$access" ] || fail "no access token in the grant's answer"
+      who=$(curl -sS -X POST -H "Authorization: Bearer $access" "$site/oauth/userinfo")
+      grep -q '"name":"admin"' <<<"$who" || fail "userinfo did not name the editor: $who"
+      wrong='{"grant_type":"password","username":"admin","password":"wrong"}'
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d "$wrong" "$site/_auth/drupal-password/token")
+      [ "$code" = 400 ] || [ "$code" = 401 ] || fail "a wrong password answered $code"
+
+      # The demo resets to its snapshot: not for a visitor, once a minute for
+      # an editor, and Drupal is back before the frontend has rebuilt.
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/druxt-umami/reset")
+      [ "$code" = 302 ] || [ "$code" = 401 ] || [ "$code" = 403 ] || fail "an anonymous reset answered $code"
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/druxt-umami/reset")
+      [ "$code" = 202 ] || fail "the reset answered $code"
+      sleep 3
+      for _ in $(seq 1 30); do
+        code=$(curl -s -o /dev/null -w '%{http_code}' -H 'Accept: application/vnd.api+json' "$site/en/jsonapi")
+        [ "$code" = 200 ] && break
+        sleep 2
+      done
+      [ "$code" = 200 ] || fail "Drupal did not come back after the reset ($code)"
+      # The restore took every token with it, so the editor signs in again,
+      # and the minute's quiet time still holds.
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/oauth/userinfo")
+      [ "$code" = 401 ] || [ "$code" = 403 ] || fail "the old token survived the reset ($code)"
+      token=$(curl -sS -X POST -H 'Content-Type: application/json' -d '{"grant_type":"password","username":"admin","password":"admin"}' "$site/_auth/drupal-password/token")
+      access=$(sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p' <<<"$token")
+      [ -n "$access" ] || fail "no token after the reset: $token"
+      code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $access" "$site/druxt-umami/reset")
+      [ "$code" = 429 ] || fail "a second reset within a minute answered $code"
+      echo "All assertions passed."
+  artifacts:
+    when: always
+    paths:
+      - start.log
+      - drupal.log
+    expire_in: 1 week
+
+# The same stack, driven by a browser: the overlay, search, the edit form,
+# drafts and the reset control, as a visitor and as an editor. Playwright
+# needs a newer Node than the site builds with, so it gets its own.
+# Node 20 for the browser tooling (Playwright and Lighthouse), installed from
+# the official tarball with its checksum verified: the image's Node is the
+# site's own, which is older than either tool supports.
+.node20:
+  script:
+    - section_start "node20" "Installing Node 20 and the browser tests' dependencies"
+    - |
+      node_version="20.19.5"
+      case "$(uname -m)" in
+        aarch64|arm64) node_arch=arm64 ;;
+        x86_64) node_arch=x64 ;;
+        *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+      esac
+      tarball="node-v${node_version}-linux-${node_arch}.tar.xz"
+      curl -fsSL "https://nodejs.org/dist/v${node_version}/${tarball}" -o "/tmp/${tarball}"
+      curl -fsSL "https://nodejs.org/dist/v${node_version}/SHASUMS256.txt" | grep " ${tarball}\$" | sed "s# .*# /tmp/${tarball}#" | sha256sum -c -
+      mkdir -p /opt/node20 && tar -xJf "/tmp/${tarball}" -C /opt/node20 --strip-components=1
+      export PATH="/opt/node20/bin:$PATH"
+      node --version
+      cd "$CI_PROJECT_DIR/e2e"
+      npm ci --no-audit --no-fund
+      npx playwright install --with-deps chromium
+    - section_end "node20"
+
+test:e2e:
+  extends: .stack
+  stage: test
+  script:
+    # The site on localhost, Drupal on 127.0.0.1: two hosts, as on Lagoon,
+    # where a proxy that sends Drupal the wrong one loses the session.
+    - export SITE_ORIGIN="http://localhost:$SITE_PORT"
+    - !reference [.start-site, script]
+    - !reference [.node20, script]
+    - section_start "e2e" "Running the browser tests"
+    - |
+      export PATH="/opt/node20/bin:$PATH"
+      cd "$CI_PROJECT_DIR/e2e"
+      CI=1 E2E_BASE_URL="$SITE_ORIGIN" E2E_USER=admin E2E_PASS=admin npx playwright test
+    - section_end "e2e"
+  artifacts:
+    when: always
+    paths:
+      - e2e/results/
+      - e2e/test-results/
+      - start.log
+      - drupal.log
+    reports:
+      junit: e2e/results/junit.xml
+    expire_in: 1 week
+
+# Lighthouse over the generated site: performance, accessibility, best
+# practices and SEO, each with a floor the run must clear (e2e/lighthouserc.js).
+# The reports are artifacts, one HTML page per URL.
+test:lighthouse:
+  extends: .stack
+  stage: test
+  script:
+    - !reference [.start-site, script]
+    - !reference [.node20, script]
+    - section_start "lighthouse" "Running Lighthouse"
+    - |
+      export PATH="/opt/node20/bin:$PATH"
+      cd "$CI_PROJECT_DIR/e2e"
+      chrome_path="$(node -e "console.log(require('@playwright/test').chromium.executablePath())")"
+      CHROME_PATH="$chrome_path" E2E_BASE_URL="http://127.0.0.1:$SITE_PORT" npm run lighthouse
+    - section_end "lighthouse"
+  artifacts:
+    when: always
+    paths:
+      - e2e/lighthouse/
+      - start.log
+      - drupal.log
+    expire_in: 1 week
+
+# The same stack, served through a Cloudflare quick tunnel so a reviewer can
+# click through the real thing on a real device. Manual: click "Run" on this
+# job, then watch the log for the https://*.trycloudflare.com URL. The tunnel
+# lives as long as the job.
+#
+# This is the house pattern (druxt.js docs:review, stuar.tc preview:live) and
+# not a preference. GitLab Pages is configured on these projects but the Pages
+# host does not resolve on this instance; see the disabled job below.
+preview:
+  extends: .stack
+  stage: preview
+  interruptible: false
+  timeout: 1h
+  rules:
+    - when: manual
+      allow_failure: true
+  script:
+    - section_start "tunnel" "Starting the preview tunnel"
+    - |
+      cloudflared_version="2026.8.3"
+      case "$(uname -m)" in
+        aarch64|arm64)
+          cloudflared_arch=arm64
+          cloudflared_sha256=4bcfd35521a7cbc545ebfd5d57334a71ee180e2a64874981f374c81472118391
+          ;;
+        x86_64)
+          cloudflared_arch=amd64
+          cloudflared_sha256=f29324fe934d1e100617484c78deef803c4dc2cd351d645bbde42e96b4fccc5e
+          ;;
+        *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+      esac
+      url="https://github.com/cloudflare/cloudflared/releases/download/${cloudflared_version}"
+      curl -fsSL "${url}/cloudflared-linux-${cloudflared_arch}" -o /usr/local/bin/cloudflared
+      echo "${cloudflared_sha256}  /usr/local/bin/cloudflared" | sha256sum -c -
+      chmod +x /usr/local/bin/cloudflared
+    # The tunnel opens first: its URL is the origin the site is built for.
+    # cloudflared self-updates and restarts mid-run by default, which kills the
+    # tunnel whose URL was already printed and starts a new one silently.
+    - (cloudflared tunnel --url "http://127.0.0.1:$SITE_PORT" --no-autoupdate > "$CI_PROJECT_DIR/tunnel.log" 2>&1 &)
+    - |
+      for i in $(seq 1 30); do
+        # The job shell runs with pipefail, and grep fails until the URL appears.
+        SITE_ORIGIN=$(grep -o 'https://[a-z0-9-]*\.trycloudflare\.com' "$CI_PROJECT_DIR/tunnel.log" | head -1 || true)
+        [ -n "$SITE_ORIGIN" ] && break
+        sleep 2
+      done
+      [ -n "$SITE_ORIGIN" ] || { cat "$CI_PROJECT_DIR/tunnel.log"; echo "The tunnel never printed a URL." >&2; exit 1; }
+      export SITE_ORIGIN
+    - section_end "tunnel"
+    - !reference [.start-site, script]
+    - echo "Preview ready at $SITE_ORIGIN/en - it stays up until this job is cancelled or times out."
+    - tail -f "$CI_PROJECT_DIR/tunnel.log" "$CI_PROJECT_DIR/start.log"
+
+# Disabled: GitLab Pages is configured on this project but the Pages host does
+# not resolve on this instance. Kept so the preview moves to a persistent
+# per-branch URL the moment it does. router.base must be the full path
+# including the project segment, /<project>/<prefix>/, or every asset 404s.
+pages:
+  extends: .node
+  stage: preview
+  needs: []
+  rules:
+    - when: never
+  variables:
+    BASE_URL: $BACKEND_URL
+    API_PROXY: '0'
+  script:
+    - export ROUTER_BASE="/${CI_PROJECT_NAME}/${CI_COMMIT_REF_SLUG}/"
+    - yarn generate
+  pages:
+    publish: nuxt/dist
+    path_prefix: "$CI_COMMIT_REF_SLUG"
+    expire_in: 1 week
+
+#
+# --- Secret detection ---
+#
+# A pinned, checksum-verified gitleaks binary rather than
+# `include: template: Security/Secret-Detection.gitlab-ci.yml`. That template
+# is an Ultimate-tier feature and produces no job at all on this instance, so
+# it reads as coverage in the config while scanning nothing.
+secret-detection:
+  stage: secret-detection
+  image: $NODE_IMAGE
+  interruptible: true
+  needs: []
+  before_script: []
+  variables:
+    # `git` mode reads history, which the default shallow clone does not have.
+    GIT_DEPTH: '0'
+  script:
+    - |
+      gitleaks_version="8.30.1"
+      case "$(uname -m)" in
+        aarch64|arm64)
+          gitleaks_arch=arm64
+          gitleaks_sha256=e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080
+          ;;
+        x86_64)
+          gitleaks_arch=x64
+          gitleaks_sha256=551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+          ;;
+        *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+      esac
+      url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}"
+      curl -fsSL "${url}/gitleaks_${gitleaks_version}_linux_${gitleaks_arch}.tar.gz" -o /tmp/gitleaks.tar.gz
+      echo "${gitleaks_sha256}  /tmp/gitleaks.tar.gz" | sha256sum -c -
+      tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+      chmod +x /tmp/gitleaks
+    # `git` mode, not `dir`: a secret committed and later removed is still
+    # exposed, and `dir` only sees the current checkout.
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - /tmp/gitleaks git . --no-banner --redact --config .gitleaks.toml --report-path gitleaks-report.json
+  artifacts:
+    when: always
+    paths:
+      - gitleaks-report.json
+    expire_in: 1 week
+
+#
+# --- Test ---
+#
+
+# Provisions a real Drupal 11 and asserts the endpoints the frontend calls.
+# SQLite and PHP's built-in server, no DDEV: the suite needs a backend
+# answering HTTP, not a production-shaped stack.
+test:drupal:
+  stage: test
+  image: php:8.3-cli
+  interruptible: true
+  needs: []
+  variables:
+    COMPOSER_ALLOW_SUPERUSER: "1"
+    DRUPAL_PORT: "8888"
+  cache:
+    key:
+      files:
+        - drupal/composer.lock
+    paths:
+      - .composer-cache/
+  before_script:
+    - !reference [default, before_script]
+    - section_start "php" "Installing PHP extensions and Composer"
+    - apt-get update -qq
+    - >-
+      apt-get install -y -qq --no-install-recommends
+      curl git unzip libpng-dev libjpeg-dev libfreetype-dev libzip-dev libicu-dev
+    - docker-php-ext-configure gd --with-jpeg --with-freetype
+    - docker-php-ext-install -j"$(nproc)" gd zip intl
+    # A pinned release, checked against its published SHA-256 before it runs.
+    - |
+      composer_version="2.10.3"
+      composer_sha256=7a2d379d5b8ffdaa028580ef26494c36d2feef4b178d3dd1473a4dbc5e17c8d6
+      curl -fsSL "https://getcomposer.org/download/${composer_version}/composer.phar" -o /usr/local/bin/composer
+      echo "${composer_sha256}  /usr/local/bin/composer" | sha256sum -c -
+      chmod +x /usr/local/bin/composer
+    - section_end "php"
+  script:
+    - cd drupal
+    - section_start "composer" "Installing Drupal"
+    - composer config cache-dir "$CI_PROJECT_DIR/.composer-cache"
+    - composer install --no-interaction --no-progress
+    - section_end "composer"
+    - section_start "provision" "Provisioning a fresh umami"
+    - .devtools/provision
+    - section_end "provision"
+    - section_start "phpunit" "Running the ExistingSite suite"
+    - .devtools/test --log-junit ../junit.xml
+    - section_end "phpunit"
+  artifacts:
+    when: always
+    reports:
+      junit: junit.xml
+    expire_in: 1 week

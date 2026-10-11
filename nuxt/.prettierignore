@@ -1,0 +1,15 @@
+# Prettier resolves its ignore file from the working directory, and the lint
+# scripts run from nuxt/, so the repo-root .prettierignore never applied here.
+
+# Nuxt module templates: lodash templates containing <%= %>, so not valid
+# JavaScript and unparseable by prettier.
+modules/templates/
+
+# Build output.
+.nuxt/
+.nuxt-storybook/
+dist/
+dist-*/
+storybook-static/
+node_modules/
+vendor/

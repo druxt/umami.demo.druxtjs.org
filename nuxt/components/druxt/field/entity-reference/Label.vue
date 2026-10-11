@@ -16,7 +16,10 @@
       v-bind="{ ...item, mode: 'label' }"
     >
       <template #default="{ entity }">
-        <NuxtLink class="mr-1" :to="`/en${(entity.attributes.path || {}).alias}`">
+        <NuxtLink
+          class="mr-1"
+          :to="`${prefix}${(entity.attributes.path || {}).alias}`"
+        >
           <b-badge variant="info">{{ entity.attributes.name }}</b-badge>
         </NuxtLink>
       </template>
@@ -26,8 +29,10 @@
 
 <script>
 import { DruxtFieldMixin } from 'druxt-entity'
+import { langMixin } from '~/utils/lang'
+import { draftDiffable } from '~/utils/draft-diff'
 
 export default {
-  mixins: [DruxtFieldMixin],
+  mixins: [draftDiffable, langMixin, DruxtFieldMixin],
 }
 </script>
