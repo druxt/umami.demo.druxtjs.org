@@ -15,7 +15,7 @@
         type="button"
         @click="changing = true"
       >
-        change
+        {{ $t('form.change') }}
       </button>
     </div>
     <template v-else>
@@ -40,6 +40,7 @@
 
 <script>
 import formField from '~/utils/form-field'
+import { langMixin } from '~/utils/lang'
 import {
   matchSettings,
   referenceItems,
@@ -52,7 +53,7 @@ const labelOf = (o) => {
 }
 
 export default {
-  mixins: [formField],
+  mixins: [langMixin, formField],
 
   data: () => ({ name: '', changing: false, query: '', suggestions: [] }),
 
@@ -104,7 +105,7 @@ export default {
       })
       try {
         const response = await this.$druxt.get(
-          `/en/jsonapi/${entity}/${bundle}?${params}`
+          `${this.prefix}/jsonapi/${entity}/${bundle}?${params}`
         )
         if (this.query.trim() !== q) return
         this.suggestions = ((response || {}).data || {}).data || []

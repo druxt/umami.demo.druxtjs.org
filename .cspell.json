@@ -26,6 +26,7 @@
     "nuxt/storybook-static/",
     "nuxt/modules/templates/",
     "nuxt/vendor/",
+    "nuxt/locales/es.js",
     "drupal/",
     "**/CHANGELOG.md",
     "*.lock",

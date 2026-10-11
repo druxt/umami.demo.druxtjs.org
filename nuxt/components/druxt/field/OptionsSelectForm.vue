@@ -13,7 +13,7 @@
       :value="current"
       @change="$emit('input', $event.target.value)"
     >
-      <option v-if="!required" value="">None</option>
+      <option v-if="!required" value="">{{ $t('form.none') }}</option>
       <option v-for="o of options" :key="o.value" :value="o.value">
         {{ o.label }}
       </option>

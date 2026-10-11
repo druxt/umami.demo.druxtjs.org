@@ -15,7 +15,7 @@
         type="button"
         @click="mode = tab.id"
       >
-        {{ tab.label }}
+        {{ $t(tab.label) }}
       </button>
     </div>
 
@@ -46,8 +46,8 @@ export default {
   data: () => ({
     mode: 'view',
     tabs: [
-      { id: 'view', label: 'View' },
-      { id: 'edit', label: 'Edit' },
+      { id: 'view', label: 'nav.view' },
+      { id: 'edit', label: 'nav.edit' },
     ],
   }),
 

@@ -13,7 +13,7 @@
       name="footer"
     >
       <template #default="{ items }">
-        <span class="site-footer__kicker">Magazine</span>
+        <span class="site-footer__kicker">{{ $t('site.magazine') }}</span>
         <DruxtMenuItem
           v-for="item in items"
           :key="item.entity.id"
@@ -29,9 +29,9 @@
     </DruxtMenu>
 
     <div class="site-footer__col site-footer__col--demo">
-      <span class="site-footer__kicker site-footer__kicker--demo"
-        >This demo</span
-      >
+      <span class="site-footer__kicker site-footer__kicker--demo">{{
+        $t('site.thisDemo')
+      }}</span>
       <nuxt-link
         class="site-footer__link site-footer__link--demo"
         to="/entity-explorer"

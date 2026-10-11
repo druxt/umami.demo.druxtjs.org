@@ -6,7 +6,7 @@
       type="button"
       @click="load"
     >
-      View the JSON:API request
+      {{ $t('note.jsonapiToggle') }}
       <span aria-hidden="true">⌄</span>
     </button>
 
@@ -20,7 +20,9 @@
           <VueJsonPretty :data="response" :deep="2" show-length />
         </div>
         <p v-else-if="error" class="jsonapi-drawer__hint">{{ error }}</p>
-        <p v-else-if="loading" class="jsonapi-drawer__hint">Loading…</p>
+        <p v-else-if="loading" class="jsonapi-drawer__hint">
+          {{ $t('note.loading') }}
+        </p>
 
         <div class="d-flex align-items-center flex-wrap" style="gap: 1rem">
           <a
@@ -28,12 +30,9 @@
             :href="url"
             rel="noopener"
             target="_blank"
+            >{{ $t('note.jsonapiRaw') }}</a
           >
-            Open the raw response →
-          </a>
-          <span class="jsonapi-drawer__hint">
-            Every field on this page came from this one request.
-          </span>
+          <span class="jsonapi-drawer__hint">{{ $t('note.jsonapiHint') }}</span>
         </div>
       </div>
     </b-collapse>

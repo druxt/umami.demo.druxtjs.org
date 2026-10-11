@@ -1,6 +1,6 @@
 <template>
   <AppFormField
-    description="Type to search the vocabulary; Enter adds the first match, or creates the tag."
+    :description="$t('form.tagsHint')"
     :feedback="feedback"
     :label="label"
     :required="required"
@@ -40,7 +40,7 @@
       </li>
       <li v-if="canCreate">
         <button class="is-create" type="button" @click="create">
-          Create “{{ query.trim() }}”
+          {{ $t('form.createTag', { name: query.trim() }) }}
         </button>
       </li>
     </ul>
@@ -50,6 +50,7 @@
 
 <script>
 import formField from '~/utils/form-field'
+import { langMixin } from '~/utils/lang'
 import {
   matchSettings,
   referenceItems,
@@ -58,7 +59,7 @@ import {
 } from '~/utils/form-widgets'
 
 export default {
-  mixins: [formField],
+  mixins: [langMixin, formField],
 
   data: () => ({
     names: {},
@@ -133,7 +134,7 @@ export default {
         [`fields[${this.type}]`]: 'name',
         sort: 'name',
       })
-      const url = `/en/jsonapi/${entity}/${bundle}?${params}`
+      const url = `${this.prefix}/jsonapi/${entity}/${bundle}?${params}`
       try {
         const response = await this.$druxt.get(url)
         if (this.query.trim() !== q) return
