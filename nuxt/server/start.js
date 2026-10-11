@@ -23,6 +23,7 @@ const { proxyEntry } = require('@druxt-contrib/admin')
 const { attachSockets } = require('@druxt-contrib/sockets/server')
 const { createServerMiddleware } = require('druxt-auth/server')
 const { createProxyMiddleware } = require('http-proxy-middleware')
+const { previewRoute } = require('../lib/site')
 const { createDrupalProxy, isDrupalPath, waitForDrupal } = require('./drupal')
 const liveHandlers = require('./live/handlers')
 const { tablePage } = require('./table-page')
@@ -33,10 +34,11 @@ const env = process.env
 const port = Number(env.PORT) || 3000
 const host = env.HOST || '0.0.0.0'
 const drupalUrl = env.DRUPAL_URL || 'http://nginx:8080'
-// The origin visitors reach the site on: on Lagoon, the environment's first
-// route, which .lagoon.yml gives to this service.
+// The origin visitors reach the site on: on Lagoon, production's first route,
+// which .lagoon.yml gives to this service, or a preview's `app.` route.
 const siteOrigin = (
   env.SITE_ORIGIN ||
+  previewRoute(env) ||
   env.LAGOON_ROUTE ||
   `http://127.0.0.1:${port}`
 ).replace(/\/+$/, '')

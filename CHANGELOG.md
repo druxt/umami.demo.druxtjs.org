@@ -72,6 +72,8 @@ The demo is a site without releases, so changes are grouped by date.
 
 ### Fixed
 
+- A Lagoon preview shares and links its own site address, not Drupal's, so
+  its share cards show their images.
 - On a wide screen, or zoomed out, a banner image narrower than the screen
   keeps its own size beside the words, fading into the night lattice, rather
   than being stretched and cropped. The masthead and the bar above it keep
