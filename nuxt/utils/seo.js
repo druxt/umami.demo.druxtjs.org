@@ -271,6 +271,9 @@ export function routeHead(vm) {
     description: summary,
     image,
     twitter,
+    // A tag lists what the recipes and articles already say: crawled for
+    // its links, kept out of the index.
+    robots: entity.type === 'taxonomy_term--tags' ? 'noindex, follow' : undefined,
     type: article ? 'article' : 'website',
     graphs: article
       ? [entityGraph({ entity, origin, url, title, summary, image, langcode })]

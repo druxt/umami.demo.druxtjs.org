@@ -13,6 +13,12 @@ const PRIVATE = [
   /^\/(en\/|es\/)?user(\/|$)/,
   // Drupal's admin paths: the site hands them through to the backend.
   /^\/(admin|node\/add|media\/add)(\/|$)/,
+  // Drupal's /node front page, canonical at the language prefix.
+  /^\/(en|es)\/node$/,
+  // JSON:API documents the generate crawl followed, which render no page.
+  /^\/(en\/|es\/)?jsonapi(\/|$)/,
+  // Tags are noindex: their recipes and articles are the content.
+  /^\/(en|es)\/tags\//,
 ]
 
 const escapeXml = (value) =>
@@ -88,6 +94,8 @@ function buildRobots({ origin }) {
       'Disallow: /node/preview/',
       'Disallow: /login',
       'Disallow: /callback',
+      'Disallow: /en/jsonapi/',
+      'Disallow: /es/jsonapi/',
       '',
       'Sitemap: ' + origin + '/sitemap.xml',
     ].join('\n') + '\n'

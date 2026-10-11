@@ -366,7 +366,10 @@ const auth = createServerMiddleware({
   clientSecret: env.OAUTH_CLIENT_SECRET,
 })
 
-const LLMS_LINK = '</llms.txt>; rel="describedby"; type="text/markdown"'
+const LLMS_LINK = [
+  '</llms.txt>; rel="describedby"; type="text/markdown"',
+  '</llms-full.txt>; rel="describedby"; type="text/markdown"',
+].join(', ')
 
 const drupal = createDrupalProxy(drupalUrl)
 
