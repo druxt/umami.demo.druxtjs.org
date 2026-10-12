@@ -12,6 +12,9 @@ environments:
           - umami.demo.druxtjs.org
       - nginx:
           - api.umami.demo.druxtjs.org
+          # The retired demo backend's domain, still in docs and examples.
+          # This Drupal answers for it.
+          - demo-api.druxtjs.org
       - storybook:
           - storybook.umami.demo.druxtjs.org
     cronjobs:
