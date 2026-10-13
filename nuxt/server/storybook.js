@@ -19,6 +19,7 @@ const host = env.HOST || '0.0.0.0'
 const inner = port + 1
 const drupalUrl = env.DRUPAL_URL || 'http://nginx:8080'
 const log = (message) => process.stdout.write(`storybook: ${message}\n`)
+const loopback = path.join(__dirname, 'loopback.js')
 
 /**
  * The address a browser reaches this Storybook on. Stories read Drupal from
@@ -76,12 +77,27 @@ const main = async () => {
   log(`Drupal is ready at ${drupalUrl}`)
   setPhase('building')
 
+  // The build reads Drupal under the public origin too, and loopback.js sends
+  // those requests to the port already listening here. Left to the route they
+  // leave the cluster for an ingress whose only backend is this pod, which is
+  // not ready until the build it is waiting on has finished: the schema build
+  // answers 502, Nuxt logs it and carries on, and Storybook ships with no
+  // `schemas` directory for the generated plugin to resolve.
+  const origin = publicOrigin() || env.BASE_URL
+  const loopbackEnv = origin
+    ? {
+        LOOPBACK_ORIGIN: origin,
+        LOOPBACK_PORT: String(port),
+        NODE_OPTIONS: `${env.NODE_OPTIONS || ''} --require ${loopback}`.trim(),
+      }
+    : {}
+
   child = spawn(
     'yarn',
     ['storybook', '-p', String(inner), '-h', '127.0.0.1', '--ci'],
     {
       cwd: path.join(__dirname, '..'),
-      env: { ...env, BASE_URL: publicOrigin() || env.BASE_URL },
+      env: { ...env, BASE_URL: origin, ...loopbackEnv },
       stdio: 'inherit',
     }
   )
