@@ -84,11 +84,13 @@ const main = async () => {
   // answers 502, Nuxt logs it and carries on, and Storybook ships with no
   // `schemas` directory for the generated plugin to resolve.
   const origin = publicOrigin() || env.BASE_URL
+  // Quoted, so a checkout path with a space stays one argument.
+  const preload = `--require ${JSON.stringify(loopback)}`
   const loopbackEnv = origin
     ? {
         LOOPBACK_ORIGIN: origin,
         LOOPBACK_PORT: String(port),
-        NODE_OPTIONS: `${env.NODE_OPTIONS || ''} --require ${loopback}`.trim(),
+        NODE_OPTIONS: `${env.NODE_OPTIONS || ''} ${preload}`.trim(),
       }
     : {}
 
