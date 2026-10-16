@@ -186,7 +186,7 @@ lint:json:
 
 lint:yaml:
   stage: lint
-  image: python:3.12-slim
+  image: python:3.15-slim
   interruptible: true
   needs: []
   before_script:
@@ -254,7 +254,7 @@ commitlint:
 # generating against it and serving the result with Drupal's paths proxied.
 # PHP's built-in server and SQLite stand in for nginx and MariaDB.
 .stack:
-  image: php:8.3-cli
+  image: php:8.5-cli
   interruptible: true
   needs: []
   variables:
@@ -681,7 +681,7 @@ secret-detection:
 # answering HTTP, not a production-shaped stack.
 test:drupal:
   stage: test
-  image: php:8.3-cli
+  image: php:8.5-cli
   interruptible: true
   needs: []
   variables:
