@@ -60,32 +60,26 @@
 </template>
 
 <script>
+import { DruxtPresenceMixin } from '@druxt-contrib/sockets/mixins'
 import { changedFields } from '~/utils/changed-fields'
 
-/** How long a save's pill and wash stay, as the module's flash does. */
+/** How long a save's pill and wash stay. */
 const FRESH = 6000
 
 export default {
-  props: {
-    /** Everyone with the page open: `id`, `name`, `role`. */
-    people: { type: Array, default: () => [] },
-    /** This visitor's id. */
-    self: { type: String, default: null },
-    /** Everyone else with the editor role. */
-    editors: { type: Array, default: () => [] },
-    /** Whether Drupal's last change arrived just now. */
-    updated: { type: Boolean, default: false },
-    /** When it arrived. */
-    updatedAt: { type: Number, default: 0 },
-    // Declared so DruxtPresence's role never lands on the root element as
-    // an attribute, where `role="reader"` is an invalid ARIA role.
-    channel: { type: String, default: '' },
-    role: { type: String, default: 'reader' },
-  },
+  mixins: [DruxtPresenceMixin],
 
-  data: () => ({ open: false, wide: false, changed: [], fields: {} }),
+  data: () => ({
+    open: false,
+    wide: false,
+    changed: [],
+    fields: {},
+    updated: false,
+  }),
 
   computed: {
+    /** When Drupal's last save that touched this page arrived. */
+    updatedAt: ({ $sockets }) => ($sockets ? $sockets.state.updatedAt : 0),
     editor: ({ editors }) => editors.length > 0,
     /** Beside Drupal's menu, for an editor: a number, not a sentence. */
     compact: ({ $auth }) => !!($auth && $auth.loggedIn),
@@ -110,6 +104,9 @@ export default {
   watch: {
     /** A save arrived: find what changed, and wash it for a moment. */
     updatedAt() {
+      this.updated = true
+      clearTimeout(this.freshTimer)
+      this.freshTimer = setTimeout(() => (this.updated = false), FRESH)
       const after = this.snapshot()
       this.changed = changedFields(this.before, after)
       this.before = after
@@ -139,6 +136,7 @@ export default {
   },
 
   beforeDestroy() {
+    clearTimeout(this.freshTimer)
     this.clearWash()
     if (this.media) this.media.removeEventListener('change', this.onMedia)
     document.removeEventListener('click', this.onDocument)

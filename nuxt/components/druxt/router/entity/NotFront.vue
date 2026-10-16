@@ -34,7 +34,7 @@
           <!-- Themed by components/druxt/presence/Page.vue. -->
           <DruxtPresence
             :channel="`page:${$route.path}`"
-            :role="mode === 'edit' ? 'editor' : 'reader'"
+            :mode="mode === 'edit' ? 'editor' : 'reader'"
           />
           <AppDrupalLinks
             v-if="signedIn"

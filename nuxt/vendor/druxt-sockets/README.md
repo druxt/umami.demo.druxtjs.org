@@ -61,30 +61,88 @@ export default ({ $sockets, store }) => {
 }
 ```
 
-## Presence
+## A channel on the page
 
-`DruxtPresence` is a Druxt module. It joins a channel, the current page's by
-default, and passes who is there to the site's own theme component.
+`DruxtSockets` is a Druxt module for one channel of any kind, the current
+page's by default.
 
 ```vue
-<DruxtPresence :role="editing ? 'editor' : 'reader'" />
+<DruxtSockets :channel="`room:${code}`" />
 ```
 
-The theme component is found the Druxt way: `DruxtPresencePage` for a
-`page:` channel, else `DruxtPresenceDefault`, from `components/druxt/presence/`.
-It receives these props, and writes its own words:
+Its theme component is found the Druxt way: `DruxtSocketsRoom` for a `room:`
+channel, else `DruxtSocketsDefault`, from `components/druxt/sockets/`. It
+receives these props, which `DruxtSocketsMixin` declares:
 
-| Prop              |                                                              |
-| ----------------- | ------------------------------------------------------------ |
-| `people`          | Everyone in the channel: `id`, `name`, `role`                |
-| `self`            | This visitor's id                                            |
-| `editors`         | Everyone else with the editor role                           |
-| `updated`         | Whether Drupal's last change arrived in the past six seconds |
-| `updatedAt`       | When it arrived                                              |
-| `channel`, `role` | The channel, and this visitor's role in it                   |
+| Prop                  |                                                        |
+| --------------------- | ------------------------------------------------------ |
+| `channel`             | The channel, `kind:key`                                |
+| `kind`, `channelKey`  | The parts either side of the first colon               |
+| `mode`                | `reader` or `editor`, as given to the component        |
+| `self`, `connected`   | This visitor's id, and whether the socket is open      |
+| `people`              | Who is in the channel: `id`, `name`, `role`            |
+| `messages`            | The latest payload of each message type on the channel |
+| `send(type, payload)` | Sends a message on the channel                         |
 
-Without a theme component, a plain count renders. Only a signed-in editor's
-`editor` role counts: the server checks their token with Drupal.
+```vue
+<!-- components/druxt/sockets/Room.vue -->
+<template>
+  <button @click="send('wave', {})">{{ people.length }} here</button>
+</template>
+
+<script>
+import { DruxtSocketsMixin } from '@druxt-contrib/sockets/mixins'
+export default { mixins: [DruxtSocketsMixin] }
+</script>
+```
+
+A default slot takes the same data instead:
+
+```vue
+<DruxtSockets channel="room:ABCD">
+  <template #default="{ messages, send }">…</template>
+</DruxtSockets>
+```
+
+Without either, it renders Druxt's debug output in development and nothing in
+production.
+
+## Presence
+
+`DruxtPresence` is a `DruxtSockets` that passes on who is there and nothing
+else: `channel`, `mode`, `self`, `people` and `editors`, everyone else with the
+editor role. `DruxtPresenceMixin` declares them.
+
+```vue
+<DruxtPresence :mode="editing ? 'editor' : 'reader'" />
+```
+
+Its theme component is `DruxtPresencePage` for a `page:` channel, else
+`DruxtPresenceDefault`, from `components/druxt/presence/`. Without one, it
+lists who is here in a live status region. Only a signed-in editor's `editor`
+mode counts: the server checks their token with Drupal.
+
+The server announces presence on `page:` channels, and on a kind of your own
+whose handler sets `presence: true`.
+
+## The directive
+
+`v-druxt-sockets` puts a channel on an element. Each of the channel's messages
+arrives as a `druxt-sockets:<type>` event on the element, with the payload as
+`detail`, and `data-druxt-sockets-connected` is set while the socket is open.
+`v-druxt-sockets:send.<event>` sends each DOM event of that name as a message:
+a form's fields for `submit`, without leaving the page, else the event's
+`detail`.
+
+```vue
+<section v-druxt-sockets="`room:${code}`" @druxt-sockets:wave="onWave">
+  <form v-druxt-sockets:send.submit="`room:${code}`">
+    <input name="text" />
+  </form>
+</section>
+```
+
+`.editor` joins with the editor mode.
 
 ## Channels of your own
 
@@ -106,17 +164,24 @@ module.exports = ({ drupalUrl }) => ({
 })
 ```
 
-A handler may have `join`, `leave`, `resume` and `message`, and each gets the
+A handler may have `join`, `leave`, `resume` and `message`, and
+`presence: true` for its channels to hear who is there. Each function gets the
 hub, which can `send` to one client, `broadcast` to a channel, and list a
 channel's `members`. Validate every payload: it comes from the browser.
 
 In the browser, `$sockets` carries the rest:
 
 ```js
-this.$sockets.join('room:ABCD')
-const off = this.$sockets.on('wave', ({ payload }) => console.log(payload.from))
+const off = this.$sockets.subscribe('room:ABCD', ({ type, payload }) => {
+  if (type === 'wave') console.log(payload.from)
+})
 this.$sockets.send('wave', 'room:ABCD')
+off()
 ```
+
+Joins are counted per channel: a component, a directive and a page can share
+one, and the server hears `leave` when the last of them ends. `join`, `leave`
+and `on(type, fn)` work as well.
 
 A dropped socket reconnects with backoff and resumes as the same person for a
 minute, channels and all.
