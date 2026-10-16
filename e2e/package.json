@@ -8,8 +8,8 @@
     "lighthouse": "lhci autorun --config=lighthouserc.js"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.13.0",
-    "@playwright/test": "1.63.0",
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "1.64.1",
     "@lhci/cli": "^0.15.1"
   }
 }
