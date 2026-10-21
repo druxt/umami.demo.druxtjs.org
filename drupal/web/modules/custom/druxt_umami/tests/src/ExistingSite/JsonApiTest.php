@@ -224,15 +224,31 @@ class JsonApiTest extends DruxtUmamiTestBase {
   /**
    * The OAuth token endpoint is routed and validates its input.
    *
-   * A bare POST must be rejected by simple_oauth rather than by the router, so
-   * this proves the endpoint the login flow posts to exists.
+   * An empty form POST must be rejected by simple_oauth rather than by the
+   * router, so this proves the endpoint the login flow posts to exists.
    */
   public function testOauthTokenEndpointRejectsAnEmptyGrant(): void {
-    $response = $this->request('POST', '/oauth/token');
+    $response = $this->request('POST', '/oauth/token', [
+      'headers' => ['Content-Type' => 'application/x-www-form-urlencoded'],
+      'body' => '',
+    ]);
     $this->assertSame(400, $response->getStatusCode());
 
     $data = json_decode((string) $response->getBody(), TRUE, 512, JSON_THROW_ON_ERROR);
     $this->assertSame('invalid_request', $data['error']);
+  }
+
+  /**
+   * The OAuth token endpoint takes form-encoded requests only.
+   *
+   * Simple OAuth 6.1.3 (SA-CONTRIB-2026-242) answers 415 to any other body,
+   * so a client posting JSON fails here rather than at sign-in.
+   */
+  public function testOauthTokenEndpointRefusesJson(): void {
+    $response = $this->request('POST', '/oauth/token', [
+      'json' => ['grant_type' => 'password'],
+    ]);
+    $this->assertSame(415, $response->getStatusCode());
   }
 
 }

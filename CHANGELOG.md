@@ -93,3 +93,18 @@ The demo is a site without releases, so changes are grouped by date.
 - Switching language fetches views and blocks again in the new language,
   even while the first fetch is still running.
 - A Spanish front page is the home page, with its banner and in Spanish.
+
+### Security
+
+- Drupal core is 11.4.11, for the remote code execution in
+  [SA-CORE-2026-014](https://www.drupal.org/sa-core-2026-014) and the
+  cross-site scripting in
+  [SA-CORE-2026-015](https://www.drupal.org/sa-core-2026-015) and
+  [SA-CORE-2026-016](https://www.drupal.org/sa-core-2026-016).
+- The Gin admin theme is 5.0.16, for the cross-site scripting in
+  [SA-CONTRIB-2026-219](https://www.drupal.org/sa-contrib-2026-219). The 4.x
+  fix does not support Drupal 11.4, so Gin moves a major version, with Gin
+  Toolbar 3.0.3, which Gin 5 requires.
+- Simple OAuth is 6.1.3, for the access bypass in SA-CONTRIB-2026-242. Its
+  token endpoint now answers 415 to anything but a form-encoded body. The
+  frontend's sign-in already posts forms, and a test now pins the 415.
