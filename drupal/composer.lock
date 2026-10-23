@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8de61da72adc3cacec9105d43825d98b",
+    "content-hash": "5aa2f7b04b220a99b041047d1e17535d",
     "packages": [
         {
             "name": "amazeeio/drupal_integrations",
@@ -1295,12 +1295,12 @@
             ],
             "authors": [
                 {
-                    "name": "m.krestnicov",
-                    "homepage": "https://www.drupal.org/user/3193903"
-                },
-                {
                     "name": "qwaygon",
                     "homepage": "https://www.drupal.org/user/636624"
+                },
+                {
+                    "name": "rachinskiy",
+                    "homepage": "https://www.drupal.org/user/3575731"
                 },
                 {
                     "name": "shumer",
@@ -9515,12 +9515,12 @@
             "version": "v5.7.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/vlucas/phpdotenv.git",
+                "url": "https://github.com/phpdotenv/phpdotenv.git",
                 "reference": "301c07936b16d88628b126b01d082ba153cf4c40"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/301c07936b16d88628b126b01d082ba153cf4c40",
+                "url": "https://api.github.com/repos/phpdotenv/phpdotenv/zipball/301c07936b16d88628b126b01d082ba153cf4c40",
                 "reference": "301c07936b16d88628b126b01d082ba153cf4c40",
                 "shasum": ""
             },
