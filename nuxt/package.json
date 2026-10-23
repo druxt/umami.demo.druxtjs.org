@@ -20,14 +20,7 @@
   },
   "resolutions": {
     "axios": "^0.34.0",
-    "druxt": "0.25.0-dev.20261011015353",
-    "druxt-blocks": "0.18.0-dev.20261011015353",
-    "druxt-breadcrumb": "0.18.0-dev.20261011015353",
-    "druxt-entity": "0.29.0-dev.20261011015353",
-    "druxt-menu": "0.22.0-dev.20261011015353",
-    "druxt-router": "0.32.0-dev.20261011015353",
-    "druxt-schema": "0.12.0-dev.20261011015353",
-    "druxt-views": "0.23.0-dev.20261011015353",
+    "druxt": "^0.25.0",
     "vue": "2.7.14"
   },
   "dependencies": {
@@ -47,7 +40,7 @@
     "drupal-jsonapi-params": "^2.3.1",
     "druxt-auth": "0.5.0",
     "druxt-search": "0.1.1",
-    "druxt-site": "0.15.0-dev.20261011015353",
+    "druxt-site": "^0.15.0",
     "jsonapi-serializer": "3.6.7",
     "nuxt": "2.17.1",
     "prismjs": "^1.29.0",

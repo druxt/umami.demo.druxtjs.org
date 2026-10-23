@@ -69,6 +69,12 @@ The demo is a site without releases, so changes are grouped by date.
   the first paint.
 - A path with no page answers 404, with the site's not-found page, so a dead
   link or stale redirect shows up as one.
+- Druxt 0.25.0 and druxt-site 0.15.0 from npm, in place of the dev channel.
+  The language refetch patches move with them: the released packages still
+  want the watcher.
+- A generate keeps each of Drupal's responses for as long as its
+  `Cache-Control` allows, so a menu, a view or an entity shared by many pages
+  is fetched once rather than once per page that shows it.
 
 ### Fixed
 
