@@ -291,6 +291,15 @@ export default {
     configPages: { pages: ['druxt_demo'] },
     baseUrl,
 
+    // Drupal's responses are kept for as long as its Cache-Control allows, so
+    // a generate fetches each menu, view and entity once instead of once per
+    // page that shows it. The backend sends max-age=300, which a build
+    // finishes well inside. No `secret`: that would register Druxt's own
+    // clear route as server middleware, and nothing here runs it. This site
+    // serves generated files, and server/start.js answers
+    // /_druxt/cache/clear itself, to rebuild once Drupal's saves stop.
+    cache: { content: true },
+
     // Druxt Blocks module settings.
     blocks: {
       // Filter out all fields by default.
