@@ -12,6 +12,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./server": "./dist/server/index.js",
+    "./mixins": "./dist/runtime/mixins.js",
     "./runtime/*.js": "./dist/runtime/*.js",
     "./components/*": "./dist/components/*",
     "./package.json": "./package.json"
