@@ -28,7 +28,13 @@
     </div>
 
     <dl class="stat-grid bleed">
-      <div v-for="stat of stats" :key="stat.label" class="stat-grid__cell">
+      <!-- data-field: a live save washes the cell whose field it changed. -->
+      <div
+        v-for="stat of stats"
+        :key="stat.label"
+        class="stat-grid__cell"
+        :data-field="stat.field"
+      >
         <dt class="stat-grid__label">{{ stat.label }}</dt>
         <dd class="stat-grid__value">{{ stat.value }}</dd>
       </div>
@@ -101,15 +107,22 @@ export default {
       // A recipe without a value shows no stat rather than "undefined min".
       return [
         {
+          field: 'field_preparation_time',
           label: this.$t('recipe.prep'),
           value: minutes(a.field_preparation_time),
         },
         {
+          field: 'field_cooking_time',
           label: this.$t('recipe.cook'),
           value: minutes(a.field_cooking_time),
         },
-        { label: this.$t('recipe.serves'), value: a.field_number_of_servings },
         {
+          field: 'field_number_of_servings',
+          label: this.$t('recipe.serves'),
+          value: a.field_number_of_servings,
+        },
+        {
+          field: 'field_difficulty',
           label: this.$t('recipe.difficulty'),
           value: level && this.$t(`listing.${level}`),
         },

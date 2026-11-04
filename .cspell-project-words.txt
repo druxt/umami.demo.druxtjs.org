@@ -37,6 +37,7 @@ lighthouserc
 lintfix
 llms
 LOCALDEV
+metatag
 mocktails
 nuxtjs
 opencode
