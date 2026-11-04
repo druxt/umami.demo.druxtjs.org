@@ -50,8 +50,3 @@ tasks:
         name: regenerate the site
         command: curl -fsS --retry 5 --retry-connrefused -X POST http://app:3000/_regenerate
         service: cli
-
-    - run:
-        name: drush user:login
-        command: drush user:login
-        service: cli
