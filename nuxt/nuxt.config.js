@@ -108,8 +108,9 @@ export default {
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
-  // The editorial theme layer. Requires `sass` + `sass-loader` as devDeps.
-  css: ['~/assets/scss/theme.scss'],
+  // The theme is druxt-ui-mami's, with the demo's differences after it, both
+  // added by ~/modules/ui-mami.
+  css: [],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
@@ -197,8 +198,9 @@ export default {
         ],
       },
     ],
-    // https://go.nuxtjs.dev/bootstrap
-    'bootstrap-vue/nuxt',
+    // The Umami theme and components, from druxt-ui-mami. It adds
+    // BootstrapVue, with the `bootstrapVue` options below.
+    '~/modules/ui-mami',
     // The word diff behind the marks on a drafted page.
     '@druxt-contrib/diff',
     '~/modules/storybook-proxy',
@@ -256,6 +258,14 @@ export default {
         scope: false,
       },
     },
+  },
+
+  druxtUiMami: {
+    // Bootstrap 4's CSS and the fonts are links in the head above: the fonts
+    // load beside the first paint, which the package's plain stylesheet link
+    // would block.
+    bootstrapCSS: false,
+    fonts: false,
   },
 
   bootstrapVue: {

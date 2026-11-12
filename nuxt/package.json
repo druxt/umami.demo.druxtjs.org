@@ -48,6 +48,7 @@
     "druxt-auth": "0.5.0",
     "druxt-search": "0.1.1",
     "druxt-site": "0.15.0-dev.20261011015353",
+    "druxt-ui-mami": "https://codeload.github.com/druxt/druxt-umami-ui/tar.gz/a3015e2",
     "jsonapi-serializer": "3.6.7",
     "nuxt": "2.17.1",
     "prismjs": "^1.29.0",

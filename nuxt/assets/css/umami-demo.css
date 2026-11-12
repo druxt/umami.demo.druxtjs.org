@@ -1,0 +1,47 @@
+/*
+ * Where the Umami demo differs from druxt-ui-mami's theme, which comes
+ * before this file. Both differences are the demo's own chrome, which the
+ * package does not draw.
+ */
+
+/*
+ * The demo bar: 40px, sticky at the top, above the masthead. The package's
+ * theme sets no bar, so its masthead sticks at the top and everything that
+ * clears the masthead clears only that.
+ */
+:root {
+  --demo-bar-height: 40px;
+}
+
+html {
+  scroll-padding-top: calc(var(--demo-bar-height) + 76px);
+}
+
+.masthead-sticky {
+  top: var(--demo-bar-height);
+}
+
+@media (min-width: 768px) {
+  html {
+    scroll-padding-top: calc(var(--demo-bar-height) + 80px);
+  }
+}
+
+@media (min-width: 992px) {
+  html {
+    scroll-padding-top: calc(var(--demo-bar-height) + 100px);
+  }
+
+  .recipe-ingredients {
+    top: calc(var(--demo-bar-height) + 16px);
+  }
+}
+
+/*
+ * The View and Edit tabs sit between the masthead and a page that draws its
+ * own head, so the band keeps room for them. The package renders no tabs and
+ * sets none.
+ */
+.band.band--flush {
+  padding-top: 1.5rem;
+}
