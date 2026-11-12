@@ -1,21 +1,18 @@
 <template>
-  <nuxt-link class="recipe-card" :to="to">
-    <slot name="field_media_image" />
-
-    <div class="recipe-card__body">
-      <!-- The category's name, fetched by the card. Rendering the reference
-           field would put a second card inside this one, because the
-           referenced entity resolves back to a card. -->
-      <span v-if="kicker" class="recipe-card__kicker">{{ kicker }}</span>
-
-      <h2 class="recipe-card__title">{{ entity.attributes.title }}</h2>
-
-      <!-- One meta line: time then difficulty. Read off the entity, because a
-           field slot renders the referenced entity, and an entity rendered
-           inside a card resolves to a card again. -->
-      <p v-if="meta" class="recipe-card__meta">{{ meta }}</p>
-    </div>
-  </nuxt-link>
+  <!-- The kicker is the category's name, fetched by the card. Rendering the
+       reference field would put a second card inside this one, because the
+       referenced entity resolves back to a card. The meta line, time then
+       difficulty, is read off the entity for the same reason. -->
+  <UmamiCard
+    :kicker="kicker || ''"
+    :meta="meta"
+    :title="entity.attributes.title"
+    :to="to"
+  >
+    <template #media>
+      <slot name="field_media_image" />
+    </template>
+  </UmamiCard>
 </template>
 
 <script>
@@ -93,13 +90,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-/* The whole card is the link now, so the old click handler and the
-   cursor: pointer on every descendant are gone. */
-.recipe-card,
-.recipe-card:hover {
-  color: inherit;
-  text-decoration: none;
-}
-</style>

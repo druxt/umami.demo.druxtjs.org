@@ -1,56 +1,43 @@
 <template>
-  <article class="recipe-page">
-    <!-- The photograph leads at every width. At lg the title sits on it. -->
-    <div class="recipe-hero bleed">
-      <div
-        class="node-hero node-hero--recipe"
-        :class="{ 'v-diff-swapped': fieldDiff('field_media_image') }"
-      >
+  <UmamiRecipePage>
+    <UmamiRecipeHero ref="hero" :title="entity.attributes.title">
+      <template #media>
         <slot name="field_media_image" />
         <AppDraftSwap
           :entity="draftEntity"
           :field="fieldDiff('field_media_image')"
           name="field_media_image"
         />
-      </div>
-      <div class="recipe-hero__scrim" />
-      <b-container class="node-head recipe-hero__head">
+      </template>
+
+      <template #breadcrumb>
         <DruxtBreadcrumb />
-        <h1
-          v-diff="fieldDiff('title')"
-          class="node-head__title"
-          v-text="entity.attributes.title"
-        />
-        <div class="node-head__summary field--field-summary">
-          <slot name="field_summary" />
-        </div>
-      </b-container>
-    </div>
+      </template>
 
-    <dl class="stat-grid bleed">
-      <div v-for="stat of stats" :key="stat.label" class="stat-grid__cell">
-        <dt class="stat-grid__label">{{ stat.label }}</dt>
-        <dd class="stat-grid__value">{{ stat.value }}</dd>
-      </div>
-    </dl>
+      <template #summary>
+        <slot name="field_summary" />
+      </template>
+    </UmamiRecipeHero>
 
-    <!-- Ingredients first, then the method; side by side from md. -->
-    <div class="recipe-body">
-      <section class="recipe-ingredients">
-        <h2 class="recipe-body__heading">{{ $t('recipe.ingredients') }}</h2>
+    <UmamiStatGrid :stats="stats" />
+
+    <UmamiRecipeBody
+      :ingredients-heading="$t('recipe.ingredients')"
+      :method-heading="$t('recipe.method')"
+    >
+      <template #ingredients>
         <slot name="field_ingredients" />
-      </section>
+      </template>
 
-      <section class="recipe-method">
-        <h2 class="recipe-body__heading">{{ $t('recipe.method') }}</h2>
+      <template #method>
         <slot name="field_recipe_instruction" />
+      </template>
 
-        <div class="recipe-tags">
-          <slot name="field_recipe_category" />
-          <slot name="field_tags" />
-        </div>
-      </section>
-    </div>
+      <template #tags>
+        <slot name="field_recipe_category" />
+        <slot name="field_tags" />
+      </template>
+    </UmamiRecipeBody>
 
     <!-- The learning layer follows the recipe: the view modes on one side,
          the request and the note on the other from lg. Editing is the
@@ -65,7 +52,7 @@
       <div class="learn-grid__aside">
         <AppJsonApiDrawer :path="jsonApiPath" />
 
-        <AppDruxtNote
+        <UmamiNote
           title="One component file renders every recipe on this site"
           cta="Read the Entity guide"
           href="https://druxtjs.org/modules/entity"
@@ -74,14 +61,14 @@
           Drupal's <em>full</em> display mode maps to this file. Change the
           layout here and all 24 recipes follow. The field templates, labels and
           formatters still come from Drupal's display config.
-        </AppDruxtNote>
+        </UmamiNote>
       </div>
     </div>
-  </article>
+  </UmamiRecipePage>
 </template>
 
 <script>
-import { diffable } from '@druxt-contrib/diff'
+import { diffable, diffDirective } from '@druxt-contrib/diff'
 import { DruxtEntityMixin } from 'druxt-entity'
 import { langMixin } from '~/utils/lang'
 
@@ -92,6 +79,15 @@ export default {
     /** This entity as the draft helpers name it. */
     draftEntity() {
       return { type: this.entity.type, id: this.entity.id, langcode: this.lang }
+    },
+
+    /** What the hero's draft marks depend on. */
+    heroDiff() {
+      return {
+        title: this.entity.attributes.title,
+        titleDiff: this.fieldDiff('title'),
+        imageDiff: this.fieldDiff('field_media_image'),
+      }
     },
 
     stats() {
@@ -127,6 +123,50 @@ export default {
         '  <span class="a">:uuid</span>=<span class="v">"uuid"</span>',
         '<span class="t">/&gt;</span>',
       ].join('\n'),
+  },
+
+  watch: {
+    heroDiff: 'markHero',
+  },
+
+  mounted() {
+    this.markHero()
+  },
+
+  methods: {
+    /**
+     * Marks a draft's changes in the hero: the words of the title, and an
+     * outline round a replaced photograph.
+     *
+     * UmamiRecipeHero renders its title from a prop and its photograph's box
+     * with a fixed class, so neither element takes v-diff or a class from
+     * here. Until it offers a title slot and a class for that box, this reaches
+     * them by their theme classes once the hero has rendered. The title is
+     * written from the entity before each marking, as v-diff would find it.
+     */
+    markHero() {
+      this.$nextTick(() => {
+        const hero = (this.$refs.hero || {}).$el
+        if (!hero || !hero.querySelector) {
+          return
+        }
+        const { title, titleDiff, imageDiff } = this.heroDiff
+
+        const heading = hero.querySelector('.node-head__title')
+        if (heading) {
+          heading.__vdiffOriginal = null
+          heading.textContent = title
+          if (titleDiff) {
+            diffDirective.bind(heading, { value: titleDiff })
+          }
+        }
+
+        const media = hero.querySelector('.node-hero')
+        if (media) {
+          media.classList.toggle('v-diff-swapped', !!imageDiff)
+        }
+      })
+    },
   },
 
   // The display carries no title: the page title block does, and this
