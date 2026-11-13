@@ -10,7 +10,9 @@
     :to="to"
   >
     <template #media>
-      <slot name="field_media_image" />
+      <EntityScope :entity="entity">
+        <slot name="field_media_image" />
+      </EntityScope>
     </template>
   </UmamiCard>
 </template>
@@ -18,6 +20,7 @@
 <script>
 import { DruxtEntityMixin } from 'druxt-entity'
 import { mapActions } from 'vuex'
+import EntityScope from '~/utils/entity-scope'
 import { langMixin } from '~/utils/lang'
 
 // Under entity/node/ deliberately. As entity/Card.vue this registered as
@@ -26,6 +29,8 @@ import { langMixin } from '~/utils/lang'
 // a second, image-less card inside the first card's kicker.
 
 export default {
+  components: { EntityScope },
+
   mixins: [langMixin, DruxtEntityMixin],
 
   data: () => ({

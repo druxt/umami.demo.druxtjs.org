@@ -9,7 +9,9 @@
     :to="to"
   >
     <template #media>
-      <slot name="field_media_image" />
+      <EntityScope :entity="entity">
+        <slot name="field_media_image" />
+      </EntityScope>
     </template>
   </UmamiTeaser>
 </template>
@@ -17,9 +19,12 @@
 <script>
 import { DruxtEntityMixin } from 'druxt-entity'
 import { mapActions } from 'vuex'
+import EntityScope from '~/utils/entity-scope'
 import { langMixin } from '~/utils/lang'
 
 export default {
+  components: { EntityScope },
+
   mixins: [langMixin, DruxtEntityMixin],
 
   data: () => ({

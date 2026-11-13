@@ -2,7 +2,9 @@
   <UmamiRecipePage>
     <UmamiRecipeHero ref="hero" :title="entity.attributes.title">
       <template #media>
-        <slot name="field_media_image" />
+        <EntityScope :entity="entity">
+          <slot name="field_media_image" />
+        </EntityScope>
         <AppDraftSwap
           :entity="draftEntity"
           :field="fieldDiff('field_media_image')"
@@ -15,7 +17,9 @@
       </template>
 
       <template #summary>
-        <slot name="field_summary" />
+        <EntityScope :entity="entity">
+          <slot name="field_summary" />
+        </EntityScope>
       </template>
     </UmamiRecipeHero>
 
@@ -26,16 +30,24 @@
       :method-heading="$t('recipe.method')"
     >
       <template #ingredients>
-        <slot name="field_ingredients" />
+        <EntityScope :entity="entity">
+          <slot name="field_ingredients" />
+        </EntityScope>
       </template>
 
       <template #method>
-        <slot name="field_recipe_instruction" />
+        <EntityScope :entity="entity">
+          <slot name="field_recipe_instruction" />
+        </EntityScope>
       </template>
 
       <template #tags>
-        <slot name="field_recipe_category" />
-        <slot name="field_tags" />
+        <EntityScope :entity="entity">
+          <slot name="field_recipe_category" />
+        </EntityScope>
+        <EntityScope :entity="entity">
+          <slot name="field_tags" />
+        </EntityScope>
       </template>
     </UmamiRecipeBody>
 
@@ -70,9 +82,12 @@
 <script>
 import { diffable, diffDirective } from '@druxt-contrib/diff'
 import { DruxtEntityMixin } from 'druxt-entity'
+import EntityScope from '~/utils/entity-scope'
 import { langMixin } from '~/utils/lang'
 
 export default {
+  components: { EntityScope },
+
   mixins: [langMixin, DruxtEntityMixin, diffable],
 
   computed: {
