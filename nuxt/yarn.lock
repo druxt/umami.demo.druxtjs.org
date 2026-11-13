@@ -5752,7 +5752,7 @@ boolbase@^1.0.0:
   resolved "https://registry.npmjs.org/boolbase/-/boolbase-1.0.0.tgz"
   integrity sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==
 
-bootstrap-vue@2.23.1:
+bootstrap-vue@2.23.1, bootstrap-vue@^2.23.1:
   version "2.23.1"
   resolved "https://registry.yarnpkg.com/bootstrap-vue/-/bootstrap-vue-2.23.1.tgz#8f866f7cda27eb0e7e13a0bea8d55d8fc7a82199"
   integrity sha512-SEWkG4LzmMuWjQdSYmAQk1G/oOKm37dtNfjB5kxq0YafnL2W6qUAmeDTcIZVbPiQd2OQlIkWOMPBRGySk/zGsg==
@@ -5768,7 +5768,7 @@ bootstrap@5.3.1:
   resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-5.3.1.tgz#8ca07040ad15d7f75891d1504cf14c5dedfb1cfe"
   integrity sha512-jzwza3Yagduci2x0rr9MeFSORjcHpt0lRZukZPZQJT1Dth5qzV7XcgGqYzi39KGAVYR8QEDVoO0ubFKOxzMG+g==
 
-bootstrap@^4.6.1:
+bootstrap@^4.6.1, bootstrap@^4.6.2:
   version "4.6.2"
   resolved "https://registry.npmjs.org/bootstrap/-/bootstrap-4.6.2.tgz"
   integrity sha512-51Bbp/Uxr9aTuy6ca/8FbFloBUJZLHwnhTcnjIeRn2suQWsWzcuJhGjKDB5eppVte/8oCdOL3VuwxvZDUggwGQ==
@@ -7606,6 +7606,13 @@ druxt-site@0.15.0-dev.20261011015353:
     druxt-router "0.32.0-dev.20261011015353"
     druxt-schema "0.12.0-dev.20261011015353"
     druxt-views "0.23.0-dev.20261011015353"
+
+"druxt-ui-mami@https://codeload.github.com/druxt/druxt-ui-mami/tar.gz/792f3ab":
+  version "0.1.0"
+  resolved "https://codeload.github.com/druxt/druxt-ui-mami/tar.gz/792f3ab#9c73c34504edb1b0ec620985c1a9a43a257b4dff"
+  dependencies:
+    bootstrap "^4.6.2"
+    bootstrap-vue "^2.23.1"
 
 druxt-views@0.23.0-dev.20261011015353:
   version "0.23.0-dev.20261011015353"

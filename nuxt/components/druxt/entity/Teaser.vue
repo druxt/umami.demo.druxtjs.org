@@ -1,29 +1,30 @@
 <template>
-  <nuxt-link class="teaser" :to="to">
-    <!-- The photograph carries everything: the meta chip on top, the kicker
-         and headline on a scrim at the foot. Nothing sits below the image,
-         which is what tells a teaser from a card. -->
-    <div class="teaser__media">
-      <slot name="field_media_image" />
-
-      <span v-if="meta" class="teaser__meta">{{ meta }}</span>
-
-      <div class="teaser__scrim" />
-
-      <div class="teaser__text">
-        <span v-if="kicker" class="teaser__kicker">{{ kicker }}</span>
-        <h3 class="teaser__title">{{ entity.attributes.title }}</h3>
-      </div>
-    </div>
-  </nuxt-link>
+  <!-- The photograph carries everything: the meta chip on top, the kicker
+       and headline on a scrim at the foot. Nothing sits below the image,
+       which is what tells a teaser from a card. -->
+  <UmamiTeaser
+    :kicker="kicker || ''"
+    :meta="meta"
+    :title="entity.attributes.title"
+    :to="to"
+  >
+    <template #media>
+      <EntityScope :entity="entity">
+        <slot name="field_media_image" />
+      </EntityScope>
+    </template>
+  </UmamiTeaser>
 </template>
 
 <script>
 import { DruxtEntityMixin } from 'druxt-entity'
 import { mapActions } from 'vuex'
+import EntityScope from '~/utils/entity-scope'
 import { langMixin } from '~/utils/lang'
 
 export default {
+  components: { EntityScope },
+
   mixins: [langMixin, DruxtEntityMixin],
 
   data: () => ({
