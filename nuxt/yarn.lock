@@ -7607,9 +7607,9 @@ druxt-site@0.15.0-dev.20261011015353:
     druxt-schema "0.12.0-dev.20261011015353"
     druxt-views "0.23.0-dev.20261011015353"
 
-"druxt-ui-mami@https://codeload.github.com/druxt/druxt-ui-mami/tar.gz/a3015e2":
+"druxt-ui-mami@https://codeload.github.com/druxt/druxt-ui-mami/tar.gz/792f3ab":
   version "0.1.0"
-  resolved "https://codeload.github.com/druxt/druxt-ui-mami/tar.gz/a3015e2#6cbabbc7b80a0c98d1b8edf10f9bfb6c957ebbe2"
+  resolved "https://codeload.github.com/druxt/druxt-ui-mami/tar.gz/792f3ab#9c73c34504edb1b0ec620985c1a9a43a257b4dff"
   dependencies:
     bootstrap "^4.6.2"
     bootstrap-vue "^2.23.1"

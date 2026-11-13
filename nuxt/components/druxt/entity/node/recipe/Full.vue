@@ -1,6 +1,13 @@
 <template>
   <UmamiRecipePage>
-    <UmamiRecipeHero ref="hero" :title="entity.attributes.title">
+    <UmamiRecipeHero
+      :title="entity.attributes.title"
+      :media-class="{ 'v-diff-swapped': fieldDiff('field_media_image') }"
+    >
+      <template #title>
+        <span v-diff="fieldDiff('title')" v-text="entity.attributes.title" />
+      </template>
+
       <template #media>
         <EntityScope :entity="entity">
           <slot name="field_media_image" />
@@ -80,7 +87,7 @@
 </template>
 
 <script>
-import { diffable, diffDirective } from '@druxt-contrib/diff'
+import { diffable } from '@druxt-contrib/diff'
 import { DruxtEntityMixin } from 'druxt-entity'
 import EntityScope from '~/utils/entity-scope'
 import { langMixin } from '~/utils/lang'
@@ -94,15 +101,6 @@ export default {
     /** This entity as the draft helpers name it. */
     draftEntity() {
       return { type: this.entity.type, id: this.entity.id, langcode: this.lang }
-    },
-
-    /** What the hero's draft marks depend on. */
-    heroDiff() {
-      return {
-        title: this.entity.attributes.title,
-        titleDiff: this.fieldDiff('title'),
-        imageDiff: this.fieldDiff('field_media_image'),
-      }
     },
 
     stats() {
@@ -138,50 +136,6 @@ export default {
         '  <span class="a">:uuid</span>=<span class="v">"uuid"</span>',
         '<span class="t">/&gt;</span>',
       ].join('\n'),
-  },
-
-  watch: {
-    heroDiff: 'markHero',
-  },
-
-  mounted() {
-    this.markHero()
-  },
-
-  methods: {
-    /**
-     * Marks a draft's changes in the hero: the words of the title, and an
-     * outline round a replaced photograph.
-     *
-     * UmamiRecipeHero renders its title from a prop and its photograph's box
-     * with a fixed class, so neither element takes v-diff or a class from
-     * here. Until it offers a title slot and a class for that box, this reaches
-     * them by their theme classes once the hero has rendered. The title is
-     * written from the entity before each marking, as v-diff would find it.
-     */
-    markHero() {
-      this.$nextTick(() => {
-        const hero = (this.$refs.hero || {}).$el
-        if (!hero || !hero.querySelector) {
-          return
-        }
-        const { title, titleDiff, imageDiff } = this.heroDiff
-
-        const heading = hero.querySelector('.node-head__title')
-        if (heading) {
-          heading.__vdiffOriginal = null
-          heading.textContent = title
-          if (titleDiff) {
-            diffDirective.bind(heading, { value: titleDiff })
-          }
-        }
-
-        const media = hero.querySelector('.node-hero')
-        if (media) {
-          media.classList.toggle('v-diff-swapped', !!imageDiff)
-        }
-      })
-    },
   },
 
   // The display carries no title: the page title block does, and this
