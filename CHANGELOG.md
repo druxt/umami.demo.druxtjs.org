@@ -108,3 +108,7 @@ The demo is a site without releases, so changes are grouped by date.
 - Simple OAuth is 6.1.3, for the access bypass in SA-CONTRIB-2026-242. Its
   token endpoint now answers 415 to anything but a form-encoded body. The
   frontend's sign-in already posts forms, and a test now pins the 415.
+- Simple OAuth is 6.1.4, for the critical access bypass in
+  [SA-CONTRIB-2026-296](https://www.drupal.org/sa-contrib-2026-296). Drupal
+  core is 11.4.12, which brings the Symfony releases for their open
+  advisories.
