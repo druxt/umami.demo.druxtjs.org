@@ -1,0 +1,15 @@
+/*
+ * Where the Umami demo differs from druxt-ui-mami's theme. Both differences
+ * are the demo's own chrome, which the package does not draw, and the theme
+ * reads each one from a custom property.
+ */
+
+:root {
+  /* The demo bar: 40px, sticky above the masthead. The masthead, the scroll
+     padding and the sticky ingredients clear it. */
+  --umami-top-offset: 40px;
+
+  /* The View and Edit tabs sit between the masthead and a page that draws
+     its own head, so a flush band keeps room for them. */
+  --umami-flush-band-padding: 1.5rem;
+}
