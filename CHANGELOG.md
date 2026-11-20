@@ -112,3 +112,6 @@ The demo is a site without releases, so changes are grouped by date.
   [SA-CONTRIB-2026-296](https://www.drupal.org/sa-contrib-2026-296). Drupal
   core is 11.4.12, which brings the Symfony releases for their open
   advisories.
+- Drupal core is 11.4.13, for the installer reinstall in
+  [SA-CORE-2026-017](https://www.drupal.org/sa-core-2026-017) and the gadget
+  chain in [SA-CORE-2026-018](https://www.drupal.org/sa-core-2026-018).
