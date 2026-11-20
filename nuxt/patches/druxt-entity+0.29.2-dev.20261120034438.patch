@@ -1,5 +1,5 @@
 diff --git a/node_modules/druxt-entity/dist/components/DruxtEntity.vue b/node_modules/druxt-entity/dist/components/DruxtEntity.vue
-index 577accc..7f01b1c 100644
+index 52f0b84..c362f37 100644
 --- a/node_modules/druxt-entity/dist/components/DruxtEntity.vue
 +++ b/node_modules/druxt-entity/dist/components/DruxtEntity.vue
 @@ -196,6 +196,15 @@ export default {

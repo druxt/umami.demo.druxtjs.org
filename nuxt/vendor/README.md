@@ -23,3 +23,15 @@ public runtime config, so production can open it beside its CDN
 
 Replace a directory with the npm release once one exists, and the `file:`
 entry with a version.
+
+## The Druxt pre-release build
+
+`druxt-dev` holds tarballs, where the directories above hold unpacked
+packages. They are a build of Druxt 0.25.2 before its release: druxt.js `0.x`
+at `0dbf7f60` merged with the head of
+[druxt/druxt.js#1042](https://github.com/druxt/druxt.js/pull/1042), packed
+with the commands the druxt.js release workflow uses for its dev snapshot.
+`package.json` names each tarball in its `resolutions`.
+
+Once 0.25.2 is on npm, replace each `file:` entry with its version and delete
+`druxt-dev`.

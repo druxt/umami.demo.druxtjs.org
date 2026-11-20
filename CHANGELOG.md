@@ -51,6 +51,11 @@ The demo is a site without releases, so changes are grouped by date.
 
 ### Changed
 
+- The site runs a pre-release build of Druxt 0.25.2, to try it before it is
+  published. The build is the release line with the fix for credentials a
+  request interceptor adds
+  ([druxt/druxt.js#1042](https://github.com/druxt/druxt.js/pull/1042)), packed
+  into `nuxt/vendor/druxt-dev`.
 - The backend moves to Drupal 11, and runs without Docker for development
   and CI.
 - Drupal 11.4.8 and `drupal/druxt` 1.3.1.
