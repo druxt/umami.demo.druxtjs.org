@@ -96,6 +96,14 @@ The demo is a site without releases, so changes are grouped by date.
 
 ### Security
 
+- PHP is 8.3.37, through Lagoon's 26.11.4 images for PHP, the CLI and nginx.
+  It fixes PHP's advisories of 19 November 2026, among them
+  [CVE-2026-129289](https://github.com/php/php-src/security/advisories/GHSA-qc49-hpvq-g2w6)
+  (a request smuggled to PHP-FPM over a reused connection), and October's
+  [CVE-2026-109618](https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w)
+  and
+  [CVE-2026-109619](https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp)
+  (remote code execution), which the 26.8.1 images predate.
 - Drupal core is 11.4.11, for the remote code execution in
   [SA-CORE-2026-014](https://www.drupal.org/sa-core-2026-014) and the
   cross-site scripting in
@@ -112,3 +120,6 @@ The demo is a site without releases, so changes are grouped by date.
   [SA-CONTRIB-2026-296](https://www.drupal.org/sa-contrib-2026-296). Drupal
   core is 11.4.12, which brings the Symfony releases for their open
   advisories.
+- Drupal core is 11.4.13, for the installer reinstall in
+  [SA-CORE-2026-017](https://www.drupal.org/sa-core-2026-017) and the gadget
+  chain in [SA-CORE-2026-018](https://www.drupal.org/sa-core-2026-018).
