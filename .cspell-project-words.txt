@@ -37,6 +37,7 @@ lighthouserc
 lintfix
 llms
 LOCALDEV
+mami
 mocktails
 nuxtjs
 opencode
@@ -60,6 +61,7 @@ umami
 umamiDrafts
 unscrimmed
 uselagoon
+vdiff
 vegetariana
 viewports
 vnode

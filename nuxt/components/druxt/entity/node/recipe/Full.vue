@@ -1,56 +1,62 @@
 <template>
-  <article class="recipe-page">
-    <!-- The photograph leads at every width. At lg the title sits on it. -->
-    <div class="recipe-hero bleed">
-      <div
-        class="node-hero node-hero--recipe"
-        :class="{ 'v-diff-swapped': fieldDiff('field_media_image') }"
-      >
-        <slot name="field_media_image" />
+  <UmamiRecipePage>
+    <UmamiRecipeHero
+      :title="entity.attributes.title"
+      :media-class="{ 'v-diff-swapped': fieldDiff('field_media_image') }"
+    >
+      <template #title>
+        <span v-diff="fieldDiff('title')" v-text="entity.attributes.title" />
+      </template>
+
+      <template #media>
+        <EntityScope :entity="entity">
+          <slot name="field_media_image" />
+        </EntityScope>
         <AppDraftSwap
           :entity="draftEntity"
           :field="fieldDiff('field_media_image')"
           name="field_media_image"
         />
-      </div>
-      <div class="recipe-hero__scrim" />
-      <b-container class="node-head recipe-hero__head">
+      </template>
+
+      <template #breadcrumb>
         <DruxtBreadcrumb />
-        <h1
-          v-diff="fieldDiff('title')"
-          class="node-head__title"
-          v-text="entity.attributes.title"
-        />
-        <div class="node-head__summary field--field-summary">
+      </template>
+
+      <template #summary>
+        <EntityScope :entity="entity">
           <slot name="field_summary" />
-        </div>
-      </b-container>
-    </div>
+        </EntityScope>
+      </template>
+    </UmamiRecipeHero>
 
-    <dl class="stat-grid bleed">
-      <div v-for="stat of stats" :key="stat.label" class="stat-grid__cell">
-        <dt class="stat-grid__label">{{ stat.label }}</dt>
-        <dd class="stat-grid__value">{{ stat.value }}</dd>
-      </div>
-    </dl>
+    <UmamiStatGrid :stats="stats" />
 
-    <!-- Ingredients first, then the method; side by side from md. -->
-    <div class="recipe-body">
-      <section class="recipe-ingredients">
-        <h2 class="recipe-body__heading">{{ $t('recipe.ingredients') }}</h2>
-        <slot name="field_ingredients" />
-      </section>
+    <UmamiRecipeBody
+      :ingredients-heading="$t('recipe.ingredients')"
+      :method-heading="$t('recipe.method')"
+    >
+      <template #ingredients>
+        <EntityScope :entity="entity">
+          <slot name="field_ingredients" />
+        </EntityScope>
+      </template>
 
-      <section class="recipe-method">
-        <h2 class="recipe-body__heading">{{ $t('recipe.method') }}</h2>
-        <slot name="field_recipe_instruction" />
+      <template #method>
+        <EntityScope :entity="entity">
+          <slot name="field_recipe_instruction" />
+        </EntityScope>
+      </template>
 
-        <div class="recipe-tags">
+      <template #tags>
+        <EntityScope :entity="entity">
           <slot name="field_recipe_category" />
+        </EntityScope>
+        <EntityScope :entity="entity">
           <slot name="field_tags" />
-        </div>
-      </section>
-    </div>
+        </EntityScope>
+      </template>
+    </UmamiRecipeBody>
 
     <!-- The learning layer follows the recipe: the view modes on one side,
          the request and the note on the other from lg. Editing is the
@@ -65,7 +71,7 @@
       <div class="learn-grid__aside">
         <AppJsonApiDrawer :path="jsonApiPath" />
 
-        <AppDruxtNote
+        <UmamiNote
           title="One component file renders every recipe on this site"
           cta="Read the Entity guide"
           href="https://druxtjs.org/modules/entity"
@@ -74,18 +80,21 @@
           Drupal's <em>full</em> display mode maps to this file. Change the
           layout here and all 24 recipes follow. The field templates, labels and
           formatters still come from Drupal's display config.
-        </AppDruxtNote>
+        </UmamiNote>
       </div>
     </div>
-  </article>
+  </UmamiRecipePage>
 </template>
 
 <script>
 import { diffable } from '@druxt-contrib/diff'
 import { DruxtEntityMixin } from 'druxt-entity'
+import EntityScope from '~/utils/entity-scope'
 import { langMixin } from '~/utils/lang'
 
 export default {
+  components: { EntityScope },
+
   mixins: [langMixin, DruxtEntityMixin, diffable],
 
   computed: {
